@@ -48,7 +48,7 @@ class BD2ModManager:
 
         self._mods_data = self._load_mods_data()
 
-    def _load_mods_data(self):
+    def _load_mods_data(self) -> dict:
         if not DATA_FILE.exists():
             with DATA_FILE.open("w", encoding="UTF-8") as file:
                 json.dump({}, file, indent=4)
@@ -59,11 +59,11 @@ class BD2ModManager:
 
         return data
 
-    def _save_mods_data(self):
+    def _save_mods_data(self) -> None:
         with DATA_FILE.open("w", encoding="UTF-8") as file:
             json.dump(self._mods_data, file, indent=4)
 
-    def _set_mod_data(self, mod_name: str, key: str, value: Any):
+    def _set_mod_data(self, mod_name: str, key: str, value: Any) -> None:
         if mod_name not in self._mods_data:
             self._mods_data[mod_name] = {}
 
@@ -121,7 +121,7 @@ class BD2ModManager:
 
         return data
 
-    def get_mods(self):
+    def get_mods(self) -> list[dict]:
         modfiles = self.staging_mods_directory.rglob("*.modfile")
         mods_folders = [modfile.parent for modfile in modfiles]
 
@@ -148,7 +148,7 @@ class BD2ModManager:
 
         return mods
 
-    def get_characters_mods_status(self):
+    def get_characters_mods_status(self) -> dict:
         mods = [
             mod
             for mod in self.get_mods()
@@ -182,7 +182,7 @@ class BD2ModManager:
         name: Optional[str] = None,
         author: Optional[str] = None,
         enabled: bool = False
-    ):
+    ) -> None:
         mod_source = Path(path)
 
         if not mod_source.exists():
@@ -203,7 +203,7 @@ class BD2ModManager:
 
         copytree(mod_source, staging_mod)
 
-    def remove_mod(self, mod_name: str):
+    def remove_mod(self, mod_name: str) -> None:
         mod_path = self.staging_mods_directory / mod_name
 
         if not mod_path.exists():
@@ -215,17 +215,17 @@ class BD2ModManager:
             self._mods_data.pop(mod_name)
             self._save_mods_data()
 
-    def enable_mod(self, mod_name: str):
+    def enable_mod(self, mod_name: str) -> None:
         self._set_mod_data(mod_name, "enabled", True)
 
-    def disable_mod(self, mod_name: str):
+    def disable_mod(self, mod_name: str) -> None:
         self._set_mod_data(mod_name, "enabled", False)
 
-    def set_mod_author(self, mod_name: str, author: str):
+    def set_mod_author(self, mod_name: str, author: str) -> None:
         self._set_mod_data(mod_name, "author", author)
 
     @required_game_path
-    def sync_mods(self, symlink: bool = False):
+    def sync_mods(self, symlink: bool = False) -> None:
         if not self.is_browndustx_installed():
             raise BrownDustXNotInstalled()
 
@@ -295,7 +295,7 @@ class BD2ModManager:
             json.dump(mods_installed, file, indent=4)
 
     @required_game_path
-    def unsync_mods(self):
+    def unsync_mods(self) -> None:
         game_mods_directory = self.game_directory / r"BepInEx\plugins\BrownDustX\mods"
 
         mods_installed = []
@@ -315,14 +315,14 @@ class BD2ModManager:
             file.write("\n".join(mods_installed))
 
     @required_game_path
-    def is_browndustx_installed(self):
+    def is_browndustx_installed(self) -> bool:
         return Path(
             self.game_directory
             / r"BepInEx\plugins\BrownDustX\lynesth.bd2.browndustx.dll"
         ).exists()
 
     @required_game_path
-    def get_browndustx_version(self):
+    def get_browndustx_version(self) -> str:
         path = Path(self.game_directory / r"BepInEx\config\lynesth.bd2.browndustx.cfg")
         version = None
         if path.exists():
