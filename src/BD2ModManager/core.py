@@ -18,6 +18,7 @@ from .errors import (
     AdminRequiredError,
 )
 
+
 def required_game_path(function: Callable) -> Callable:
     def wrapper(self, *args, **kwargs):
         if not self._game_directory:
@@ -27,6 +28,7 @@ def required_game_path(function: Callable) -> Callable:
         return function(self, *args, **kwargs)
 
     return wrapper
+
 
 CURRENT_PATH = Path(__file__).parent
 CONFIG_FILE = CURRENT_PATH / "BD2ModManager.ini"
@@ -38,9 +40,10 @@ DATA_FILE = DATA_FOLDER / "mods.json"
 
 # TODO: Add docstring to all methods.
 
+
 class BD2ModManager:
     """Brown Dust 2 Mod Manager"""
-    
+
     def __init__(self, mods_directory: Union[str, Path] = DEFAULT_MODS_DIRECTORY):
         self.config = BD2MMConfig(path=CONFIG_FILE)
         self.characters = BD2Characters(CHARACTERS_CSV)
@@ -50,12 +53,12 @@ class BD2ModManager:
 
         if not self.staging_mods_directory.exists():
             self.staging_mods_directory.mkdir()
-        
+
         if not DATA_FOLDER.exists():
             DATA_FOLDER.mkdir(exist_ok=True)
 
         self._mods_data = self._load_mods_data()
-    
+
     @property
     def game_directory(self) -> Path:
         return self._game_directory
@@ -99,9 +102,9 @@ class BD2ModManager:
     def get_game_directory(self) -> Optional[Path]:
         if not self._game_directory:
             return
-        
+
         exe_path = Path(self._game_directory) / "BrownDust II.exe"
-        
+
         if exe_path.exists():
             return self._game_directory
 
@@ -172,17 +175,17 @@ class BD2ModManager:
             for mod in self.get_mods()
             if mod["type"] in ("cutscene", "idle") and mod["enabled"]
         ]
-                
+
         mods_cutscenes = [
             mod["character"]["id"] for mod in mods if mod["type"] == "cutscene"
         ]
         mods_idles = [mod["character"]["id"] for mod in mods if mod["type"] == "idle"]
         characters_modded = {}
-        
+
         for char_id, character in self.characters.characters.items():
             if not characters_modded.get(character["character"]):
                 characters_modded[character["character"]] = []
-                
+
             characters_modded[character["character"]].append(
                 {
                     "character": character,
@@ -190,7 +193,7 @@ class BD2ModManager:
                     "idle": char_id in mods_idles,
                 }
             )
-            
+
         return characters_modded
 
     def add_mod(
@@ -199,7 +202,7 @@ class BD2ModManager:
         path: Union[str, Path],
         name: Optional[str] = None,
         author: Optional[str] = None,
-        enabled: bool = False
+        enabled: bool = False,
     ) -> None:
         mod_source = Path(path)
 
@@ -215,7 +218,7 @@ class BD2ModManager:
 
         if author:
             self._set_mod_data(mod_name, "author", author)
-        
+
         if enabled:
             self._set_mod_data(mod_name, "enabled", enabled)
 
@@ -263,7 +266,7 @@ class BD2ModManager:
         mods_installed = []
 
         if Path("sync.json").exists():
-            with open("sync.json", "r") as file:
+            with open("sync.json", "r", encoding="UTF-8") as file:
                 try:
                     mods_installed = json.load(file)
                 except json.JSONDecodeError:
@@ -306,8 +309,9 @@ class BD2ModManager:
                         mod_game_path.rmdir()
                     else:
                         rmtree(mod_game_path)
-
-                    mods_installed.remove(mod.name)
+                    
+                    if mod.name in mods_installed:
+                        mods_installed.remove(mod.name)
 
         with open("sync.json", "w") as file:
             json.dump(mods_installed, file, indent=4)
