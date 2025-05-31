@@ -69,9 +69,13 @@ class BD2ModManager:
                 json.dump({}, file, indent=4)
             return {}
 
-        with DATA_FILE.open("r", encoding="UTF-8") as file:
-            data = json.load(file)
-
+        
+        try:
+            with DATA_FILE.open("r", encoding="UTF-8") as file:
+                data = json.load(file)
+        except json.JSONDecodeError:
+            data = {}
+        
         return data
 
     def _save_mods_data(self) -> None:
