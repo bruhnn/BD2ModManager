@@ -20,7 +20,7 @@ from .errors import (
 
 def required_game_path(function: Callable) -> Callable:
     def wrapper(self, *args, **kwargs):
-        if not self.game_directory:
+        if not self._game_directory:
             raise GameDirectoryNotSetError(
                 "Game path is not set. Please set the game path first."
             )
@@ -45,7 +45,7 @@ class BD2ModManager:
         self.config = BD2MMConfig(path=CONFIG_FILE)
         self.characters = BD2Characters(CHARACTERS_CSV)
 
-        self.game_directory = self.config.game_directory
+        self._game_directory = self.config.game_directory
         self.staging_mods_directory = Path(mods_directory)
 
         if not self.staging_mods_directory.exists():
@@ -55,6 +55,10 @@ class BD2ModManager:
             DATA_FOLDER.mkdir(exist_ok=True)
 
         self._mods_data = self._load_mods_data()
+    
+    @property
+    def game_directory(self) -> Path:
+        return self._game_directory
 
     def _load_mods_data(self) -> dict:
         if not DATA_FILE.exists():
@@ -89,11 +93,17 @@ class BD2ModManager:
                 f"The game executable does not exist at {exe_path}."
             )
 
-        self.game_directory = Path(path)
+        self._game_directory = Path(path)
         self.config.game_directory = path
 
     def get_game_directory(self) -> Optional[Path]:
-        return self.game_directory
+        if not self._game_directory:
+            return
+        
+        exe_path = Path(self._game_directory) / "BrownDust II.exe"
+        
+        if exe_path.exists():
+            return self._game_directory
 
     def _get_mod_info(self, path: Path) -> dict:
         modfile = next(path.glob("*.modfile"))
@@ -237,7 +247,7 @@ class BD2ModManager:
         if not self.is_browndustx_installed():
             raise BrownDustXNotInstalled()
 
-        game_mods_directory = self.game_directory / r"BepInEx\plugins\BrownDustX\mods"
+        game_mods_directory = self._game_directory / r"BepInEx\plugins\BrownDustX\mods"
 
         if not game_mods_directory.exists():
             game_mods_directory.mkdir()
@@ -304,7 +314,7 @@ class BD2ModManager:
 
     @required_game_path
     def unsync_mods(self) -> None:
-        game_mods_directory = self.game_directory / r"BepInEx\plugins\BrownDustX\mods"
+        game_mods_directory = self._game_directory / r"BepInEx\plugins\BrownDustX\mods"
 
         mods_installed = []
 
@@ -325,13 +335,13 @@ class BD2ModManager:
     @required_game_path
     def is_browndustx_installed(self) -> bool:
         return Path(
-            self.game_directory
+            self._game_directory
             / r"BepInEx\plugins\BrownDustX\lynesth.bd2.browndustx.dll"
         ).exists()
 
     @required_game_path
     def get_browndustx_version(self) -> str:
-        path = Path(self.game_directory / r"BepInEx\config\lynesth.bd2.browndustx.cfg")
+        path = Path(self._game_directory / r"BepInEx\config\lynesth.bd2.browndustx.cfg")
         version = None
         if path.exists():
             with path.open("r", encoding="UTF-8") as file:
