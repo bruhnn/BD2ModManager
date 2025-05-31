@@ -35,7 +35,7 @@ class BD2MMConfig:
         self._save_config()
 
     def _create_defaults(self):
-        self._config_parser.read_dict({"GENERAL": {"GAME_PATH": ""}})
+        self._config_parser.read_dict({"General": {"GAME_PATH": ""}})
 
         self._save_config()
 
