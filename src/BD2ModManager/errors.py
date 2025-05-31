@@ -1,26 +1,26 @@
 class GameDirectoryNotSetError(Exception):
-    pass
+    """Raised when game directory is not defined."""
 
 
 class GameNotFoundError(Exception):
-    pass
+    """Raised when the game is not found in the specified path."""
 
 
 class ModInvalidError(Exception):
-    pass
+    """Raised when the mod is not a valid Brown Dust X mod."""
 
 
 class ModAlreadyExistsError(Exception):
-    pass
+    """Raised when a mod with the same name already exists."""
 
 
 class ModNotFoundError(Exception):
-    pass
+    """Raised when a mod is not found in the specified path."""
 
 
 class BrownDustXNotInstalled(Exception):
-    pass
+    """Raised when BrownDustX is not found in the game path."""
 
 
 class AdminRequiredError(Exception):
-    pass
+    """Raised when an operation requires administrative permission."""
