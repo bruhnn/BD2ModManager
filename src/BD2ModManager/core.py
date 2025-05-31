@@ -32,10 +32,15 @@ CURRENT_PATH = Path(__file__).parent
 CONFIG_FILE = CURRENT_PATH / "BD2ModManager.ini"
 DEFAULT_MODS_DIRECTORY = CURRENT_PATH / "mods"
 CHARACTERS_CSV = CURRENT_PATH / "utils" / "data" / "characters.csv"
-DATA_FILE = CURRENT_PATH / "data" / "mods.json"
 
+DATA_FOLDER = CURRENT_PATH / "data"
+DATA_FILE = DATA_FOLDER / "mods.json"
+
+# TODO: Add docstring to all methods.
 
 class BD2ModManager:
+    """Brown Dust 2 Mod Manager"""
+    
     def __init__(self, mods_directory: Union[str, Path] = DEFAULT_MODS_DIRECTORY):
         self.config = BD2MMConfig(path=CONFIG_FILE)
         self.characters = BD2Characters(CHARACTERS_CSV)
@@ -45,6 +50,9 @@ class BD2ModManager:
 
         if not self.staging_mods_directory.exists():
             self.staging_mods_directory.mkdir()
+        
+        if not DATA_FOLDER.exists():
+            DATA_FOLDER.mkdir(exist_ok=True)
 
         self._mods_data = self._load_mods_data()
 
