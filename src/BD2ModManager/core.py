@@ -66,9 +66,7 @@ class BD2ModManager:
 
     @property
     def game_directory(self) -> Path:
-        """
-
-        """
+        """Returns the game directory if set, otherwise None."""
         return self._game_directory
 
     def _load_mods_data(self) -> dict:
@@ -92,6 +90,7 @@ class BD2ModManager:
         return data
 
     def _save_mods_data(self) -> None:
+        """Saves the mods data to the JSON file."""
         logger.debug("Saving mods data to %s", DATA_FILE)
         
         with DATA_FILE.open("w", encoding="UTF-8") as file:
@@ -100,6 +99,7 @@ class BD2ModManager:
         logger.debug("Mods data saved successfully to %s", DATA_FILE)
 
     def _set_mod_data(self, mod_name: str, key: str, value: Any) -> None:
+        """Sets the mod data for a given mod name and key."""
         if mod_name not in self._mods_data:
             logger.debug("Mod %s not found in mods data. Creating new entry.", mod_name)
             self._mods_data[mod_name] = {}
@@ -118,6 +118,7 @@ class BD2ModManager:
         self._save_mods_data()
 
     def set_game_directory(self, path: Union[str, Path]) -> None:
+        """Sets the game directory path."""
         exe_path = Path(path) / "BrownDust II.exe"
 
         if not exe_path.exists():
@@ -150,6 +151,7 @@ class BD2ModManager:
     def _get_mod_info(self, path: Path) -> dict:
         logger.debug("Getting mod info from path: %s", path)
         
+        """Extracts mod information from the mod file in the given path."""    
         modfile = next(path.glob("*.modfile"))
         
         logger.debug(f"%s: Found modfile: %s", path, modfile)
@@ -196,6 +198,7 @@ class BD2ModManager:
         return data
 
     def get_mods(self) -> list[dict]:
+        """Returns a list of all mods found in the staging mods directory."""
         modfiles = self._staging_mods_directory.rglob("*.modfile")
         mods_folders = [modfile.parent for modfile in modfiles]
         
@@ -229,6 +232,7 @@ class BD2ModManager:
     def get_characters(self) -> dict:
         logger.debug("Getting characters mods status.")
         mods = [
+        """Returns a dictionary with characters and their mod status."""
             mod
             for mod in self.get_mods()
             if mod["type"] in ("cutscene", "idle") and mod["enabled"]
