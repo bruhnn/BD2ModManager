@@ -5,7 +5,6 @@ from src.BD2ModManager.errors import GameNotFoundError
 
 from .pages import HomePage, SelectFolderPage
 
-
 class MainWindow(QMainWindow):
     def __init__(self, mod_manager: BD2ModManager):
         super().__init__()
@@ -21,7 +20,10 @@ class MainWindow(QMainWindow):
         self.select_folder_page = SelectFolderPage(game_directory)
         self.select_folder_page.onGameFolderSelected.connect(self._change_game_folder)
 
-        self.home_page = HomePage(self.mod_manager.get_mods(), self.mod_manager.get_characters())
+        mods = self.mod_manager.get_mods()
+        characters = self.mod_manager.get_characters_mod_status()
+    
+        self.home_page = HomePage(mods, characters)
         self.home_page.onRefreshMods.connect(self._refresh_mods)
         self.home_page.onAddMod.connect(self._add_mod)
         self.home_page.onModStateChanged.connect(self._enable_or_disable_mod)
