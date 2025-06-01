@@ -198,6 +198,7 @@ class BD2ModManager:
 
     def get_mods(self) -> list[dict]:
         """Returns a list of all mods found in the staging mods directory."""
+        
         modfiles = self._staging_mods_directory.rglob("*.modfile")
         mods_folders = [modfile.parent for modfile in modfiles]
         
@@ -207,17 +208,17 @@ class BD2ModManager:
 
         for mod_folder in mods_folders:
             mod_info = self._get_mod_info(mod_folder)
-
             mod_metadata = self._mods_data.get(mod_folder.name, {})
+            
+            character = None
+            
+            if mod_info.get("character_id") is not None:
+                character = self.characters.get_character_by_id(mod_info.get("character_id"))
 
             mod = {
                 "type": mod_info.get("type"),
                 "name": mod_folder.name,
-                "character": self.characters.get_character_by_id(
-                    mod_info.get("character_id")
-                )
-                if mod_info.get("character_id") is not None
-                else {},
+                "character": character,
                 "author": mod_metadata.get("author", None),
                 "enabled": mod_metadata.get("enabled", False),
             }
