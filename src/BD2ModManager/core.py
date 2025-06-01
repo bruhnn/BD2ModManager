@@ -65,7 +65,7 @@ class BD2ModManager:
         self._mods_data = self._load_mods_data()
 
     @property
-    def game_directory(self) -> Path:
+    def game_directory(self) -> Optional[Path]:
         """Returns the game directory if set, otherwise None."""
         return self._game_directory
 
