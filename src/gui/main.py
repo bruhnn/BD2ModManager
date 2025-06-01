@@ -30,13 +30,10 @@ class MainWindow(QMainWindow):
 
         self.main_stacked_widget.addWidget(self.home_page)
         self.main_stacked_widget.addWidget(self.select_folder_page)
-
-        if game_directory and not self.mod_manager.get_game_directory():
-            self.select_folder_page.set_error_text("BrownDust II.exe not found")
-            self.main_stacked_widget.setCurrentIndex(1)  # Change to selectFolderPage
-        elif not self.mod_manager.game_directory:
-            self.main_stacked_widget.setCurrentIndex(1)  # Change to selectFolderPage
-
+        
+        if not self.mod_manager.check_game_directory():
+            self.main_stacked_widget.setCurrentIndex(1)
+        
         self.setCentralWidget(self.main_stacked_widget)
 
     def _change_game_folder(self, folder: str):
