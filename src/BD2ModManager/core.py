@@ -324,21 +324,34 @@ class BD2ModManager:
     def unsync_mods(self) -> None:
         game_mods_directory = self._game_directory / r"BepInEx\plugins\BrownDustX\mods"
 
+        sync_file = Path("sync.json")
         mods_installed = []
 
-        if Path("sync.txt").exists():
-            with open("sync.txt", "r") as file:
-                mods_installed = [line.strip("\n") for line in file.readlines()]
+        if sync_file.exists():
+            with sync_file.open("r", encoding="UTF-8") as file:
+                try:
+                    mods_installed = json.load(file)
+                except json.JSONDecodeError:
+                    mods_installed = []
 
-        for mod in mods_installed:
-            if (game_mods_directory / mod).is_symlink():
-                (game_mods_directory / mod).rmdir()
-            else:
-                rmtree(game_mods_directory / mod)
-            mods_installed.remove(mod)
+        removed_mods = []
+        for mod_name in list(mods_installed):
+            mod_path = game_mods_directory / mod_name
+            if mod_path.exists():
+                try:
+                    if mod_path.is_symlink():
+                        mod_path.unlink()
+                    else:
+                        rmtree(mod_path)
+                    removed_mods.append(mod_name)
+                except Exception as e:
+                    pass
 
-        with open("sync.txt", "w") as file:
-            file.write("\n".join(mods_installed))
+        # Remove the mods from the installed list
+        mods_installed = [mod for mod in mods_installed if mod not in removed_mods]
+
+        with sync_file.open("w", encoding="UTF-8") as file:
+            json.dump(mods_installed, file, indent=4)
 
     @required_game_path
     def is_browndustx_installed(self) -> bool:
