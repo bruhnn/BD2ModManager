@@ -147,14 +147,12 @@ class BD2ModManager:
 
         logger.warning("Game executable not found at %s", exe_path)
         
-    def _get_mod_info(self, path: Path) -> dict:
-        logger.debug("Getting mod info from path: %s", path)
+        return False
         
+    def _get_mod_info(self, path: Path) -> dict:
         """Extracts mod information from the mod file in the given path."""    
         modfile = next(path.glob("*.modfile"))
         
-        logger.debug(f"%s: Found modfile: %s", path, modfile)
-
         if modfile is None:
             logger.error("No .modfile found in %s", path)
             raise ModInvalidError(f"No .modfile found in {path}")
@@ -187,7 +185,8 @@ class BD2ModManager:
             data["npc_id"] = mod_id
         
         logger.debug(
-            "Mod info extracted: type=%s, character_id=%s, scene_id=%s, npc_id=%s",
+            "Mod info extracted: name=%s, type=%s, character_id=%s, scene_id=%s, npc_id=%s",
+            path.name,
             data.get("type"),
             data.get("character_id"),
             data.get("scene_id"),
