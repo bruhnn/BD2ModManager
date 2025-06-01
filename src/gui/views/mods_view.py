@@ -9,6 +9,7 @@ from PySide6.QtWidgets import (
     QTreeWidget,
     QTreeWidgetItem,
     QFileDialog,
+    QHeaderView
 )
 from PySide6.QtCore import Qt, Signal
 
@@ -77,6 +78,8 @@ class ModsView(QWidget):
         self.mod_list.setSortingEnabled(True)
         self.mod_list.setRootIsDecorated(False)
         self.mod_list.header().setObjectName("header")
+        self.mod_list.header().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
+        self.mod_list.header().setSectionResizeMode(0, QHeaderView.ResizeMode.ResizeToContents)
         self.mod_list.setFocusPolicy(Qt.FocusPolicy.NoFocus)
         self.mod_list.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
         self.mod_list.setContentsMargins(0, 0, 0, 0)
@@ -191,7 +194,7 @@ class ModsView(QWidget):
 
             item.setText(0, mod["name"])
             item.setText(1, char_name)
-            item.setText(2, mod["type"].capitalize())
+            item.setText(2, mod["type"].capitalize() if mod["type"] else "-")
             item.setText(3, mod["author"])
             item.setFlags(
                 item.flags()
@@ -205,15 +208,8 @@ class ModsView(QWidget):
             item.setTextAlignment(0, Qt.AlignVCenter)
             item.setTextAlignment(1, Qt.AlignVCenter)
             item.setTextAlignment(2, Qt.AlignVCenter | Qt.AlignHCenter)
+            
             self.mod_list.addTopLevelItem(item)
-
-        for column in range(self.mod_list.columnCount()):
-            size = self.mod_list.header().sectionSizeHint(column)
-            if size < self.mod_list.sizeHintForColumn(column):
-                size = self.mod_list.sizeHintForColumn(column) + 16
-            else:
-                size += 12
-            self.mod_list.header().resizeSection(column, size)
 
         self.info_label.setText("Mods loaded.")
 
