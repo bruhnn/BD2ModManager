@@ -69,6 +69,8 @@ class BD2ModManager:
         return self._game_directory
 
     def _load_mods_data(self) -> dict:
+        """Loads the mods data from the JSON file."""
+        
         if not DATA_FILE.exists():
             logger.info("Data file %s does not exist. Creating an empty data file.", DATA_FILE)
             
@@ -77,7 +79,7 @@ class BD2ModManager:
                 
             return {}
 
-        logger.debug("Loading %s data file.", DATA_FILE)
+        logger.debug("Loading mods data from %s", DATA_FILE)
         
         try:
             with DATA_FILE.open("r", encoding="UTF-8") as file:
@@ -90,6 +92,7 @@ class BD2ModManager:
 
     def _save_mods_data(self) -> None:
         """Saves the mods data to the JSON file."""
+        
         logger.debug("Saving mods data to %s", DATA_FILE)
         
         with DATA_FILE.open("w", encoding="UTF-8") as file:
@@ -99,12 +102,12 @@ class BD2ModManager:
 
     def _set_mod_data(self, mod_name: str, key: str, value: Any) -> None:
         """Sets the mod data for a given mod name and key."""
+        
+        logger.debug("Setting mod data for %s: %s = %s", mod_name, key, value)
+        
         if mod_name not in self._mods_data:
             logger.debug("Mod %s not found in mods data. Creating new entry.", mod_name)
             self._mods_data[mod_name] = {}
-
-        logger.debug(
-            "Setting mod data for %s: %s = %s", mod_name, key, value)
         
         if self._mods_data[mod_name].get(key) == value:
             logger.debug(
