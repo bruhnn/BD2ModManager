@@ -228,39 +228,28 @@ class BD2ModManager:
 
         return mods
 
-    def get_characters(self) -> dict:
-        logger.debug("Getting characters mods status.")
-        mods = [
+    def get_characters_mod_status(self) -> dict:
         """Returns a dictionary with characters and their mod status."""
+        
+        mods_installed = [
             mod
             for mod in self.get_mods()
             if mod["type"] in ("cutscene", "idle") and mod["enabled"]
         ]
-
-        logger.debug("Enabled mods for cutscene/idle: %s", [mod["name"] for mod in mods])
-
-        mods_cutscenes = [
-            mod["character"]["id"] for mod in mods if mod["type"] == "cutscene"
-        ]
-        mods_idles = [mod["character"]["id"] for mod in mods if mod["type"] == "idle"]
-        logger.debug("Cutscene mod character IDs: %s", mods_cutscenes)
-        logger.debug("Idle mod character IDs: %s", mods_idles)
+        
+        mods_cutscenes = {mod["character"]["id"] for mod in mods_installed if mod["type"] == "cutscene"}
+        mods_idles = {mod["character"]["id"] for mod in mods_installed if mod["type"] == "idle"}
 
         characters_modded = {}
 
         for char_id, character in self.characters.characters.items():
-            if not characters_modded.get(character["character"]):
-                characters_modded[character["character"]] = []
+            group = character["character"]
+            characters_modded.setdefault(group, []).append({
+                "character": character,
+                "cutscene": char_id in mods_cutscenes,
+                "idle": char_id in mods_idles,
+            })
 
-            characters_modded[character["character"]].append(
-                {
-                    "character": character,
-                    "cutscene": char_id in mods_cutscenes,
-                    "idle": char_id in mods_idles,
-                }
-            )
-
-        logger.debug("Characters modded status: %s", characters_modded)
         return characters_modded
 
     def add_mod(
