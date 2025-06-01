@@ -54,10 +54,10 @@ class BD2ModManager:
         self.characters = BD2Characters(CHARACTERS_CSV)
 
         self._game_directory = self.config.game_directory
-        self.staging_mods_directory = Path(mods_directory)
+        self._staging_mods_directory = Path(mods_directory)
 
-        if not self.staging_mods_directory.exists():
-            self.staging_mods_directory.mkdir()
+        if not self._staging_mods_directory.exists():
+            self._staging_mods_directory.mkdir()
 
         if not DATA_FOLDER.exists():
             DATA_FOLDER.mkdir(exist_ok=True)
@@ -196,7 +196,7 @@ class BD2ModManager:
         return data
 
     def get_mods(self) -> list[dict]:
-        modfiles = self.staging_mods_directory.rglob("*.modfile")
+        modfiles = self._staging_mods_directory.rglob("*.modfile")
         mods_folders = [modfile.parent for modfile in modfiles]
         
         logger.debug("Found %d mod folders.", len(mods_folders))
@@ -277,7 +277,7 @@ class BD2ModManager:
         mod_name = name or mod_source.name
         
 
-        staging_mod = self.staging_mods_directory / mod_name
+        staging_mod = self._staging_mods_directory / mod_name
         
         logger.debug("Adding mod: %s", mod_name)
 
@@ -296,7 +296,7 @@ class BD2ModManager:
         logger.debug("Mod %s copied successfully.", mod_name)
 
     def remove_mod(self, mod_name: str) -> None:
-        mod_path = self.staging_mods_directory / mod_name
+        mod_path = self._staging_mods_directory / mod_name
 
         if not mod_path.exists():
             logger.error("Mod not found: %s", mod_name)
@@ -335,8 +335,6 @@ class BD2ModManager:
         if not game_mods_directory.exists():
             logger.debug("Creating game mods directory: %s", game_mods_directory)
             game_mods_directory.mkdir()
-
-
         
         if symlink and not is_running_as_admin():
             logger.error("Administrator privileges are required to use symlinks.")
@@ -344,7 +342,7 @@ class BD2ModManager:
                 "Administrator privileges are required to use symlinks."
             )
 
-        modfiles = self.staging_mods_directory.rglob("*.modfile")
+        modfiles = self._staging_mods_directory.rglob("*.modfile")
         mods = [modfile.parent for modfile in modfiles]
         
         logger.debug("Found %d mod files to sync.", len(mods))
