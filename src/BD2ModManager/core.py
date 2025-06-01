@@ -226,7 +226,7 @@ class BD2ModManager:
 
         return mods
 
-    def get_characters_mods_status(self) -> dict:
+    def get_characters(self) -> dict:
         logger.debug("Getting characters mods status.")
         mods = [
             mod
