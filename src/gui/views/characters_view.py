@@ -1,173 +1,277 @@
-"""UI for displaying character costumes in a table view."""
+from PySide6.QtWidgets import QWidget, QTreeView, QVBoxLayout, QStyledItemDelegate
+from PySide6.QtCore import QAbstractItemModel, QModelIndex, Qt, QSize, QRect
+from PySide6.QtGui import QPainter, QPixmap, QFont, QColor, QFontMetrics
 
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QScrollArea, QLabel, QHBoxLayout, QSizePolicy, QLineEdit
-from PySide6.QtCore import Qt
-from PySide6.QtGui import QPixmap
+from typing import Any, Union
+
+
+class CharacterNode:
+    def __init__(self, character=None, costume: Union[dict, None] = None, parent=None):
+        self.character = character
+        self.costume = costume
+        self.parent = parent
+        self.children = []
+
+    def is_costume(self):
+        return self.costume is not None
+
+    def add_children(self, children: Any):
+        if isinstance(children, list):
+            self.children.extend(children)
+        else:
+            self.children.append(children)
+
+    def child_count(self):
+        return len(self.children)
+
+    def row(self):
+        if self.parent is None:
+            return 0
+        return self.parent.children.index(self)
+
+
+class CharacterTreeModel(QAbstractItemModel):
+    def __init__(self, characters: dict):
+        super().__init__()
+        self.root_node = CharacterNode()
+        for character, costumes in characters.items():
+            character_node = CharacterNode(
+                character=character, parent=self.root_node)
+            character_node.add_children([
+                CharacterNode(costume=costume, parent=character_node) for costume in costumes
+            ])
+            self.root_node.add_children(character_node)
+
+    def rowCount(self, parent: QModelIndex = QModelIndex()):
+        node = self.get_node(parent)
+        return node.child_count()
+
+    def columnCount(self, parent: QModelIndex = QModelIndex()):
+        return 1
+
+    def get_node(self, index: QModelIndex):
+        if not index.isValid():
+            return self.root_node
+        return index.internalPointer()
+
+    def index(self, row: int, column: int, parent: QModelIndex = QModelIndex()):
+        if not parent.isValid():
+            parent_node = self.root_node
+        else:
+            parent_node = self.get_node(parent)
+
+        if row < 0 or row >= parent_node.child_count():
+            return QModelIndex()
+
+        child_node = parent_node.children[row]
+        return self.createIndex(row, column, child_node)
+
+    def parent(self, index):
+        node = self.get_node(index)
+        if node and node.parent and node.parent != self.root_node:
+            return self.createIndex(node.parent.row(), 0, node.parent)
+        return QModelIndex()
+
+    def data(self, index: QModelIndex, role: int = Qt.DisplayRole):
+        if not index.isValid():
+            return None
+        node = self.get_node(index)
+        if role == Qt.DisplayRole:
+            if node.is_costume():
+                char = node.costume.get("character", {})
+                return f"{char.get('character', '')} - {char.get('costume', '')}"
+            return node.character
+        elif role == Qt.UserRole:
+            return node
+        return None
+
+
+class CostumeTreeDelegate(QStyledItemDelegate):
+    def paint(self, painter, option, index):
+        data = index.model().data(index, Qt.UserRole)
+
+        if not data:
+            return
+
+        if data.is_costume():
+            costume = data.costume
+            character = costume.get("character", {})
+            text = f"{character.get('character', '')} - {character.get('costume', '')}"
+
+            margin = 8
+            rect = option.rect.adjusted(0, margin, 0, -margin)
+
+            painter.fillRect(rect, QColor("#1A1A1A"))
+
+            # Imagem
+            img_size = QSize(90, 90)
+            img_margin = 12
+            img_rect = QRect(rect.left() + img_margin, rect.top() +
+                             img_margin, img_size.width(), img_size.height())
+            img_path = f"src/gui/resources/characters/{costume['character'].get('id', '000101')}.png"
+
+            pixmap = QPixmap(img_path)
+            if pixmap.isNull():
+                pixmap = QPixmap("src/gui/resources/characters/000101.png")
+            pixmap = pixmap.scaled(
+                img_size, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+
+            painter.drawPixmap(img_rect, pixmap)
+            # Título
+            font_title = QFont()
+            font_title.setPointSize(12)
+            font_title.setBold(True)
+            font_metrics = QFontMetrics(font_title)
+            title_margin_top = 12
+            title_margin_left = 12
+            title_rect = QRect(
+                img_rect.right() + title_margin_left,  # Left
+                rect.top() + title_margin_top,  # Top
+                rect.width() - 90,  # Width
+                font_metrics.height())  # Height
+            painter.setFont(font_title)
+            painter.setPen(QColor("#fff"))
+            title = f"{costume['character']['character']} - {costume['character']['costume']}"
+            painter.drawText(
+                title_rect,
+                Qt.AlignLeft | Qt.AlignVCenter,
+                title
+            )
+
+            # Define cutscene text and font
+            cutscene_text = "Installed" if costume.get(
+                "cutscene") else "Not Installed"
+            font_status = QFont()
+            font_status.setPointSize(10)
+            font_status.setBold(False)
+            font_metrics_status = QFontMetrics(font_status)
+            cutscene_text_width = font_metrics_status.horizontalAdvance(
+                "Not Installed")
+
+            # Rectangle for cutscene status text
+            cutscene_text_rect = QRect(
+                img_rect.right() + 12,
+                rect.bottom() - font_metrics_status.height() - 12,
+                cutscene_text_width,
+                font_metrics_status.height()
+            )
+
+            painter.setFont(font_status)
+            if costume.get("cutscene"):
+                painter.setPen(QColor("#57886C"))  # Green for installed
+            else:
+                painter.setPen(QColor("#7D7D7D"))  # Gray for not installed
+            painter.drawText(
+                cutscene_text_rect,
+                Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter,
+                cutscene_text
+            )
+
+            # Title "Cutscene" above the status
+            font_status_title = QFont()
+            font_status_title.setPointSize(10)
+            font_status_title.setBold(True)
+            font_metrics_status_title = QFontMetrics(font_status_title)
+            font_status_width = font_metrics_status_title.horizontalAdvance(
+                "Cutscene")
+
+            cutscene_title_rect = QRect(
+                img_rect.right() + 12,
+                cutscene_text_rect.top() - font_metrics_status_title.height(),
+                font_status_width,
+                font_metrics_status_title.height()
+            )
+
+            painter.setFont(font_status_title)
+            painter.setPen(QColor("#fff"))
+            painter.drawText(
+                cutscene_title_rect,
+                Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter,
+                "Cutscene"
+            )
+
+            # Define cutscene text and font
+            idle_text = "Installed" if costume.get(
+                "cutscene") else "Not Installed"
+            font_status = QFont()
+            font_status.setPointSize(10)
+            font_status.setBold(False)
+            font_metrics_status = QFontMetrics(font_status)
+            idle_text_width = font_metrics_status.horizontalAdvance(
+                "Not Installed")
+
+            # Rectangle for cutscene status text
+            idle_text_rect = QRect(
+                cutscene_title_rect.right() + 64,
+                rect.bottom() - font_metrics_status.height() - 12,
+                idle_text_width,
+                font_metrics_status.height()
+            )
+
+            painter.setFont(font_status)
+            if costume.get("cutscene"):
+                painter.setPen(QColor("#57886C"))  # Green for installed
+            else:
+                painter.setPen(QColor("#7D7D7D"))  # Gray for not installed
+            painter.drawText(
+                idle_text_rect,
+                Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter,
+                idle_text
+            )
+
+            # Title "Cutscene" above the status
+            font_status_title = QFont()
+            font_status_title.setPointSize(10)
+            font_status_title.setBold(True)
+            font_metrics_status_title = QFontMetrics(font_status_title)
+            font_status_width = font_metrics_status_title.horizontalAdvance(
+                "Idle")
+
+            idle_title_rect = QRect(
+                cutscene_title_rect.right() + 64,
+                idle_text_rect.top() - font_metrics_status_title.height(),
+                font_status_width,
+                font_metrics_status_title.height()
+            )
+
+            painter.setFont(font_status_title)
+            painter.setPen(QColor("#fff"))
+            painter.drawText(
+                idle_title_rect,
+                Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter,
+                "Idle"
+            )
+        else:
+            text = data.character
+
+            font = QFont()
+            font.setPointSize(14)
+            font.setBold(True)
+            painter.setFont(font)
+
+            rect = option.rect
+            painter.drawText(rect, Qt.AlignLeft | Qt.AlignVCenter, text)
+
+    def sizeHint(self, option, index):
+        data = index.model().data(index, Qt.UserRole)
+
+        if data and not data.is_costume():
+            return QSize(320, 32)
+
+        return QSize(320, 90 + (12 * 2) + (8 * 2))
 
 
 class CharactersView(QWidget):
     def __init__(self, characters: dict):
         super().__init__()
-        self.layout = QVBoxLayout(self)
-        self.layout.setContentsMargins(0, 0, 0, 0)
-        self.setObjectName("charactersView")
-
-        # self.search_field = QLineEdit()
-        # self.search_field.setPlaceholderText("Search characters...")
-        # self.layout.addWidget(self.search_field)
-
-        self.scroll_area = QScrollArea()
-        self.scroll_area.setObjectName("scrollArea")
-        self.scroll_area.setWidgetResizable(True)
-
-        self.character_list = QWidget()
-        self.character_list_layout = QVBoxLayout()
-        self.character_list_layout.setContentsMargins(0, 0, 0, 0)
-        self.character_list.setLayout(self.character_list_layout)
-        self.character_list_layout.setSpacing(16)
-
-        self.scroll_area.setWidget(self.character_list)
-
-        for char, costumes in characters.items():
-            character_widget = CharacterWidget(
-                character=char, costumes=costumes)
-            self.character_list_layout.addWidget(character_widget, 1)
-
-        self.layout.addWidget(self.scroll_area)
-
-        self.setStyleSheet("""
-            QLabel#characterLabel {
-                font-size: 16px;
-                font-weight: bold;
-            }
-            QLabel#costumeTitle {
-                font-size: 16px;
-                font-weight: bold;
-            }
-            QLabel#modStatusLabel {
-                font-size: 14px;
-                font-weight: bold;
-            }
-            QLabel#modStatusValue {
-                color: #A0A0A0;
-                font-size: 12px;
-            }
-            QLabel#modStatusValue[status="Installed"] {
-                color: #57886C;
-            }
-            QLabel#modStatusValue[status="Not Installed"] {
-                color: #DB5461;
-            }
-            QWidget#costumeWidget {
-                background-color: #2E2E2E;
-            }
-            QWidget#costumeWidget QWidget, 
-            QWidget#costumeWidget QLabel {
-                background-color: #2E2E2E;
-                
-            }
-        """)
-
-
-class CharacterWidget(QWidget):
-    def __init__(self, character: str, costumes: list):
-        super().__init__()
-        self.layout = QVBoxLayout(self)
-        self.layout.setContentsMargins(0, 0, 0, 0)
-        self.layout.setSpacing(12)
-        self.setObjectName("characterWidget")
-
-        self.label = QLabel(text=f"{character} ({len(costumes)})")
-        self.label.setObjectName("characterLabel")
-
-        self.costume_list = QWidget()
-        self.costume_list.setObjectName("costumeList")
-        self.costume_list_layout = QVBoxLayout(self.costume_list)
-        self.costume_list_layout.setContentsMargins(12, 0, 12, 0)
-        self.costume_list_layout.setSpacing(16)
-
-        for costume in costumes:
-            costume_widget = CostumeWidget(costume)
-            self.costume_list_layout.addWidget(
-                costume_widget, 1)
-
-        self.layout.addWidget(self.label)
-        self.layout.addWidget(self.costume_list)
-
-
-class CostumeWidget(QWidget):
-    def __init__(self, costume: dict):
-        super().__init__()
-        self.setObjectName("costumeWidget")
-
-        self.layout = QHBoxLayout(self)
-        self.layout.setContentsMargins(0, 0, 0, 0)
-        self.layout.setSpacing(0)
-
-        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
-
-        pixmap = QPixmap(
-            f"src/gui/resources/characters/{costume['character']['id']}.png")
-
-        if pixmap.isNull():
-            pixmap = QPixmap("src/gui/resources/characters/000101.png")
-
-        pixmap = pixmap.scaled(120, 120, Qt.AspectRatioMode.KeepAspectRatio,
-                               Qt.TransformationMode.SmoothTransformation)
-
-        self.char_image = QLabel()
-        self.char_image.setObjectName("charImage")
-        self.char_image.setPixmap(pixmap)
-
-        self.information_widget = QWidget()
-        self.information_widget.setObjectName("informationWidget")
-        self.information_widget_layout = QVBoxLayout(self.information_widget)
-        self.information_widget_layout.setContentsMargins(12, 6, 0, 6)
-        self.information_widget.setSizePolicy(
-            QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred
-        )
-
-        self.mod_status_widget = QWidget()
-        self.mod_status_widget_layout = QHBoxLayout(self.mod_status_widget)
-        self.mod_status_widget_layout.setContentsMargins(0, 0, 0, 0)
-        self.mod_status_widget_layout.addWidget(
-            ModStatusWidget(
-                "Cutscene", "Installed" if costume["cutscene"] else "Not Installed")
-        )
-        self.mod_status_widget_layout.addWidget(
-            ModStatusWidget(
-                "Idle", "Installed" if costume["idle"] else "Not Installed")
-        )
-
-        self.char_title = QLabel(
-            text=f"{costume['character']['character']} - {costume['character']['costume']}")
-        self.char_title.setObjectName("costumeTitle")
-
-        self.information_widget_layout.addWidget(
-            self.char_title, 0, Qt.AlignmentFlag.AlignTop
-        )
-        self.information_widget_layout.addWidget(
-            self.mod_status_widget, 1, Qt.AlignmentFlag.AlignBottom
-        )
-
-        self.layout.addWidget(self.char_image)
-        self.layout.addWidget(self.information_widget)
-
-
-class ModStatusWidget(QWidget):
-    def __init__(self, label: str, status: str):
-        super().__init__()
-        self.setObjectName("modStatusWidget")
-
-        self.layout = QVBoxLayout(self)
-        self.layout.setContentsMargins(0, 0, 0, 0)
-
-        self.label = QLabel(text=label)
-        self.label.setObjectName("modStatusLabel")
-
-        self.status = QLabel(text=status)
-        self.status.setObjectName("modStatusValue")
-        self.status.setProperty("status", status)
-
-        self.layout.addWidget(self.label)
-        self.layout.addWidget(self.status)
+        self.view = QTreeView()
+        self.model = CharacterTreeModel(characters)
+        self.view.setModel(self.model)
+        self.view.setItemDelegate(CostumeTreeDelegate(self))
+        self.view.setHeaderHidden(True)
+        self.view.setRootIsDecorated(False)
+        self.view.setItemsExpandable(False)
+        self.view.setSelectionMode(QTreeView.SelectionMode.NoSelection)
+        self.view.expandAll()
+        layout = QVBoxLayout(self)
+        layout.addWidget(self.view)
