@@ -14,7 +14,7 @@ class HomePage(QWidget):
     onSyncModsClicked = Signal()
     onUnsyncModsClicked = Signal()
 
-    def __init__(self, mods: list, characters: list):
+    def __init__(self, mods: list, characters: dict):
         super().__init__()
 
         self.layout = QVBoxLayout(self)
