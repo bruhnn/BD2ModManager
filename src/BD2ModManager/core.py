@@ -131,20 +131,20 @@ class BD2ModManager:
         
         logger.debug("Game path set to %s", path)
 
-    def get_game_directory(self) -> Optional[Path]:
-        if not self._game_directory:
-            return
-
-
+    def check_game_directory(self) -> bool:
+        """Returns True if the game directory contains the game executable."""
         
+        if not self._game_directory:
+            return False
+
         exe_path = Path(self._game_directory) / "BrownDust II.exe"
         
         logger.debug("Checking if game executable exists at %s", exe_path)
 
         if exe_path.exists():
             logger.debug("Game executable found at %s", exe_path)
-            return self._game_directory
-        
+            return True
+
         logger.warning("Game executable not found at %s", exe_path)
         
     def _get_mod_info(self, path: Path) -> dict:
