@@ -38,9 +38,8 @@ def required_game_path(function: Callable) -> Callable:
 CURRENT_PATH = Path(__file__).parent
 CONFIG_FILE = CURRENT_PATH / "BD2ModManager.ini"
 DEFAULT_MODS_DIRECTORY = CURRENT_PATH / "mods"
-CHARACTERS_CSV = CURRENT_PATH / "utils" / "data" / "characters.csv"
-
 DATA_FOLDER = CURRENT_PATH / "data"
+CHARACTERS_CSV = DATA_FOLDER / "characters_id.csv"
 DATA_FILE = DATA_FOLDER / "mods.json"
 
 # TODO: Add docstring to all methods.
