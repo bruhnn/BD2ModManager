@@ -2,6 +2,7 @@ from PySide6.QtWidgets import QWidget, QVBoxLayout, QStackedWidget, QHBoxLayout
 from PySide6.QtCore import Qt, Signal
 
 from ..widgets import NavButton
+from ..views import CharactersView, SettingsView, ModsView
 from ..views import SettingsView, ModsView
 
 
@@ -13,7 +14,7 @@ class HomePage(QWidget):
     onSyncModsClicked = Signal()
     onUnsyncModsClicked = Signal()
 
-    def __init__(self, mods: list):
+    def __init__(self, mods: list, characters: list):
         super().__init__()
 
         self.layout = QVBoxLayout(self)
@@ -24,6 +25,8 @@ class HomePage(QWidget):
 
         self.nav_mods_button = NavButton("Mods")
         self.nav_chars_button = NavButton("Characters")
+        # self.nav_scenes_button = NavButton("Scenes")
+        # self.nav_scenes_button.setDisabled(True)
         self.nav_settings_button = NavButton("Settings")
 
         self.navigation_bar_layout.addWidget(
@@ -50,9 +53,12 @@ class HomePage(QWidget):
         self.mods_widget.onUnsyncModsClicked.connect(self.onUnsyncModsClicked)
         self.mods_widget.load_mods(mods)
 
+        self.characters_widget = CharactersView(characters)
+        
         self.settings_widget = SettingsView()
 
         self.navigation_view.addWidget(self.mods_widget)
+        self.navigation_view.addWidget(self.characters_widget)
         self.navigation_view.addWidget(self.settings_widget)
 
         self.nav_mods_button.clicked.connect(

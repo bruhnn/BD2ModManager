@@ -21,7 +21,7 @@ class MainWindow(QMainWindow):
         self.select_folder_page = SelectFolderPage(game_directory)
         self.select_folder_page.onGameFolderSelected.connect(self._change_game_folder)
 
-        self.home_page = HomePage(self.mod_manager.get_mods())
+        self.home_page = HomePage(self.mod_manager.get_mods(), self.mod_manager.get_characters())
         self.home_page.onRefreshMods.connect(self._refresh_mods)
         self.home_page.onAddMod.connect(self._add_mod)
         self.home_page.onModStateChanged.connect(self._enable_or_disable_mod)
