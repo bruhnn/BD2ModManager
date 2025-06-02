@@ -212,12 +212,18 @@ class BD2ModManager:
 
         return data
 
-    def get_mods(self) -> list[dict]:
+    def get_mods(self, recursive: bool = False) -> list[dict]:
         """Returns a list of all mods found in the staging mods directory."""
+        logger.debug("Getting mods from staging directory: %s", self._staging_mods_directory)
         
-        modfiles = self._staging_mods_directory.rglob("*.modfile")
+        if recursive:
+            modfiles = self._staging_mods_directory.rglob("*.modfile")
+        else:
+            modfiles = self._staging_mods_directory.glob("**/*.modfile")
+
+        
         mods_folders = [modfile.parent for modfile in modfiles]
-        
+
         logger.debug("Found %d mod folders.", len(mods_folders))
 
         mods = []
