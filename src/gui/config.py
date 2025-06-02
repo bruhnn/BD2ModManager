@@ -49,6 +49,10 @@ class BD2MMConfigManager:
         """
         if isinstance(value, bool):
             value = str(value).lower()
+        
+        if "General" not in self._config_parser:
+            self._config_parser.add_section("General")
+            
         self._config_parser.set("General", key, value)
         self._save_config()
 
