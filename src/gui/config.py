@@ -59,7 +59,8 @@ class BD2MMConfigManager:
             "language": "english",
             "theme": "default",
             "sync_method": "copy",
-            "ask_for_author": False
+            "ask_for_author": False,
+            "search_mods_recursively": False
         }})
 
         self._save_config()
