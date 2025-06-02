@@ -77,6 +77,27 @@ QTreeWidget#modlist #modlistHeader {
     font-weight: bold;
 }
 
+QTreeWidget#modlist::item:hover {
+    background-color: #3A3B40;
+}
+
+QTreeWidget#modlist::indicator {
+    width: 20px;
+    height: 20px;
+}
+
+QTreeWidget#modlist::indicator:checked {
+    image: url(:/material/checkbox_selected.svg);
+}
+
+QTreeWidget#modlist::indicator:unchecked {
+    image: url(:/material/checkbox.svg);
+}
+
+QTreeWidget#modlist::item:selected {
+    background-color: #4A4B50;
+}
+
 QLabel#settingsTitle {
     color: #ecf0f1;
     font-size: 24px;

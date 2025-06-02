@@ -12,5 +12,7 @@
         <file alias="sync.svg">icons/material/sync.svg</file>
         <file alias="unsync.svg">icons/material/unsync.svg</file>
         <file alias="arrow_down.svg">icons/material/arrow_drop_down.svg</file>
+        <file alias="checkbox.svg">icons/material/checkbox_empty.svg</file>
+        <file alias="checkbox_selected.svg">icons/material/checkbox_selected.svg</file>
     </qresource>
 </RCC>
