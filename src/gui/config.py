@@ -2,8 +2,7 @@ from typing import Union, Optional
 from pathlib import Path
 from configparser import ConfigParser
 
-
-class BD2MMConfig:
+class BD2MMConfigManager:
     def __init__(self, path: Union[str, Path]):
         self._path = Path(path)
         self._config_parser = ConfigParser()

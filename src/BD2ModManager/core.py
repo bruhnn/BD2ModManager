@@ -5,7 +5,6 @@ from typing import Callable, Union, Optional, Any
 from pathlib import Path
 from shutil import copytree, rmtree
 
-from .config import BD2MMConfig
 from .utils import is_running_as_admin
 from .utils.characters import BD2Characters
 from .utils.files import get_folder_hash
@@ -36,7 +35,6 @@ def required_game_path(function: Callable) -> Callable:
 
 
 CURRENT_PATH = Path(__file__).parent
-CONFIG_FILE = CURRENT_PATH / "BD2ModManager.ini"
 DEFAULT_MODS_DIRECTORY = CURRENT_PATH / "mods"
 DATA_FOLDER = CURRENT_PATH / "data"
 CHARACTERS_CSV = DATA_FOLDER / "characters_id.csv"
@@ -49,10 +47,9 @@ class BD2ModManager:
     """Brown Dust 2 Mod Manager"""
 
     def __init__(self, mods_directory: Union[str, Path] = DEFAULT_MODS_DIRECTORY):
-        self.config = BD2MMConfig(path=CONFIG_FILE)
         self.characters = BD2Characters(CHARACTERS_CSV)
 
-        self._game_directory = self.config.game_directory
+        self._game_directory = None
         self._staging_mods_directory = Path(mods_directory)
 
         if not self._staging_mods_directory.exists():
@@ -130,7 +127,6 @@ class BD2ModManager:
             )
 
         self._game_directory = Path(path)
-        self.config.game_directory = path
         
         logger.debug("Game path set to %s", path)
 
