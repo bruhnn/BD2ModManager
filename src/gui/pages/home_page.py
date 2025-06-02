@@ -50,7 +50,6 @@ class HomePage(QWidget):
         self.characters_widget = CharactersView(characters)
 
         self.settings_widget = SettingsView(config_manager, mod_manager)
-        self.settings_widget.onModsFolderChanged.connect(self._change_mods_folder)
 
         self.navigation_view.addWidget(self.mods_widget)
         self.navigation_view.addWidget(self.characters_widget)
