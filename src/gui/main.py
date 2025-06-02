@@ -1,4 +1,5 @@
-from PySide6.QtWidgets import QMainWindow, QStackedWidget, QVBoxLayout
+from PySide6.QtWidgets import QMainWindow, QStackedWidget, QVBoxLayout, QApplication
+from PySide6.QtCore import QTranslator, Qt
 
 from src.BD2ModManager import BD2ModManager
 from .pages import HomePage
@@ -16,6 +17,7 @@ class MainWindow(QMainWindow):
 
         self.mod_manager = mod_manager
         self.config_manager = config_manager
+        
 
         self.main_stacked_widget = QStackedWidget()
         self.home_page = HomePage(mod_manager, config_manager)
@@ -27,6 +29,7 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(self.main_stacked_widget)
 
         self._apply_stylesheet(self.config_manager.get("theme", default="dark"))
+        self._apply_language(self.config_manager.get("language", default="english"))
 
     def _apply_stylesheet(self, theme: str):
         path = STYLES_PATH / f"{theme}.qss"
@@ -38,9 +41,27 @@ class MainWindow(QMainWindow):
             stylesheet = f.read()
             self.setStyleSheet(stylesheet)
 
+    def _apply_language(self, language: str):
+        if language == "english":
+            QApplication.instance().removeTranslator(QTranslator())
+            self.retranslateUI()
+            return
+        
+        print(f"Applying language: {language}")
+        
+        translator = QTranslator()
+
+        if translator.load((Path(__file__).parent / f"translations/{language}.qm").as_posix()):
+            QApplication.instance().installTranslator(translator)
+            self.retranslateUI()
+        else:
+            print(f"Translation for {language} not found.")
+    
     def _change_theme(self, theme: str):
         self._apply_stylesheet(theme)
-        self.config_manager.set("theme", theme)
 
     def _change_language(self, language: str):
-        self.config_manager.set("language", language)
+        self._apply_language(language)
+    
+    def retranslateUI(self):
+        self.home_page.retranslateUI()

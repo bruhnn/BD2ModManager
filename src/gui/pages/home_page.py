@@ -29,10 +29,10 @@ class HomePage(QWidget):
         self.navigation_bar_layout.setContentsMargins(0, 0, 0, 0)
         self.navigation_bar_layout.setSpacing(0)
 
-        self.nav_mods_button = NavButton("Mods")
+        self.nav_mods_button = NavButton(self.tr("Mods"))
         self.nav_mods_button.setProperty("active", True)
-        self.nav_chars_button = NavButton("Characters")
-        self.nav_settings_button = NavButton("Settings")
+        self.nav_chars_button = NavButton(self.tr("Characters"))
+        self.nav_settings_button = NavButton(self.tr("Settings"))
         self.nav_settings_button.setIcon(QIcon(":/material/settings.svg"))
 
         self.navigation_bar_layout.addWidget(self.nav_mods_button, 0, Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignTop)
@@ -83,10 +83,18 @@ class HomePage(QWidget):
                     self.config_manager.get("game_path")
                 )
             except GameNotFoundError:
-                self.mods_widget.set_info_text("Game not found, please set the game path in settings.")
+                self.mods_widget.set_info_text(self.tr("Game not found, please set the game path in settings."))
 
         layout.addWidget(self.navigation_bar)
         layout.addWidget(self.navigation_view)
+        
+    def retranslateUI(self):
+        self.nav_mods_button.setText(self.tr("Mods"))
+        self.nav_chars_button.setText(self.tr("Characters"))
+        self.nav_settings_button.setText(self.tr("Settings"))
+        self.mods_widget.retranslateUI()
+        self.characters_widget.retranslateUI()
+        self.settings_widget.retranslateUI()
     
     def _update_navigation_buttons(self):
         self.nav_mods_button.setProperty("active", self.navigation_view.currentIndex() == 0)
@@ -123,7 +131,7 @@ class HomePage(QWidget):
             self.mod_manager.remove_mod(name)
         except GameNotFoundError as e:
             print("a")
-            self.mods_widget.set_info_text("Game not found, cannot remove mod.")
+            self.mods_widget.set_info_text(self.tr("Game not found, cannot remove mod."))
             # self.mods_widget.show_error(str(e))
 
     def _enable_or_disable_mod(self, name: str, state: bool):

@@ -1,5 +1,5 @@
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QGroupBox, QHBoxLayout, QLineEdit, QPushButton, QSizePolicy, QSpacerItem, QComboBox, QCheckBox, QFileDialog, QGridLayout, QMessageBox
-from PySide6.QtCore import Qt, Signal
+from PySide6.QtCore import Qt, Signal, QObject
 
 from typing import Union, Any
 from pathlib import Path
@@ -20,75 +20,87 @@ class SettingsView(QWidget):
         self.mod_manager = mod_manager
 
         layout = QVBoxLayout(self)
-        # layout.setContentsMargins(0, 0, 0, 0)
 
-        title = QLabel(text="Settings") 
-        title.setSizePolicy(QSizePolicy.Policy.Expanding,
-                            QSizePolicy.Policy.Fixed)
-        title.setObjectName("settingsTitle")
+        self.title = QLabel(text=self.tr("Settings"))
+        self.title.setSizePolicy(QSizePolicy.Policy.Expanding,
+                                  QSizePolicy.Policy.Fixed)
+        self.title.setObjectName("settingsTitle")
 
-        paths_group = self.create_group("Paths")
+        self.paths_group = self.create_group(self.tr("Paths"))
 
-        game_directory_widget, game_directory_button = self.create_directory_input(
-            "Game Directory:", self.config_manager.game_directory or "Not Set")
-        mods_directory_widget, mods_directory_button = self.create_directory_input(
-            "Mods Directory:", self.mod_manager.staging_mods_directory or "Not Set")
+        game_directory_widget, self.game_dir_label, game_directory_button = self.create_directory_input(
+            self.tr("Game Directory:"), self.config_manager.game_directory or self.tr("Not Set"))
+        mods_directory_widget, self.mods_dir_label, mods_directory_button = self.create_directory_input(
+            self.tr("Mods Directory:"), self.mod_manager.staging_mods_directory or self.tr("Not Set"))
         game_directory_button.clicked.connect(self.open_game_directory_dialog)
         mods_directory_button.clicked.connect(self.open_mods_directory_dialog)
 
-        search_mods_recursively_checkbox_widget = self.create_checkbox(label="Search mods recursively", config_key="search_mods_recursively")
+        search_mods_recursively_checkbox_widget, self.search_mods_recursively_checkbox = self.create_checkbox(label=self.tr("Search mods recursively"), config_key="search_mods_recursively")
+        self.paths_group.layout().addWidget(game_directory_widget)
+        self.paths_group.layout().addWidget(mods_directory_widget)
+        self.paths_group.layout().addWidget(search_mods_recursively_checkbox_widget)
 
-        paths_group.layout().addWidget(game_directory_widget)
-        paths_group.layout().addWidget(mods_directory_widget)
-        paths_group.layout().addWidget(search_mods_recursively_checkbox_widget)
+        self.general_group = self.create_group(self.tr("General"))
 
-        general_group = self.create_group("General")
-
-        language_combobox_widget = self.create_combobox("Language:", [
+        language_combobox_widget, self.language_combobox_label, self.language_combobox_combobox = self.create_combobox(self.tr("Language:"), [
             {"label": "English", "value": "english"},
-            {"label": "Português (BR)", "value": "portuguese"},
-            {"label": "한국어", "value": "korean"},
-            {"label": "日本語", "value": "japanese"},
-            {"label": "简体中文", "value": "chinese_simplified"},
-            {"label": "繁體中文", "value": "chinese_traditional"}
+            {"label": "Português (BR)", "value": "portuguese"}
         ], "language", default="english", on_change=self.onLanguageChanged.emit)
 
-        theme_combobox_widget = self.create_combobox("Theme:", [
-            {"label": "Dark", "value": "dark"},
-            {"label": "Light", "value": "light"},
+        theme_combobox_widget, self.theme_combobox_label, self.theme_combobox_combobox = self.create_combobox(self.tr("Theme:"), [
+            {"label": self.tr("Dark"), "value": "dark"},
+            {"label": self.tr("Light"), "value": "light"},
         ], "theme", default="dark", on_change=self.onThemeChanged.emit)
 
-        general_group.layout().addWidget(theme_combobox_widget)
-        general_group.layout().addWidget(language_combobox_widget)
+        self.general_group.layout().addWidget(theme_combobox_widget)
+        self.general_group.layout().addWidget(language_combobox_widget)
 
-        synchronization_group = self.create_group("Synchronization")
+        self.synchronization_group = self.create_group(self.tr("Synchronization"))
 
-        sync_method_widget = self.create_combobox("Sync Method:", [{
-            "label": "Copy (Default)",
+        sync_method_widget, self.sync_method_label, self.sync_method_combobox = self.create_combobox(self.tr("Sync Method:"), [{
+            "label": self.tr("Copy (Default)"),
             "value": "copy"
         }, {
-            "label": "Symlink (Administrator)",
+            "label": self.tr("Symlink (Administrator)"),
             "value": "symlink"
         }, {
-            "label": "Hardlink (Administrator)",
+            "label": self.tr("Hardlink (Administrator)"),
             "value": "hardlink"
         }], "sync_method", default="copy")
+        self.sync_method_combobox.setDisabled(True)
+        
+        self.synchronization_group.layout().addWidget(sync_method_widget)
 
-        synchronization_group.layout().addWidget(sync_method_widget)
+        self.installation_group = self.create_group(self.tr("Installation"))
 
-        installation_group = self.create_group("Installation")
+        ask_for_author_widget, self.ask_for_author_checkbox = self.create_checkbox(self.tr("Ask for author during installation"), "ask_for_author", default=True)
+        self.ask_for_author_checkbox.setDisabled(True)
 
-        ask_for_author_widget = self.create_checkbox("Ask for author during installation", "ask_for_author", default=True)
-
-        installation_group.layout().addWidget(ask_for_author_widget)
+        self.installation_group.layout().addWidget(ask_for_author_widget)
 
         layout.setSpacing(16)
         layout.setAlignment(Qt.AlignmentFlag.AlignTop)
-        layout.addWidget(title)
-        layout.addWidget(paths_group)
-        layout.addWidget(general_group)
-        layout.addWidget(installation_group)
-        layout.addWidget(synchronization_group)
+        layout.addWidget(self.title)
+        layout.addWidget(self.paths_group)
+        layout.addWidget(self.general_group)
+        layout.addWidget(self.installation_group)
+        layout.addWidget(self.synchronization_group)
+
+    def retranslateUI(self):
+        self.title.setText(self.tr("Settings"))
+        self.paths_group.setTitle(self.tr("Paths"))
+        self.general_group.setTitle(self.tr("General"))
+        self.installation_group.setTitle(self.tr("Installation"))
+        self.synchronization_group.setTitle(self.tr("Synchronization"))
+        self.search_mods_recursively_checkbox.setText(self.tr("Search mods recursively"))
+        self.language_combobox_label.setText(self.tr("Language:"))
+        self.theme_combobox_label.setText(self.tr("Theme:"))
+        self.sync_method_label.setText(self.tr("Sync Method:"))
+        self.game_dir_label.setText(self.tr("Game Directory:"))
+        self.mods_dir_label.setText(self.tr("Mods Directory:"))
+        self.ask_for_author_checkbox.setText(self.tr("Ask for author during installation"))
+    
+        
 
     def create_group(self, title: str):
         group = QGroupBox(title)
@@ -114,7 +126,7 @@ class SettingsView(QWidget):
         input.setReadOnly(True)
         input.setObjectName("directoryInput")
 
-        browse_button = QPushButton(text="Browse Folder")
+        browse_button = QPushButton(text=self.tr("Browse Folder"))
         browse_button.setObjectName("browseButton")
         browse_button.setCursor(Qt.CursorShape.PointingHandCursor)
 
@@ -123,7 +135,7 @@ class SettingsView(QWidget):
         layout.addWidget(input, 0, 1, 1, 1)
         layout.addWidget(browse_button, 0, 2, 1, 1, Qt.AlignmentFlag.AlignRight)
 
-        return widget, browse_button
+        return widget, label, browse_button
 
     def create_combobox(self, label: str, options: list, config_key: str, default: Any = None, on_change=None):
         widget = QWidget()
@@ -154,9 +166,9 @@ class SettingsView(QWidget):
             combo.setCurrentIndex(index)
             combo.currentIndexChanged.connect(lambda index: self.config_manager.set(config_key, combo.itemData(index)))
 
-        return widget
+        return widget, label, combo
 
-    def create_checkbox(self, label: str, config_key: str, default: bool = False):
+    def create_checkbox(self, label: QObject, config_key: str, default: bool = False):
         widget = QWidget()
         widget.setSizePolicy(QSizePolicy.Policy.Expanding,
                              QSizePolicy.Policy.Fixed)
@@ -170,10 +182,10 @@ class SettingsView(QWidget):
 
         layout.addWidget(checkbox)
 
-        return widget
+        return widget, checkbox
 
     def open_game_directory_dialog(self):
-        directory = QFileDialog.getExistingDirectory(self, "Select Game Directory", "")
+        directory = QFileDialog.getExistingDirectory(self, self.tr("Select Game Directory"), "")
         
         if directory:
             try:
@@ -181,8 +193,8 @@ class SettingsView(QWidget):
             except GameNotFoundError:
                 msg_box = QMessageBox()
                 msg_box.setIcon(QMessageBox.Critical)
-                msg_box.setWindowTitle("Error")
-                msg_box.setText("The selected directory does not contain the game files. Please select a valid game directory.")
+                msg_box.setWindowTitle(self.tr("Error"))
+                msg_box.setText(self.tr("The selected directory does not contain the game files. Please select a valid game directory."))
                 msg_box.exec_()
                 return
 
@@ -190,7 +202,7 @@ class SettingsView(QWidget):
             self.sender().parent().findChild(QLineEdit).setText(directory)
 
     def open_mods_directory_dialog(self):
-        directory = QFileDialog.getExistingDirectory(self, "Select Mods Directory", "")
+        directory = QFileDialog.getExistingDirectory(self, self.tr("Select Mods Directory"), "")
         if directory:
             self.mod_manager.set_staging_mods_directory(directory)
             self.config_manager.set("staging_mods_path", directory)

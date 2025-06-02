@@ -73,21 +73,21 @@ class ModsView(QWidget):
         self.top_bar_layout = QHBoxLayout(self.top_bar)
         self.top_bar_layout.setContentsMargins(0, 0, 0, 0)
 
-        self.search_field = QLineEdit(placeholderText="Search Mods")
+        self.search_field = QLineEdit(placeholderText=self.tr("Search Mods"))
         self.search_field.setObjectName("searchField")
         self.search_field.addAction(QIcon(":/material/search.svg"), QLineEdit.ActionPosition.LeadingPosition)
         self.search_field.textChanged.connect(self._filter_search)
 
-        self.refresh_button = QPushButton("Refresh Mods")
+        self.refresh_button = QPushButton(self.tr("Refresh Mods"))
         self.refresh_button.setObjectName("modsViewButton")
-        self.refresh_button.setToolTip("Refresh the list of mods")
+        self.refresh_button.setToolTip(self.tr("Refresh the list of mods"))
         self.refresh_button.setCursor(Qt.CursorShape.PointingHandCursor)
         self.refresh_button.clicked.connect(self._refresh_mods)
         self.refresh_button.setIcon(QIcon(":/material/refresh.svg"))
-        
-        self.add_mod_button = QPushButton("Add Mod")
+
+        self.add_mod_button = QPushButton(self.tr("Add Mod"))
         self.add_mod_button.setObjectName("modsViewButton")
-        self.add_mod_button.setToolTip("Add a new mod")
+        self.add_mod_button.setToolTip(self.tr("Add a new mod"))
         self.add_mod_button.setCursor(Qt.CursorShape.PointingHandCursor)
         self.add_mod_button.setIcon(QIcon(":/material/add.svg"))
         self.add_mod_button.clicked.connect(self._add_mod)
@@ -99,7 +99,7 @@ class ModsView(QWidget):
 
         self.mod_list = QTreeWidget()
         self.mod_list.setObjectName("modlist")
-        self.mod_list.setHeaderLabels(["Mod Name", "Character", "Type", "Author"])
+        self.mod_list.setHeaderLabels([self.tr("Mod Name"), self.tr("Character"), self.tr("Type"), self.tr("Author")])
         self.mod_list.setSortingEnabled(True)
         self.mod_list.setRootIsDecorated(False)
         self.mod_list.setAlternatingRowColors(True)
@@ -122,25 +122,25 @@ class ModsView(QWidget):
         self.footer_bar_layout = QHBoxLayout(self.footer_bar)
         self.footer_bar_layout.setContentsMargins(0, 0, 0, 0)
 
-        self.info_label = LabelIcon(icon=QIcon(":/material/info.svg"), text="Drag and drop mods here to add them.")
+        self.info_label = LabelIcon(icon=QIcon(":/material/info.svg"), text=self.tr("Drag and drop mods here to add them."))
         self.info_label.setObjectName("infoLabel")
 
         self.actions_widget = QWidget()
         self.actions_layout = QHBoxLayout(self.actions_widget)
         self.actions_layout.setContentsMargins(0, 0, 0, 0)
-        
-        self.open_mods_folder_button = QPushButton("Open Mods Folder")
+
+        self.open_mods_folder_button = QPushButton(self.tr("Open Mods Folder"))
         self.open_mods_folder_button.setObjectName("modsViewButton")
         self.open_mods_folder_button.setIcon(QIcon(":/material/folder.svg"))
         self.open_mods_folder_button.clicked.connect(self.openModsFolderRequested.emit)
 
-        self.sync_button = QPushButton("Sync Mods")
+        self.sync_button = QPushButton(self.tr("Sync Mods"))
         self.sync_button.clicked.connect(self.modsSyncRequested.emit)
         self.sync_button.setObjectName("syncButton")
         self.sync_button.setObjectName("modsViewButton")
         self.sync_button.setIcon(QIcon(":/material/sync.svg"))
-        
-        self.unsync_button = QPushButton("Unsync Mods")
+
+        self.unsync_button = QPushButton(self.tr("Unsync Mods"))
         self.unsync_button.clicked.connect(self.modsUnsyncRequested.emit)
         self.unsync_button.setObjectName("unsyncButton")
         self.unsync_button.setObjectName("modsViewButton")
@@ -156,6 +156,18 @@ class ModsView(QWidget):
         self.layout.addWidget(self.top_bar)
         self.layout.addWidget(self.mod_list)
         self.layout.addWidget(self.footer_bar)
+
+    def retranslateUI(self):
+        self.setWindowTitle(self.tr("Mods Manager"))
+        self.search_field.setPlaceholderText(self.tr("Search Mods"))
+        self.refresh_button.setText(self.tr("Refresh Mods"))
+        self.add_mod_button.setText(self.tr("Add Mod"))
+        self.open_mods_folder_button.setText(self.tr("Open Mods Folder"))
+        self.sync_button.setText(self.tr("Sync Mods"))
+        self.unsync_button.setText(self.tr("Unsync Mods"))
+        self.info_label.setText(self.tr("Drag and drop mods here to add them."))
+        self.mod_list.setHeaderLabels([self.tr("Mod Name"), self.tr("Character"), self.tr("Type"), self.tr("Author")])
+
 
     def resizeEvent(self, event):
         super().resizeEvent(event)
@@ -192,18 +204,18 @@ class ModsView(QWidget):
         mod = current_item.data(0, Qt.ItemDataRole.UserRole)
         
         menu = QMenu(self)
-        menu.addAction("Refresh Mods", self._refresh_mods)
+        menu.addAction(self.tr("Refresh Mods"), self._refresh_mods)
         menu.addSeparator()
-        action_text = "Enable Mod"
+        action_text = self.tr("Enable Mod")
         if current_item.checkState(0) == Qt.CheckState.Checked:
-            action_text = "Disable Mod"
+            action_text = self.tr("Disable Mod")
         menu.addAction(action_text, lambda: self._enable_or_disable_mod(current_item))
-        menu.addAction("Set Mod Author", lambda: self._show_author_input_dialog(current_item))
+        menu.addAction(self.tr("Set Mod Author"), lambda: self._show_author_input_dialog(current_item))
         menu.addSeparator()
-        menu.addAction("Rename Mod", lambda: self._show_rename_input_dialog(current_item))
-        menu.addAction("Delete Mod", lambda: self._show_delete_confirmation_dialog(mod["name"]))
+        menu.addAction(self.tr("Rename Mod"), lambda: self._show_rename_input_dialog(current_item))
+        menu.addAction(self.tr("Delete Mod"), lambda: self._show_delete_confirmation_dialog(mod["name"]))
         menu.addSeparator()
-        menu.addAction("Open Mod Folder", lambda: self.openModFolderRequested.emit(mod["path"]))
+        menu.addAction(self.tr("Open Mod Folder"), lambda: self.openModFolderRequested.emit(mod["path"]))
 
         menu.exec_(self.mod_list.mapToGlobal(pos))
         
@@ -213,7 +225,7 @@ class ModsView(QWidget):
 
     def _show_author_input_dialog(self, item: QTreeWidgetItem):
         mod = item.data(0, Qt.ItemDataRole.UserRole)
-        author, ok = QInputDialog.getText(self, "Set Mod Author", "Enter the author's name:", text=mod.get("author", ""))
+        author, ok = QInputDialog.getText(self, self.tr("Set Mod Author"), self.tr("Enter the author's name:"), text=mod.get("author", ""))
         if ok and author:
             mod["author"] = author
             item.setData(0, Qt.ItemDataRole.UserRole, mod)
@@ -224,7 +236,7 @@ class ModsView(QWidget):
 
     def _show_rename_input_dialog(self, item: QTreeWidgetItem):
         mod = item.data(0, Qt.ItemDataRole.UserRole)
-        new_name, ok = QInputDialog.getText(self, "Rename Mod", "Enter the new name for the mod:", text=mod.get("name", ""))
+        new_name, ok = QInputDialog.getText(self, self.tr("Rename Mod"), self.tr("Enter the new name for the mod:"), text=mod.get("name", ""))
         if ok and new_name:
             old_name = mod["name"]
             mod["name"] = new_name
@@ -235,10 +247,12 @@ class ModsView(QWidget):
         return None
     
     def _show_delete_confirmation_dialog(self, mod_name: str):
+        msg_template = self.tr("Are you sure you want to delete the mod '{mod_name}'?")
+        msg = msg_template.format(mod_name=mod_name)
         reply = QMessageBox.question(
             self,
-            "Delete Mod",
-            f"Are you sure you want to delete the mod '{mod_name}'?",
+            self.tr("Delete Mod"),
+            msg,
             QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
             QMessageBox.StandardButton.No
         )
@@ -266,7 +280,7 @@ class ModsView(QWidget):
             self._filter_search(self.search_field.text())
 
     def _add_mod(self):
-        filename, _ = QFileDialog.getOpenFileName(self, "Select Mod", "", "*.modfile")
+        filename, _ = QFileDialog.getOpenFileName(self, self.tr("Select Mod"), "", "*.modfile")
         if filename:
             self.addModRequested.emit(filename)
 
@@ -310,19 +324,6 @@ class ModsView(QWidget):
             item.setTextAlignment(2, Qt.AlignVCenter | Qt.AlignHCenter)
             
             self.mod_list.addTopLevelItem(item)
-                
-        # Bad performance
-        # for column in range(self.mod_list.columnCount()):
-        #     size = self.mod_list.header().sectionSizeHint(column)
-        #     if size < self.mod_list.sizeHintForColumn(column):
-        #         size = self.mod_list.sizeHintForColumn(column) + 16
-        #     else:
-        #         size += 12
-        #     self.mod_list.header().resizeSection(column, size)
-        
-        # Bad performance too
-        # for column in range(self.mod_list.columnCount()):
-        #     self.mod_list.resizeColumnToContents(column)
 
         self.mod_list.verticalScrollBar().setValue(pos_y)
 
