@@ -1,6 +1,6 @@
-from PySide6.QtWidgets import QWidget, QTreeView, QVBoxLayout, QStyledItemDelegate
-from PySide6.QtCore import QAbstractItemModel, QModelIndex, Qt, QSize, QRect
-from PySide6.QtGui import QPainter, QPixmap, QFont, QColor, QFontMetrics
+from PySide6.QtWidgets import QWidget, QTreeView, QVBoxLayout, QStyledItemDelegate, QStyle
+from PySide6.QtCore import QAbstractItemModel, QModelIndex, Qt, QSize, QRect, QRectF
+from PySide6.QtGui import QPainter, QPixmap, QFont, QColor, QFontMetrics, QPen , QBrush
 
 from typing import Any, Union
 
@@ -89,6 +89,10 @@ class CharacterTreeModel(QAbstractItemModel):
 class CostumeTreeDelegate(QStyledItemDelegate):
     def paint(self, painter, option, index):
         data = index.model().data(index, Qt.UserRole)
+        
+        # print(option == QStyle)
+        if option.state & QStyle.StateFlag.State_MouseOver:
+            option.state &= ~QStyle.State_MouseOver
 
         if not data:
             return
@@ -99,10 +103,15 @@ class CostumeTreeDelegate(QStyledItemDelegate):
             text = f"{character.get('character', '')} - {character.get('costume', '')}"
 
             margin = 8
+            radius = 8
             rect = option.rect.adjusted(0, margin, 0, -margin)
-
-            painter.fillRect(rect, QColor("#1A1A1A"))
-
+            
+            brush = QBrush(QColor("#2F3037"))
+            painter.setBrush(brush)
+            
+            painter.setPen(QPen(QColor("#2F3037"), 1))
+            painter.drawRoundedRect(QRectF(rect), radius, radius)
+            
             # Imagem
             img_size = QSize(90, 90)
             img_margin = 12
@@ -139,14 +148,14 @@ class CostumeTreeDelegate(QStyledItemDelegate):
             )
 
             # Define cutscene text and font
-            cutscene_text = "Installed" if costume.get(
-                "cutscene") else "Not Installed"
+            cutscene_text = self.tr("Installed") if costume.get(
+                "cutscene") else self.tr("Not Installed")
             font_status = QFont()
             font_status.setPointSize(10)
             font_status.setBold(False)
             font_metrics_status = QFontMetrics(font_status)
             cutscene_text_width = font_metrics_status.horizontalAdvance(
-                "Not Installed")
+                self.tr("Not Installed"))
 
             # Rectangle for cutscene status text
             cutscene_text_rect = QRect(
@@ -265,6 +274,7 @@ class CharactersView(QWidget):
     def __init__(self, characters: dict):
         super().__init__()
         self.view = QTreeView()
+        self.view.setObjectName("charactersTreeView")
         self.model = CharacterTreeModel(characters)
         self.view.setModel(self.model)
         self.view.setItemDelegate(CostumeTreeDelegate(self))
@@ -275,3 +285,6 @@ class CharactersView(QWidget):
         self.view.expandAll()
         layout = QVBoxLayout(self)
         layout.addWidget(self.view)
+
+    def retranslateUI(self):
+        pass

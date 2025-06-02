@@ -232,3 +232,15 @@ QScrollBar::add-line:horizontal, QScrollBar::sub-line:horizontal {
 QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
     background: none;
 }
+
+QTreeView#charactersTreeView {
+    background-color: #1C1D21;
+    color: #ecf0f1;
+    border: none;
+    padding: 10px;
+    border-radius: 8px;
+}
+
+QTreeView::branch:hover {
+    background: transparent;
+}
