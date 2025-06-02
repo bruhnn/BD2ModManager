@@ -32,9 +32,35 @@ class BD2MMConfigManager:
 
         self._config_parser.set("General", "game_path", value)
         self._save_config()
+    
+    def get(self, key: str, boolean: bool = False) -> Optional[Union[str, bool]]:
+        """
+        Returns the value of a specific configuration key.
+        """
+        if boolean:
+            value = self._config_parser.getboolean("General", key, fallback=None)
+            return value if value is not None else False
+
+        return self._config_parser.get("General", key, fallback=None)
+
+    def set(self, key: str, value: Union[str, bool]):
+        """
+        Sets the value of a specific configuration key.
+        """
+        if isinstance(value, bool):
+            value = str(value).lower()
+        self._config_parser.set("General", key, value)
+        self._save_config()
 
     def _create_defaults(self):
-        self._config_parser.read_dict({"General": {"GAME_PATH": ""}})
+        self._config_parser.read_dict({"General": {
+            "game_path": "",
+            "staging_mods_path": "",
+            "language": "english",
+            "theme": "default",
+            "sync_method": "copy",
+            "ask_for_author": False
+        }})
 
         self._save_config()
 
