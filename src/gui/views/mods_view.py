@@ -1,6 +1,6 @@
 
 
-from PySide6.QtGui import QDragEnterEvent
+from PySide6.QtGui import QDragEnterEvent, QIcon
 from PySide6.QtWidgets import (
     QWidget,
     QVBoxLayout,
@@ -17,6 +17,8 @@ from PySide6.QtWidgets import (
     QMessageBox
 )
 from PySide6.QtCore import Qt, Signal
+
+from src.gui.widgets import LabelIcon
 
 
 class DragFilesModal(QWidget):
@@ -39,7 +41,7 @@ class DragFilesModal(QWidget):
 
         self.hide()
         self.raise_()
-
+        
 
 class ModsView(QWidget):
     modsRefreshRequested = Signal() 
@@ -72,11 +74,15 @@ class ModsView(QWidget):
         self.top_bar_layout.setContentsMargins(0, 0, 0, 0)
 
         self.search_field = QLineEdit(placeholderText="Search Mods")
+        self.search_field.addAction(QIcon(":/material/search.svg"), QLineEdit.ActionPosition.LeadingPosition)
         self.search_field.textChanged.connect(self._filter_search)
 
         self.refresh_button = QPushButton("Refresh Mods")
         self.refresh_button.clicked.connect(self._refresh_mods)
+        self.refresh_button.setIcon(QIcon(":/material/refresh.svg"))
+        
         self.add_mod_button = QPushButton("Add Mod")
+        self.add_mod_button.setIcon(QIcon(":/material/add.svg"))
         self.add_mod_button.setObjectName("addModButton")
         self.add_mod_button.clicked.connect(self._add_mod)
 
@@ -106,7 +112,7 @@ class ModsView(QWidget):
         self.footer_bar_layout = QHBoxLayout(self.footer_bar)
         self.footer_bar_layout.setContentsMargins(0, 0, 0, 0)
 
-        self.info_label = QLabel()
+        self.info_label = LabelIcon(icon=QIcon(":/material/info.svg"), text="Drag and drop mods here to add them.")
         self.info_label.setObjectName("infoLabel")
 
         self.actions_widget = QWidget()
@@ -114,14 +120,18 @@ class ModsView(QWidget):
         self.actions_layout.setContentsMargins(0, 0, 0, 0)
         
         self.open_mods_folder_button = QPushButton("Open Mods Folder")
+        self.open_mods_folder_button.setIcon(QIcon(":/material/folder.svg"))
         self.open_mods_folder_button.clicked.connect(self.openModsFolderRequested.emit)
 
         self.sync_button = QPushButton("Sync Mods")
         self.sync_button.clicked.connect(self.modsSyncRequested.emit)
         self.sync_button.setObjectName("syncButton")
+        self.sync_button.setIcon(QIcon(":/material/sync.svg"))
+        
         self.unsync_button = QPushButton("Unsync Mods")
         self.unsync_button.clicked.connect(self.modsUnsyncRequested.emit)
         self.unsync_button.setObjectName("unsyncButton")
+        self.unsync_button.setIcon(QIcon(":/material/unsync.svg"))
 
         self.actions_layout.addWidget(self.open_mods_folder_button)
         self.actions_layout.addWidget(self.unsync_button)

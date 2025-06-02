@@ -2,6 +2,7 @@ from os import startfile
 
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QStackedWidget, QHBoxLayout
 from PySide6.QtCore import Qt, Signal
+from PySide6.QtGui import QIcon
 
 from ..widgets import NavButton
 from ..views import CharactersView, SettingsView, ModsView
@@ -27,6 +28,7 @@ class HomePage(QWidget):
         self.nav_mods_button = NavButton("Mods")
         self.nav_chars_button = NavButton("Characters")
         self.nav_settings_button = NavButton("Settings")
+        self.nav_settings_button.setIcon(QIcon(":/material/settings.svg"))
 
         self.navigation_bar_layout.addWidget(
             self.nav_mods_button, 0, Qt.AlignmentFlag.AlignLeft)

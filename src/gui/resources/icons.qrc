@@ -1,0 +1,15 @@
+<RCC>
+    <qresource prefix="material">
+        <file alias="add.svg">icons\material\add.svg</file>
+        <file alias="build.svg">icons/material/build.svg</file>
+        <file alias="extension.svg">icons/material/extension.svg</file>
+        <file alias="folder.svg">icons/material/folder.svg</file>
+        <file alias="info.svg">icons/material/info.svg</file>
+        <file alias="person.svg">icons/material/person.svg</file>
+        <file alias="refresh.svg">icons/material/refresh.svg</file>
+        <file alias="search.svg">icons/material/search.svg</file>
+        <file alias="settings.svg">icons/material/settings.svg</file>
+        <file alias="sync.svg">icons/material/sync.svg</file>
+        <file alias="unsync.svg">icons/material/unsync.svg</file>
+    </qresource>
+</RCC>

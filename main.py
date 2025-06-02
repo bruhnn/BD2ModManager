@@ -8,6 +8,8 @@ from src.BD2ModManager import BD2ModManager
 from src.gui import MainWindow
 from src.gui.config import BD2MMConfigManager
 
+from src.gui.resources import icons_rc
+
 
 def main():
     app = QApplication(sys.argv)
@@ -15,9 +17,7 @@ def main():
     CURRENT_PATH = Path(__file__).parent
 
     BD2MMConfig = BD2MMConfigManager(CURRENT_PATH / "BD2ModManager.ini")
-    
-    print(BD2MMConfig.get("staging_mods_path"))
-    
+        
     BD2MM = BD2ModManager(BD2MMConfig.get("staging_mods_path"))
 
     window = MainWindow(BD2MM, BD2MMConfig)
