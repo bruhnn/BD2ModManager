@@ -243,6 +243,7 @@ class BD2ModManager:
                 "character": character,
                 "author": mod_metadata.get("author", None),
                 "enabled": mod_metadata.get("enabled", False),
+                "path": str(mod_folder)
             }
 
             mods.append(mod)
