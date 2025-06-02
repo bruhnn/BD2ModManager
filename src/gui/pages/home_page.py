@@ -11,13 +11,6 @@ from src.gui.config import BD2MMConfigManager
 
 
 class HomePage(QWidget):
-    onRefreshMods = Signal()
-    onModsLoaded = Signal()
-    onAddMod = Signal(str)
-    onModStateChanged = Signal(str, bool)
-    onSyncModsClicked = Signal()
-    onUnsyncModsClicked = Signal()
-
     def __init__(self, mod_manager: BD2ModManager, config_manager: BD2MMConfigManager):
         super().__init__()
         layout = QVBoxLayout(self)
@@ -48,14 +41,16 @@ class HomePage(QWidget):
 
         self.mods_widget = ModsView()
         self.mods_widget.load_mods(mods)
-        self.mods_widget.onRefreshMods.connect(self.onRefreshMods)
-        self.mods_widget.onAddMod.connect(self.onAddMod)
-        self.mods_widget.onModStateChanged.connect(self.onModStateChanged)
-        self.mods_widget.onSyncModsClicked.connect(self.onSyncModsClicked)
-        self.mods_widget.onUnsyncModsClicked.connect(self.onUnsyncModsClicked)
+        self.mods_widget.onAddMod.connect(self._add_mod)
+        self.mods_widget.onRefreshMods.connect(self._refresh_mods)
+        self.mods_widget.onModStateChanged.connect(self._enable_or_disable_mod)
+        self.mods_widget.onSyncModsClicked.connect(self._sync_mods)
+        self.mods_widget.onUnsyncModsClicked.connect(self._unsync_mods)
 
         self.characters_widget = CharactersView(characters)
-        self.settings_widget = SettingsView()
+
+        self.settings_widget = SettingsView(config_manager, mod_manager)
+        self.settings_widget.onModsFolderChanged.connect(self._change_mods_folder)
 
         self.navigation_view.addWidget(self.mods_widget)
         self.navigation_view.addWidget(self.characters_widget)
@@ -73,13 +68,6 @@ class HomePage(QWidget):
 
         layout.addWidget(self.navigation_bar)
         layout.addWidget(self.navigation_view)
-    
-    def _change_mods_folder(self, folder: str):
-        # self.mod_manager.set_mods_directory(folder)
-        self._refresh_mods()
-
-    def _change_game_folder(self, folder: str):
-        self.mod_manager.set_game_directory(folder)
 
     def _refresh_mods(self):
         mods = self.mod_manager.get_mods()
