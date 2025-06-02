@@ -342,6 +342,9 @@ class BD2ModManager:
     def sync_mods(self, symlink: bool = False) -> None:
         if not self.is_browndustx_installed():
             raise BrownDustXNotInstalled()
+        
+        if not self.check_game_directory():
+            raise GameDirectoryNotSetError("Game path is not set. Please set the game path first.")
 
         game_mods_directory = self._game_directory / r"BepInEx\plugins\BrownDustX\mods"
         
