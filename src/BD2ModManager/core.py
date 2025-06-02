@@ -64,6 +64,11 @@ class BD2ModManager:
     def game_directory(self) -> Optional[Path]:
         """Returns the game directory if set, otherwise None."""
         return self._game_directory
+    
+    @property
+    def staging_mods_directory(self) -> Path:
+        """Returns the path to the staging mods directory."""
+        return self._staging_mods_directory
 
     def _load_mods_data(self) -> dict:
         """Loads the mods data from the JSON file."""
@@ -147,6 +152,19 @@ class BD2ModManager:
         logger.warning("Game executable not found at %s", exe_path)
         
         return False
+    
+    def set_staging_mods_directory(self, path: Union[str, Path]) -> None:
+        """Sets the staging mods directory path."""
+        
+        staging_path = Path(path)
+        
+        if not staging_path.exists():
+            logger.debug("Staging mods directory does not exist. Creating: %s", staging_path)
+            staging_path.mkdir(parents=True, exist_ok=True)
+
+        self._staging_mods_directory = staging_path
+        
+        logger.debug("Staging mods directory set to %s", self._staging_mods_directory)
         
     def _get_mod_info(self, path: Path) -> dict:
         """Extracts mod information from the mod file in the given path."""    
