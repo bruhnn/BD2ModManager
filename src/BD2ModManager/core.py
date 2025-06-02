@@ -219,7 +219,7 @@ class BD2ModManager:
         if recursive:
             modfiles = self._staging_mods_directory.rglob("*.modfile")
         else:
-            modfiles = self._staging_mods_directory.glob("**/*.modfile")
+            modfiles = self._staging_mods_directory.glob("*/*.modfile")
 
         
         mods_folders = [modfile.parent for modfile in modfiles]
