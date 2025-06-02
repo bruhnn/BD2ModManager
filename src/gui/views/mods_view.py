@@ -1,3 +1,5 @@
+
+
 from PySide6.QtGui import QDragEnterEvent
 from PySide6.QtWidgets import (
     QWidget,
@@ -9,7 +11,10 @@ from PySide6.QtWidgets import (
     QTreeWidget,
     QTreeWidgetItem,
     QFileDialog,
-    QHeaderView
+    QHeaderView,
+    QMenu,
+    QInputDialog,
+    QMessageBox
 )
 from PySide6.QtCore import Qt, Signal
 
@@ -37,12 +42,19 @@ class DragFilesModal(QWidget):
 
 
 class ModsView(QWidget):
-    onRefreshMods = Signal()
-    onModsLoaded = Signal()
-    onAddMod = Signal(str)
-    onModStateChanged = Signal(str, bool)
-    onSyncModsClicked = Signal()
-    onUnsyncModsClicked = Signal()
+    modsRefreshRequested = Signal() 
+    modsSyncRequested = Signal()
+    modsUnsyncRequested = Signal()
+    
+    openModsFolderRequested = Signal()
+    
+    addModRequested = Signal(str) # Mod path
+    removeModRequested = Signal(str) # Mod Name
+    renameModRequested = Signal(str, str) # Mod Name, New Name
+
+    modStateChanged = Signal(str, bool) # Mod Name, Enabled State
+    modAuthorChanged = Signal(str, str) # Mod Name, Author Name
+    openModFolderRequested = Signal(str) # Mod Path
 
     def __init__(self):
         super().__init__()
@@ -77,6 +89,7 @@ class ModsView(QWidget):
         self.mod_list.setHeaderLabels(["Mod Name", "Character", "Type", "Author"])
         self.mod_list.setSortingEnabled(True)
         self.mod_list.setRootIsDecorated(False)
+        # self.mod_list.sortItems(0, Qt.SortOrder.AscendingOrder)
         self.mod_list.header().setObjectName("header")
         self.mod_list.header().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
         self.mod_list.header().setSectionResizeMode(0, QHeaderView.ResizeMode.ResizeToContents)
@@ -85,28 +98,32 @@ class ModsView(QWidget):
         self.mod_list.setContentsMargins(0, 0, 0, 0)
         self.mod_list.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self.mod_list.itemChanged.connect(self._mod_state_changed)
+        self.mod_list.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
+        self.mod_list.customContextMenuRequested.connect(self.show_context_menu)
 
         self.footer_bar = QWidget()
         self.footer_bar.setObjectName("footerBar")
         self.footer_bar_layout = QHBoxLayout(self.footer_bar)
         self.footer_bar_layout.setContentsMargins(0, 0, 0, 0)
 
-        self.info_label = QLabel(text="")
+        self.info_label = QLabel()
+        self.info_label.setObjectName("infoLabel")
 
         self.actions_widget = QWidget()
         self.actions_layout = QHBoxLayout(self.actions_widget)
         self.actions_layout.setContentsMargins(0, 0, 0, 0)
         
-        self.open_mods_folder = QPushButton("Open Mods Folder")
+        self.open_mods_folder_button = QPushButton("Open Mods Folder")
+        self.open_mods_folder_button.clicked.connect(self.openModsFolderRequested.emit)
 
         self.sync_button = QPushButton("Sync Mods")
-        self.sync_button.clicked.connect(self.onSyncModsClicked)
+        self.sync_button.clicked.connect(self.modsSyncRequested.emit)
         self.sync_button.setObjectName("syncButton")
         self.unsync_button = QPushButton("Unsync Mods")
-        self.unsync_button.clicked.connect(self.onUnsyncModsClicked)
+        self.unsync_button.clicked.connect(self.modsUnsyncRequested.emit)
         self.unsync_button.setObjectName("unsyncButton")
 
-        self.actions_layout.addWidget(self.open_mods_folder)
+        self.actions_layout.addWidget(self.open_mods_folder_button)
         self.actions_layout.addWidget(self.unsync_button)
         self.actions_layout.addWidget(self.sync_button)
 
@@ -142,9 +159,72 @@ class ModsView(QWidget):
         if event.mimeData().hasUrls():
             for url in event.mimeData().urls():
                 file_path = url.toLocalFile()
-                self.onAddMod.emit(file_path)
+                self.addModRequested.emit(file_path)
+    
+    def show_context_menu(self, pos):
+        current_item = self.mod_list.itemAt(pos)
+        if not current_item:
+            return
+        
+        mod = current_item.data(0, Qt.ItemDataRole.UserRole)
+        
+        menu = QMenu(self)
+        menu.addAction("Refresh Mods", self._refresh_mods)
+        menu.addSeparator()
+        action_text = "Enable Mod"
+        if current_item.checkState(0) == Qt.CheckState.Checked:
+            action_text = "Disable Mod"
+        menu.addAction(action_text, lambda: self._enable_or_disable_mod(current_item))
+        menu.addAction("Set Mod Author", lambda: self._show_author_input_dialog(current_item))
+        menu.addSeparator()
+        menu.addAction("Rename Mod", lambda: self._show_rename_input_dialog(current_item))
+        menu.addAction("Delete Mod", lambda: self._show_delete_confirmation_dialog(mod["name"]))
+        menu.addSeparator()
+        menu.addAction("Open Mod Folder", lambda: self.openModFolderRequested.emit(mod["path"]))
 
+        menu.exec_(self.mod_list.mapToGlobal(pos))
+        
+    def _enable_or_disable_mod(self, item: QTreeWidgetItem):
+        mod_state = item.checkState(0) == Qt.CheckState.Checked
+        item.setCheckState(0, Qt.Unchecked if mod_state else Qt.Checked)
+
+    def _show_author_input_dialog(self, item: QTreeWidgetItem):
+        mod = item.data(0, Qt.ItemDataRole.UserRole)
+        author, ok = QInputDialog.getText(self, "Set Mod Author", "Enter the author's name:", text=mod.get("author", ""))
+        if ok and author:
+            mod["author"] = author
+            item.setData(0, Qt.ItemDataRole.UserRole, mod)
+            item.setText(3, author)
+            self.modAuthorChanged.emit(mod["name"], author)
+
+        return None
+
+    def _show_rename_input_dialog(self, item: QTreeWidgetItem):
+        mod = item.data(0, Qt.ItemDataRole.UserRole)
+        new_name, ok = QInputDialog.getText(self, "Rename Mod", "Enter the new name for the mod:", text=mod.get("name", ""))
+        if ok and new_name:
+            old_name = mod["name"]
+            mod["name"] = new_name
+            item.setData(0, Qt.ItemDataRole.UserRole, mod)
+            item.setText(0, new_name)
+            self.renameModRequested.emit(old_name, new_name)
+
+        return None
+    
+    def _show_delete_confirmation_dialog(self, mod_name: str):
+        reply = QMessageBox.question(
+            self,
+            "Delete Mod",
+            f"Are you sure you want to delete the mod '{mod_name}'?",
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+            QMessageBox.StandardButton.No
+        )
+        if reply == QMessageBox.StandardButton.Yes:
+            self.removeModRequested.emit(mod_name)
+            self._refresh_mods()
+    
     def _filter_search(self, text: str):
+        # TODO: @type:cutscene, @author:yuki, @character:rou
 
         for index in range(self.mod_list.topLevelItemCount()):
             mod_item = self.mod_list.topLevelItem(index)
@@ -157,23 +237,20 @@ class ModsView(QWidget):
                 mod_item.setHidden(True)
 
     def _refresh_mods(self):
-        self.onRefreshMods.emit()
+        self.modsRefreshRequested.emit()
 
         if self.search_field.text():
             self._filter_search(self.search_field.text())
 
-        self.info_label.setText("")
-        self.info_label.setText("Mods updated.")
-
     def _add_mod(self):
         filename, _ = QFileDialog.getOpenFileName(self, "Select Mod", "", "*.modfile")
         if filename:
-            self.onAddMod.emit(filename)
+            self.addModRequested.emit(filename)
 
     def _mod_state_changed(self, item: QTreeWidgetItem):
         mod_data = item.data(0, Qt.ItemDataRole.UserRole)
         mod_state = item.checkState(0)
-        self.onModStateChanged.emit(
+        self.modStateChanged.emit(
             mod_data["name"], mod_state == Qt.CheckState.Checked
         )
 
@@ -210,7 +287,21 @@ class ModsView(QWidget):
             item.setTextAlignment(2, Qt.AlignVCenter | Qt.AlignHCenter)
             
             self.mod_list.addTopLevelItem(item)
-
-        self.info_label.setText("Mods loaded.")
+                
+        # Bad performance
+        # for column in range(self.mod_list.columnCount()):
+        #     size = self.mod_list.header().sectionSizeHint(column)
+        #     if size < self.mod_list.sizeHintForColumn(column):
+        #         size = self.mod_list.sizeHintForColumn(column) + 16
+        #     else:
+        #         size += 12
+        #     self.mod_list.header().resizeSection(column, size)
+        
+        # Bad performance too
+        # for column in range(self.mod_list.columnCount()):
+        #     self.mod_list.resizeColumnToContents(column)
 
         self.mod_list.verticalScrollBar().setValue(pos_y)
+
+    def set_info_text(self, text: str):
+        self.info_label.setText(text)
