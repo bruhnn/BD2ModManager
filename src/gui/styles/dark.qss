@@ -178,3 +178,57 @@ QComboBox QAbstractItemView::item {
     padding: 6px;
     color: #ecf0f1;
 }
+
+QScrollBar:vertical {
+    background: #1C1D21;
+    width: 8px;
+    border-radius: 6px;
+}
+
+QScrollBar::handle:vertical {
+    background: #4A4B50;
+    min-height: 24px;
+    border-radius: 6px;
+    
+}
+
+QScrollBar::handle:vertical:hover {
+    background: #5A5B60;
+}
+
+QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
+    background: none;
+    border: none;
+    height: 0px;
+}
+
+QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
+    background: none;
+}
+
+QScrollBar:horizontal {
+    background: #26262C;
+    height: 12px;
+    margin: 0 8px 0 8px;
+    border-radius: 6px;
+}
+
+QScrollBar::handle:horizontal {
+    background: #4A4B50;
+    min-width: 24px;
+    border-radius: 6px;
+}
+
+QScrollBar::handle:horizontal:hover {
+    background: #5A5B60;
+}
+
+QScrollBar::add-line:horizontal, QScrollBar::sub-line:horizontal {
+    background: none;
+    border: none;
+    width: 0px;
+}
+
+QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
+    background: none;
+}
