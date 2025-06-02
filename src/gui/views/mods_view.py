@@ -123,7 +123,6 @@ class ModsView(QWidget):
         self.footer_bar_layout.setContentsMargins(0, 0, 0, 0)
 
         self.info_label = LabelIcon(icon=QIcon(":/material/info.svg"), text=self.tr("Drag and drop mods here to add them."))
-        self.info_label.setObjectName("infoLabel")
 
         self.actions_widget = QWidget()
         self.actions_layout = QHBoxLayout(self.actions_widget)

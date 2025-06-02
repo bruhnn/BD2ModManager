@@ -58,6 +58,10 @@ QPushButton#modsViewButton:pressed {
     background-color: #4A4B50;
 }
 
+QLabel#labelText {
+    color: #ecf0f1;
+}
+
 QTreeWidget#modlist {
     background-color: #26262C;
     alternate-background-color: #2F3037;
@@ -120,6 +124,16 @@ QGroupBox#settingsGroup::title {
     color: #ecf0f1;
     font-size: 18px;
     background-color: transparent
+}
+
+QLabel#directoryLabel, QLabel#settingsLabel {
+    color: #ecf0f1;
+}
+
+QCheckBox#settingsCheckbox {
+    color: #ecf0f1;
+    padding: 4px;
+    font-family: "segoe ui", sans-serif;
 }
 
 QLineEdit#directoryInput {

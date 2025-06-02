@@ -27,6 +27,7 @@ class LabelIcon(QWidget):
 
         self.text_label = QLabel(text)
         self.text_label.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
+        self.text_label.setObjectName("labelText")
         layout.addWidget(self.text_label)
 
         layout.addStretch()

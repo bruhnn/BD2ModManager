@@ -49,7 +49,7 @@ class SettingsView(QWidget):
 
         theme_combobox_widget, self.theme_combobox_label, self.theme_combobox_combobox = self.create_combobox(self.tr("Theme:"), [
             {"label": self.tr("Dark"), "value": "dark"},
-            {"label": self.tr("Light"), "value": "light"},
+            # {"label": self.tr("Light"), "value": "light"},
         ], "theme", default="dark", on_change=self.onThemeChanged.emit)
 
         self.general_group.layout().addWidget(theme_combobox_widget)
@@ -121,6 +121,7 @@ class SettingsView(QWidget):
         layout.setContentsMargins(0, 0, 0, 0)
 
         label = QLabel(text=label)
+        label.setObjectName("directoryLabel")
 
         input = QLineEdit(text=str(value))
         input.setReadOnly(True)
@@ -145,6 +146,7 @@ class SettingsView(QWidget):
         layout.setContentsMargins(0, 0, 0, 0)
 
         label = QLabel(text=label)
+        label.setObjectName("settingsLabel")
 
         combo = QComboBox()
         combo.setObjectName("settingsComboBox")
@@ -176,6 +178,7 @@ class SettingsView(QWidget):
         layout.setContentsMargins(0, 0, 0, 0)
 
         checkbox = QCheckBox(text=label)
+        checkbox.setObjectName("settingsCheckbox")
         
         checkbox.setChecked(self.config_manager.get(config_key, boolean=True, default=default))
         checkbox.stateChanged.connect(lambda state: self.config_manager.set(config_key, checkbox.checkState() == Qt.CheckState.Checked))
