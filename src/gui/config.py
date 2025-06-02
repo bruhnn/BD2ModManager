@@ -1,4 +1,4 @@
-from typing import Union, Optional
+from typing import Union, Optional, Any
 from pathlib import Path
 from configparser import ConfigParser
 
@@ -33,7 +33,7 @@ class BD2MMConfigManager:
         self._config_parser.set("General", "game_path", value)
         self._save_config()
     
-    def get(self, key: str, boolean: bool = False) -> Optional[Union[str, bool]]:
+    def get(self, key: str, boolean: bool = False, default: Any = None) -> Optional[Union[str, bool]]:
         """
         Returns the value of a specific configuration key.
         """
@@ -41,7 +41,7 @@ class BD2MMConfigManager:
             value = self._config_parser.getboolean("General", key, fallback=None)
             return value if value is not None else False
 
-        return self._config_parser.get("General", key, fallback=None)
+        return self._config_parser.get("General", key, fallback=default)
 
     def set(self, key: str, value: Union[str, bool]):
         """
