@@ -64,7 +64,7 @@ class ModsView(QWidget):
         self.setAcceptDrops(True)
 
         self.layout = QVBoxLayout(self)
-        self.layout.setContentsMargins(0, 0, 0, 0)
+        self.layout.setContentsMargins(6, 6, 6, 6)
 
         self.drop_modal = DragFilesModal(self)
 
@@ -74,17 +74,24 @@ class ModsView(QWidget):
         self.top_bar_layout.setContentsMargins(0, 0, 0, 0)
 
         self.search_field = QLineEdit(placeholderText="Search Mods")
+        self.search_field.setObjectName("searchField")
         self.search_field.addAction(QIcon(":/material/search.svg"), QLineEdit.ActionPosition.LeadingPosition)
         self.search_field.textChanged.connect(self._filter_search)
 
         self.refresh_button = QPushButton("Refresh Mods")
+        self.refresh_button.setObjectName("modsViewButton")
+        self.refresh_button.setToolTip("Refresh the list of mods")
+        self.refresh_button.setCursor(Qt.CursorShape.PointingHandCursor)
         self.refresh_button.clicked.connect(self._refresh_mods)
         self.refresh_button.setIcon(QIcon(":/material/refresh.svg"))
         
         self.add_mod_button = QPushButton("Add Mod")
+        self.add_mod_button.setObjectName("modsViewButton")
+        self.add_mod_button.setToolTip("Add a new mod")
+        self.add_mod_button.setCursor(Qt.CursorShape.PointingHandCursor)
         self.add_mod_button.setIcon(QIcon(":/material/add.svg"))
-        self.add_mod_button.setObjectName("addModButton")
         self.add_mod_button.clicked.connect(self._add_mod)
+        
 
         self.top_bar_layout.addWidget(self.search_field)
         self.top_bar_layout.addWidget(self.refresh_button)
@@ -95,8 +102,11 @@ class ModsView(QWidget):
         self.mod_list.setHeaderLabels(["Mod Name", "Character", "Type", "Author"])
         self.mod_list.setSortingEnabled(True)
         self.mod_list.setRootIsDecorated(False)
+        self.mod_list.setAlternatingRowColors(True)
         # self.mod_list.sortItems(0, Qt.SortOrder.AscendingOrder)
-        self.mod_list.header().setObjectName("header")
+        self.mod_list.header().setObjectName("modlistHeader")
+        self.mod_list.header().setFixedHeight(32)
+
         self.mod_list.header().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
         self.mod_list.header().setSectionResizeMode(0, QHeaderView.ResizeMode.ResizeToContents)
         self.mod_list.setFocusPolicy(Qt.FocusPolicy.NoFocus)
@@ -120,17 +130,20 @@ class ModsView(QWidget):
         self.actions_layout.setContentsMargins(0, 0, 0, 0)
         
         self.open_mods_folder_button = QPushButton("Open Mods Folder")
+        self.open_mods_folder_button.setObjectName("modsViewButton")
         self.open_mods_folder_button.setIcon(QIcon(":/material/folder.svg"))
         self.open_mods_folder_button.clicked.connect(self.openModsFolderRequested.emit)
 
         self.sync_button = QPushButton("Sync Mods")
         self.sync_button.clicked.connect(self.modsSyncRequested.emit)
         self.sync_button.setObjectName("syncButton")
+        self.sync_button.setObjectName("modsViewButton")
         self.sync_button.setIcon(QIcon(":/material/sync.svg"))
         
         self.unsync_button = QPushButton("Unsync Mods")
         self.unsync_button.clicked.connect(self.modsUnsyncRequested.emit)
         self.unsync_button.setObjectName("unsyncButton")
+        self.unsync_button.setObjectName("modsViewButton")
         self.unsync_button.setIcon(QIcon(":/material/unsync.svg"))
 
         self.actions_layout.addWidget(self.open_mods_folder_button)

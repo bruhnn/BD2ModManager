@@ -11,5 +11,6 @@
         <file alias="settings.svg">icons/material/settings.svg</file>
         <file alias="sync.svg">icons/material/sync.svg</file>
         <file alias="unsync.svg">icons/material/unsync.svg</file>
+        <file alias="arrow_down.svg">icons/material/arrow_drop_down.svg</file>
     </qresource>
 </RCC>

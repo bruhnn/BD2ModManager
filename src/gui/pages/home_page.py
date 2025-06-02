@@ -4,39 +4,41 @@ from PySide6.QtWidgets import QWidget, QVBoxLayout, QStackedWidget, QHBoxLayout
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QIcon
 
-from ..widgets import NavButton
-from ..views import CharactersView, SettingsView, ModsView
-from ..views import SettingsView, ModsView
-
 from src.BD2ModManager import BD2ModManager
 from src.BD2ModManager.errors import GameNotFoundError
 from src.gui.config import BD2MMConfigManager
 
+from ..widgets import NavButton
+from ..views import CharactersView, SettingsView, ModsView
 
 class HomePage(QWidget):
+    onThemeChanged = Signal(str)
+    onLanguageChanged = Signal(str)
+    
     def __init__(self, mod_manager: BD2ModManager, config_manager: BD2MMConfigManager):
         super().__init__()
         layout = QVBoxLayout(self)
+        layout.setContentsMargins(0, 0, 0, 0)
         
         self.mod_manager = mod_manager
         self.config_manager = config_manager
 
         self.navigation_bar = QWidget()
+        self.navigation_bar.setObjectName("navigationBar")
         self.navigation_bar_layout = QHBoxLayout(self.navigation_bar)
         self.navigation_bar_layout.setContentsMargins(0, 0, 0, 0)
+        self.navigation_bar_layout.setSpacing(0)
 
         self.nav_mods_button = NavButton("Mods")
+        self.nav_mods_button.setProperty("active", True)
         self.nav_chars_button = NavButton("Characters")
         self.nav_settings_button = NavButton("Settings")
         self.nav_settings_button.setIcon(QIcon(":/material/settings.svg"))
 
-        self.navigation_bar_layout.addWidget(
-            self.nav_mods_button, 0, Qt.AlignmentFlag.AlignLeft)
-        self.navigation_bar_layout.addWidget(
-            self.nav_chars_button, 0, Qt.AlignmentFlag.AlignLeft)
+        self.navigation_bar_layout.addWidget(self.nav_mods_button, 0, Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignTop)
+        self.navigation_bar_layout.addWidget(self.nav_chars_button, 0, Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
         self.navigation_bar_layout.addStretch()
-        self.navigation_bar_layout.addWidget(
-        self.nav_settings_button, 0, Qt.AlignmentFlag.AlignRight)
+        self.navigation_bar_layout.addWidget(self.nav_settings_button, 0, Qt.AlignmentFlag.AlignRight)
 
         self.navigation_view = QStackedWidget()
 
@@ -58,21 +60,23 @@ class HomePage(QWidget):
         self.characters_widget = CharactersView(characters)
         
         self.settings_widget = SettingsView(config_manager, mod_manager)
+        self.settings_widget.onThemeChanged.connect(self.onThemeChanged)
+        self.settings_widget.onLanguageChanged.connect(self.onLanguageChanged)
 
         self.navigation_view.addWidget(self.mods_widget)
         self.navigation_view.addWidget(self.characters_widget)
         self.navigation_view.addWidget(self.settings_widget)
 
         self.nav_mods_button.clicked.connect(
-            lambda: self.navigation_view.setCurrentIndex(0)
+            lambda: (self.navigation_view.setCurrentIndex(0), self._update_navigation_buttons())
         )
         self.nav_chars_button.clicked.connect(
-            lambda: self.navigation_view.setCurrentIndex(1)
+            lambda: (self.navigation_view.setCurrentIndex(1), self._update_navigation_buttons())
         )
         self.nav_settings_button.clicked.connect(
-            lambda: self.navigation_view.setCurrentIndex(2)
+            lambda: (self.navigation_view.setCurrentIndex(2), self._update_navigation_buttons())
         )
-        
+
         if self.config_manager.get("game_path"):
             try:
                 self.mod_manager.set_game_directory(
@@ -83,6 +87,20 @@ class HomePage(QWidget):
 
         layout.addWidget(self.navigation_bar)
         layout.addWidget(self.navigation_view)
+    
+    def _update_navigation_buttons(self):
+        self.nav_mods_button.setProperty("active", self.navigation_view.currentIndex() == 0)
+        self.nav_chars_button.setProperty("active", self.navigation_view.currentIndex() == 1)
+        self.nav_settings_button.setProperty("active", self.navigation_view.currentIndex() == 2)
+
+        self.nav_mods_button.style().unpolish(self.nav_mods_button)
+        self.nav_mods_button.style().polish(self.nav_mods_button)
+        
+        self.nav_chars_button.style().unpolish(self.nav_chars_button)
+        self.nav_chars_button.style().polish(self.nav_chars_button)
+
+        self.nav_settings_button.style().unpolish(self.nav_settings_button)
+        self.nav_settings_button.style().polish(self.nav_settings_button)
     
     def _open_mods_folder(self):
         startfile(self.mod_manager.staging_mods_directory)

@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QGroupBox, QHBoxLayout, QLineEdit, QPushButton, QSizePolicy, QSpacerItem, QComboBox, QCheckBox, QFileDialog
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QGroupBox, QHBoxLayout, QLineEdit, QPushButton, QSizePolicy, QSpacerItem, QComboBox, QCheckBox, QFileDialog, QGridLayout, QMessageBox
 from PySide6.QtCore import Qt, Signal
 
 from typing import Union, Any
@@ -9,6 +9,9 @@ from src.BD2ModManager.errors import GameNotFoundError
 from src.gui.config import BD2MMConfigManager
 
 class SettingsView(QWidget):
+    onThemeChanged = Signal(str)
+    onLanguageChanged = Signal(str)
+    
     def __init__(self, config_manager: BD2ModManager, mod_manager: BD2MMConfigManager):
         super().__init__()
         self.setObjectName("settingsView")
@@ -17,9 +20,9 @@ class SettingsView(QWidget):
         self.mod_manager = mod_manager
 
         layout = QVBoxLayout(self)
-        layout.setContentsMargins(0, 0, 0, 0)
+        # layout.setContentsMargins(0, 0, 0, 0)
 
-        title = QLabel(text="Settings")
+        title = QLabel(text="Settings") 
         title.setSizePolicy(QSizePolicy.Policy.Expanding,
                             QSizePolicy.Policy.Fixed)
         title.setObjectName("settingsTitle")
@@ -48,13 +51,12 @@ class SettingsView(QWidget):
             {"label": "日本語", "value": "japanese"},
             {"label": "简体中文", "value": "chinese_simplified"},
             {"label": "繁體中文", "value": "chinese_traditional"}
-        ], "language", default="english")
+        ], "language", default="english", on_change=self.onLanguageChanged.emit)
 
         theme_combobox_widget = self.create_combobox("Theme:", [
-            {"label": "System Default", "value": "default"},
-            {"label": "Light", "value": "light"},
             {"label": "Dark", "value": "dark"},
-        ], "theme", default="default")
+            {"label": "Light", "value": "light"},
+        ], "theme", default="dark", on_change=self.onThemeChanged.emit)
 
         general_group.layout().addWidget(theme_combobox_widget)
         general_group.layout().addWidget(language_combobox_widget)
@@ -103,25 +105,27 @@ class SettingsView(QWidget):
         widget.setSizePolicy(QSizePolicy.Policy.Expanding,
                              QSizePolicy.Policy.Fixed)
 
-        layout = QHBoxLayout(widget)
+        layout = QGridLayout(widget)
         layout.setContentsMargins(0, 0, 0, 0)
 
         label = QLabel(text=label)
 
-        value = QLineEdit(text=str(value))
-        value.setReadOnly(True)
+        input = QLineEdit(text=str(value))
+        input.setReadOnly(True)
+        input.setObjectName("directoryInput")
 
-        select_btn = QPushButton(text="Select Folder")
+        browse_button = QPushButton(text="Browse Folder")
+        browse_button.setObjectName("browseButton")
+        browse_button.setCursor(Qt.CursorShape.PointingHandCursor)
 
-        layout.addWidget(label, 0, Qt.AlignmentFlag.AlignLeft)
-        layout.addSpacerItem(QSpacerItem(
-            32, 0, QSizePolicy.Fixed, QSizePolicy.Minimum))
-        layout.addWidget(value, 1)
-        layout.addWidget(select_btn, 0, Qt.AlignmentFlag.AlignRight)
 
-        return widget, select_btn
+        layout.addWidget(label, 0, 0, 1, 1, Qt.AlignmentFlag.AlignLeft)
+        layout.addWidget(input, 0, 1, 1, 1)
+        layout.addWidget(browse_button, 0, 2, 1, 1, Qt.AlignmentFlag.AlignRight)
 
-    def create_combobox(self, label: str, options: list, config_key: str, default: Any = None):
+        return widget, browse_button
+
+    def create_combobox(self, label: str, options: list, config_key: str, default: Any = None, on_change=None):
         widget = QWidget()
         widget.setSizePolicy(QSizePolicy.Policy.Expanding,
                              QSizePolicy.Policy.Fixed)
@@ -131,8 +135,13 @@ class SettingsView(QWidget):
         label = QLabel(text=label)
 
         combo = QComboBox()
+        combo.setObjectName("settingsComboBox")
+        
         for option in options:
             combo.addItem(option["label"], option["value"])
+
+        if on_change:
+            combo.currentIndexChanged.connect(lambda index: on_change(combo.itemData(index)))
 
         layout.addWidget(label, 0, Qt.AlignmentFlag.AlignLeft)
         layout.addSpacerItem(QSpacerItem(
@@ -165,13 +174,19 @@ class SettingsView(QWidget):
 
     def open_game_directory_dialog(self):
         directory = QFileDialog.getExistingDirectory(self, "Select Game Directory", "")
+        
         if directory:
             try:
                 self.mod_manager.set_game_directory(directory)
             except GameNotFoundError:
-                raise GameNotFoundError("The selected directory does not contain the game files. Please select a valid game directory.")
-                
-            self.config_manager.game_directory = directory
+                msg_box = QMessageBox()
+                msg_box.setIcon(QMessageBox.Critical)
+                msg_box.setWindowTitle("Error")
+                msg_box.setText("The selected directory does not contain the game files. Please select a valid game directory.")
+                msg_box.exec_()
+                return
+
+            self.config_manager.set("game_path", directory)
             self.sender().parent().findChild(QLineEdit).setText(directory)
 
     def open_mods_directory_dialog(self):

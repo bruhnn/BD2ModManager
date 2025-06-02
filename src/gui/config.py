@@ -61,7 +61,7 @@ class BD2MMConfigManager:
             "game_path": "",
             "staging_mods_path": "",
             "language": "english",
-            "theme": "default",
+            "theme": "dark",
             "sync_method": "copy",
             "ask_for_author": False,
             "search_mods_recursively": False
