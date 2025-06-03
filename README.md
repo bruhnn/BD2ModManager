@@ -22,7 +22,6 @@ Manage your Brown Dust 2 mods.
 5. Make a backup of your mods.
 6. Sync your mods. This will create a folder named `BD2MM` inside the `BDX` mods folder with all your enabled mods.
 
-#### Warning: "Unsync Mods" will delete **All** mods from the ``BDX/mods/BD2MM` folder.
 ---
 
 ## Screenshots
@@ -37,7 +36,6 @@ Manage your Brown Dust 2 mods.
 ![Characters Page](./screenshots/characters_page_2.png)
 
 ---
-
 
 ### Credits
 - Characters assets by https://github.com/myssal/Brown-Dust-2-Asset
