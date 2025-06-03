@@ -3,6 +3,7 @@ import logging
 from pathlib import Path
 
 from PySide6.QtWidgets import QApplication
+from PySide6.QtGui import QIcon
 from PySide6.QtCore import QTranslator
 
 from src.BD2ModManager import BD2ModManager
@@ -31,8 +32,13 @@ def main():
 
     BD2MM = BD2ModManager(staging_folder, CURRENT_PATH / "mods.json")
 
+    icon = QIcon((BUNDLE_PATH / r"icon.ico").as_posix())
+
     window = MainWindow(BD2MM, BD2MMConfig)
+    window.setWindowIcon(icon)
     window.show()
+    
+    app.setWindowIcon(icon)
 
     sys.exit(app.exec())
 
