@@ -342,7 +342,7 @@ class BD2ModManager:
         self._set_mod_data(mod_name, "author", author)
 
     @required_game_path
-    def sync_mods(self, symlink: bool = False) -> None:
+    def sync_mods(self, symlink: bool = False, progress_callback: Callable = None) -> None:
         if not self.check_game_directory():
             raise GameDirectoryNotSetError("Game path is not set. Please set the game path first.")
     
@@ -375,6 +375,9 @@ class BD2ModManager:
             mod for mod in installed_game_mods if mod not in [m.name for m in mods]
         ]
         
+        total_steps = len(mods_ingame_but_not_in_staging) + len(mods)
+        current_step = 0
+
         for mod in mods_ingame_but_not_in_staging:
             mod_game_path = game_mods_directory / "BD2MM" / mod
             
@@ -388,6 +391,9 @@ class BD2ModManager:
                     rmtree(mod_game_path)
             else:
                 logger.debug("Mod %s not found in game mods directory.", mod)
+            current_step += 1
+            if progress_callback:
+                progress_callback(current_step, total_steps)
 
         for mod in mods:
             mod_game_path = game_mods_directory / "BD2MM" / mod.name
@@ -451,11 +457,14 @@ class BD2ModManager:
                     else:
                         logger.debug("Removing mod folder %s at %s", mod.name, mod_game_path)
                         rmtree(mod_game_path)
+            current_step += 1
+            if progress_callback:
+                progress_callback(current_step, total_steps)
 
         logger.debug("Syncing completed")
 
     @required_game_path
-    def unsync_mods(self) -> None:
+    def unsync_mods(self, progress_callback: Callable = None) -> None:
         game_mods_directory = self._game_directory / r"BepInEx\plugins\BrownDustX\mods" / "BD2MM"
         
         if not game_mods_directory.exists():
@@ -467,6 +476,8 @@ class BD2ModManager:
         modfiles = self._staging_mods_directory.rglob("*.modfile")
         mods_installed = [modfile.parent for modfile in modfiles]
         
+        total_mods = len(mods_installed)
+        current_step = 0
         for mod_folder in mods_installed:
             mod_name = mod_folder.name
             mod_game_path = game_mods_directory / mod_name
@@ -481,7 +492,10 @@ class BD2ModManager:
                     rmtree(mod_game_path)
             else:
                 logger.debug("Mod %s not found in game mods directory.", mod_name)
-
+            
+            if progress_callback:
+                progress_callback(current_step, total_mods)
+            current_step += 1
 
     @required_game_path
     def is_browndustx_installed(self) -> bool:
