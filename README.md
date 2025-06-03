@@ -19,6 +19,7 @@ Manage your Brown Dust 2 mods.
 2. Select your Brown Dust 2 game directory.  
 3. Add your mods by dragging and dropping them into the manager or moving into mods/.  
 4. Enable, disable, or search mods as needed.  
+5. Sync your mods. This will create a folder named `BD2MM` inside the `BDX` mods folder with all your enabled mods.
 
 ---
 
