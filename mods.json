@@ -1,0 +1,563 @@
+{
+    "Zenith_Robin_idle": {
+        "enabled": true
+    },
+    "Zenith Robinhood  skillcut_yuk11sh1d4_v1": {
+        "enabled": true
+    },
+    "Wilhelmina_standing_yuk11sh1d4": {
+        "enabled": true
+    },
+    "Wilhelmina_skillcut_yuk11sh1d4_v1": {
+        "enabled": true
+    },
+    "Wilhelmina_burst_var1": {
+        "enabled": true
+    },
+    "Ventana_Onsen Practitioner_standing_yuk11sh1d4": {
+        "enabled": true
+    },
+    "Ventana_Onsen Practitioner_skullcut_yuk11sh1d4_v2-test1": {
+        "enabled": true
+    },
+    "Ventana_Onsen Practitioner_skullcut_yuk11sh1d4_v3": {
+        "enabled": true
+    },
+    "Ventana_Onsen Practitioner_skullcut_yuk11sh1d4_v2": {
+        "enabled": true
+    },
+    "Ventana_Idol_cutscene": {
+        "enabled": true
+    },
+    "Ventana cumback idol skillcut yuk11dh1d4": {
+        "enabled": true
+    },
+    "Venaka_Wind Dancer_standing_yuk11sh1d4_v1": {
+        "enabled": true
+    },
+    "Ventana_Onsen Practitioner_skullcut_yuk11sh1d4_v1": {
+        "enabled": true
+    },
+    "Venaka_Wind Dancer_skillcut_yuk11sh1d4_v1_2": {
+        "enabled": true
+    },
+    "Venaka_Wind Dancer_skillcut_yuk11sh1d4_v1_1": {
+        "enabled": true
+    },
+    "Venaka_DJ_standing_yuk11sh1d4_v1": {
+        "enabled": true
+    },
+    "Venaka_Dancer_Cut \u8d1d\u7eb3\u5361\u821e\u5a18\u6280\u80fd": {
+        "enabled": true
+    },
+    "Venaka Dj skillcut yuk11sh1d4": {
+        "enabled": true
+    },
+    "Teresse_Angel_Illust (motion part) \u6cf0\u745e\u4e1d\u539f\u76ae\u7acb\u7ed8\uff08\u70b9\u51fb\uff09": {
+        "enabled": true
+    },
+    "Teresse Medical Club skillcut yuk11sh1d4 v1": {
+        "enabled": true
+    },
+    "Teresse Medic Secret by HCoel Rev [Cut]": {
+        "enabled": true
+    },
+    "Teresse Date yuk11sh1d4v_1_1": {
+        "enabled": true
+    },
+    "Teresse Date yuk11sh1d4": {
+        "enabled": true
+    },
+    "Teresse Beachside Angel standing yuk11sh1d4 v1": {
+        "enabled": true
+    },
+    "Sylvia_Burst_Var1": {
+        "enabled": true
+    },
+    "Sylvia_Admiral_standing_yuk11sh1d4_v1": {
+        "enabled": true
+    },
+    "Sylvia_Admiral_skillcut_yuk11sh1d4_v1": {
+        "enabled": true
+    },
+    "Summon NPC yuk11sh1d4": {
+        "enabled": true
+    },
+    "Story_Valkyrie": {
+        "enabled": true
+    },
+    "Story_Nebris": {
+        "enabled": true
+    },
+    "Story_Loen_Morphea": {
+        "enabled": true
+    },
+    "Story_Loen": {
+        "enabled": true
+    },
+    "Story_Levia_Luvencia_BIke": {
+        "enabled": true
+    },
+    "Story_effect_ Goblin_Slayer_Scheherazade_yuk11sh1d4_v1_1": {
+        "enabled": true
+    },
+    "Story_effect_ Goblin_Slayer_Scheherazade_yuk11sh1d4": {
+        "enabled": true
+    },
+    "Story_Eclipse": {
+        "enabled": true
+    },
+    "Story_Diana_Lathel": {
+        "enabled": true
+    },
+    "Story_Blade": {
+        "enabled": true
+    },
+    "Story effect of second chapter of Scheherazade_2_yuk11sh1d4": {
+        "enabled": true
+    },
+    "Story effect of second chapter of Scheherazade_1_yuk11sh1d4": {
+        "enabled": true
+    },
+    "Story effect of 17 chapter yuk11sh1d4": {
+        "enabled": true
+    },
+    "Shop Girl_standing_yuk11sh1d4-v1": {
+        "enabled": true
+    },
+    "Seir_Demon_cutscene_v2": {
+        "enabled": true
+    },
+    "Seir New Hire by HCoel [Cut]": {
+        "enabled": true
+    },
+    "Scheherazade_Professor_Cut \u838e\u62c9\u6559\u6388\u6280\u80fd": {
+        "enabled": true
+    },
+    "Scheherazade_burst": {
+        "enabled": true
+    },
+    "Scheherazade The Lapis Witch_standing_yuk11sh1d4_v1": {
+        "enabled": true
+    },
+    "Scheherazade The Lapis Witch skillcut yuk11sh1d4 -v2": {
+        "enabled": true
+    },
+    "Scheherazade The Lapis Witch skillcut yuk11sh1d4": {
+        "enabled": true
+    },
+    "Scheherazade Code Name S_skillcut_yuk11sh1d4_v1": {
+        "enabled": true
+    },
+    "Scene_Veila": {
+        "enabled": true
+    },
+    "Scene_Researcher": {
+        "enabled": true
+    },
+    "Scene_Onsen": {
+        "enabled": true
+    },
+    "Scene_Morphea_Robot": {
+        "enabled": true
+    },
+    "Scene_Loen_Morphea_Bar": {
+        "enabled": true
+    },
+    "Scene_Loen_Card": {
+        "enabled": true
+    },
+    "Scene_Kelian2": {
+        "enabled": true
+    },
+    "Scene_Kelian": {
+        "enabled": true
+    },
+    "Samey_Kind Liberator_standing_yuk11sh1d4_v1": {
+        "enabled": true
+    },
+    "SacredJustia": {
+        "enabled": true
+    },
+    "Rubia_Thorn of the Desert_standing_yuk11sh1d4_v1": {
+        "enabled": true
+    },
+    "Rubia_Thorn of the Desert_skillcut_yuk11sh1d4_v1": {
+        "enabled": true
+    },
+    "Rubia_Empress of the Ocean_skillcut_yuk11sh1d4_v1": {
+        "enabled": true
+    },
+    "Rubia_Burst_var1": {
+        "enabled": true
+    },
+    "Rou Nature's Claw_Cutscene_yuk11sh1d4-v3": {
+        "enabled": true
+    },
+    "Rou Nature's Claw_Cutscene_yuk11sh1d4-v2": {
+        "enabled": true
+    },
+    "Rigenette_cutscene": {
+        "enabled": true
+    },
+    "Refithea_The Gluttonous standing_yuk11sh1d4": {
+        "enabled": true
+    },
+    "Rafina Game Club skillcut_yuk11sh1d4_v1": {
+        "enabled": true
+    },
+    "NeonLiatris": {
+        "enabled": true
+    },
+    "Nebris New Employee standing yuk11sh1d4 v1": {
+        "enabled": true
+    },
+    "Nebris New Employee skillcut yuk11sh1d4 v1": {
+        "enabled": true
+    },
+    "Nebris Laid-back Lifeguard_skillcut_yuk11sh1d4_v3": {
+        "enabled": true
+    },
+    "Nebris Laid-back Lifeguard_skillcut_yuk11sh1d4_v2": {
+        "enabled": true
+    },
+    "Nebris Laid-back Lifeguard_skillcut_yuk11sh1d4_v1": {
+        "enabled": true
+    },
+    "Nebris Labyrinth Gatekeeper standing yuk11sh1d4 v1": {
+        "enabled": true
+    },
+    "Nebris Labyrinth Gatekeeper skillcut yuk11sh1d4 v1": {
+        "enabled": true
+    },
+    "Nebris Labyrinth Gatekeeper NPC standing yuk11sh1d4 v1": {
+        "enabled": true
+    },
+    "Nebris Date yuk11sh1d4  v1": {
+        "enabled": true
+    },
+    "Morpeah_Summer Vacation_skillcut_yuk11sh1d4_v1": {
+        "enabled": true
+    },
+    "Morpeah_Apostle_Cut \u58a8\u83f2\u4e9a\u4f7f\u5f92\u6280\u80fd": {
+        "enabled": true
+    },
+    "Morpeah DaydreamBunny  standing yuk11sh1d4_v1_1": {
+        "enabled": true
+    },
+    "Morpeah DaydreamBunny  skillcut yuk11sh1d4_v1": {
+        "enabled": true
+    },
+    "Morpeah Date yuk11sh1d4v1_1": {
+        "enabled": true
+    },
+    "Morpeah Date yuk11sh1d4": {
+        "enabled": true
+    },
+    "Morpeah Apostle standing yuk11sh1d4": {
+        "enabled": true
+    },
+    "Morpeah Apostle skillcut yuk11sh1d4": {
+        "enabled": true
+    },
+    "Michaela_Queen of Signatures_standing_yuk11sh1d4_v1": {
+        "enabled": true
+    },
+    "Michaela_Burst_Var1": {
+        "enabled": true
+    },
+    "Michaela_Beachside Justice_standing_yuk11sh1d4_v2": {
+        "enabled": true
+    },
+    "Michaela_Beachside Justice_standing_yuk11sh1d4_v1": {
+        "enabled": true
+    },
+    "Michaela_Acting Archbishop_standing_yuk11sh1d4_v1": {
+        "enabled": true
+    },
+    "Michaela_Acting Archbishop_skillcut_yuk11sh1d4_v1": {
+        "enabled": true
+    },
+    "Lydia_cutscene": {
+        "enabled": true
+    },
+    "Luvencia_Deal Snatcher_standing_yuk11sh1d4_v1": {
+        "enabled": true
+    },
+    "Luvencia_Burst_Var1": {
+        "enabled": true
+    },
+    "Luvencia Wild Dog Standing yuk11sh1d4_v1": {
+        "enabled": true
+    },
+    "Luvencia Wild Dog Skillcut yuk11sh1d4 v1_2": {
+        "enabled": true
+    },
+    "Luvencia Wild Dog Skillcut yuk11sh1d4 v1_1": {
+        "enabled": true
+    },
+    "Luvencia Wild Dog Skillcut yuk11sh1d4 v1": {
+        "enabled": true
+    },
+    "Luvencia Deal Snatcher Skillcut yuk11sh1d4 v1": {
+        "enabled": true
+    },
+    "Loen_Track and Field Team_standing_yuk11sh1d4_v1": {
+        "enabled": true
+    },
+    "Loen_Track and Field Team Member_skillcut_yuk11sh1d4_v1": {
+        "enabled": true
+    },
+    "Loen_LastHope_cutscene": {
+        "enabled": true
+    },
+    "Loen_Last Hope stkillcut_yuk11sh1d4_v1": {
+        "enabled": true
+    },
+    "Loen_Last Hope standing_yuk11sh1d4_v1": {
+        "enabled": true
+    },
+    "Loen_Celebrity bunny Loen stkillcut_yuk11sh1d4_v3": {
+        "enabled": true
+    },
+    "Loen_Celebrity bunny Loen stkillcut_yuk11sh1d4_v2": {
+        "enabled": true
+    },
+    "Loen_Celebrity bunny Loen stkillcut_yuk11sh1d4_v1_2": {
+        "enabled": true
+    },
+    "Loen_Celebrity bunny Loen stkillcut_yuk11sh1d4_v1_1": {
+        "enabled": true
+    },
+    "Loen_Celebrity bunny Loen standing_yuk11sh1d4_v1": {
+        "enabled": true
+    },
+    "Loen Date yuk11sh1d4 v2": {
+        "enabled": true
+    },
+    "Loen Date yuk11sh1d4": {
+        "enabled": true
+    },
+    "Lisianne standing yuk11sh1d4": {
+        "enabled": true
+    },
+    "Liberta The Dark Saintess standing yuk11sh1d4": {
+        "enabled": true
+    },
+    "Liberta The Dark Saintess skillcut yuk11sh1d4": {
+        "enabled": true
+    },
+    "Liberta Onsen Manager standing_yuk11sh1d4_v1": {
+        "enabled": true
+    },
+    "Liberta Onsen Manager skillcut_yuk11sh1d4_v1_2": {
+        "enabled": true
+    },
+    "Liberta Onsen Manager skillcut_yuk11sh1d4_v2": {
+        "enabled": true
+    },
+    "Liberta Onsen Manager skillcut_yuk11sh1d4_v1_1": {
+        "enabled": true
+    },
+    "Liberta Onsen Manager skillcut_yuk11sh1d4_v1": {
+        "enabled": true
+    },
+    "Liatris_Maid_Cut \u8389\u4e9a\u5973\u4ec6\u6280\u80fd": {
+        "enabled": true
+    },
+    "Liatris_Burst_Var1": {
+        "enabled": true
+    },
+    "Liatris Rodev's Star skillcut yuk11sh1d4": {
+        "enabled": true
+    },
+    "Liatris Maid Name R skillcut yuk11sh1d4": {
+        "enabled": true
+    },
+    "Levia_Sport_Cut(mainly loop part) \u83b1\u7ef4\u4e9a\u7530\u5f84\u793e\u6280\u80fd\uff08\u4e3b\u8981\u5728\u5faa\u73af\uff09": {
+        "enabled": true
+    },
+    "Levia Track and Field Captain skillcut yuk11sh1d4": {
+        "enabled": true
+    },
+    "Levia Overheat standing yuk11sh1d4_v1_1": {
+        "enabled": true
+    },
+    "Levia Overheat skillcut yuk11sh1d4 v1": {
+        "enabled": true
+    },
+    "Levia Night of Jealousy_standing_yuk11sh1d4_v1": {
+        "enabled": true
+    },
+    "Levia Night of Jealousy_skillcut_yuk11sh1d4_v1": {
+        "enabled": true
+    },
+    "Lecliss_Android_Queen_cutscene": {
+        "enabled": true
+    },
+    "Lecliss Killer Doll skillcut_yuk11sh1d4_v1": {
+        "enabled": true
+    },
+    "Justia_BloodKnight_Cut \u5973\u4e3b\u8840\u9a91\u58eb\u6280\u80fd": {
+        "enabled": true
+    },
+    "Justia_BloodKnight_Cut": {
+        "enabled": true
+    },
+    "Justia_Blood Glutton_standing_yuk11sh1d4_v1": {
+        "enabled": true
+    },
+    "Justia_Blood Glutton_skillcut_yuk11sh1d4_v1": {
+        "enabled": true
+    },
+    "Justia Pool Party standing yuk11sh1d4": {
+        "enabled": true
+    },
+    "Justia Knight of Blood_standing_yuk11sh1d4_v1": {
+        "enabled": true
+    },
+    "Justia Blood Glutton by HCoel [Cut][300]": {
+        "enabled": true
+    },
+    "Helena_TopIdol_cutscene": {
+        "enabled": true
+    },
+    "Helena_Cutscene_yuk11sh1d4_v2": {
+        "enabled": true
+    },
+    "Helena_Cutscene_yuk11sh1d4_v1": {
+        "enabled": true
+    },
+    "Helena B Rank Idol by HCoel [Cut][V1][200Members]": {
+        "enabled": true
+    },
+    "HardCracker - Ventana Onsen": {
+        "enabled": true
+    },
+    "Granhildr_Comeback_Idol_Cut (dildo var) \u845b\u5170\u897f\u7279\u5076\u50cf\u6280\u80fd\uff08\u632f\u52a8\u68d2\u7248\uff09": {
+        "enabled": true
+    },
+    "Glacia Disciplinary Committee_skillcut_yuk11sh1d4_v3": {
+        "enabled": true
+    },
+    "Glacia Disciplinary Committee_skillcut_yuk11sh1d4_v2": {
+        "enabled": true
+    },
+    "Glacia Disciplinary Committee_skillcut_yuk11sh1d4_v1": {
+        "enabled": true
+    },
+    "Fiend Hunter NPC yuk11sh1d4": {
+        "enabled": true
+    },
+    "Elpis_standing_yuk11sh1d4_v1_1": {
+        "enabled": true
+    },
+    "Elpis_standing_yuk11sh1d4_v1": {
+        "enabled": true
+    },
+    "Elpis_Hand of Salvation_skullcut_yuk11sh1d4": {
+        "enabled": true
+    },
+    "Elise_Lovely Lady_skillcut_yuk11sh1d4_v1": {
+        "enabled": true
+    },
+    "Elise_Code Name O_standing_yuk11sh1d4_v1": {
+        "enabled": true
+    },
+    "Elise_Code Name O_skillcut_yuk11sh1d4_v1": {
+        "enabled": true
+    },
+    "Elise Date yuk11sh1d4": {
+        "enabled": true
+    },
+    "Eleaneer Piercing Magic Bow skillcit yuk11sh1d4": {
+        "enabled": true
+    },
+    "Eclipse_The Dimension Witch_standing_yuk11sh1d4_v2": {
+        "enabled": true
+    },
+    "Eclipse_The Dimension Witch_skillcut_yuk11sh1d4_v2": {
+        "enabled": true
+    },
+    "Eclipse_The Dimension Witch_skillcut_yuk11sh1d4_v1": {
+        "enabled": true
+    },
+    "Eclipse_swimsuit_standing_yuk11sh1d4_v3": {
+        "enabled": true
+    },
+    "Eclipse_swimsuit_standing_yuk11sh1d4_v2": {
+        "enabled": true
+    },
+    "Eclipse_swimsuit_standing_yuk11sh1d4_v1": {
+        "enabled": true
+    },
+    "Eclipse_swimsuit_Cutscene_yuk11sh1d4_v3": {
+        "enabled": true
+    },
+    "Eclipse_swimsuit_Cutscene_yuk11sh1d4_v2": {
+        "enabled": true
+    },
+    "Eclipse_Nightmare Bunny_standing_yuk11sh1d4_v1": {
+        "enabled": true
+    },
+    "Eclipse_swimsuit_Cutscene_yuk11sh1d4_v1": {
+        "enabled": true
+    },
+    "Eclipse Nightmare Bunny skillcut yuk11sh1d4": {
+        "enabled": true
+    },
+    "Diana_ Anti-dystopia_standing_yuk11sh1d4_v1": {
+        "enabled": true
+    },
+    "Diana Adventurer of the Unknown skillcut yuk11sh1d4": {
+        "enabled": true
+    },
+    "Destruction Teresse": {
+        "enabled": true
+    },
+    "Dalvi Bright Moon standing _yuk11sh1d4 v1": {
+        "enabled": true
+    },
+    "Dalvi Bright Moon skillcut _yuk11sh1d4 v1": {
+        "enabled": true
+    },
+    "Cynthia_standing_yuk11sh1d4_v1": {
+        "enabled": true
+    },
+    "char101402": {
+        "enabled": true
+    },
+    "char061002": {
+        "enabled": true
+    },
+    "char000701": {
+        "enabled": true
+    },
+    "char000304": {
+        "enabled": true
+    },
+    "Celia_standing_yuk11sh1d4_v1": {
+        "enabled": true
+    },
+    "Celia Masquerade Bunny standing yuk11sh1d4": {
+        "enabled": true
+    },
+    "Celia Masquerade Bunny skillcut yuk11sh1d4": {
+        "enabled": true
+    },
+    "Celia Descendant of the Great Witch standing yuk11sh1d4": {
+        "enabled": true
+    },
+    "Celia Descendant of the Great Witch skillcut yuk11sh1d4 v2": {
+        "enabled": true
+    },
+    "Celia Descendant of the Great Witch skillcut yuk11sh1d4": {
+        "enabled": true
+    },
+    "Blade_Lady_Cutscene": {
+        "enabled": true
+    },
+    "Blade Young Lady swap standing yuk11sh1d4 v1": {
+        "enabled": true
+    }
+}

@@ -1,7 +1,7 @@
 from os import startfile
 
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QStackedWidget, QHBoxLayout, QMessageBox
-from PySide6.QtCore import Qt, Signal
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QStackedWidget, QHBoxLayout, QMessageBox, QLabel, QDialog, QPushButton, QProgressBar
+from PySide6.QtCore import Qt, Signal, QObject, QThread
 from PySide6.QtGui import QIcon
 
 from src.BD2ModManager import BD2ModManager
@@ -10,6 +10,70 @@ from src.gui.config import BD2MMConfigManager
 
 from ..widgets import NavButton
 from ..views import CharactersView, SettingsView, ModsView
+
+class SyncWorker(QObject):
+    finished = Signal()
+    error = Signal(str)
+    progress = Signal(int, int)
+    
+    def __init__(self, mod_manager: BD2ModManager):
+        super().__init__()
+        self.mod_manager = mod_manager
+
+    def run(self):
+        self.mod_manager.sync_mods(progress_callback=self.progress.emit)
+        self.finished.emit()
+
+class UnsyncWorker(QObject):
+    finished = Signal()
+    error = Signal(str)
+    progress = Signal(int, int)
+
+    def __init__(self, mod_manager: BD2ModManager):
+        super().__init__()
+        self.mod_manager = mod_manager
+
+    def run(self):
+        self.mod_manager.unsync_mods(progress_callback=self.progress.emit)
+        self.finished.emit()
+
+
+class Modal(QDialog):
+    def __init__(self, parent, text: str):
+        super().__init__(parent)
+        self.setWindowFlags(Qt.WindowType.FramelessWindowHint | Qt.WindowType.Dialog)
+        self.setModal(True)
+        self.setObjectName("progressModal")
+        
+        self.setMinimumWidth(250)
+        
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(16, 16, 16, 16)
+        layout.setSpacing(16)
+        
+        label = QLabel(text, self)
+        label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        layout.addWidget(label)
+
+        self.progress_bar = QProgressBar(self)
+        # self.progress_bar.setRange(0, -1)
+        self.progress_bar.setTextVisible(False)
+        layout.addWidget(self.progress_bar)
+    
+        self.button = QPushButton("Wait", self)
+        self.button.clicked.connect(self.accept)
+        self.button.setDisabled(True)
+        self.button.setObjectName("progressModalButton")
+        layout.addWidget(self.button)
+
+    def on_finished(self):
+        self.button.setDisabled(False)
+        self.button.setText("Done!")
+        self.progress_bar.setValue(self.progress_bar.maximum())
+    
+    def update_progress(self, value: int, max: int):
+        self.progress_bar.setMaximum(max)
+        self.progress_bar.setValue(value)
 
 
 class HomePage(QWidget):
@@ -20,6 +84,11 @@ class HomePage(QWidget):
         super().__init__()
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
+        
+        self.sync_thread = None
+        self.sync_worker = None
+        self.unsync_thread = None
+        self.unsync_worker = None
         
         self.mod_manager = mod_manager
         self.config_manager = config_manager
@@ -35,10 +104,12 @@ class HomePage(QWidget):
         self.nav_chars_button = NavButton(self.tr("Characters"))
         self.nav_settings_button = NavButton(self.tr("Settings"))
         self.nav_settings_button.setIcon(QIcon(":/material/settings.svg"))
+        self.nav_logs_button = NavButton(self.tr("Logs"))    
 
         self.navigation_bar_layout.addWidget(self.nav_mods_button, 0, Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignTop)
         self.navigation_bar_layout.addWidget(self.nav_chars_button, 0, Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
         self.navigation_bar_layout.addStretch()
+        self.navigation_bar_layout.addWidget(self.nav_logs_button, 0, Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
         self.navigation_bar_layout.addWidget(self.nav_settings_button, 0, Qt.AlignmentFlag.AlignRight)
 
         self.navigation_view = QStackedWidget()
@@ -143,16 +214,70 @@ class HomePage(QWidget):
             self.mod_manager.disable_mod(name)
 
     def _sync_mods(self):
-        try:
-            self.mod_manager.sync_mods()
-        except GameDirectoryNotSetError:
-            self.show_error(self.tr("Game directory not set. Please set it in settings."))
+        confirmation = QMessageBox.question(
+            self,
+            self.tr("Sync Mods"),
+            self.tr("Are you sure you want to sync mods? This will remove all existing mods from game folder and replace them with the enabled ones."),
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+            QMessageBox.StandardButton.No
+        )
+        
+        if confirmation == QMessageBox.StandardButton.Yes:
+            modal = Modal(self, self.tr("Syncing Mods..."))
+            self.mods_widget.sync_button.setEnabled(False)
+            modal.show()
 
+            # Thread and Worker setup
+            self.sync_thread = QThread()
+            self.sync_worker = SyncWorker(self.mod_manager)
+            self.sync_worker.moveToThread(self.sync_thread)
+
+            self.sync_thread.started.connect(self.sync_worker.run)
+            self.sync_worker.progress.connect(modal.update_progress)
+            self.sync_worker.finished.connect(modal.on_finished)
+
+            self.sync_worker.finished.connect(self.sync_thread.quit)
+
+            # Enable UI elements when done
+            self.sync_worker.finished.connect(lambda: self.mods_widget.sync_button.setEnabled(True))
+
+            # Delete worker and thread safely after thread finishes
+            self.sync_worker.finished.connect(self.sync_worker.deleteLater)
+            self.sync_thread.finished.connect(self.sync_thread.deleteLater)
+
+            # Handle errors
+            self.sync_worker.error.connect(self.show_error)
+            self.sync_worker.error.connect(self.sync_thread.quit)
+
+            self.sync_thread.start()
+
+            
     def _unsync_mods(self):
-        try:
-            self.mod_manager.unsync_mods()
-        except GameDirectoryNotSetError:
-            self.show_error(self.tr("Game directory not set. Please set it in settings."))
+        confirmation = QMessageBox.question(
+            self,
+            self.tr("Unsync Mods"),
+            self.tr("Are you sure you want to unsync mods? This will remove all mods from the game folder."),
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+            QMessageBox.StandardButton.No
+        )
+        
+        if confirmation == QMessageBox.StandardButton.Yes:
+            modal = Modal(self, self.tr("Unsyncing Mods..."))
+            self.mods_widget.unsync_button.setEnabled(False)
+            modal.show()
+
+            self.unsync_thread = QThread()
+            self.unsync_worker = UnsyncWorker(self.mod_manager)
+            self.unsync_worker.moveToThread(self.unsync_thread)
+            self.unsync_thread.started.connect(self.unsync_worker.run)
+            self.unsync_worker.progress.connect(modal.update_progress)
+            self.unsync_worker.finished.connect(modal.on_finished)
+            self.unsync_worker.finished.connect(self.unsync_thread.quit)
+            self.unsync_worker.finished.connect(lambda: self.mods_widget.unsync_button.setEnabled(True))
+            self.unsync_worker.finished.connect(self.unsync_thread.deleteLater)
+            self.unsync_worker.error.connect(self.show_error)
+            self.unsync_worker.error.connect(self.unsync_thread.quit)
+            self.unsync_thread.start()
 
     def _change_mod_author(self, name: str, author: str):
         self.mod_manager.set_mod_author(name, author)
