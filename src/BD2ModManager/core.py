@@ -1,3 +1,4 @@
+import sys
 import re
 import json
 import logging
@@ -17,7 +18,6 @@ from .errors import (
     BrownDustXNotInstalled,
     AdminRequiredError,
 )
-
 # TODO: add missing logging information
 
 logger = logging.getLogger(__name__)
@@ -33,25 +33,26 @@ def required_game_path(function: Callable) -> Callable:
 
     return wrapper
 
+if getattr(sys, "_MEIPASS", False):
+    CURRENT_PATH = Path(sys.executable).parent
+    BUNDLE_PATH = Path(sys._MEIPASS)
+else:
+    CURRENT_PATH = Path(__file__).parent
+    BUNDLE_PATH = CURRENT_PATH
 
-CURRENT_PATH = Path(__file__).parent
-DEFAULT_MODS_DIRECTORY = CURRENT_PATH / "mods"
-DATA_FOLDER = CURRENT_PATH / "data"
+DATA_FOLDER = BUNDLE_PATH / "data"
 CHARACTERS_CSV = DATA_FOLDER / "characters_id.csv"
-DATA_FILE = DATA_FOLDER / "mods.json"
-
-# TODO: Add docstring to all methods.
-
 
 class BD2ModManager:
     """Brown Dust 2 Mod Manager"""
 
-    def __init__(self, mods_directory: Union[str, Path] = DEFAULT_MODS_DIRECTORY):
+    def __init__(self, mods_directory: Union[str, Path], data_file: Optional[Union[str, Path]] = None):
         self.characters = BD2Characters(CHARACTERS_CSV)
 
         self._game_directory = None
         self._staging_mods_directory = Path(mods_directory)
-
+        self._data_file = Path(data_file) if data_file else DATA_FOLDER / "mods.json"
+        
         if not self._staging_mods_directory.exists():
             self._staging_mods_directory.mkdir()
 
@@ -73,18 +74,18 @@ class BD2ModManager:
     def _load_mods_data(self) -> dict:
         """Loads the mods data from the JSON file."""
         
-        if not DATA_FILE.exists():
-            logger.info("Data file %s does not exist. Creating an empty data file.", DATA_FILE)
+        if not self._data_file.exists():
+            logger.info("Data file %s does not exist. Creating an empty data file.", self._data_file)
             
-            with DATA_FILE.open("w", encoding="UTF-8") as file:
+            with self._data_file.open("w", encoding="UTF-8") as file:
                 json.dump({}, file, indent=4)
                 
             return {}
 
-        logger.debug("Loading mods data from %s", DATA_FILE)
+        logger.debug("Loading mods data from %s", self._data_file)
         
         try:
-            with DATA_FILE.open("r", encoding="UTF-8") as file:
+            with self._data_file.open("r", encoding="UTF-8") as file:
                 data = json.load(file)
         except json.JSONDecodeError:
             logger.error("Invalid JSON data file. Using empty data.")
@@ -95,12 +96,12 @@ class BD2ModManager:
     def _save_mods_data(self) -> None:
         """Saves the mods data to the JSON file."""
         
-        logger.debug("Saving mods data to %s", DATA_FILE)
+        logger.debug("Saving mods data to %s", self._data_file)
         
-        with DATA_FILE.open("w", encoding="UTF-8") as file:
+        with self._data_file.open("w", encoding="UTF-8") as file:
             json.dump(self._mods_data, file, indent=4) 
         
-        logger.debug("Mods data saved successfully to %s", DATA_FILE)
+        logger.debug("Mods data saved successfully to %s", self._data_file)
 
     def _set_mod_data(self, mod_name: str, key: str, value: Any) -> None:
         """Sets the mod data for a given mod name and key."""
@@ -168,6 +169,7 @@ class BD2ModManager:
         
     def _get_mod_info(self, path: Path) -> dict:
         """Extracts mod information from the mod file in the given path."""    
+        # TODO: Add cache. Save hash of the mod file and check if it has changed.
         modfile = next(path.glob("*.modfile"))
         
         if modfile is None:
@@ -341,12 +343,12 @@ class BD2ModManager:
 
     @required_game_path
     def sync_mods(self, symlink: bool = False) -> None:
+        if not self.check_game_directory():
+            raise GameDirectoryNotSetError("Game path is not set. Please set the game path first.")
+    
         if not self.is_browndustx_installed():
             raise BrownDustXNotInstalled()
         
-        if not self.check_game_directory():
-            raise GameDirectoryNotSetError("Game path is not set. Please set the game path first.")
-
         game_mods_directory = self._game_directory / r"BepInEx\plugins\BrownDustX\mods"
         
         logger.debug("Game mods directory: %s", game_mods_directory)
@@ -366,25 +368,29 @@ class BD2ModManager:
         
         logger.debug("Found %d mod files to sync.", len(mods))
 
-        mods_installed = []
+        ingame_modfiles = game_mods_directory.rglob("*.modfile")
+        installed_game_mods = [modfile.parent.name for modfile in ingame_modfiles]
 
-        if Path("sync.json").exists():
-            logger.debug("Loading installed mods from sync.json")
-            with open("sync.json", "r", encoding="UTF-8") as file:
-                try:
-                    mods_installed = json.load(file)
-                except json.JSONDecodeError:
-                    logger.error("Invalid JSON in sync.json. Using empty list.")
+        mods_ingame_but_not_in_staging = [
+            mod for mod in installed_game_mods if mod not in [m.name for m in mods]
+        ]
+        
+        for mod in mods_ingame_but_not_in_staging:
+            mod_game_path = game_mods_directory / "BD2MM" / mod
             
-
-        # installed_mod_names = {mod.name for mod in mods}
-        # removed_mods = [mod for mod in mods_installed if mod not in installed_mod_names]
-
-        # for mod in removed_mods:
-        #     pass
+            if mod_game_path.exists():
+                logger.debug("Removing mod %s from game mods directory: %s", mod, mod_game_path)
+                if mod_game_path.is_symlink():
+                    logger.debug("Removing symlink for mod %s at %s", mod, mod_game_path)
+                    mod_game_path.rmdir()
+                else:
+                    logger.debug("Removing mod folder %s at %s", mod, mod_game_path)
+                    rmtree(mod_game_path)
+            else:
+                logger.debug("Mod %s not found in game mods directory.", mod)
 
         for mod in mods:
-            mod_game_path = game_mods_directory / mod.name
+            mod_game_path = game_mods_directory / "BD2MM" / mod.name
             mod_enabled = self._mods_data.get(mod.name, {}).get("enabled", False)
 
             if mod_enabled:
@@ -402,10 +408,6 @@ class BD2ModManager:
                             "Copying mod %s to game mods directory: %s", mod.name, mod_game_path
                         )
                         copytree(mod, mod_game_path)
-
-                    if mod.name not in mods_installed:
-                        logger.debug("Adding mod %s to installed mods list", mod.name)
-                        mods_installed.append(mod.name)
                 else:
                     logger.debug("Mod %s already exists at %s", mod.name, mod_game_path)
                     if not get_folder_hash(mod) == get_folder_hash(mod_game_path):
@@ -449,55 +451,37 @@ class BD2ModManager:
                     else:
                         logger.debug("Removing mod folder %s at %s", mod.name, mod_game_path)
                         rmtree(mod_game_path)
-                    
-                    if mod.name in mods_installed:
-                        logger.debug("Removing mod %s from installed mods list", mod.name)
-                        mods_installed.remove(mod.name)
 
-        logger.debug("Syncing completed. Installed mods: %s", mods_installed)
-        
-        with open("sync.json", "w") as file:
-            logger.debug("Saving installed mods to sync.json")
-            json.dump(mods_installed, file, indent=4)
+        logger.debug("Syncing completed")
 
     @required_game_path
     def unsync_mods(self) -> None:
-        game_mods_directory = self._game_directory / r"BepInEx\plugins\BrownDustX\mods"
+        game_mods_directory = self._game_directory / r"BepInEx\plugins\BrownDustX\mods" / "BD2MM"
+        
+        if not game_mods_directory.exists():
+            logger.debug("Game mods directory does not exist: %s", game_mods_directory)
+            game_mods_directory.mkdir(parents=True, exist_ok=True)
+        
         logger.debug("Unsyncing mods from game mods directory: %s", game_mods_directory)
 
-        sync_file = Path("sync.json")
-        mods_installed = []
+        modfiles = self._staging_mods_directory.rglob("*.modfile")
+        mods_installed = [modfile.parent for modfile in modfiles]
+        
+        for mod_folder in mods_installed:
+            mod_name = mod_folder.name
+            mod_game_path = game_mods_directory / mod_name
+            
+            if mod_game_path.exists():
+                logger.debug("Removing mod %s at %s", mod_name, mod_game_path)
+                if mod_game_path.is_symlink():
+                    logger.debug("Removing symlink for mod %s at %s", mod_name, mod_game_path)
+                    mod_game_path.rmdir()
+                else:
+                    logger.debug("Removing mod folder %s at %s", mod_name, mod_game_path)
+                    rmtree(mod_game_path)
+            else:
+                logger.debug("Mod %s not found in game mods directory.", mod_name)
 
-        if sync_file.exists():
-            with sync_file.open("r", encoding="UTF-8") as file:
-                try:
-                    mods_installed = json.load(file)
-                except json.JSONDecodeError:
-                    logger.error("Invalid JSON in sync.json. Using empty list.")
-                    mods_installed = []
-
-        removed_mods = []
-        for mod_name in list(mods_installed):
-            mod_path = game_mods_directory / mod_name
-            if mod_path.exists():
-                try:
-                    if mod_path.is_symlink():
-                        logger.debug("Removing symlink for mod %s at %s", mod_name, mod_path)
-                        mod_path.unlink()
-                    else:
-                        logger.debug("Removing mod folder %s at %s", mod_name, mod_path)
-                        rmtree(mod_path)
-                    removed_mods.append(mod_name)
-                except Exception as e:
-                    pass
-                    logger.error("Failed to remove mod %s: %s", mod_name, e)
-
-        # Remove the mods from the installed list
-        mods_installed = [mod for mod in mods_installed if mod not in removed_mods]
-
-        with sync_file.open("w", encoding="UTF-8") as file:
-            logger.debug("Saving updated installed mods to sync.json")
-            json.dump(mods_installed, file, indent=4)
 
     @required_game_path
     def is_browndustx_installed(self) -> bool:

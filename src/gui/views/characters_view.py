@@ -117,11 +117,14 @@ class CostumeTreeDelegate(QStyledItemDelegate):
             img_margin = 12
             img_rect = QRect(rect.left() + img_margin, rect.top() +
                              img_margin, img_size.width(), img_size.height())
-            img_path = f"src/gui/resources/characters/{costume['character'].get('id', '000101')}.png"
+            
+            img_path = f":/characters/{costume['character'].get('id', '000101')}"
 
             pixmap = QPixmap(img_path)
+            
             if pixmap.isNull():
-                pixmap = QPixmap("src/gui/resources/characters/000101.png")
+                pixmap = QPixmap(":/characters/000101")
+                
             pixmap = pixmap.scaled(
                 img_size, Qt.KeepAspectRatio, Qt.SmoothTransformation)
 

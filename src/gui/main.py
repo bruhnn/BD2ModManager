@@ -6,7 +6,16 @@ from .pages import HomePage
 from .config import BD2MMConfigManager
 from pathlib import Path
 
-STYLES_PATH = Path(__file__).parent / "styles"
+import sys
+
+if getattr(sys, 'frozen', False):
+    # If the application is frozen 
+    app_path = Path(sys._MEIPASS)
+else:
+    app_path = Path(__file__).parent.parent
+
+STYLES_PATH = app_path / "gui" / "styles"
+LANGUAGE_PATH = app_path / "gui" / "translations"
 
 class MainWindow(QMainWindow):
     def __init__(self, mod_manager: BD2ModManager, config_manager: BD2MMConfigManager):
@@ -17,7 +26,6 @@ class MainWindow(QMainWindow):
 
         self.mod_manager = mod_manager
         self.config_manager = config_manager
-        
 
         self.main_stacked_widget = QStackedWidget()
         self.home_page = HomePage(mod_manager, config_manager)
@@ -47,11 +55,9 @@ class MainWindow(QMainWindow):
             self.retranslateUI()
             return
         
-        print(f"Applying language: {language}")
-        
         translator = QTranslator()
 
-        if translator.load((Path(__file__).parent / f"translations/{language}.qm").as_posix()):
+        if translator.load((LANGUAGE_PATH / f"{language}.qm").as_posix()):
             QApplication.instance().installTranslator(translator)
             self.retranslateUI()
         else:

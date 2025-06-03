@@ -1,15 +1,16 @@
 from os import startfile
 
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QStackedWidget, QHBoxLayout
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QStackedWidget, QHBoxLayout, QMessageBox
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QIcon
 
 from src.BD2ModManager import BD2ModManager
-from src.BD2ModManager.errors import GameNotFoundError
+from src.BD2ModManager.errors import GameNotFoundError, GameDirectoryNotSetError
 from src.gui.config import BD2MMConfigManager
 
 from ..widgets import NavButton
 from ..views import CharactersView, SettingsView, ModsView
+
 
 class HomePage(QWidget):
     onThemeChanged = Signal(str)
@@ -54,6 +55,7 @@ class HomePage(QWidget):
         self.mods_widget.openModsFolderRequested.connect(self._open_mods_folder)
         self.mods_widget.openModFolderRequested.connect(self._open_mod_folder)
         self.mods_widget.removeModRequested.connect(self._remove_mod)
+        self.mods_widget.renameModRequested.connect(self._rename_mod)
         
         self._refresh_mods()
 
@@ -79,15 +81,20 @@ class HomePage(QWidget):
 
         if self.config_manager.get("game_path"):
             try:
-                self.mod_manager.set_game_directory(
-                    self.config_manager.get("game_path")
-                )
+                self.mod_manager.set_game_directory(self.config_manager.get("game_path"))
             except GameNotFoundError:
                 self.mods_widget.set_info_text(self.tr("Game not found, please set the game path in settings."))
 
         layout.addWidget(self.navigation_bar)
         layout.addWidget(self.navigation_view)
-        
+    
+    def show_error(self, message: str):
+        msg_box = QMessageBox(self)
+        msg_box.setIcon(QMessageBox.Icon.Critical)
+        msg_box.setWindowTitle(self.tr("Error"))
+        msg_box.setText(self.tr(message))
+        msg_box.exec_()
+    
     def retranslateUI(self):
         self.nav_mods_button.setText(self.tr("Mods"))
         self.nav_chars_button.setText(self.tr("Characters"))
@@ -127,12 +134,7 @@ class HomePage(QWidget):
         self.mod_manager.add_mod(path=filename)
     
     def _remove_mod(self, name: str):
-        try:
-            self.mod_manager.remove_mod(name)
-        except GameNotFoundError as e:
-            print("a")
-            self.mods_widget.set_info_text(self.tr("Game not found, cannot remove mod."))
-            # self.mods_widget.show_error(str(e))
+        self.mod_manager.remove_mod(name)
 
     def _enable_or_disable_mod(self, name: str, state: bool):
         if state:
@@ -141,10 +143,20 @@ class HomePage(QWidget):
             self.mod_manager.disable_mod(name)
 
     def _sync_mods(self):
-        self.mod_manager.sync_mods()
+        try:
+            self.mod_manager.sync_mods()
+        except GameDirectoryNotSetError:
+            self.show_error(self.tr("Game directory not set. Please set it in settings."))
 
     def _unsync_mods(self):
-        self.mod_manager.unsync_mods()
+        try:
+            self.mod_manager.unsync_mods()
+        except GameDirectoryNotSetError:
+            self.show_error(self.tr("Game directory not set. Please set it in settings."))
 
     def _change_mod_author(self, name: str, author: str):
         self.mod_manager.set_mod_author(name, author)
+        
+    def _rename_mod(self, old_name: str, new_name: str):
+        self.mod_manager.rename_mod(old_name, new_name)
+        self._refresh_mods()
