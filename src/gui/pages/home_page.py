@@ -106,13 +106,11 @@ class HomePage(QWidget):
         self.nav_mods_button.setProperty("active", True)
         self.nav_chars_button = NavButton(self.tr("Characters"))
         self.nav_settings_button = NavButton(self.tr("Settings"))
-        self.nav_settings_button.setIcon(QIcon(":/material/settings.svg"))
-        self.nav_logs_button = NavButton(self.tr("Logs"))    
+        self.nav_settings_button.setIcon(QIcon(":/material/settings.svg")) 
 
         self.navigation_bar_layout.addWidget(self.nav_mods_button, 0, Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignTop)
         self.navigation_bar_layout.addWidget(self.nav_chars_button, 0, Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
         self.navigation_bar_layout.addStretch()
-        self.navigation_bar_layout.addWidget(self.nav_logs_button, 0, Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
         self.navigation_bar_layout.addWidget(self.nav_settings_button, 0, Qt.AlignmentFlag.AlignRight)
 
         self.navigation_view = QStackedWidget()
