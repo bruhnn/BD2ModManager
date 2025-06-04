@@ -63,8 +63,11 @@ class ModsView(QWidget):
         self.setObjectName("modsView")
         self.setAcceptDrops(True)
 
-        self.layout = QVBoxLayout(self)
-        self.layout.setContentsMargins(6, 6, 6, 6)
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(6, 6, 6, 6)
+        
+        # Variables
+        self._modlist_loaded = False
 
         self.drop_modal = DragFilesModal(self)
 
@@ -91,7 +94,6 @@ class ModsView(QWidget):
         self.add_mod_button.setCursor(Qt.CursorShape.PointingHandCursor)
         self.add_mod_button.setIcon(QIcon(":/material/add.svg"))
         self.add_mod_button.clicked.connect(self._add_mod)
-        
 
         self.top_bar_layout.addWidget(self.search_field)
         self.top_bar_layout.addWidget(self.refresh_button)
@@ -103,26 +105,22 @@ class ModsView(QWidget):
         self.mod_list.setSortingEnabled(True)
         self.mod_list.setRootIsDecorated(False)
         self.mod_list.setAlternatingRowColors(True)
-        # self.mod_list.sortItems(0, Qt.SortOrder.AscendingOrder)
         self.mod_list.header().setObjectName("modlistHeader")
         self.mod_list.header().setFixedHeight(32)
-
-        self.mod_list.header().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
-        self.mod_list.header().setSectionResizeMode(0, QHeaderView.ResizeMode.ResizeToContents)
+        self.mod_list.header().setSectionResizeMode(QHeaderView.ResizeMode.Interactive)
         self.mod_list.setFocusPolicy(Qt.FocusPolicy.NoFocus)
         self.mod_list.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
         self.mod_list.setContentsMargins(0, 0, 0, 0)
         self.mod_list.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self.mod_list.itemChanged.connect(self._mod_state_changed)
-        self.mod_list.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self.mod_list.customContextMenuRequested.connect(self.show_context_menu)
-
+        
         self.footer_bar = QWidget()
         self.footer_bar.setObjectName("footerBar")
         self.footer_bar_layout = QHBoxLayout(self.footer_bar)
         self.footer_bar_layout.setContentsMargins(0, 0, 0, 0)
 
-        self.info_label = LabelIcon(icon=QIcon(":/material/info.svg"), text=self.tr("Drag and drop mods here to add them."))
+        self.info_label = QLabel()
 
         self.actions_widget = QWidget()
         self.actions_layout = QHBoxLayout(self.actions_widget)
@@ -152,9 +150,9 @@ class ModsView(QWidget):
         self.footer_bar_layout.addWidget(self.info_label)
         self.footer_bar_layout.addWidget(self.actions_widget)
 
-        self.layout.addWidget(self.top_bar)
-        self.layout.addWidget(self.mod_list)
-        self.layout.addWidget(self.footer_bar)
+        layout.addWidget(self.top_bar)
+        layout.addWidget(self.mod_list)
+        layout.addWidget(self.footer_bar)
 
     def retranslateUI(self):
         self.setWindowTitle(self.tr("Mods Manager"))
@@ -164,9 +162,7 @@ class ModsView(QWidget):
         self.open_mods_folder_button.setText(self.tr("Open Mods Folder"))
         self.sync_button.setText(self.tr("Sync Mods"))
         self.unsync_button.setText(self.tr("Unsync Mods"))
-        self.info_label.setText(self.tr("Drag and drop mods here to add them."))
         self.mod_list.setHeaderLabels([self.tr("Mod Name"), self.tr("Character"), self.tr("Type"), self.tr("Author")])
-
 
     def resizeEvent(self, event):
         super().resizeEvent(event)
@@ -260,8 +256,6 @@ class ModsView(QWidget):
             self._refresh_mods()
     
     def _filter_search(self, text: str):
-        # TODO: @type:cutscene, @author:yuki, @character:rou
-
         for index in range(self.mod_list.topLevelItemCount()):
             mod_item = self.mod_list.topLevelItem(index)
 
@@ -325,6 +319,7 @@ class ModsView(QWidget):
             self.mod_list.addTopLevelItem(item)
 
         self.mod_list.verticalScrollBar().setValue(pos_y)
-
-    def set_info_text(self, text: str):
-        self.info_label.setText(text)
+        
+        if not self._modlist_loaded:
+            self._modlist_loaded = True
+            self.mod_list.header().resizeSections(QHeaderView.ResizeMode.ResizeToContents)
