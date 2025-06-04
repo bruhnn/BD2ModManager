@@ -26,8 +26,8 @@ class DragFilesModal(QWidget):
         super().__init__(*args, **kwargs)
         self.setFixedSize(300, 120)
 
-        self.layout = QVBoxLayout(self)
-        self.layout.setContentsMargins(0, 0, 0, 0)
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(0, 0, 0, 0)
 
         self.setStyleSheet("""
             background: rgba(30, 30, 30, 220);
@@ -37,7 +37,7 @@ class DragFilesModal(QWidget):
 
         self.label = QLabel(text="Drop Files")
 
-        self.layout.addWidget(self.label)
+        layout.addWidget(self.label)
 
         self.hide()
         self.raise_()
@@ -65,8 +65,7 @@ class ModsView(QWidget):
 
         layout = QVBoxLayout(self)
         layout.setContentsMargins(6, 6, 6, 6)
-        
-        
+
         # Variables
         self._modlist_loaded = False
 
@@ -222,7 +221,9 @@ class ModsView(QWidget):
             menu.addAction(self.tr("Rename Mod"), lambda: self._show_rename_input_dialog(current_item))
             menu.addAction(self.tr("Delete Mod"), lambda: self._confirm_mod_deletion(current_item))
             menu.addSeparator()
-            menu.addAction(self.tr("Open Mod Folder"), lambda: self.openModFolderRequested.emit(current_item))
+            
+            mod_path = current_item.data(0, Qt.ItemDataRole.UserRole)["path"]
+            menu.addAction(self.tr("Open Mod Folder"), lambda: self.openModFolderRequested.emit(mod_path))
 
         menu.exec_(self.mod_list.mapToGlobal(pos))
         
@@ -299,6 +300,8 @@ class ModsView(QWidget):
     def _filter_search(self, text: str):
         for index in range(self.mod_list.topLevelItemCount()):
             mod_item = self.mod_list.topLevelItem(index)
+            if not mod_item:
+                continue
 
             mod_data = mod_item.data(0, Qt.ItemDataRole.UserRole)
 
@@ -346,16 +349,16 @@ class ModsView(QWidget):
             item.setText(3, mod["author"])
             item.setFlags(
                 item.flags()
-                | Qt.ItemIsUserCheckable
-                | Qt.ItemIsSelectable
-                | Qt.ItemIsEnabled
+                | Qt.ItemFlag.ItemIsUserCheckable
+                | Qt.ItemFlag.ItemIsSelectable
+                | Qt.ItemFlag.ItemIsEnabled
             )
             item.setCheckState(
-                0, Qt.Checked if mod.get("enabled", False) else Qt.Unchecked
+                0, Qt.CheckState.Checked if mod.get("enabled", False) else Qt.CheckState.Unchecked
             )
-            item.setTextAlignment(0, Qt.AlignVCenter)
-            item.setTextAlignment(1, Qt.AlignVCenter)
-            item.setTextAlignment(2, Qt.AlignVCenter | Qt.AlignHCenter)
+            item.setTextAlignment(0, Qt.AlignmentFlag.AlignVCenter)
+            item.setTextAlignment(1, Qt.AlignmentFlag.AlignVCenter)
+            item.setTextAlignment(2, Qt.AlignmentFlag.AlignVCenter | Qt.AlignmentFlag.AlignHCenter)
             
             self.mod_list.addTopLevelItem(item)
 

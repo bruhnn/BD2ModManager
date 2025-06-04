@@ -181,12 +181,13 @@ class HomePage(QWidget):
         self.nav_settings_button.style().unpolish(self.nav_settings_button)
         self.nav_settings_button.style().polish(self.nav_settings_button)
     
+    def _open_mod_folder(self, path: str):
+        # data = item.data(0, Qt.ItemDataRole.UserRole)
+        startfile(path)
+        
     def _open_mods_folder(self):
         startfile(self.mod_manager.staging_mods_directory)
     
-    def _open_mod_folder(self, mod_path: str):
-        startfile(mod_path)
-
     def _refresh_mods(self):
         if self.config_manager.get("search_mods_recursively", boolean=True, default=False):
             mods = self.mod_manager.get_mods(recursive=True)
