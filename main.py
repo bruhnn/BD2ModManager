@@ -30,8 +30,11 @@ def main():
         staging_folder = CURRENT_PATH / "mods"
         BD2MMConfig.set("staging_mods_path", str(staging_folder))
 
-    BD2MM = BD2ModManager(staging_folder, CURRENT_PATH / "mods.json")
-
+    
+    BD2MM = BD2ModManager(
+        mods_directory = staging_folder,
+        data_file = CURRENT_PATH / "mods.json")
+    
     icon = QIcon((BUNDLE_PATH / r"icon.ico").as_posix())
 
     window = MainWindow(BD2MM, BD2MMConfig)
