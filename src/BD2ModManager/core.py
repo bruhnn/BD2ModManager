@@ -136,23 +136,21 @@ class BD2ModManager:
         
         logger.debug("Game path set to %s", path)
 
-    def check_game_directory(self) -> bool:
-        """Returns True if the game directory contains the game executable."""
-        
-        if not self._game_directory:
-            return False
-
-        exe_path = Path(self._game_directory) / "BrownDust II.exe"
+    def check_game_directory(self, path: str) -> bool:
+        """Returns True if the path contains the game executable."""
+    
+        exe_path = Path(path) / "BrownDust II.exe"
         
         logger.debug("Checking if game executable exists at %s", exe_path)
 
-        if exe_path.exists():
-            logger.debug("Game executable found at %s", exe_path)
-            return True
+        if not exe_path.exists():
+            logger.warning("Game executable not found at %s", exe_path)
+            return False
 
-        logger.warning("Game executable not found at %s", exe_path)
+        logger.debug("Game executable found at %s", exe_path)
         
-        return False
+        return True
+
     
     def set_staging_mods_directory(self, path: Union[str, Path]) -> None:
         """Sets the staging mods directory path."""
@@ -343,7 +341,7 @@ class BD2ModManager:
 
     @required_game_path
     def sync_mods(self, symlink: bool = False, progress_callback: Callable = None) -> None:
-        if not self.check_game_directory():
+        if not self.check_game_directory(self._game_directory):
             raise GameDirectoryNotSetError("Game path is not set. Please set the game path first.")
     
         if not self.is_browndustx_installed():
