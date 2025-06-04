@@ -4,6 +4,10 @@ Manage your Brown Dust 2 mods.
 
 ---
 
+Download here: [Github Releases](https://github.com/bruhnn/BD2ModManager/releases)
+
+---
+
 ## Features
 
 - Simple drag-and-drop mod installation  
