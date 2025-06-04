@@ -21,7 +21,10 @@ class SyncWorker(QObject):
         self.mod_manager = mod_manager
 
     def run(self):
-        self.mod_manager.sync_mods(progress_callback=self.progress.emit)
+        try:
+            self.mod_manager.sync_mods(progress_callback=self.progress.emit)
+        except GameDirectoryNotSetError:
+            return self.error.emit("Game Directory Not Set")
         self.finished.emit()
 
 class UnsyncWorker(QObject):
@@ -34,7 +37,10 @@ class UnsyncWorker(QObject):
         self.mod_manager = mod_manager
 
     def run(self):
-        self.mod_manager.unsync_mods(progress_callback=self.progress.emit)
+        try:
+            self.mod_manager.unsync_mods(progress_callback=self.progress.emit)
+        except GameDirectoryNotSetError:
+            return self.error.emit("Game Directory Not Set")
         self.finished.emit()
 
 
@@ -247,6 +253,8 @@ class HomePage(QWidget):
 
             # Handle errors
             self.sync_worker.error.connect(self.show_error)
+            self.sync_worker.error.connect(modal.on_finished)
+            self.sync_worker.error.connect(lambda: self.mods_widget.sync_button.setEnabled(True))
             self.sync_worker.error.connect(self.sync_thread.quit)
 
             self.sync_thread.start()
@@ -276,6 +284,8 @@ class HomePage(QWidget):
             self.unsync_worker.finished.connect(lambda: self.mods_widget.unsync_button.setEnabled(True))
             self.unsync_worker.finished.connect(self.unsync_thread.deleteLater)
             self.unsync_worker.error.connect(self.show_error)
+            self.unsync_worker.error.connect(modal.on_finished)
+            self.unsync_worker.error.connect(lambda: self.mods_widget.unsync_button.setEnabled(True))
             self.unsync_worker.error.connect(self.unsync_thread.quit)
             self.unsync_thread.start()
 
