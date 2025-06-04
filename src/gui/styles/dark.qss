@@ -58,6 +58,11 @@ QPushButton#modsViewButton:pressed {
     background-color: #4A4B50;
 }
 
+QPushButton#modsViewButton:disabled {
+    background-color: #44454A;
+    color: #888A8F;
+}
+
 QLabel#labelText {
     color: #ecf0f1;
 }
@@ -258,4 +263,28 @@ QTreeView#charactersTreeView {
 
 QTreeView::branch:hover {
     background: transparent;
+}
+
+QDialog#progressModal {
+    background-color: #1C1D21;
+}
+
+QPushButton#progressModalButton {
+    background-color: #2F3037;
+    color: #ecf0f1;
+    padding: 6px 10px;
+    border-radius: 4px;
+}
+
+QPushButton#progressModalButton:hover {
+    background-color: #3A3B40;
+}
+
+QPushButton#progressModalButton:pressed {
+    background-color: #4A4B50;
+}
+
+QPushButton#progressModalButton:disabled {
+    background-color: #44454A;
+    color: #888A8F;
 }
