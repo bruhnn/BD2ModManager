@@ -83,9 +83,6 @@ class Modal(QDialog):
 
 
 class HomePage(QWidget):
-    onThemeChanged = Signal(str)
-    onLanguageChanged = Signal(str)
-    
     def __init__(self, mod_manager: BD2ModManager, config_manager: BD2MMConfigManager):
         super().__init__()
         layout = QVBoxLayout(self)
@@ -138,9 +135,7 @@ class HomePage(QWidget):
 
         self.characters_widget = CharactersView(characters)
         
-        self.settings_widget = SettingsView(config_manager, mod_manager)
-        self.settings_widget.onThemeChanged.connect(self.onThemeChanged)
-        self.settings_widget.onLanguageChanged.connect(self.onLanguageChanged)
+        self.settings_widget = SettingsView(config_manager)
 
         self.navigation_view.addWidget(self.mods_widget)
         self.navigation_view.addWidget(self.characters_widget)
@@ -155,12 +150,6 @@ class HomePage(QWidget):
         self.nav_settings_button.clicked.connect(
             lambda: (self.navigation_view.setCurrentIndex(2), self._update_navigation_buttons())
         )
-
-        if self.config_manager.get("game_path"):
-            try:
-                self.mod_manager.set_game_directory(self.config_manager.get("game_path"))
-            except GameNotFoundError:
-                self.mods_widget.set_info_text(self.tr("Game not found, please set the game path in settings."))
 
         layout.addWidget(self.navigation_bar)
         layout.addWidget(self.navigation_view)

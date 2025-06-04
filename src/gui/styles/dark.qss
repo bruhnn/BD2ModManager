@@ -142,6 +142,12 @@ QCheckBox#settingsCheckbox {
     font-family: "segoe ui", sans-serif;
 }
 
+QCheckBox#settingsCheckbox:disabled {
+    color: #62636A;
+    padding: 4px;
+    font-family: "segoe ui", sans-serif;
+}
+
 QLineEdit#directoryInput {
     background-color: #1C1D21;
     color: #ecf0f1;
@@ -197,6 +203,11 @@ QComboBox QAbstractItemView {
 QComboBox QAbstractItemView::item {
     padding: 6px;
     color: #ecf0f1;
+}
+
+QComboBox QAbstractItemView::item:disabled {
+    padding: 6px;
+    color: #62636A;
 }
 
 QScrollBar:vertical {
@@ -265,6 +276,11 @@ QTreeView::branch:hover {
     background: transparent;
 }
 
+QWidget#directoryErrorLabel QLabel {
+    color: #DB5461;
+}
+
+
 QDialog#progressModal {
     background-color: #1C1D21;
 }
@@ -287,4 +303,12 @@ QPushButton#progressModalButton:pressed {
 QPushButton#progressModalButton:disabled {
     background-color: #44454A;
     color: #888A8F;
+}
+
+QWidget#directoryErrorLabel QLabel {
+    color: #DB5461;
+}
+
+QWidget#directoryErrorLabel QLabel {
+    color: #DB5461;
 }
