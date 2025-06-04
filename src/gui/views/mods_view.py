@@ -1,6 +1,6 @@
 
 
-from PySide6.QtGui import QDragEnterEvent, QIcon
+from PySide6.QtGui import QDragEnterEvent, QIcon, QShortcut, QKeySequence
 from PySide6.QtWidgets import (
     QWidget,
     QVBoxLayout,
@@ -66,6 +66,7 @@ class ModsView(QWidget):
         layout = QVBoxLayout(self)
         layout.setContentsMargins(6, 6, 6, 6)
         
+        
         # Variables
         self._modlist_loaded = False
 
@@ -112,8 +113,12 @@ class ModsView(QWidget):
         self.mod_list.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
         self.mod_list.setContentsMargins(0, 0, 0, 0)
         self.mod_list.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
+        self.mod_list.setSelectionMode(QHeaderView.SelectionMode.ExtendedSelection)
         self.mod_list.itemChanged.connect(self._mod_state_changed)
         self.mod_list.customContextMenuRequested.connect(self.show_context_menu)
+        
+        shortcut = QShortcut(QKeySequence("Ctrl+A"), self.mod_list)
+        shortcut.activated.connect(self.mod_list.selectAll)
         
         self.footer_bar = QWidget()
         self.footer_bar.setObjectName("footerBar")
@@ -163,7 +168,7 @@ class ModsView(QWidget):
         self.sync_button.setText(self.tr("Sync Mods"))
         self.unsync_button.setText(self.tr("Unsync Mods"))
         self.mod_list.setHeaderLabels([self.tr("Mod Name"), self.tr("Character"), self.tr("Type"), self.tr("Author")])
-
+    
     def resizeEvent(self, event):
         super().resizeEvent(event)
         w = self.drop_modal.width()
@@ -192,31 +197,49 @@ class ModsView(QWidget):
                 self.addModRequested.emit(file_path)
     
     def show_context_menu(self, pos):
+        selected_items = self.mod_list.selectedItems()
         current_item = self.mod_list.itemAt(pos)
-        if not current_item:
-            return
-        
-        mod = current_item.data(0, Qt.ItemDataRole.UserRole)
-        
+                
         menu = QMenu(self)
         menu.addAction(self.tr("Refresh Mods"), self._refresh_mods)
         menu.addSeparator()
-        action_text = self.tr("Enable Mod")
-        if current_item.checkState(0) == Qt.CheckState.Checked:
-            action_text = self.tr("Disable Mod")
-        menu.addAction(action_text, lambda: self._enable_or_disable_mod(current_item))
-        menu.addAction(self.tr("Set Mod Author"), lambda: self._show_author_input_dialog(current_item))
-        menu.addSeparator()
-        menu.addAction(self.tr("Rename Mod"), lambda: self._show_rename_input_dialog(current_item))
-        menu.addAction(self.tr("Delete Mod"), lambda: self._show_delete_confirmation_dialog(mod["name"]))
-        menu.addSeparator()
-        menu.addAction(self.tr("Open Mod Folder"), lambda: self.openModFolderRequested.emit(mod["path"]))
+        
+        if len(selected_items) > 1:              
+            menu.addAction(self.tr("Enable Mods"), lambda: self._enable_mods(selected_items))
+            menu.addAction(self.tr("Disable Mods"), lambda: self._disable_mods(selected_items))
+            menu.addSeparator()
+            menu.addAction(self.tr("Remove Mods"), lambda: self._confirm_mods_deletion(selected_items))
+        else:
+            action_text = self.tr("Enable Mod")
+            
+            if current_item.checkState(0) == Qt.CheckState.Checked:
+                action_text = self.tr("Disable Mod")
+                
+            menu.addAction(action_text, lambda: self._enable_or_disable_mod(selected_items))
+    
+            menu.addAction(self.tr("Set Mod Author"), lambda: self._show_author_input_dialog(current_item))
+            menu.addSeparator()
+            menu.addAction(self.tr("Rename Mod"), lambda: self._show_rename_input_dialog(current_item))
+            menu.addAction(self.tr("Delete Mod"), lambda: self._confirm_mod_deletion(current_item))
+            menu.addSeparator()
+            menu.addAction(self.tr("Open Mod Folder"), lambda: self.openModFolderRequested.emit(current_item))
 
         menu.exec_(self.mod_list.mapToGlobal(pos))
         
-    def _enable_or_disable_mod(self, item: QTreeWidgetItem):
-        mod_state = item.checkState(0) == Qt.CheckState.Checked
-        item.setCheckState(0, Qt.Unchecked if mod_state else Qt.Checked)
+    def _enable_or_disable_mod(self, items: list[QTreeWidgetItem]):
+        for item in items:
+            mod_state = item.checkState(0) == Qt.CheckState.Checked
+            item.setCheckState(0, Qt.CheckState.Unchecked if mod_state else Qt.CheckState.Checked)
+
+    def _enable_mods(self, items: list[QTreeWidgetItem]):
+        for item in items:
+            if item.checkState(0) == Qt.CheckState.Unchecked:
+                item.setCheckState(0, Qt.CheckState.Checked)
+    
+    def _disable_mods(self, items: list[QTreeWidgetItem]):
+        for item in items:
+            if item.checkState(0) == Qt.CheckState.Checked:
+                item.setCheckState(0, Qt.CheckState.Unchecked)
 
     def _show_author_input_dialog(self, item: QTreeWidgetItem):
         mod = item.data(0, Qt.ItemDataRole.UserRole)
@@ -241,9 +264,10 @@ class ModsView(QWidget):
 
         return None
     
-    def _show_delete_confirmation_dialog(self, mod_name: str):
-        msg_template = self.tr("Are you sure you want to delete the mod '{mod_name}'?")
-        msg = msg_template.format(mod_name=mod_name)
+    def _confirm_mod_deletion(self, item: QTreeWidgetItem):
+        mod = item.data(0, Qt.ItemDataRole.UserRole)
+        msg_template = self.tr("Are you sure you want to delete the mod \"{mod_name}\"?")
+        msg = msg_template.format(mod_name=mod["name"])
         reply = QMessageBox.question(
             self,
             self.tr("Delete Mod"),
@@ -252,7 +276,24 @@ class ModsView(QWidget):
             QMessageBox.StandardButton.No
         )
         if reply == QMessageBox.StandardButton.Yes:
-            self.removeModRequested.emit(mod_name)
+            self.removeModRequested.emit(mod["name"])
+            self._refresh_mods()
+    
+    def _confirm_mods_deletion(self, items: list[QTreeWidgetItem]):
+        msg_template = self.tr("Are you sure you want to delete {count} selected mods?")
+        msg = msg_template.format(count=len(items))
+        
+        reply = QMessageBox.question(
+            self,
+            self.tr("Delete Mods"),
+            msg,
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+            QMessageBox.StandardButton.No
+        )
+        if reply == QMessageBox.StandardButton.Yes:
+            for item in items:
+                mod = item.data(0, Qt.ItemDataRole.UserRole)
+                self.removeModRequested.emit(mod["name"])
             self._refresh_mods()
     
     def _filter_search(self, text: str):
