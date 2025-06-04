@@ -497,15 +497,16 @@ class BD2ModManager:
 
     @required_game_path
     def is_browndustx_installed(self) -> bool:
-        return Path(
-            self._game_directory
-            / r"BepInEx\plugins\BrownDustX\lynesth.bd2.browndustx.dll"
-        ).exists()
+        return Path(self._game_directory/ r"BepInEx\plugins\BrownDustX\lynesth.bd2.browndustx.dll").exists()
 
     @required_game_path
     def get_browndustx_version(self) -> str:
+        if not self.is_browndustx_installed():
+            raise BrownDustXNotInstalled("BrownDustX not installed.")
+        
         path = Path(self._game_directory / r"BepInEx\config\lynesth.bd2.browndustx.cfg")
         version = None
+        
         if path.exists():
             with path.open("r", encoding="UTF-8") as file:
                 version = file.readline().split()[8]
