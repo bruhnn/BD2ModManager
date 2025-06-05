@@ -188,6 +188,7 @@ class ModsView(QWidget):
         self.mod_list.customContextMenuRequested.connect(self.show_context_menu)
         self.mod_list.setItemDelegateForColumn(0, ModItemStyledDelegate())
         # self.mod_list.setItemDelegate(RightIconDelegate(QIcon(":/material/add.svg")))
+        self.mod_list.sortItems(1, Qt.SortOrder.AscendingOrder)
         
         shortcut = QShortcut(QKeySequence("Ctrl+A"), self.mod_list)
         shortcut.activated.connect(self.mod_list.selectAll)
