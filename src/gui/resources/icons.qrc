@@ -15,5 +15,7 @@
         <file alias="checkbox.svg">../assets/icons/material/checkbox_empty.svg</file>
         <file alias="checkbox_selected.svg">../assets/icons/material/checkbox_selected.svg</file>
         <file alias="warning.svg">../assets/icons/material/warning.svg</file>
+        <file alias="checkbox_nocolor.svg">../assets/icons/material/checkbox_empty_nocolor.svg</file>
+        <file alias="checkbox_selected_nocolor.svg">../assets/icons/material/checkbox_selected_nocolor.svg</file>
     </qresource>
 </RCC>

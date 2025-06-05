@@ -101,7 +101,25 @@ QTreeWidget#modlist::indicator {
     height: 20px;
 }
 
-QTreeWidget#modlist::indicator:checked {
+#filterCheckbox {
+    color: #e3e3e3;
+}
+
+#filterCheckbox::indicator {
+    width: 18px;
+    height: 18px;
+    
+}
+
+#filterCheckbox::indicator:checked {
+    image: url(:/material/checkbox_selected_nocolor.svg);
+}
+
+#filterCheckbox::indicator:unchecked {
+    image: url(:/material/checkbox_nocolor.svg);
+}
+
+QTreeWidget#modlist::indicator:checked  {
     image: url(:/material/checkbox_selected.svg);
 }
 
@@ -316,4 +334,37 @@ QWidget#directoryErrorLabel QLabel {
 
 QWidget#directoryErrorLabel QLabel {
     color: #DB5461;
+}
+QComboBox#searchCombobox {
+    background-color: #26262C;
+    color: #ecf0f1;
+    border: 2px solid #2F3037;
+    padding: 6px;        
+    border-radius: 4px;
+}
+
+QComboBox#searchCombobox::drop-down {
+    subcontrol-origin: padding;
+    subcontrol-position: top right;
+    width: 20px;
+    border: none;
+    margin-right: 4px;
+}
+
+QComboBox#searchCombobox::down-arrow {
+    image: url(:/material/arrow_down.svg);
+}
+
+QComboBox#searchCombobox::item {
+    background-color: #2F3037;
+    color: #ecf0f1;
+    padding: 6px;
+}
+
+QComboBox#searchCombobox QAbstractItemView {
+    background-color: #2F3037;
+}
+
+QComboBox#searchCombobox QAbstractItemView::item:disabled {
+    color: #62636A;
 }

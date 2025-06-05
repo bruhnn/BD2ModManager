@@ -14,8 +14,9 @@ from PySide6.QtWidgets import (
     QInputDialog,
     QMessageBox,
     QStyledItemDelegate,
-    QStyleOptionViewItem,
-    QStyle,
+    QComboBox,
+    QCheckBox,
+    QGridLayout
 )
 from PySide6.QtGui import QDragEnterEvent, QIcon, QShortcut, QKeySequence, QColor, QBrush, QPalette
 
@@ -86,13 +87,16 @@ class ModsView(QWidget):
 
         self.top_bar = QWidget()
         self.top_bar.setObjectName("topBar")
-        self.top_bar_layout = QHBoxLayout(self.top_bar)
+        self.top_bar_layout = QGridLayout(self.top_bar)
         self.top_bar_layout.setContentsMargins(0, 0, 0, 0)
 
         self.search_field = QLineEdit(placeholderText=self.tr("Search Mods"))
         self.search_field.setObjectName("searchField")
         self.search_field.addAction(QIcon(":/material/search.svg"), QLineEdit.ActionPosition.LeadingPosition)
         self.search_field.textChanged.connect(self._filter_search)
+        self.search_type = QComboBox()
+        self.search_type.setObjectName("searchCombobox")
+        self.search_type.addItems(("Mod", "Character", "Author"))
 
         self.refresh_button = QPushButton(self.tr("Refresh Mods"))
         self.refresh_button.setObjectName("modsViewButton")
@@ -108,9 +112,10 @@ class ModsView(QWidget):
         self.add_mod_button.setIcon(QIcon(":/material/add.svg"))
         self.add_mod_button.clicked.connect(self._add_mod)
 
-        self.top_bar_layout.addWidget(self.search_field)
-        self.top_bar_layout.addWidget(self.refresh_button)
-        self.top_bar_layout.addWidget(self.add_mod_button)
+        self.top_bar_layout.addWidget(self.search_field, 0, 0)
+        self.top_bar_layout.addWidget(self.search_type, 0, 1)
+        self.top_bar_layout.addWidget(self.refresh_button, 0, 2)
+        self.top_bar_layout.addWidget(self.add_mod_button, 0, 3)
 
         self.mod_list = QTreeWidget()
         self.mod_list.setObjectName("modlist")
@@ -318,14 +323,27 @@ class ModsView(QWidget):
             self._refresh_mods()
     
     def _filter_search(self, text: str):
+        search_type = self.search_type.currentText()
+        
         for index in range(self.mod_list.topLevelItemCount()):
             mod_item = self.mod_list.topLevelItem(index)
             if not mod_item:
                 continue
 
             mod_data = mod_item.data(0, Qt.ItemDataRole.UserRole)
+            
+            data = ""
+            if search_type == "Mod":
+                data = mod_data.get("name")
+            elif search_type == "Character":
+                if not mod_data.get("character"): data = ""
+                else:
+                    char = mod_data.get("character")
+                    data = f'{char.get("character")} {mod_data.get("costume")}'
+            elif search_type == "Author":
+                data = mod_data.get("author") or ""
 
-            if text.lower() in mod_data.get("name").lower():
+            if text.lower() in data.lower():
                 mod_item.setHidden(False)
             else:
                 mod_item.setHidden(True)
