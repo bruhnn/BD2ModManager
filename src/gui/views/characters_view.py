@@ -31,7 +31,7 @@ class CharacterNode:
 
 
 class CharacterTreeModel(QAbstractItemModel):
-    def __init__(self, characters: dict):
+    def __init__(self, characters: dict = {}):
         super().__init__()
         self.root_node = CharacterNode()
         for character, costumes in characters.items():
@@ -84,6 +84,19 @@ class CharacterTreeModel(QAbstractItemModel):
         elif role == Qt.UserRole:
             return node
         return None
+    
+    def update_characters(self, characters: dict):
+        self.beginResetModel()
+        self.root_node = CharacterNode()  # reset root
+
+        for character, costumes in characters.items():
+            character_node = CharacterNode(character=character, parent=self.root_node)
+            character_node.add_children([
+                CharacterNode(costume=costume, parent=character_node) for costume in costumes
+            ])
+            self.root_node.add_children(character_node)
+
+        self.endResetModel()
 
 
 class CostumeTreeDelegate(QStyledItemDelegate):
@@ -330,14 +343,14 @@ class CharacterFilterProxyModel(QSortFilterProxyModel):
         self.invalidateFilter()
 
 class CharactersView(QWidget):
-    def __init__(self, characters: dict):
+    def __init__(self):
         super().__init__()
         
         self.search_input = QLineEdit(placeholderText="Search Character")
         self.search_input.setObjectName("searchField")
 
         self.proxy_model = CharacterFilterProxyModel()
-        self.proxy_model.setSourceModel(CharacterTreeModel(characters))
+        self.proxy_model.setSourceModel(CharacterTreeModel())
         self.proxy_model.setFilterCaseSensitivity(Qt.CaseSensitivity.CaseInsensitive)    
         self.search_input.textChanged.connect(self._search)
 
@@ -355,6 +368,11 @@ class CharactersView(QWidget):
         layout = QVBoxLayout(self)
         layout.addWidget(self.search_input)
         layout.addWidget(self.view)
+    
+    def load_characters(self, characters: dict):
+        self.proxy_model.sourceModel().update_characters(characters)
+        self.proxy_model.invalidateFilter()
+        self.view.expandAll()
     
     def _search(self, text: str):
         self.proxy_model.set_text(text)

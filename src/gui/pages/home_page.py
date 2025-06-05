@@ -118,8 +118,6 @@ class HomePage(QWidget):
 
         self.navigation_view = QStackedWidget()
 
-        characters = mod_manager.get_characters_mod_status()
-
         self.mods_widget = ModsView()
         self.mods_widget.addModRequested.connect(self._add_mod)
         self.mods_widget.modStateChanged.connect(self._enable_or_disable_mod)
@@ -132,10 +130,11 @@ class HomePage(QWidget):
         self.mods_widget.removeModRequested.connect(self._remove_mod)
         self.mods_widget.renameModRequested.connect(self._rename_mod)
         
-        self._refresh_mods()
         self.mods_widget.bulkModStateChanged.connect(self._bulk_enable_or_disable_mods)
 
-        self.characters_widget = CharactersView(characters)
+        self.characters_widget = CharactersView()
+        
+        self._refresh_mods()
         
         self.settings_widget = SettingsView(config_manager)
 
@@ -195,9 +194,21 @@ class HomePage(QWidget):
     def _refresh_mods(self):
         if self.config_manager.get("search_mods_recursively", boolean=True, default=False):
             mods = self.mod_manager.get_mods(recursive=True)
+            characters = self.mod_manager.get_characters_mod_status(recursive=True)
         else:
             mods = self.mod_manager.get_mods()
+            characters = self.mod_manager.get_characters_mod_status()
+
         self.mods_widget.load_mods(mods)
+        self.characters_widget.load_characters(characters)
+    
+    def _refresh_characters(self):
+        if self.config_manager.get("search_mods_recursively", boolean=True, default=False):
+            characters = self.mod_manager.get_characters_mod_status(recursive=True)
+        else:
+            characters = self.mod_manager.get_characters_mod_status()
+
+        self.characters_widget.load_characters(characters)
 
     def _add_mod(self, filename: str):
         self.mod_manager.add_mod(path=filename)
@@ -217,6 +228,7 @@ class HomePage(QWidget):
         else:
             self.mod_manager.bulk_disable_mods(mods)
         
+        self._refresh_characters()
 
     def _sync_mods(self):
         confirmation = QMessageBox.question(
@@ -296,3 +308,6 @@ class HomePage(QWidget):
     def _rename_mod(self, old_name: str, new_name: str):
         self.mod_manager.rename_mod(old_name, new_name)
         self._refresh_mods()
+    
+    def set_info_text(self, text: str):
+        self.mods_widget.set_info_label(text)
