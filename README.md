@@ -8,6 +8,11 @@ Download here: [Github Releases](https://github.com/bruhnn/BD2ModManager/release
 
 ---
 
+If you have any problems or ideas, feel free to contact me on Discord: @bruhnnn
+
+
+---
+
 ## Features
 
 - Simple drag-and-drop mod installation  
@@ -30,14 +35,12 @@ Download here: [Github Releases](https://github.com/bruhnn/BD2ModManager/release
 
 ## Screenshots
 
-### Mods Page
-![Mods Page](./screenshots//mods_page.png)  
+### Mods Page v1.1.0
+![Mods Page](./screenshots//mods_page_2.png)  
 
-### Characters Page - 1
+### Characters Page v1.1.0
 ![Characters Page](./screenshots//characters_page_1.png)
 
-### Characters Page - 2
-![Characters Page](./screenshots/characters_page_2.png)
 
 ---
 
