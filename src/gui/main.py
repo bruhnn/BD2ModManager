@@ -21,7 +21,7 @@ LANGUAGE_PATH = app_path / "gui" / "translations"
 class MainWindow(QMainWindow):
     def __init__(self, mod_manager: BD2ModManager, config_manager: BD2MMConfigManager):
         super().__init__()
-        self.setWindowTitle("BD2 Mod Manager - v1.1.0")
+        self.setWindowTitle("BD2 Mod Manager - v1.1.1")
         self.setGeometry(600, 250, 800, 600)
         self.setObjectName("mainWindow")
 
@@ -57,7 +57,7 @@ class MainWindow(QMainWindow):
         else:
             self.main_stacked_widget.setCurrentIndex(1)
             self.select_folder_page.set_info_text("Select the folder where \"BrownDust 2.exe\" is located." )
-            
+        
         self._apply_stylesheet(self.config_manager.get("theme", default="dark"))
         self._apply_language(self.config_manager.get("language", default="english"))
         
