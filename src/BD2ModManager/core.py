@@ -352,7 +352,7 @@ class BD2ModManager:
         value = False
         for mod_name in mods:
             if mod_name not in self._mods_data:
-                logger.debug("Mod %s not found in mods data. Creating new entry.", mod_name)
+                logger.debfug("Mod %s not found in mods data. Creating new entry.", mod_name)
                 self._mods_data[mod_name] = {}
             
             if self._mods_data[mod_name].get("enabled") == value:

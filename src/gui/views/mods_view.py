@@ -68,6 +68,8 @@ class ModsView(QWidget):
     renameModRequested = Signal(str, str) # Mod Name, New Name
 
     modStateChanged = Signal(str, bool) # Mod Name, Enabled State
+    bulkModStateChanged = Signal(list, bool)
+    
     modAuthorChanged = Signal(str, str) # Mod Name, Author Name
     openModFolderRequested = Signal(str) # Mod Path
 
@@ -94,9 +96,13 @@ class ModsView(QWidget):
         self.search_field.setObjectName("searchField")
         self.search_field.addAction(QIcon(":/material/search.svg"), QLineEdit.ActionPosition.LeadingPosition)
         self.search_field.textChanged.connect(self._filter_search)
+        
         self.search_type = QComboBox()
         self.search_type.setObjectName("searchCombobox")
         self.search_type.addItems(("Mod", "Character", "Author"))
+        
+        self.enabled_mods_checkbox = QCheckBox("Only enabled mods")
+        self.enabled_mods_checkbox.setObjectName("filterCheckbox")
 
         self.refresh_button = QPushButton(self.tr("Refresh Mods"))
         self.refresh_button.setObjectName("modsViewButton")
@@ -116,6 +122,8 @@ class ModsView(QWidget):
         self.top_bar_layout.addWidget(self.search_type, 0, 1)
         self.top_bar_layout.addWidget(self.refresh_button, 0, 2)
         self.top_bar_layout.addWidget(self.add_mod_button, 0, 3)
+        # self.top_bar_layout.addWidget(self.enabled_mods_checkbox, 1, 0)
+        
 
         self.mod_list = QTreeWidget()
         self.mod_list.setObjectName("modlist")
@@ -224,17 +232,15 @@ class ModsView(QWidget):
         menu.addSeparator()
         
         if len(selected_items) > 1:              
-            menu.addAction(self.tr("Enable Mods"), lambda: self._enable_mods(selected_items))
-            menu.addAction(self.tr("Disable Mods"), lambda: self._disable_mods(selected_items))
+            menu.addAction(self.tr("Enable All"), lambda: self._enable_mods(selected_items))
+            menu.addAction(self.tr("Disable All"), lambda: self._disable_mods(selected_items))
             menu.addSeparator()
             menu.addAction(self.tr("Remove Mods"), lambda: self._confirm_mods_deletion(selected_items))
         else:
-            action_text = self.tr("Enable Mod")
-            
             if current_item.checkState(0) == Qt.CheckState.Checked:
-                action_text = self.tr("Disable Mod")
-                
-            menu.addAction(action_text, lambda: self._enable_or_disable_mod(selected_items))
+                menu.addAction("Disable Mod", lambda: self._disable_mods(selected_items))
+            else:
+                menu.addAction("Enable Mod", lambda: self._enable_mods(selected_items))
     
             menu.addAction(self.tr("Set Mod Author"), lambda: self._show_author_input_dialog(current_item))
             menu.addAction(self.tr("Highlight conflicts"), self._highlight_mod_conflicts)
@@ -252,20 +258,31 @@ class ModsView(QWidget):
 
         menu.exec_(self.mod_list.mapToGlobal(pos))
         
-    def _enable_or_disable_mod(self, items: list[QTreeWidgetItem]):
-        for item in items:
-            mod_state = item.checkState(0) == Qt.CheckState.Checked
-            item.setCheckState(0, Qt.CheckState.Unchecked if mod_state else Qt.CheckState.Checked)
+    # def _enable_or_disable_mod(self, items: list[QTreeWidgetItem]):
+    #     for item in items:
+    #         mod_state = item.checkState(0) == Qt.CheckState.Checked
+    #         item.setCheckState(0, Qt.CheckState.Unchecked if mod_state else Qt.CheckState.Checked)
 
     def _enable_mods(self, items: list[QTreeWidgetItem]):
+        mods = []
+        
         for item in items:
             if item.checkState(0) == Qt.CheckState.Unchecked:
                 item.setCheckState(0, Qt.CheckState.Checked)
+                mods.append(item.data(0, Qt.ItemDataRole.UserRole)["name"])
+                
+        self.bulkModStateChanged.emit(mods, True)
+        
     
     def _disable_mods(self, items: list[QTreeWidgetItem]):
+        mods = []
+        
         for item in items:
             if item.checkState(0) == Qt.CheckState.Checked:
                 item.setCheckState(0, Qt.CheckState.Unchecked)
+                mods.append(item.data(0, Qt.ItemDataRole.UserRole)["name"])
+
+        self.bulkModStateChanged.emit(mods, False)
 
     def _show_author_input_dialog(self, item: QTreeWidgetItem):
         mod = item.data(0, Qt.ItemDataRole.UserRole)
@@ -364,9 +381,9 @@ class ModsView(QWidget):
         mod_state = item.checkState(0)
         mod_data["enabled"] = mod_state == Qt.CheckState.Checked
         item.setData(0, Qt.ItemDataRole.UserRole, mod_data)
-        self.modStateChanged.emit(
-            mod_data["name"], mod_state == Qt.CheckState.Checked
-        )
+        # self.modStateChanged.emit(
+        #     mod_data["name"], mod_state == Qt.CheckState.Checked
+        # )
     
     def _remove_hightlight_conflicts(self):
         for index in range(self.mod_list.topLevelItemCount()):
