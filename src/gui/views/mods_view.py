@@ -270,11 +270,11 @@ class ModsView(QWidget):
             else:
                 menu.addAction("Enable Mod", lambda: self._enable_mods(selected_items))
     
-            # menu.addAction(self.tr("Set Mod Author"), lambda: self._show_author_input_dialog(current_item))
+            menu.addAction(self.tr("Set Mod Author"), lambda: self._show_author_input_dialog(current_item))
             # menu.addAction(self.tr("Highlight conflicts"), self._highlight_mod_conflicts)
             
-            if self._has_conflict_highlights:
-                menu.addAction(self.tr("Remove highlights"), self._remove_hightlight_conflicts)
+            # if self._has_conflict_highlights:
+            #     menu.addAction(self.tr("Remove highlights"), self._remove_hightlight_conflicts)
                 
             menu.addSeparator()
             menu.addAction(self.tr("Rename Mod"), lambda: self._show_rename_input_dialog(current_item))
