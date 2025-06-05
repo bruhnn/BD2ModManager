@@ -131,6 +131,7 @@ class HomePage(QWidget):
         self.mods_widget.renameModRequested.connect(self._rename_mod)
         
         self.mods_widget.bulkModStateChanged.connect(self._bulk_enable_or_disable_mods)
+        self.mods_widget.bulkModAuthorChanged.connect(self._bulk_change_author_name)
 
         self.characters_widget = CharactersView()
         
@@ -229,6 +230,9 @@ class HomePage(QWidget):
             self.mod_manager.bulk_disable_mods(mods)
         
         self._refresh_characters()
+    
+    def _bulk_change_author_name(self, list, author):
+        self.mod_manager.bulk_set_mod_author(list, author)
 
     def _sync_mods(self):
         confirmation = QMessageBox.question(

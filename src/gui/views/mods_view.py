@@ -113,6 +113,7 @@ class ModsView(QWidget):
     bulkModStateChanged = Signal(list, bool)
     
     modAuthorChanged = Signal(str, str) # Mod Name, Author Name
+    bulkModAuthorChanged = Signal(list, str) # [mod name], author name
     openModFolderRequested = Signal(str) # Mod Path
 
     def __init__(self):
@@ -283,6 +284,8 @@ class ModsView(QWidget):
             menu.addAction(self.tr("Enable All"), lambda: self._enable_mods(selected_items))
             menu.addAction(self.tr("Disable All"), lambda: self._disable_mods(selected_items))
             menu.addSeparator()
+            menu.addAction(self.tr("Set Mod Author for All"), lambda: self._bulk_show_author_input_dialog(selected_items))
+            menu.addSeparator()
             menu.addAction(self.tr("Remove Mods"), lambda: self._confirm_mods_deletion(selected_items))
         else:
             if current_item.checkState(0) == Qt.CheckState.Checked:
@@ -336,10 +339,28 @@ class ModsView(QWidget):
         mod = item.data(0, Qt.ItemDataRole.UserRole)
         author, ok = QInputDialog.getText(self, self.tr("Set Mod Author"), self.tr("Enter the author's name:"), text=mod.get("author", ""))
         if ok and author:
-            mod["author"] = author
-            item.setData(0, Qt.ItemDataRole.UserRole, mod)
-            item.setText(3, author)
-            self.modAuthorChanged.emit(mod["name"], author)
+            if mod["author"] != author:
+                mod["author"] = author
+                item.setData(0, Qt.ItemDataRole.UserRole, mod)
+                item.setText(3, author)
+                self.modAuthorChanged.emit(mod["name"], author)
+
+        return None
+    
+    def _bulk_show_author_input_dialog(self, items: list[QTreeWidgetItem]):
+        author, ok = QInputDialog.getText(self, self.tr("Set Mods Author"), self.tr("Enter the author's name:"), text="")
+
+        mods = []
+        if ok and author:
+            for item in items:
+                mod = item.data(0, Qt.ItemDataRole.UserRole)
+                if mod["author"] != author:
+                    mod["author"] = author
+                    item.setData(0, Qt.ItemDataRole.UserRole, mod)
+                    item.setText(3, author)
+                    mods.append(mod["name"])
+                            
+        self.bulkModAuthorChanged.emit(mods, author)
 
         return None
 
