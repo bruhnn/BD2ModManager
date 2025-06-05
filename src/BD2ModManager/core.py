@@ -330,7 +330,40 @@ class BD2ModManager:
     def enable_mod(self, mod_name: str) -> None:
         logger.debug("Enabling mod: %s", mod_name)
         self._set_mod_data(mod_name, "enabled", True)
+    
+    def bulk_enable_mods(self, mods: list[str]):
+        value = True
+        
+        for mod_name in mods:
+            if mod_name not in self._mods_data:
+                logger.debug("Mod %s not found in mods data. Creating new entry.", mod_name)
+                self._mods_data[mod_name] = {}
+            
+            if self._mods_data[mod_name].get("enabled") == value:
+                logger.debug(
+                    "Mod %s already has %s set to %s. No changes made.", mod_name, "enabled", value)
+                return
 
+            self._mods_data[mod_name]["enabled"] = value
+            logger.debug("Mod data for %s updated: %s = %s", mod_name, "enabled", value)
+        self._save_mods_data()
+    
+    def bulk_disable_mods(self, mods: list[tuple]): 
+        value = False
+        for mod_name in mods:
+            if mod_name not in self._mods_data:
+                logger.debug("Mod %s not found in mods data. Creating new entry.", mod_name)
+                self._mods_data[mod_name] = {}
+            
+            if self._mods_data[mod_name].get("enabled") == value:
+                logger.debug(
+                    "Mod %s already has %s set to %s. No changes made.", mod_name, "enabled", value)
+                return
+
+            self._mods_data[mod_name]["enabled"] = value
+            logger.debug("Mod data for %s updated: %s = %s", mod_name, "enabled", value)
+        self._save_mods_data()
+              
     def disable_mod(self, mod_name: str) -> None:
         logger.debug("Disabling mod: %s", mod_name)
         self._set_mod_data(mod_name, "enabled", False)
