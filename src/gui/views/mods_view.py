@@ -1,6 +1,4 @@
-
-
-from PySide6.QtGui import QDragEnterEvent, QIcon, QShortcut, QKeySequence
+from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import (
     QWidget,
     QVBoxLayout,
@@ -14,11 +12,13 @@ from PySide6.QtWidgets import (
     QHeaderView,
     QMenu,
     QInputDialog,
-    QMessageBox
+    QMessageBox,
+    QStyledItemDelegate,
+    QStyleOptionViewItem,
+    QStyle,
 )
-from PySide6.QtCore import Qt, Signal
+from PySide6.QtGui import QDragEnterEvent, QIcon, QShortcut, QKeySequence, QColor, QBrush, QPalette
 
-from src.gui.widgets import LabelIcon
 
 
 class DragFilesModal(QWidget):
@@ -41,8 +41,20 @@ class DragFilesModal(QWidget):
 
         self.hide()
         self.raise_()
-        
 
+    
+class ModItemStyledDelegate(QStyledItemDelegate):
+    def paint(self, painter, option, index):
+        has_conflict = index.data(Qt.ItemDataRole.UserRole + 1)
+          
+        option.palette.setColor(QPalette.Text, QColor('#ecf0f1'))
+        if has_conflict:
+            option.palette.setColor(QPalette.Text, QColor('#B4656F'))
+            
+        super().paint(painter, option, index)
+        
+        # painter.fillRect(option.rect, QColor("#B4656F"))
+        
 class ModsView(QWidget):
     modsRefreshRequested = Signal() 
     modsSyncRequested = Signal()
@@ -68,6 +80,7 @@ class ModsView(QWidget):
 
         # Variables
         self._modlist_loaded = False
+        self._has_conflict_highlights = False
 
         self.drop_modal = DragFilesModal(self)
 
@@ -114,7 +127,9 @@ class ModsView(QWidget):
         self.mod_list.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self.mod_list.setSelectionMode(QHeaderView.SelectionMode.ExtendedSelection)
         self.mod_list.itemChanged.connect(self._mod_state_changed)
+        # self.mod_list.itemSelectionChanged.connect(self._check_mod_conflicts)
         self.mod_list.customContextMenuRequested.connect(self.show_context_menu)
+        self.mod_list.setItemDelegate(ModItemStyledDelegate())
         
         shortcut = QShortcut(QKeySequence("Ctrl+A"), self.mod_list)
         shortcut.activated.connect(self.mod_list.selectAll)
@@ -217,6 +232,11 @@ class ModsView(QWidget):
             menu.addAction(action_text, lambda: self._enable_or_disable_mod(selected_items))
     
             menu.addAction(self.tr("Set Mod Author"), lambda: self._show_author_input_dialog(current_item))
+            menu.addAction(self.tr("Highlight conflicts"), self._highlight_mod_conflicts)
+            
+            if self._has_conflict_highlights:
+                menu.addAction(self.tr("Remove highlights"), self._remove_hightlight_conflicts)
+                
             menu.addSeparator()
             menu.addAction(self.tr("Rename Mod"), lambda: self._show_rename_input_dialog(current_item))
             menu.addAction(self.tr("Delete Mod"), lambda: self._confirm_mod_deletion(current_item))
@@ -324,9 +344,49 @@ class ModsView(QWidget):
     def _mod_state_changed(self, item: QTreeWidgetItem):
         mod_data = item.data(0, Qt.ItemDataRole.UserRole)
         mod_state = item.checkState(0)
+        mod_data["enabled"] = mod_state == Qt.CheckState.Checked
+        item.setData(0, Qt.ItemDataRole.UserRole, mod_data)
         self.modStateChanged.emit(
             mod_data["name"], mod_state == Qt.CheckState.Checked
         )
+    
+    def _remove_hightlight_conflicts(self):
+        for index in range(self.mod_list.topLevelItemCount()):
+            item = self.mod_list.topLevelItem(index)
+            if item.data(0, Qt.ItemDataRole.UserRole + 1):
+                item.setData(0, Qt.ItemDataRole.UserRole + 1, False)
+        self._has_conflict_highlights = False
+    
+    def _highlight_mod_conflicts(self):
+        for index in range(self.mod_list.topLevelItemCount()):
+            item = self.mod_list.topLevelItem(index)
+            if item.data(0, Qt.ItemDataRole.UserRole + 1):
+                item.setData(0, Qt.ItemDataRole.UserRole + 1, False)
+                
+            # item.setBackground(0, QBrush())
+        if len(self.mod_list.selectedItems()) > 1:
+            return
+        
+        selected_item = self.mod_list.currentItem()
+        selected_item_data = selected_item.data(0, Qt.ItemDataRole.UserRole)
+                
+        for index in range(self.mod_list.topLevelItemCount()):
+            item = self.mod_list.topLevelItem(index)
+            item_data = item.data(0, Qt.ItemDataRole.UserRole)
+            
+            if item_data.get("character") is None:
+                continue
+        
+            if not item_data["enabled"]:
+                continue
+            
+            if selected_item_data["type"] == item_data["type"] and selected_item_data["character"]["id"] == item_data["character"]["id"]:
+                item.setData(0, Qt.ItemDataRole.UserRole + 1, True)
+                if not self._has_conflict_highlights:
+                    self._has_conflict_highlights = True
+                # for col in range(item.columnCount()):
+                #     item.setBackground(col, QColor('#B4656F'))
+        # print(selected_item.data(0, Qt.ItemDataRole.UserRole))
 
     def load_mods(self, mods: list):
         pos_y = self.mod_list.verticalScrollBar().value()
@@ -342,6 +402,7 @@ class ModsView(QWidget):
 
             item = QTreeWidgetItem()
             item.setData(0, Qt.ItemDataRole.UserRole, mod)
+            item.setData(0, Qt.ItemDataRole.UserRole + 1, False) # has conflict
 
             item.setText(0, mod["name"])
             item.setText(1, char_name)
