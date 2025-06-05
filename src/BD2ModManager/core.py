@@ -127,6 +127,24 @@ class BD2ModManager:
         logger.debug("Mod data for %s updated: %s = %s", mod_name, key, value)
 
         self._save_mods_data()
+    
+    def _bulk_set_mod_data(self, mod_names: list[str], key: str, value: Any):
+        """Sets the mulitples mod data for a given list of mod names."""
+        
+        for mod_name in mod_names:
+            if mod_name not in self._mods_data:
+                logger.debug("Mod %s not found in mods data. Creating new entry.", mod_name)
+                self._mods_data[mod_name] = {}
+
+            if self._mods_data[mod_name].get(key) == value:
+                logger.debug("Mod %s already has %s set to %s. No changes made.", mod_name, key, value)
+                continue
+
+            self._mods_data[mod_name][key] = value
+            
+            logger.debug("Mod data for %s updated: %s = %s", mod_name, key, value)
+
+        self._save_mods_data()
 
     def set_game_directory(self, path: Union[str, Path]) -> None:
         """Sets the game directory path."""
@@ -340,42 +358,11 @@ class BD2ModManager:
         logger.debug("Enabling mod: %s", mod_name)
         self._set_mod_data(mod_name, "enabled", True)
 
-    def bulk_enable_mods(self, mods: list[str]):
-        value = True
+    def bulk_enable_mods(self, mod_names: list[str]):
+        self._bulk_set_mod_data(mod_names, "enabled", True)
 
-        for mod_name in mods:
-            if mod_name not in self._mods_data:
-                logger.debug(
-                    "Mod %s not found in mods data. Creating new entry.", mod_name)
-                self._mods_data[mod_name] = {}
-
-            if self._mods_data[mod_name].get("enabled") == value:
-                logger.debug(
-                    "Mod %s already has %s set to %s. No changes made.", mod_name, "enabled", value)
-                return
-
-            self._mods_data[mod_name]["enabled"] = value
-            logger.debug("Mod data for %s updated: %s = %s",
-                         mod_name, "enabled", value)
-        self._save_mods_data()
-
-    def bulk_disable_mods(self, mods: list[tuple]):
-        value = False
-        for mod_name in mods:
-            if mod_name not in self._mods_data:
-                logger.debfug(
-                    "Mod %s not found in mods data. Creating new entry.", mod_name)
-                self._mods_data[mod_name] = {}
-
-            if self._mods_data[mod_name].get("enabled") == value:
-                logger.debug(
-                    "Mod %s already has %s set to %s. No changes made.", mod_name, "enabled", value)
-                return
-
-            self._mods_data[mod_name]["enabled"] = value
-            logger.debug("Mod data for %s updated: %s = %s",
-                         mod_name, "enabled", value)
-        self._save_mods_data()
+    def bulk_disable_mods(self, mod_names: list[tuple]):
+        self._bulk_set_mod_data(mod_names, "enabled", False)
 
     def disable_mod(self, mod_name: str) -> None:
         logger.debug("Disabling mod: %s", mod_name)
@@ -384,6 +371,9 @@ class BD2ModManager:
     def set_mod_author(self, mod_name: str, author: str) -> None:
         logger.debug("Setting author for mod %s to %s", mod_name, author)
         self._set_mod_data(mod_name, "author", author)
+    
+    def bulk_set_mod_author(self, mod_names: list[str], author: str):
+        self._bulk_set_mod_data(mod_names, "author", author)
 
     @required_game_path
     def sync_mods(self, symlink: bool = False, progress_callback: Callable = None) -> None:
