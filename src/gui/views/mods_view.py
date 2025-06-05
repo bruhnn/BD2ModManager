@@ -120,11 +120,12 @@ class ModsView(QWidget):
         self.search_field.setObjectName("searchField")
         self.search_field.addAction(QIcon(":/material/search.svg"), QLineEdit.ActionPosition.LeadingPosition)
         self.search_field.textChanged.connect(self._filter_search)
-        self.search_field.setFocusPolicy
+        # self.search_field.setFocusPolicy(Qt.FocusPolicy.)
         
         self.search_type = QComboBox()
         self.search_type.setObjectName("searchCombobox")
         self.search_type.addItems(("Mod", "Character", "Author"))
+        self.search_type.currentIndexChanged.connect(self._search_type_changed)
         
         self.enabled_mods_checkbox = QCheckBox("Only enabled mods")
         self.enabled_mods_checkbox.setObjectName("filterCheckbox")
@@ -381,17 +382,22 @@ class ModsView(QWidget):
             if search_type == "Mod":
                 data = mod_data.get("name")
             elif search_type == "Character":
-                if not mod_data.get("character"): data = ""
+                if not mod_data.get("character"): 
+                    data = ""
                 else:
                     char = mod_data.get("character")
-                    data = f'{char.get("character")} {mod_data.get("costume")}'
+                    data = f'{char.get("character")} {char.get("costume")}'
             elif search_type == "Author":
                 data = mod_data.get("author") or ""
+                print(data)
 
             if text.lower() in data.lower():
                 mod_item.setHidden(False)
             else:
                 mod_item.setHidden(True)
+    
+    def _search_type_changed(self):
+        self._filter_search(self.search_field.text())
 
     def _refresh_mods(self):
         self.modsRefreshRequested.emit()
