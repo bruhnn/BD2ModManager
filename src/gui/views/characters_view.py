@@ -1,5 +1,5 @@
-from PySide6.QtWidgets import QWidget, QTreeView, QVBoxLayout, QStyledItemDelegate, QStyle
-from PySide6.QtCore import QAbstractItemModel, QModelIndex, Qt, QSize, QRect, QRectF
+from PySide6.QtWidgets import QWidget, QTreeView, QVBoxLayout, QStyledItemDelegate, QStyle, QLineEdit
+from PySide6.QtCore import QAbstractItemModel, QModelIndex, Qt, QSize, QRect, QRectF, QSortFilterProxyModel
 from PySide6.QtGui import QPainter, QPixmap, QFont, QColor, QFontMetrics, QPen , QBrush
 
 from typing import Any, Union
@@ -289,22 +289,76 @@ class CostumeTreeDelegate(QStyledItemDelegate):
 
         return QSize(320, 90 + (12 * 2) + (8 * 2))
 
+class CharacterFilterProxyModel(QSortFilterProxyModel):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.search_text = None
+        self.setRecursiveFilteringEnabled(True)  # Important for tree models
+
+    def filterAcceptsRow(self, source_row, source_parent):
+        source_model = self.sourceModel()
+        
+        index = source_model.index(source_row, 0, source_parent)
+        node = index.data(Qt.ItemDataRole.UserRole)
+
+        if not node:
+            print("node is false ):")
+            return False
+        
+        if not self.search_text or self.search_text == "":
+            return True
+        
+        text = self.search_text.lower()
+        if node.is_costume():
+            costume_name = f'{node.costume.get("character", {}).get("character", "").lower()} {node.costume.get("character", {}).get("costume", "").lower()}'
+            if text in costume_name:
+                return True
+        else:
+            character_name = (node.character or "").lower()
+
+            if text in character_name:
+                return True
+
+        for i in range(source_model.rowCount(index)):
+            if self.filterAcceptsRow(i, index):
+                return True
+
+        return False
+
+    def set_text(self, text: str):
+        self.search_text = text
+        self.invalidateFilter()
 
 class CharactersView(QWidget):
     def __init__(self, characters: dict):
         super().__init__()
+        
+        self.search_input = QLineEdit(placeholderText="Search Character")
+        self.search_input.setObjectName("searchField")
+
+        self.proxy_model = CharacterFilterProxyModel()
+        self.proxy_model.setSourceModel(CharacterTreeModel(characters))
+        self.proxy_model.setFilterCaseSensitivity(Qt.CaseSensitivity.CaseInsensitive)    
+        self.search_input.textChanged.connect(self._search)
+
         self.view = QTreeView()
         self.view.setObjectName("charactersTreeView")
-        self.model = CharacterTreeModel(characters)
-        self.view.setModel(self.model)
-        self.view.setItemDelegate(CostumeTreeDelegate(self))
+        
+        self.view.setModel(self.proxy_model)
+        self.view.setItemDelegate(CostumeTreeDelegate())
         self.view.setHeaderHidden(True)
         self.view.setRootIsDecorated(False)
         self.view.setItemsExpandable(False)
         self.view.setSelectionMode(QTreeView.SelectionMode.NoSelection)
         self.view.expandAll()
+
         layout = QVBoxLayout(self)
+        layout.addWidget(self.search_input)
         layout.addWidget(self.view)
+    
+    def _search(self, text: str):
+        self.proxy_model.set_text(text)
+        self.view.expandAll()
 
     def retranslateUI(self):
         pass
