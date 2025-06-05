@@ -5,7 +5,7 @@ from PySide6.QtCore import Qt, Signal, QObject, QThread
 from PySide6.QtGui import QIcon
 
 from src.BD2ModManager import BD2ModManager
-from src.BD2ModManager.errors import GameNotFoundError, GameDirectoryNotSetError
+from src.BD2ModManager.errors import GameNotFoundError, GameDirectoryNotSetError, AdminRequiredError
 from src.gui.config import BD2MMConfigManager
 
 from ..widgets import NavButton
@@ -16,15 +16,18 @@ class SyncWorker(QObject):
     error = Signal(str)
     progress = Signal(int, int)
     
-    def __init__(self, mod_manager: BD2ModManager):
+    def __init__(self, mod_manager: BD2ModManager, symlink: bool = False):
         super().__init__()
         self.mod_manager = mod_manager
+        self.symlink = symlink
 
     def run(self):
         try:
-            self.mod_manager.sync_mods(progress_callback=self.progress.emit)
+            self.mod_manager.sync_mods(symlink=self.symlink, progress_callback=self.progress.emit)
         except GameDirectoryNotSetError:
             return self.error.emit("Game Directory Not Set")
+        except AdminRequiredError:
+            return self.error.emit("You need to run as administrator to use symlinks.")
         self.finished.emit()
 
 class UnsyncWorker(QObject):
@@ -220,10 +223,12 @@ class HomePage(QWidget):
             modal = Modal(self, self.tr("Syncing Mods..."))
             self.mods_widget.sync_button.setEnabled(False)
             modal.show()
+            
+            symlink_mode = self.config_manager.sync_method == "symlink"
 
             # Thread and Worker setup
             self.sync_thread = QThread()
-            self.sync_worker = SyncWorker(self.mod_manager)
+            self.sync_worker = SyncWorker(self.mod_manager, symlink=symlink_mode)
             self.sync_worker.moveToThread(self.sync_thread)
 
             self.sync_thread.started.connect(self.sync_worker.run)
