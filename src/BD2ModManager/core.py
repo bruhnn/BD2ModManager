@@ -546,3 +546,23 @@ class BD2ModManager:
         
         logger.debug("BrownDustX version found: %s", version)
         return version
+
+    def rename_mod(self, mod_name: str, new_name: str):
+        """Renames a mod"""
+        old_path = self._staging_mods_directory / mod_name
+        new_path = self._staging_mods_directory / new_name
+
+        if not old_path.exists():
+            logger.error("Mod not found: %s", mod_name)
+            raise ModNotFoundError(f"Mod not found: {mod_name}")
+
+        if new_path.exists():
+            logger.error("A mod with the name already exists: %s", new_name)
+            raise ModAlreadyExistsError(f"A mod with the name already exists: {new_name}")
+
+        old_path.rename(new_path)
+        logger.debug("Mod renamed from %s to %s", mod_name, new_name)
+
+        if mod_name in self._mods_data:
+            self._mods_data[new_name] = self._mods_data.pop(mod_name)
+            self._save_mods_data()
