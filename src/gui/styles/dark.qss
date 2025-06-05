@@ -368,3 +368,90 @@ QComboBox#searchCombobox QAbstractItemView {
 QComboBox#searchCombobox QAbstractItemView::item:disabled {
     color: #62636A;
 }
+QMenu {
+    background-color: #1C1D21;
+    color: #ecf0f1;
+    border: 1px solid #2F3037;
+    padding: 6px;
+    border-radius: 6px;
+}
+
+QMenu::item {
+    background-color: transparent;
+    color: #ecf0f1;
+    padding: 8px 24px 8px 16px;
+    border-radius: 4px;
+}
+
+QMenu::item:selected {
+    background-color: #3A3B40;
+    color: #ffffff;
+}
+
+QMenu::separator {
+    height: 1px;
+    background: #2F3037;
+    margin: 4px 8px 4px 8px;
+}
+
+QDialog {
+    background-color: #1C1D21;
+    color: #ecf0f1;
+    border-radius: 8px;
+    border: 1px solid #2F3037;
+}
+
+QDialog QLabel, QDialog QPushButton {
+    color: #ecf0f1;
+    font-family: "segoe ui", sans-serif;
+}
+
+QDialog QPushButton {
+    background-color: #2F3037;
+    border-radius: 4px;
+    padding: 6px 12px;
+}
+
+QDialog QPushButton:hover {
+    background-color: #3A3B40;
+}
+
+QDialog QPushButton:pressed {
+    background-color: #4A4B50;
+}
+
+QMessageBox {
+    background-color: #1C1D21;
+    color: #ecf0f1;
+    border-radius: 8px;
+    border: 1px solid #2F3037;
+}
+
+QMessageBox QLabel, QMessageBox QPushButton {
+    color: #ecf0f1;
+    font-family: "segoe ui", sans-serif;
+}
+
+QMessageBox QPushButton {
+    background-color: #2F3037;
+    border-radius: 4px;
+    padding: 6px 12px;
+}
+
+QMessageBox QPushButton:hover {
+    background-color: #3A3B40;
+}
+
+QMessageBox QPushButton:pressed {
+    background-color: #4A4B50;
+}
+
+QDialog QLineEdit {
+    background-color: #23242A;
+    color: #ecf0f1;
+    border: 1px solid #4A4B50;
+    border-radius: 4px;
+    padding: 6px;
+    selection-background-color: #3A3B40;
+    selection-color: #ffffff;
+}
