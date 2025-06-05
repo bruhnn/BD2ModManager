@@ -79,6 +79,24 @@ class ModItemStyledDelegate(QStyledItemDelegate):
         return size
         
         # painter.fillRect(option.rect, QColor("#B4656F"))
+
+class ModItem(QTreeWidgetItem):
+    def __lt__(self, other):
+        column = self.treeWidget().sortColumn()
+
+        if column == 1:  # Character
+            self_text = self.text(1)
+            other_text = other.text(1)
+
+            if self_text == "-" and other_text != "-":
+                return False
+
+            if self_text != "-" and other_text == "-":
+                return True
+
+            return self_text.lower() < other_text.lower()
+        
+        return self.text(column).lower() < other.text(column).lower()
         
 class ModsView(QWidget):
     modsRefreshRequested = Signal() 
@@ -493,7 +511,7 @@ class ModsView(QWidget):
                     f"{mod['character']['character']} - {mod['character']['costume']}"
                 )
 
-            item = QTreeWidgetItem()
+            item = ModItem()
             item.setData(0, Qt.ItemDataRole.UserRole, mod)
             item.setData(0, Qt.ItemDataRole.UserRole + 1, False) # has conflict
 
