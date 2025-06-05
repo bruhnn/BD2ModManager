@@ -78,7 +78,12 @@ QTreeWidget#modlist {
 
 QTreeWidget#modlist::item {
     padding: 8px 0px;
-    color: #ecf0f1;
+
+}
+
+QTreeWidget#modlist::item:selected {
+    padding: 8px 0px;
+    color:   #ecf0f1;
 }
 
 QTreeWidget#modlist #modlistHeader {

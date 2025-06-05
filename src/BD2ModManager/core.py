@@ -178,7 +178,7 @@ class BD2ModManager:
         type_patterns = {
             "idle": re.compile(r"^char(\d+)\.modfile$", re.I),
             "cutscene": re.compile(r"cutscene_char(\d+)\.modfile$", re.I),
-            "scene": re.compile(r"specialillust(\d+)\.modfile$", re.I),
+            "scene": re.compile(r"(specialillust(\d+)|illust_special(\d+)|storypack(\d+)(_?\d+))\.modfile$", re.I),
             "npc": re.compile(r"^npc(\d+)\.modfile$"),
             "dating": re.compile(r"^illust_dating(\d+)\.modfile$"),
         }

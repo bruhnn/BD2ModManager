@@ -149,6 +149,23 @@ class CostumeTreeDelegate(QStyledItemDelegate):
                 Qt.AlignLeft | Qt.AlignVCenter,
                 title
             )
+            
+            charid_font = QFont("Segoe UI")
+            charid_font.setPointSize(8)
+            charid_metrics = QFontMetrics(charid_font)
+            charid_rect = QRect(
+                img_rect.right() + title_margin_left,
+                title_rect.bottom(),
+                charid_metrics.horizontalAdvance(costume["character"]["id"]),
+                charid_metrics.height()
+            )
+            painter.setFont(charid_font)
+            painter.setPen(QColor("#fff"))
+            painter.drawText(
+                charid_rect,
+                Qt.AlignLeft | Qt.AlignVCenter,
+                costume["character"]["id"]
+            )
 
             # Define cutscene text and font
             cutscene_text = self.tr("Installed") if costume.get(
