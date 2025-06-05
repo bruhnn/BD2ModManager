@@ -252,15 +252,15 @@ class BD2ModManager:
 
         return mods
 
-    def get_characters_mod_status(self) -> dict:
+    def get_characters_mod_status(self, recursive: bool = False) -> dict:
         """Returns a dictionary with characters and their mod status."""
         
         mods_installed = [
             mod
-            for mod in self.get_mods()
+            for mod in self.get_mods(recursive)
             if mod["type"] in ("cutscene", "idle") and mod["enabled"]
         ]
-        
+                
         mods_cutscenes = {mod["character"]["id"] for mod in mods_installed if mod["type"] == "cutscene"}
         mods_idles = {mod["character"]["id"] for mod in mods_installed if mod["type"] == "idle"}
 
