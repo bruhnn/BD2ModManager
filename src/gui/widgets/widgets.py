@@ -8,7 +8,8 @@ class NavButton(QPushButton):
     def __init__(self, text):
         super().__init__(text)
         self.setObjectName("navButton")
-        self.setCursor(Qt.PointingHandCursor)
+        self.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.setFocusPolicy(Qt.FocusPolicy.NoFocus)
 
 class LabelIcon(QWidget):
     def __init__(self, icon: Optional[QIcon] = None, text: str = ""):

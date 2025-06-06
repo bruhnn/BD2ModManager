@@ -406,6 +406,13 @@ QDialog QLabel, QDialog QPushButton {
     font-family: "segoe ui", sans-serif;
 }
 
+QLabel#modsInfoText {
+    color: #ecf0f1;
+    font-family: "segoe ui", sans-serif;
+    margin-left: 8px;
+    font-weight: 500;
+}
+
 QDialog QPushButton {
     background-color: #2F3037;
     border-radius: 4px;
@@ -454,4 +461,21 @@ QDialog QLineEdit {
     padding: 6px;
     selection-background-color: #3A3B40;
     selection-color: #ffffff;
+}
+
+QToolButton#filterChip {
+    border: none;
+    border-radius: 12px;
+    padding: 4px 16px;
+    background: #26262C;
+    border: 1px solid #4A4B50; 
+    color: #ecf0f1;
+}
+QToolButton#filterChip:checked {
+    background: #3A3B40;
+    color: #fff;
+    font-weight: bold;
+}
+QToolButton#filterChip:hover {
+    background: #44454c;
 }

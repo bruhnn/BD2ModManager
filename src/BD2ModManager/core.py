@@ -1,24 +1,18 @@
 import sys
-import re
 import json
 import logging
 from typing import Callable, Union, Optional, Any
 from pathlib import Path
 from shutil import copytree, rmtree
+import pefile
 
 from .utils import is_running_as_admin
-from .utils.characters import BD2Characters
-from .utils.files import get_folder_hash
-from .errors import (
-    GameNotFoundError,
-    ModInvalidError,
-    GameDirectoryNotSetError,
-    ModAlreadyExistsError,
-    ModNotFoundError,
-    BrownDustXNotInstalled,
-    AdminRequiredError,
-)
-# TODO: add missing logging information
+from .utils.files import get_folder_hash, is_filename_valid
+from .bd2_data import BD2Data
+from .errors import *
+
+from .models import BD2Mod, BD2ModEntry, BD2ModType
+
 
 logger = logging.getLogger(__name__)
 logger.addHandler(logging.NullHandler())
@@ -26,7 +20,7 @@ logger.addHandler(logging.NullHandler())
 
 def required_game_path(function: Callable) -> Callable:
     def wrapper(self, *args, **kwargs):
-        if not self._game_directory:
+        if not self.game_directory:
             raise GameDirectoryNotSetError(
                 "Game path is not set. Please set the game path first."
             )
@@ -43,14 +37,16 @@ else:
     BUNDLE_PATH = CURRENT_PATH
 
 DATA_FOLDER = BUNDLE_PATH / "data"
-CHARACTERS_CSV = DATA_FOLDER / "characters_id.csv"
-
+CHARACTERS_CSV = DATA_FOLDER / "characters.csv"
+DATINGS_CSV = DATA_FOLDER / "datings.csv"
+SCENES_CSV = DATA_FOLDER / "characters.csv"
+NPCS_CSV = DATA_FOLDER / "datings.csv"
 
 class BD2ModManager:
     """Brown Dust 2 Mod Manager"""
 
     def __init__(self, mods_directory: Union[str, Path], data_file: Optional[Union[str, Path]] = None):
-        self.characters = BD2Characters(CHARACTERS_CSV)
+        self.game_data = BD2Data(CHARACTERS_CSV, DATINGS_CSV, SCENES_CSV, NPCS_CSV)
 
         self._game_directory = None
         self._staging_mods_directory = Path(mods_directory)
@@ -108,41 +104,42 @@ class BD2ModManager:
 
         logger.debug("Mods data saved successfully to %s", self._data_file)
 
-    def _set_mod_data(self, mod_name: str, key: str, value: Any) -> None:
+    def _set_mod_data(self, mod: BD2ModEntry, key: str, value: Any) -> None:
         """Sets the mod data for a given mod name and key."""
 
-        logger.debug("Setting mod data for %s: %s = %s", mod_name, key, value)
+        logger.debug("Setting mod data for %s: %s = %s", mod.mod.name, key, value)
 
-        if mod_name not in self._mods_data:
+        if mod.mod.name not in self._mods_data:
             logger.debug(
-                "Mod %s not found in mods data. Creating new entry.", mod_name)
-            self._mods_data[mod_name] = {}
+                "Mod %s not found in mods data. Creating new entry.", mod.mod.name)
+            self._mods_data[mod.mod.name] = {}
 
-        if self._mods_data[mod_name].get(key) == value:
+        if self._mods_data[mod.mod.name].get(key) == value:
             logger.debug(
-                "Mod %s already has %s set to %s. No changes made.", mod_name, key, value)
+                "Mod %s already has %s set to %s. No changes made.", mod.mod.name, key, value)
             return
 
-        self._mods_data[mod_name][key] = value
-        logger.debug("Mod data for %s updated: %s = %s", mod_name, key, value)
+        self._mods_data[mod.mod.name][key] = value
+        logger.debug("Mod data for %s updated: %s = %s", mod.mod.name, key, value)
 
         self._save_mods_data()
     
-    def _bulk_set_mod_data(self, mod_names: list[str], key: str, value: Any):
+    def _bulk_set_mod_data(self, mods: list[BD2ModEntry], key: str, value: Any):
         """Sets the mulitples mod data for a given list of mod names."""
         
-        for mod_name in mod_names:
-            if mod_name not in self._mods_data:
-                logger.debug("Mod %s not found in mods data. Creating new entry.", mod_name)
-                self._mods_data[mod_name] = {}
+        for mod_entry in mods:
+            mod = mod_entry.mod
+            if mod.name not in self._mods_data:
+                logger.debug("Mod %s not found in mods data. Creating new entry.", mod.name)
+                self._mods_data[mod.name] = {}
 
-            if self._mods_data[mod_name].get(key) == value:
-                logger.debug("Mod %s already has %s set to %s. No changes made.", mod_name, key, value)
+            if self._mods_data[mod.name].get(key) == value:
+                logger.debug("Mod %s already has %s set to %s. No changes made.", mod.name, key, value)
                 continue
 
-            self._mods_data[mod_name][key] = value
+            self._mods_data[mod.name][key] = value
             
-            logger.debug("Mod data for %s updated: %s = %s", mod_name, key, value)
+            logger.debug("Mod data for %s updated: %s = %s", mod.name, key, value)
 
         self._save_mods_data()
 
@@ -181,62 +178,14 @@ class BD2ModManager:
         staging_path = Path(path)
 
         if not staging_path.exists():
-            logger.debug(
-                "Staging mods directory does not exist. Creating: %s", staging_path)
+            logger.debug("Staging mods directory does not exist. Creating: %s", staging_path)
             staging_path.mkdir(parents=True, exist_ok=True)
 
         self._staging_mods_directory = staging_path
 
-        logger.debug("Staging mods directory set to %s",
-                     self._staging_mods_directory)
+        logger.debug("Staging mods directory set to %s", self._staging_mods_directory)
 
-    def _get_mod_info(self, path: Path) -> dict:
-        """Extracts mod information from the mod file in the given path."""
-        # TODO: Add cache. Save hash of the mod file and check if it has changed.
-        modfile = next(path.glob("*.modfile"))
-
-        if modfile is None:
-            logger.error("No .modfile found in %s", path)
-            raise ModInvalidError(f"No .modfile found in {path}")
-
-        type_patterns = {
-            "idle": re.compile(r"^char(\d+)\.modfile$", re.I),
-            "cutscene": re.compile(r"cutscene_char(\d+)\.modfile$", re.I),
-            "scene": re.compile(r"(specialillust(\d+)|illust_special(\d+)|storypack(\d+)(_?\d+))\.modfile$", re.I),
-            "npc": re.compile(r"^npc(\d+)\.modfile$"),
-            "dating": re.compile(r"^illust_dating(\d+)\.modfile$"),
-        }
-
-        mod_type = None
-        mod_id = None
-
-        for type, pattern in type_patterns.items():
-            match = pattern.match(modfile.name)
-            if match:
-                mod_type = type
-                mod_id = match.group(1)
-
-        data = {"type": mod_type}
-
-        if mod_type in ("idle", "cutscene"):
-            data["character_id"] = mod_id
-        elif mod_type == "scene":
-            data["scene_id"] = mod_id
-        elif mod_type == "npc":
-            data["npc_id"] = mod_id
-
-        logger.debug(
-            "Mod info extracted: name=%s, type=%s, character_id=%s, scene_id=%s, npc_id=%s",
-            path.name,
-            data.get("type"),
-            data.get("character_id"),
-            data.get("scene_id"),
-            data.get("npc_id"),
-        )
-
-        return data
-
-    def get_mods(self, recursive: bool = False) -> list[dict]:
+    def get_mods(self, recursive: bool = False) -> list[BD2ModEntry]:
         """Returns a list of all mods found in the staging mods directory."""
         logger.debug("Getting mods from staging directory: %s",
                      self._staging_mods_directory)
@@ -253,25 +202,31 @@ class BD2ModManager:
         mods = []
 
         for mod_folder in mods_folders:
-            mod_info = self._get_mod_info(mod_folder)
             mod_metadata = self._mods_data.get(mod_folder.name, {})
-
-            character = None
-
-            if mod_info.get("character_id") is not None:
-                character = self.characters.get_character_by_id(
-                    mod_info.get("character_id"))
-
-            mod = {
-                "type": mod_info.get("type"),
-                "name": mod_folder.name,
-                "character": character,
-                "author": mod_metadata.get("author", None),
-                "enabled": mod_metadata.get("enabled", False),
-                "path": str(mod_folder)
-            }
-
-            mods.append(mod)
+            
+            mod = BD2Mod.from_mod_path(mod_folder)
+            
+            mod_entry = BD2ModEntry(
+                mod=mod,
+                path=mod_folder.absolute().as_posix(),
+                author=mod_metadata.get("author", None),
+                enabled=mod_metadata.get("enabled", False)
+            )
+            
+            if mod.type in (BD2ModType.CUTSCENE, BD2ModType.IDLE) and mod.character_id is not None: # Set character
+                char = self.game_data.get_character_by_id(mod.character_id)
+                mod_entry.character = char
+            elif mod.type == BD2ModType.DATING and mod.dating_id is not None:
+                char = self.game_data.get_character_by_dating_id(mod.dating_id)
+                mod_entry.character = char
+            elif mod.type == BD2ModType.NPC and mod.npc_id is not None:
+                npc = self.game_data.get_npc_by_id(mod.npc_id)
+                mod_entry.npc = npc
+            elif mod.type == BD2ModType.SCENE and mod.scene_id is not None:
+                scene = self.game_data.get_scene_by_id(mod.scene_id)
+                mod_entry.scene = scene
+            
+            mods.append(mod_entry)
 
         logger.debug("Total mods found: %d", len(mods))
 
@@ -279,29 +234,28 @@ class BD2ModManager:
 
     def get_characters_mod_status(self, recursive: bool = False) -> dict:
         """Returns a dictionary with characters and their mod status."""
+        
+        logger.debug("Getting character mod status")
+        
+        mods = self.get_mods(recursive)
+        mods_ids_cutscenes = set(mod_entry.character.id for mod_entry in mods if mod_entry.mod.type == BD2ModType.CUTSCENE and mod_entry.enabled and mod_entry.character is not None)
+        mods_ids_idles = set(mod_entry.character.id for mod_entry in mods if mod_entry.mod.type == BD2ModType.IDLE and mod_entry.enabled and  mod_entry.character is not None)
+        mods_ids_dating = set(mod_entry.character.id for mod_entry in mods if mod_entry.mod.type == BD2ModType.DATING and mod_entry.enabled and  mod_entry.character is not None)
+        
+        dating_chars = self.game_data.get_dating_characters()
 
-        mods_installed = [
-            mod
-            for mod in self.get_mods(recursive)
-            if mod["type"] in ("cutscene", "idle") and mod["enabled"]
-        ]
-
-        mods_cutscenes = {mod["character"]["id"]
-                          for mod in mods_installed if mod["type"] == "cutscene"}
-        mods_idles = {mod["character"]["id"]
-                      for mod in mods_installed if mod["type"] == "idle"}
-
-        characters_modded = {}
-
-        for char_id, character in self.characters.characters.items():
-            group = character["character"]
-            characters_modded.setdefault(group, []).append({
+        mods_status = {}
+        
+        for character in self.game_data.get_characters():
+            group = character.character
+            mods_status.setdefault(group, []).append({
                 "character": character,
-                "cutscene": char_id in mods_cutscenes,
-                "idle": char_id in mods_idles,
+                "cutscene": character.id in mods_ids_cutscenes,
+                "idle": character.id in mods_ids_idles,
+                "dating": character.id in mods_ids_dating if character in dating_chars else None
             })
 
-        return characters_modded
+        return mods_status
 
     def add_mod(
         self,
@@ -317,6 +271,11 @@ class BD2ModManager:
             logger.error("Source mod path does not exist: %s", mod_source)
             raise FileNotFoundError(
                 f"Source mod path does not exist: {mod_source!r}")
+        
+        modfile = list(mod_source.glob("*.modfile"))
+        
+        if len(modfile) == 0:
+            raise ModInvalidError(f"Folder \"{mod_source}\" is not a valid mod.")
 
         mod_name = name or mod_source.name
 
@@ -338,120 +297,143 @@ class BD2ModManager:
         copytree(mod_source, staging_mod)
         logger.debug("Mod %s copied successfully.", mod_name)
 
-    def remove_mod(self, mod_name: str) -> None:
-        mod_path = self._staging_mods_directory / mod_name
-
+    def remove_mod(self, mod: BD2ModEntry) -> None:
+        """Remove a mod from staging directory."""
+        mod_path = Path(mod.path)
+        
         if not mod_path.exists():
-            logger.error("Mod not found: %s", mod_name)
-            raise ModNotFoundError()
+            logger.error("Mod not found: %s", mod.mod.name)
+            raise ModNotFoundError(f"Mod folder not found at {mod.path} for mod '{mod.mod.name}'.")
 
-        logger.debug("Removing mod: %s", mod_name)
+        logger.debug("Removing mod: %s", mod.mod.name)
+        
         rmtree(mod_path)
-        logger.debug("Mod %s removed successfully.", mod_name)
+        
+        logger.debug("Mod %s removed successfully.", mod.mod.name)
 
-        if mod_name in self._mods_data:
-            logger.debug("Removing mod data for %s", mod_name)
-            self._mods_data.pop(mod_name)
+        if self._mods_data.pop(mod.mod.name, None):
+            logger.debug("Removing mod data for %s", mod.mod.name)
             self._save_mods_data()
 
-    def enable_mod(self, mod_name: str) -> None:
-        logger.debug("Enabling mod: %s", mod_name)
-        self._set_mod_data(mod_name, "enabled", True)
+    def enable_mod(self, mod: BD2ModEntry) -> None:
+        logger.debug("Enabling mod: %s", mod.mod.name)
+        self._set_mod_data(mod, "enabled", True)
 
-    def bulk_enable_mods(self, mod_names: list[str]):
-        self._bulk_set_mod_data(mod_names, "enabled", True)
+    def bulk_enable_mods(self, mods: list[BD2ModEntry]):
+        self._bulk_set_mod_data(mods, "enabled", True)
 
-    def bulk_disable_mods(self, mod_names: list[tuple]):
-        self._bulk_set_mod_data(mod_names, "enabled", False)
+    def bulk_disable_mods(self, mods: list[BD2ModEntry]):
+        self._bulk_set_mod_data(mods, "enabled", False)
 
-    def disable_mod(self, mod_name: str) -> None:
-        logger.debug("Disabling mod: %s", mod_name)
-        self._set_mod_data(mod_name, "enabled", False)
+    def disable_mod(self, mod: BD2ModEntry) -> None:
+        logger.debug("Disabling mod: %s", mod.mod.name)
+        self._set_mod_data(mod, "enabled", False)
 
-    def set_mod_author(self, mod_name: str, author: str) -> None:
-        logger.debug("Setting author for mod %s to %s", mod_name, author)
-        self._set_mod_data(mod_name, "author", author)
+    def set_mod_author(self, mod: BD2ModEntry, author: str) -> None:
+        logger.debug("Setting author for mod %s to %s", mod.mod.name, author)
+        self._set_mod_data(mod, "author", author)
     
-    def bulk_set_mod_author(self, mod_names: list[str], author: str):
-        self._bulk_set_mod_data(mod_names, "author", author)
+    def bulk_set_mod_author(self, mods: list[BD2ModEntry], author: str):
+        self._bulk_set_mod_data(mods, "author", author)
 
     @required_game_path
-    def sync_mods(self, symlink: bool = False, progress_callback: Callable = None) -> None:
+    def sync_mods(self, symlink: bool = False, recursive: bool = False, progress_callback: Callable = None) -> None:
         if not self.check_game_directory(self._game_directory):
-            raise GameDirectoryNotSetError(
-                "Game path is not set. Please set the game path first.")
+            raise GameDirectoryNotSetError("Game path is not set. Please set the game path first.")
 
         if not self.is_browndustx_installed():
-            raise BrownDustXNotInstalled()
+            raise BrownDustXNotInstalled("BrownDustX is not installed!")
 
-        game_mods_directory = self._game_directory / r"BepInEx\plugins\BrownDustX\mods"
+        game_mods_directory = self._game_directory / r"BepInEx\plugins\BrownDustX\mods" / "BD2MM"
 
         logger.debug("Game mods directory: %s", game_mods_directory)
 
         if not game_mods_directory.exists():
             logger.debug("Creating game mods directory: %s",
                          game_mods_directory)
-            game_mods_directory.mkdir()
+            game_mods_directory.mkdir(exist_ok=True, parents=True)
 
         if symlink and not is_running_as_admin():
-            logger.error(
-                "Administrator privileges are required to use symlinks.")
-            raise AdminRequiredError(
-                "Administrator privileges are required to use symlinks."
-            )
+            logger.error("Administrator privileges are required to use symlinks.")
+            raise AdminRequiredError("Administrator privileges are required to use symlinks.")
 
-        modfiles = self._staging_mods_directory.rglob("*.modfile")
-        mods = [modfile.parent for modfile in modfiles]
+        if recursive:
+            modfiles = self._staging_mods_directory.rglob("*.modfile")
+        else:
+            modfiles = self._staging_mods_directory.glob("*/*.modfile")
+        
+        mods_folder = [modfile.parent for modfile in modfiles]
 
-        logger.debug("Found %d mod files to sync.", len(mods))
-
-        ingame_modfiles = game_mods_directory.rglob("*.modfile")
-        installed_game_mods = [
-            modfile.parent.name for modfile in ingame_modfiles]
-
-        mods_ingame_but_not_in_staging = [
-            mod for mod in installed_game_mods if mod not in [m.name for m in mods]
-        ]
-
-        total_steps = len(mods_ingame_but_not_in_staging) + len(mods)
+        logger.debug("Found %d mod files to sync.", len(mods_folder))
+        
+        # Synced mods are installed directly, not inside nested folders.
+        ingame_mods_folder = [mod_folder for mod_folder in game_mods_directory.iterdir()]
+        
+        mods_staging_names = {mod.name for mod in mods_folder}
+        mods_ingame_names = {mod.name for mod in ingame_mods_folder}
+        
         current_step = 0
-
-        for mod in mods_ingame_but_not_in_staging:
-            mod_game_path = game_mods_directory / "BD2MM" / mod
-
-            if mod_game_path.exists():
-                logger.debug(
-                    "Removing mod %s from game mods directory: %s", mod, mod_game_path)
-                if mod_game_path.is_symlink():
-                    logger.debug(
-                        "Removing symlink for mod %s at %s", mod, mod_game_path)
-                    mod_game_path.rmdir()
+        
+        # if symlink then remove all mods from the bd2mods and create new
+        if symlink:
+            total_steps = len(mods_folder) + len(mods_ingame_names)
+            for mod in mods_ingame_names:
+                mod_game_path = game_mods_directory / mod
+                if mod_game_path.exists() or mod_game_path.is_symlink():
+                    logger.debug("Removing mod %s from game mods directory: %s", mod, mod_game_path)
+                    if mod_game_path.is_symlink():
+                        logger.debug("Removing symlink for mod %s at %s", mod, mod_game_path)
+                        mod_game_path.rmdir()
+                    else:
+                        logger.debug("Removing mod folder %s at %s", mod, mod_game_path)
+                        rmtree(mod_game_path)
                 else:
-                    logger.debug("Removing mod folder %s at %s",
-                                 mod, mod_game_path)
-                    rmtree(mod_game_path)
-            else:
-                logger.debug("Mod %s not found in game mods directory.", mod)
-            current_step += 1
-            if progress_callback:
-                progress_callback(current_step, total_steps)
+                    logger.debug("Mod %s not found in game mods directory.", mod)
+        
+        # if is copy, then checks if it needs to be copied
+        else:
+            # Mods present in game but not in staging = should be removed
+            mods_to_remove = mods_ingame_names - mods_staging_names
+            total_steps = len(mods_to_remove) + len(mods_folder) + len(mods_ingame_names)
 
-        for mod in mods:
-            mod_game_path = game_mods_directory / "BD2MM" / mod.name
-            mod_enabled = self._mods_data.get(
-                mod.name, {}).get("enabled", False)
+            # remove all mods that is not in staging directory
+            for mod in mods_to_remove:
+                mod_game_path = game_mods_directory / mod
+                if mod_game_path.exists() or mod_game_path.is_symlink():
+                    logger.debug("Removing mod %s from game mods directory: %s", mod, mod_game_path)
+                    if mod_game_path.is_symlink():
+                        logger.debug("Removing symlink for mod %s at %s", mod, mod_game_path)
+                        mod_game_path.rmdir()
+                    else:
+                        logger.debug("Removing mod folder %s at %s", mod, mod_game_path)
+                        rmtree(mod_game_path)
+                else:
+                    logger.debug("Mod %s not found in game mods directory.", mod)
+                
+            # remove all symlinks from another sync
+            for mod in mods_ingame_names:
+                mod_game_path = game_mods_directory / mod
+                if mod_game_path.is_symlink():
+                    logger.debug("Removing mod %s from game mods directory: %s", mod, mod_game_path)
+                    if mod_game_path.is_symlink():
+                        logger.debug("Removing symlink for mod %s at %s", mod, mod_game_path)
+                        mod_game_path.rmdir()
+                        
+                current_step += 1
+                if progress_callback:
+                    progress_callback(current_step, total_steps)
+
+        for mod in mods_folder:
+            mod_game_path = game_mods_directory / mod.name
+            mod_enabled = self._mods_data.get(mod.name, {}).get("enabled", False)
 
             if mod_enabled:
                 logger.debug("mod %s is enabled.", mod.name)
 
                 if not mod_game_path.exists():
                     if symlink:
-                        logger.debug(
-                            "Creating symlink for mod %s at %s", mod.name, mod_game_path
-                        )
-                        mod_game_path.symlink_to(
-                            mod.resolve(), target_is_directory=True
-                        )
+                        logger.debug("Creating symlink for mod %s at %s", mod.name, mod_game_path)
+                        mod_game_path.symlink_to(mod.resolve(), target_is_directory=True)
                     else:
                         logger.debug(
                             "Copying mod %s to game mods directory: %s", mod.name, mod_game_path
@@ -459,7 +441,7 @@ class BD2ModManager:
                         copytree(mod, mod_game_path)
                 else:
                     logger.debug("Mod %s already exists at %s",
-                                 mod.name, mod_game_path)
+                                mod.name, mod_game_path)
                     
                     mod_removed = False
                     if symlink and not mod_game_path.is_symlink():
@@ -521,14 +503,14 @@ class BD2ModManager:
                 logger.debug("Mod %s is disabled.", mod.name)
                 if mod_game_path.exists():
                     logger.debug("Removing mod %s at %s",
-                                 mod.name, mod_game_path)
+                                mod.name, mod_game_path)
                     if mod_game_path.is_symlink():
                         logger.debug(
                             "Removing symlink for mod %s at %s", mod.name, mod_game_path)
                         mod_game_path.rmdir()
                     else:
                         logger.debug("Removing mod folder %s at %s",
-                                     mod.name, mod_game_path)
+                                    mod.name, mod_game_path)
                         rmtree(mod_game_path)
             current_step += 1
             if progress_callback:
@@ -548,71 +530,88 @@ class BD2ModManager:
 
         logger.debug("Unsyncing mods from game mods directory: %s",
                      game_mods_directory)
-
-        modfiles = self._staging_mods_directory.rglob("*.modfile")
-        mods_installed = [modfile.parent for modfile in modfiles]
-
-        total_mods = len(mods_installed)
+        
+        ingame_mods_folder = [mod_folder for mod_folder in game_mods_directory.iterdir()]
+        mods_ingame_names = {mod.name for mod in ingame_mods_folder}
+        
         current_step = 0
-        for mod_folder in mods_installed:
-            mod_name = mod_folder.name
-            mod_game_path = game_mods_directory / mod_name
-
-            if mod_game_path.exists():
-                logger.debug("Removing mod %s at %s", mod_name, mod_game_path)
+        total_steps = len(mods_ingame_names)
+        for mod in mods_ingame_names:
+            mod_game_path = game_mods_directory / mod
+            if mod_game_path.exists() or mod_game_path.is_symlink():
+                logger.debug("Removing mod %s at %s", mod, mod_game_path)
                 if mod_game_path.is_symlink():
-                    logger.debug("Removing symlink for mod %s at %s",
-                                 mod_name, mod_game_path)
+                    logger.debug("Removing symlink for mod %s at %s", mod, mod_game_path)
                     mod_game_path.rmdir()
                 else:
-                    logger.debug("Removing mod folder %s at %s",
-                                 mod_name, mod_game_path)
+                    logger.debug("Removing mod folder %s at %s", mod, mod_game_path)
                     rmtree(mod_game_path)
             else:
-                logger.debug(
-                    "Mod %s not found in game mods directory.", mod_name)
+                logger.debug("Mod %s not found in game mods directory.", mod)
 
             if progress_callback:
-                progress_callback(current_step, total_mods)
+                progress_callback(current_step, total_steps)
             current_step += 1
 
-    @required_game_path
     def is_browndustx_installed(self) -> bool:
+        if not self._game_directory:
+            return False
+        
         return Path(self._game_directory / r"BepInEx\plugins\BrownDustX\lynesth.bd2.browndustx.dll").exists()
 
     @required_game_path
-    def get_browndustx_version(self) -> str:
+    def get_browndustx_version(self) -> Optional[str]:
         if not self.is_browndustx_installed():
             raise BrownDustXNotInstalled("BrownDustX not installed.")
 
-        path = Path(self._game_directory /
-                    r"BepInEx\config\lynesth.bd2.browndustx.cfg")
-        version = None
+        dll_path = Path(self._game_directory /r"BepInEx\plugins\BrownDustX\lynesth.bd2.browndustx.dll")
 
-        if path.exists():
-            with path.open("r", encoding="UTF-8") as file:
-                version = file.readline().split()[8]
+        pe = pefile.PE(dll_path)
+        
+        data = {}
+        
+        for entry in pe.FileInfo:
+            if isinstance(entry, list): # if is a list
+                for subentry in entry:
+                    if hasattr(subentry, 'StringTable'):
+                        for st in subentry.StringTable:
+                            for key, value in st.entries.items():
+                                data[key.decode('utf-8', errors='ignore')]=value.decode('utf-8', errors='ignore')
+            elif hasattr(entry, 'StringTable'):
+                for st in entry.StringTable:
+                    for key, value in st.entries.items():
+                        data[key.decode('utf-8', errors='ignore')]=value.decode('utf-8', errors='ignore')
 
-        logger.debug("BrownDustX version found: %s", version)
-        return version
-
-    def rename_mod(self, mod_name: str, new_name: str):
+        return data.get("FileVersion", None)
+        
+    def rename_mod(self, mod: BD2ModEntry, new_name: str):
         """Renames a mod"""
-        old_path = self._staging_mods_directory / mod_name
-        new_path = self._staging_mods_directory / new_name
+        
+        # check if it has slashes
+        if not is_filename_valid(new_name):
+            raise InvalidModNameError(f"Invalid mod name: {new_name!r}. Mod names must not contain slashes.")
+
+        old_path = Path(mod.path)
+        
+        # If a mod is in a folder (recursive) it will stay in the same folder
+        new_path = self._staging_mods_directory / old_path.relative_to(self._staging_mods_directory).parent / new_name
 
         if not old_path.exists():
-            logger.error("Mod not found: %s", mod_name)
-            raise ModNotFoundError(f"Mod not found: {mod_name}")
+            logger.error("Mod not found: %s", mod.mod.name)
+            raise ModNotFoundError(f"Mod not found: {mod.mod.name}")
 
         if new_path.exists():
             logger.error("A mod with the name already exists: %s", new_name)
             raise ModAlreadyExistsError(
                 f"A mod with the name already exists: {new_name}")
 
-        old_path.rename(new_path)
-        logger.debug("Mod renamed from %s to %s", mod_name, new_name)
+        try:
+            old_path.rename(new_path)
+        except OSError:
+            raise InvalidModNameError(f"Invalid mod name: {new_name!r}. Mod names must not contain illegal characters.")
+        
+        logger.debug("Mod renamed from %s to %s", mod.mod.name, new_name)
 
-        if mod_name in self._mods_data:
-            self._mods_data[new_name] = self._mods_data.pop(mod_name)
+        if mod.mod.name in self._mods_data:
+            self._mods_data[new_name] = self._mods_data.pop(mod.mod.name)
             self._save_mods_data()

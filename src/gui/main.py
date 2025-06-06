@@ -10,7 +10,7 @@ from pathlib import Path
 import sys
 
 if getattr(sys, 'frozen', False):
-    # If the application is frozen 
+    # If the application is frozen
     app_path = Path(sys._MEIPASS)
 else:
     app_path = Path(__file__).parent.parent
@@ -21,8 +21,9 @@ LANGUAGE_PATH = app_path / "gui" / "translations"
 class MainWindow(QMainWindow):
     def __init__(self, mod_manager: BD2ModManager, config_manager: BD2MMConfigManager):
         super().__init__()
-        self.setWindowTitle("BD2 Mod Manager - v1.1.1")
+        self.setWindowTitle("BD2 Mod Manager - v2.0.0")
         self.setGeometry(600, 250, 800, 600)
+        # self.setBaseSize(600, 800)
         self.setObjectName("mainWindow")
 
         self.mod_manager = mod_manager
@@ -61,6 +62,11 @@ class MainWindow(QMainWindow):
         self._apply_stylesheet(self.config_manager.get("theme", default="dark"))
         self._apply_language(self.config_manager.get("language", default="english"))
         
+        self.check_browndustx()
+
+        # remove focus from qlineedit
+        self.setFocusPolicy(Qt.FocusPolicy.ClickFocus)
+    
     def _apply_stylesheet(self, theme: str):
         path = STYLES_PATH / f"{theme}.qss"
 
@@ -96,10 +102,11 @@ class MainWindow(QMainWindow):
             self.config_manager.game_directory = path
             self.mod_manager.set_game_directory(path)
             self.main_stacked_widget.setCurrentIndex(0) # Go To Home
+            self.check_browndustx()
         else:
             self.select_folder_page.set_folder_text(path)
             self.select_folder_page.set_info_text("\"BrownDust 2.exe\" not found!")
-    
+        
     def _config_changed(self, config: str, value: str):
         if config == "language":
             self._change_theme(value)
@@ -107,10 +114,21 @@ class MainWindow(QMainWindow):
             self._change_language(value)
     
     def _game_directory_changed(self, path: str):
-        self.mod_manager.set_game_directory(path)
+        if self.mod_manager.check_game_directory(path):
+            self.mod_manager.set_game_directory(path)
+            self.check_browndustx()
+        else:
+            raise ValueError()
     
     def _mods_directory_changed(self, path: str):
         self.mod_manager.set_staging_mods_directory(path)
     
     def retranslateUI(self):
         self.home_page.retranslateUI()
+    
+    def check_browndustx(self):
+        if self.mod_manager.is_browndustx_installed():
+            self.home_page.set_info_text(f"BrownDustX {self.mod_manager.get_browndustx_version()}")
+        else:
+            self.home_page.set_info_text(self.tr("BrownDustX not installed!"))
+            
