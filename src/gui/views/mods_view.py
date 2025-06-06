@@ -89,10 +89,10 @@ class ModItem(QTreeWidgetItem):
             self_text = self.text(1)
             other_text = other.text(1)
 
-            if self_text == "-" and other_text != "-":
+            if self_text == "" and other_text != "":
                 return False
 
-            if self_text != "-" and other_text == "-":
+            if self_text != "" and other_text == "":
                 return True
 
             return self_text.lower() < other_text.lower()
