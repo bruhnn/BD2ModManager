@@ -40,6 +40,8 @@ class SelectFolderPage(QWidget):
         self.game_folder_label.setObjectName("directoryInput")
 
         self.select_game_button = QPushButton("Browse")
+        self.select_game_button.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.select_game_button.setFocusPolicy(Qt.FocusPolicy.NoFocus)
         self.select_game_button.setObjectName("browseButton")
         self.select_game_button.setFont(select_btn_font)
         self.select_game_button.clicked.connect(self._select_game_dialog)

@@ -10,6 +10,8 @@ from src.BD2ModManager.errors import GameNotFoundError, GameDirectoryNotSetError
 from src.gui.config import BD2MMConfigManager
 from src.gui.widgets import LabelIcon
 
+from os import startfile
+
 class SettingsView(QWidget):
     onLanguageChanged = Signal(str)
     onThemeChanged = Signal(str)
@@ -156,6 +158,12 @@ class SettingsView(QWidget):
             error_label = LabelIcon(QIcon(":/material/warning.svg"), error_message)
             error_label.setObjectName("directoryErrorLabel")
             layout.addWidget(error_label, 1, 0, 1, 2)
+        
+        open_button = QPushButton(text=self.tr("Open Folder"))
+        open_button.setObjectName("browseButton")
+        open_button.setCursor(Qt.CursorShape.PointingHandCursor)
+        open_button.clicked.connect(lambda: startfile(input.text()))
+        layout.addWidget(open_button, 0, 3, 1, 1)
 
         return widget, label, input, browse_button
 

@@ -1,11 +1,14 @@
 from os import startfile
+from pathlib import Path
 
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QStackedWidget, QHBoxLayout, QMessageBox, QLabel, QDialog, QPushButton, QProgressBar
 from PySide6.QtCore import Qt, Signal, QObject, QThread
 from PySide6.QtGui import QIcon
 
 from src.BD2ModManager import BD2ModManager
-from src.BD2ModManager.errors import GameNotFoundError, GameDirectoryNotSetError, AdminRequiredError
+from src.BD2ModManager.errors import GameNotFoundError, GameDirectoryNotSetError, AdminRequiredError, ModAlreadyExistsError
+from src.BD2ModManager.models import BD2ModEntry
+
 from src.gui.config import BD2MMConfigManager
 
 from ..widgets import NavButton
@@ -28,6 +31,8 @@ class SyncWorker(QObject):
             return self.error.emit("Game Directory Not Set")
         except AdminRequiredError:
             return self.error.emit("You need to run as administrator to use symlinks.")
+        except Exception as error: # not frozen the app
+            return self.error.emit(str(error)) 
         self.finished.emit()
 
 class UnsyncWorker(QObject):
@@ -44,6 +49,8 @@ class UnsyncWorker(QObject):
             self.mod_manager.unsync_mods(progress_callback=self.progress.emit)
         except GameDirectoryNotSetError:
             return self.error.emit("Game Directory Not Set")
+        except Exception as error: # not frozen the app
+            return self.error.emit(str(error)) 
         self.finished.emit()
 
 
@@ -134,6 +141,7 @@ class HomePage(QWidget):
         self.mods_widget.bulkModAuthorChanged.connect(self._bulk_change_author_name)
 
         self.characters_widget = CharactersView()
+        self.characters_widget.refreshCharactersRequested.connect(self._refresh_characters)
         
         self._refresh_mods()
         
@@ -152,7 +160,7 @@ class HomePage(QWidget):
         self.nav_settings_button.clicked.connect(
             lambda: (self.navigation_view.setCurrentIndex(2), self._update_navigation_buttons())
         )
-
+        
         layout.addWidget(self.navigation_bar)
         layout.addWidget(self.navigation_view)
     
@@ -212,16 +220,21 @@ class HomePage(QWidget):
         self.characters_widget.load_characters(characters)
 
     def _add_mod(self, filename: str):
-        self.mod_manager.add_mod(path=filename)
+        try:
+            self.mod_manager.add_mod(path=filename)
+        except ModAlreadyExistsError:
+            self.show_error(f"Mod with \"{Path(filename).name}\" name already exists.")
     
-    def _remove_mod(self, name: str):
-        self.mod_manager.remove_mod(name)
+    def _remove_mod(self, mod: BD2ModEntry):
+        self.mod_manager.remove_mod(mod)
 
-    def _enable_or_disable_mod(self, name: str, state: bool):
+    def _enable_or_disable_mod(self, mod: BD2ModEntry, state: bool):
+        # discover why it is being called on init
+        print("Calling?")
         if state:
-            self.mod_manager.enable_mod(name)
+            self.mod_manager.enable_mod(mod)
         else:
-            self.mod_manager.disable_mod(name)
+            self.mod_manager.disable_mod(mod)
         
     def _bulk_enable_or_disable_mods(self, mods: list, state: bool):
         if state:
@@ -231,8 +244,8 @@ class HomePage(QWidget):
         
         self._refresh_characters()
     
-    def _bulk_change_author_name(self, list, author):
-        self.mod_manager.bulk_set_mod_author(list, author)
+    def _bulk_change_author_name(self, mods, author):
+        self.mod_manager.bulk_set_mod_author(mods, author)
 
     def _sync_mods(self):
         confirmation = QMessageBox.question(
@@ -314,4 +327,4 @@ class HomePage(QWidget):
         self._refresh_mods()
     
     def set_info_text(self, text: str):
-        self.mods_widget.set_info_label(text)
+        self.mods_widget.set_info_text(text)

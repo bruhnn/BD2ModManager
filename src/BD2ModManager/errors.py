@@ -13,10 +13,11 @@ class ModInvalidError(Exception):
 class ModAlreadyExistsError(Exception):
     """Raised when a mod with the same name already exists."""
 
-
 class ModNotFoundError(Exception):
     """Raised when a mod is not found in the specified path."""
 
+class InvalidModNameError(Exception):
+    """Raised when the mod name is invalid (e.g., contains path separators)."""
 
 class BrownDustXNotInstalled(Exception):
     """Raised when BrownDustX is not found in the game path."""
@@ -24,3 +25,6 @@ class BrownDustXNotInstalled(Exception):
 
 class AdminRequiredError(Exception):
     """Raised when an operation requires administrative permission."""
+
+
+

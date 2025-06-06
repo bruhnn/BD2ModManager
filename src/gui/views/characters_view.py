@@ -1,6 +1,6 @@
-from PySide6.QtWidgets import QWidget, QTreeView, QVBoxLayout, QStyledItemDelegate, QStyle, QLineEdit
-from PySide6.QtCore import QAbstractItemModel, QModelIndex, Qt, QSize, QRect, QRectF, QSortFilterProxyModel
-from PySide6.QtGui import QPainter, QPixmap, QFont, QColor, QFontMetrics, QPen , QBrush
+from PySide6.QtWidgets import QWidget, QTreeView, QVBoxLayout, QStyledItemDelegate, QStyle, QLineEdit, QPushButton, QGridLayout
+from PySide6.QtCore import QAbstractItemModel, QModelIndex, Qt, QSize, QRect, QRectF, QSortFilterProxyModel, Signal
+from PySide6.QtGui import QPainter, QPixmap, QFont, QColor, QFontMetrics, QPen , QBrush, QIcon
 
 from typing import Any, Union
 
@@ -87,7 +87,7 @@ class CharacterTreeModel(QAbstractItemModel):
     
     def update_characters(self, characters: dict):
         self.beginResetModel()
-        self.root_node = CharacterNode()  # reset root
+        self.root_node = CharacterNode() 
 
         for character, costumes in characters.items():
             character_node = CharacterNode(character=character, parent=self.root_node)
@@ -100,6 +100,51 @@ class CharacterTreeModel(QAbstractItemModel):
 
 
 class CostumeTreeDelegate(QStyledItemDelegate):
+    def draw_status(self, painter, base_x, base_y, title, is_installed, font_title, font_status, spacing=64):
+        # Metrics
+        metrics_title = QFontMetrics(font_title)
+        metrics_status = QFontMetrics(font_status)
+
+        status_text = self.tr("Installed") if is_installed else self.tr("Not Installed")
+        status_text_width = metrics_status.horizontalAdvance(self.tr("Not Installed"))
+        title_width = metrics_title.horizontalAdvance(title)
+
+        title_rect = QRect(
+            base_x,
+            base_y - metrics_title.height(),
+            title_width,
+            metrics_title.height()
+        )
+        status_rect = QRect(
+            base_x,
+            base_y,
+            status_text_width,
+            metrics_status.height()
+        )
+
+        painter.save()  # Save painter state here
+
+        painter.setFont(font_title)
+        painter.setPen(QColor("#fff"))
+        painter.drawText(
+            title_rect,
+            Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter,
+            title
+        )
+
+        painter.setFont(font_status)
+        painter.setPen(QColor("#57886C") if is_installed else QColor("#7D7D7D"))
+        painter.drawText(
+            status_rect,
+            Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter,
+            status_text
+        )
+
+        painter.restore()  # Restore painter state here
+
+        return max(title_width, status_text_width) + spacing
+
+
     def paint(self, painter, option, index):
         data = index.model().data(index, Qt.UserRole)
         
@@ -112,8 +157,7 @@ class CostumeTreeDelegate(QStyledItemDelegate):
 
         if data.is_costume():
             costume = data.costume
-            character = costume.get("character", {})
-            text = f"{character.get('character', '')} - {character.get('costume', '')}"
+            character = costume.get("character")
 
             margin = 8
             radius = 8
@@ -131,7 +175,7 @@ class CostumeTreeDelegate(QStyledItemDelegate):
             img_rect = QRect(rect.left() + img_margin, rect.top() +
                              img_margin, img_size.width(), img_size.height())
             
-            img_path = f":/characters/{costume['character'].get('id', '000101')}"
+            img_path = f":/characters/{character.id}"
 
             pixmap = QPixmap(img_path)
             
@@ -142,7 +186,8 @@ class CostumeTreeDelegate(QStyledItemDelegate):
                 img_size, Qt.KeepAspectRatio, Qt.SmoothTransformation)
 
             painter.drawPixmap(img_rect, pixmap)
-            # Título
+            
+            # Draw Title
             font_title = QFont()
             font_title.setPointSize(12)
             font_title.setBold(True)
@@ -150,139 +195,67 @@ class CostumeTreeDelegate(QStyledItemDelegate):
             title_margin_top = 12
             title_margin_left = 12
             title_rect = QRect(
-                img_rect.right() + title_margin_left,  # Left
-                rect.top() + title_margin_top,  # Top
-                rect.width() - 90,  # Width
-                font_metrics.height())  # Height
+                img_rect.right() + title_margin_left,
+                rect.top() + title_margin_top,
+                rect.width() - 90,
+                font_metrics.height()
+            )
+
+            painter.save()
             painter.setFont(font_title)
             painter.setPen(QColor("#fff"))
-            title = f"{costume['character']['character']} - {costume['character']['costume']}"
+            title = character.full_name()
             painter.drawText(
                 title_rect,
                 Qt.AlignLeft | Qt.AlignVCenter,
                 title
             )
-            
+            painter.restore()
+
+            # Draw Character ID
             charid_font = QFont("Segoe UI")
             charid_font.setPointSize(8)
             charid_metrics = QFontMetrics(charid_font)
             charid_rect = QRect(
                 img_rect.right() + title_margin_left,
                 title_rect.bottom(),
-                charid_metrics.horizontalAdvance(costume["character"]["id"]),
+                charid_metrics.horizontalAdvance(character.id),
                 charid_metrics.height()
             )
+
+            painter.save()
             painter.setFont(charid_font)
             painter.setPen(QColor("#fff"))
             painter.drawText(
                 charid_rect,
                 Qt.AlignLeft | Qt.AlignVCenter,
-                costume["character"]["id"]
+                character.id
             )
+            painter.restore()
 
-            # Define cutscene text and font
-            cutscene_text = self.tr("Installed") if costume.get(
-                "cutscene") else self.tr("Not Installed")
-            font_status = QFont()
-            font_status.setPointSize(10)
-            font_status.setBold(False)
-            font_metrics_status = QFontMetrics(font_status)
-            cutscene_text_width = font_metrics_status.horizontalAdvance(
-                self.tr("Not Installed"))
-
-            # Rectangle for cutscene status text
-            cutscene_text_rect = QRect(
-                img_rect.right() + 12,
-                rect.bottom() - font_metrics_status.height() - 12,
-                cutscene_text_width,
-                font_metrics_status.height()
-            )
-
-            painter.setFont(font_status)
-            if costume.get("cutscene"):
-                painter.setPen(QColor("#57886C"))  # Green for installed
-            else:
-                painter.setPen(QColor("#7D7D7D"))  # Gray for not installed
-            painter.drawText(
-                cutscene_text_rect,
-                Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter,
-                cutscene_text
-            )
-
-            # Title "Cutscene" above the status
+            # Prepare fonts for status
             font_status_title = QFont()
             font_status_title.setPointSize(10)
             font_status_title.setBold(True)
-            font_metrics_status_title = QFontMetrics(font_status_title)
-            font_status_width = font_metrics_status_title.horizontalAdvance(
-                "Cutscene")
 
-            cutscene_title_rect = QRect(
-                img_rect.right() + 12,
-                cutscene_text_rect.top() - font_metrics_status_title.height(),
-                font_status_width,
-                font_metrics_status_title.height()
-            )
-
-            painter.setFont(font_status_title)
-            painter.setPen(QColor("#fff"))
-            painter.drawText(
-                cutscene_title_rect,
-                Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter,
-                "Cutscene"
-            )
-
-            # Define cutscene text and font
-            idle_text = "Installed" if costume.get(
-                "cutscene") else "Not Installed"
             font_status = QFont()
             font_status.setPointSize(10)
             font_status.setBold(False)
-            font_metrics_status = QFontMetrics(font_status)
-            idle_text_width = font_metrics_status.horizontalAdvance(
-                "Not Installed")
 
-            # Rectangle for cutscene status text
-            idle_text_rect = QRect(
-                cutscene_title_rect.right() + 64,
-                rect.bottom() - font_metrics_status.height() - 12,
-                idle_text_width,
-                font_metrics_status.height()
-            )
+            base_y = rect.bottom() - QFontMetrics(font_status).height() - 12
+            start_x = img_rect.right() + 12
 
-            painter.setFont(font_status)
-            if costume.get("cutscene"):
-                painter.setPen(QColor("#57886C"))  # Green for installed
-            else:
-                painter.setPen(QColor("#7D7D7D"))  # Gray for not installed
-            painter.drawText(
-                idle_text_rect,
-                Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter,
-                idle_text
-            )
+            offset_x = start_x
+            offset_x += self.draw_status(painter, offset_x, base_y, self.tr("Cutscene"), costume.get("cutscene"), font_status_title, font_status)
 
-            # Title "Cutscene" above the status
-            font_status_title = QFont()
-            font_status_title.setPointSize(10)
-            font_status_title.setBold(True)
-            font_metrics_status_title = QFontMetrics(font_status_title)
-            font_status_width = font_metrics_status_title.horizontalAdvance(
-                "Idle")
+            idle_val = costume.get("idle")
+            if idle_val is not None:
+                offset_x += self.draw_status(painter, offset_x, base_y, self.tr("Idle"), idle_val, font_status_title, font_status)
 
-            idle_title_rect = QRect(
-                cutscene_title_rect.right() + 64,
-                idle_text_rect.top() - font_metrics_status_title.height(),
-                font_status_width,
-                font_metrics_status_title.height()
-            )
+            dating_val = costume.get("dating")
+            if isinstance(dating_val, bool):
+                offset_x += self.draw_status(painter, offset_x, base_y, self.tr("Dating"), dating_val, font_status_title, font_status)
 
-            painter.setFont(font_status_title)
-            painter.setPen(QColor("#fff"))
-            painter.drawText(
-                idle_title_rect,
-                Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter,
-                "Idle"
-            )
         else:
             text = data.character
 
@@ -322,8 +295,10 @@ class CharacterFilterProxyModel(QSortFilterProxyModel):
             return True
         
         text = self.search_text.lower()
+        
         if node.is_costume():
-            costume_name = f'{node.costume.get("character", {}).get("character", "").lower()} {node.costume.get("character", {}).get("costume", "").lower()}'
+            costume_name = node.costume["character"].full_name().lower()
+
             if text in costume_name:
                 return True
         else:
@@ -343,11 +318,18 @@ class CharacterFilterProxyModel(QSortFilterProxyModel):
         self.invalidateFilter()
 
 class CharactersView(QWidget):
+    refreshCharactersRequested = Signal()
+    
     def __init__(self):
         super().__init__()
         
         self.search_input = QLineEdit(placeholderText="Search Character")
         self.search_input.setObjectName("searchField")
+        
+        self.refresh_button = QPushButton(text="Refresh")
+        self.refresh_button.setIcon(QIcon(":/material/refresh.svg"))
+        self.refresh_button.setObjectName("modsViewButton")
+        self.refresh_button.clicked.connect(self.refreshCharactersRequested.emit)
 
         self.proxy_model = CharacterFilterProxyModel()
         self.proxy_model.setSourceModel(CharacterTreeModel())
@@ -365,9 +347,10 @@ class CharactersView(QWidget):
         self.view.setSelectionMode(QTreeView.SelectionMode.NoSelection)
         self.view.expandAll()
 
-        layout = QVBoxLayout(self)
-        layout.addWidget(self.search_input)
-        layout.addWidget(self.view)
+        layout = QGridLayout(self)
+        layout.addWidget(self.search_input, 0, 0)
+        layout.addWidget(self.refresh_button, 0, 1)
+        layout.addWidget(self.view, 1, 0, 2, 2)
     
     def load_characters(self, characters: dict):
         self.proxy_model.sourceModel().update_characters(characters)
