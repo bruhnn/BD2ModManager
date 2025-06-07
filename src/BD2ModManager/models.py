@@ -18,6 +18,13 @@ class BD2ModType(Enum):
     NPC = 3
     DATING = 4
 
+    @property
+    def display_name(self):
+        if self.value in (3,): # NPC
+            return self.name.upper()
+        
+        return self.name.capitalize()
+    
 @dataclass
 class BD2Mod:
     type: Optional[BD2ModType]
