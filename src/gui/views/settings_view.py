@@ -1,7 +1,7 @@
 from typing import Union, Any
 from pathlib import Path
 
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QGroupBox, QHBoxLayout, QLineEdit, QPushButton, QSizePolicy, QSpacerItem, QComboBox, QCheckBox, QFileDialog, QGridLayout, QMessageBox
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QGroupBox, QHBoxLayout, QLineEdit, QPushButton, QSizePolicy, QSpacerItem, QComboBox, QCheckBox, QFileDialog, QGridLayout, QMessageBox, QScrollArea
 from PySide6.QtCore import Qt, Signal, QObject
 from PySide6.QtGui import QIcon
 
@@ -12,19 +12,23 @@ from src.gui.widgets import LabelIcon
 
 from os import startfile
 
-class SettingsView(QWidget):
+class SettingsView(QScrollArea):
     onLanguageChanged = Signal(str)
     onThemeChanged = Signal(str)
+    findAuthorsClicked = Signal()
     
     def __init__(self, config_manager: BD2MMConfigManager):
         super().__init__()
-        self.setObjectName("settingsView")
+        
+        self.setWidgetResizable(True)
 
         self.config_manager = config_manager
         self.config_manager.onGameDirectoryChanged.connect(self._update_game_directory)
         self.config_manager.onModsDirectoryChanged.connect(self._update_mods_directory)
 
-        layout = QVBoxLayout(self)
+        widget = QWidget()
+        widget.setObjectName("settingsView")
+        layout = QVBoxLayout(widget)
 
         self.title = QLabel(text=self.tr("Settings"))
         self.title.setSizePolicy(QSizePolicy.Policy.Expanding,
@@ -98,6 +102,12 @@ class SettingsView(QWidget):
         self.ask_for_author_checkbox.setDisabled(True)
 
         self.installation_group.layout().addWidget(ask_for_author_widget)
+        
+        self.experimental_group = self.create_group("Experimental")
+        self.auto_authors = QPushButton("Find Authors")
+        self.auto_authors.setObjectName("browseButton")
+        self.auto_authors.clicked.connect(self.findAuthorsClicked.emit)
+        self.experimental_group.layout().addWidget(self.auto_authors, 0, Qt.AlignmentFlag.AlignLeft)
 
         layout.setSpacing(16)
         layout.setAlignment(Qt.AlignmentFlag.AlignTop)
@@ -106,6 +116,9 @@ class SettingsView(QWidget):
         layout.addWidget(self.general_group)
         layout.addWidget(self.installation_group)
         layout.addWidget(self.synchronization_group)
+        layout.addWidget(self.experimental_group)
+        
+        self.setWidget(widget)
 
     def retranslateUI(self):
         self.title.setText(self.tr("Settings"))

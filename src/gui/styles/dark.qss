@@ -12,6 +12,10 @@ MainWindow {
     color: #ecf0f1;
 }
 
+#settingsView {
+    background-color: #1C1D21;
+}
+
 QWidget#navigationBar {
     background-color: #26262C;
 }

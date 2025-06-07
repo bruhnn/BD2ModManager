@@ -146,6 +146,7 @@ class HomePage(QWidget):
         self._refresh_mods()
         
         self.settings_widget = SettingsView(config_manager)
+        self.settings_widget.findAuthorsClicked.connect(self._find_authors)
 
         self.navigation_view.addWidget(self.mods_widget)
         self.navigation_view.addWidget(self.characters_widget)
@@ -326,5 +327,14 @@ class HomePage(QWidget):
         self.mod_manager.rename_mod(old_name, new_name)
         self._refresh_mods()
     
+    def _find_authors(self):
+        if self.config_manager.get("search_mods_recursively", boolean=True, default=False):
+            mods = self.mod_manager.get_mods(recursive=True)
+        else:
+            mods = self.mod_manager.get_mods()
+            
+        self.mod_manager.auto_detect_authors(mods)
+    
     def set_info_text(self, text: str):
         self.mods_widget.set_info_text(text)
+        

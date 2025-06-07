@@ -8,6 +8,7 @@ import pefile
 
 from .utils import is_running_as_admin
 from .utils.files import get_folder_hash, is_filename_valid
+from .utils.detect_author import get_author_by_folder, load_authors
 from .bd2_data import BD2Data
 from .errors import *
 
@@ -41,6 +42,7 @@ CHARACTERS_CSV = DATA_FOLDER / "characters.csv"
 DATINGS_CSV = DATA_FOLDER / "datings.csv"
 SCENES_CSV = DATA_FOLDER / "characters.csv"
 NPCS_CSV = DATA_FOLDER / "datings.csv"
+AUTHORS_CSV = DATA_FOLDER / "authors.csv"
 
 class BD2ModManager:
     """Brown Dust 2 Mod Manager"""
@@ -615,3 +617,14 @@ class BD2ModManager:
         if mod.mod.name in self._mods_data:
             self._mods_data[new_name] = self._mods_data.pop(mod.mod.name)
             self._save_mods_data()
+
+    def auto_detect_authors(self, mods: list[BD2ModEntry]):
+        authors = load_authors(AUTHORS_CSV)
+        
+        if not authors:
+            return
+        
+        for mod in mods:
+            author = get_author_by_folder(authors, mod.path)
+            if author and not mod.author:
+                self.set_mod_author(mod, author)
