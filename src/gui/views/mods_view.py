@@ -1,4 +1,4 @@
-from PySide6.QtCore import Qt, Signal, QRect, QSize
+from PySide6.QtCore import Qt, Signal, QRect, QSize, QSettings, QByteArray
 from PySide6.QtWidgets import (
     QWidget,
     QVBoxLayout,
@@ -154,18 +154,17 @@ class ModsView(QWidget):
     bulkModAuthorChanged = Signal(list, str) # [mod name], author name
     openModFolderRequested = Signal(str) # Mod Path
 
-    def __init__(self):
+    def __init__(self, settings: QSettings):
         super().__init__()
         self.setObjectName("modsView")
         self.setAcceptDrops(True)
+        
+        self.settings = settings
 
         layout = QVBoxLayout(self)
         layout.setContentsMargins(6, 6, 6, 6)
 
         # Variables
-        self._modlist_loaded = False
-        self._has_conflict_highlights = False
-
         self.drop_modal = DragFilesModal(self)
 
         self.top_bar = QWidget()
@@ -232,10 +231,13 @@ class ModsView(QWidget):
         self.mod_list.setContentsMargins(0, 0, 0, 0)
         self.mod_list.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self.mod_list.setSelectionMode(QHeaderView.SelectionMode.ExtendedSelection)
-        self.mod_list.itemChanged.connect(self._mod_state_changed)
-        self.mod_list.customContextMenuRequested.connect(self.show_context_menu)
         self.mod_list.setItemDelegateForColumn(0, ModItemStyledDelegate())
-        self.mod_list.sortItems(1, Qt.SortOrder.AscendingOrder)
+        self.mod_list.sortItems(1, Qt.SortOrder.AscendingOrder) # filter by character in alphabetical order
+        self.mod_list.customContextMenuRequested.connect(self.show_context_menu)
+        self.mod_list.itemChanged.connect(self._mod_state_changed)
+        self.mod_list_resized = False
+        
+        self.load_settings_state()
         
         shortcut = QShortcut(QKeySequence("Ctrl+A"), self.mod_list)
         shortcut.activated.connect(self.mod_list.selectAll)
@@ -286,6 +288,34 @@ class ModsView(QWidget):
         layout.addWidget(self.footer_bar)
         
         self._check_all_mod_conflicts()
+    
+    def save_settings_state(self):
+        self.settings.beginGroup("modlist/header")
+        self.settings.setValue("state", self.mod_list.header().saveState())
+        
+        for column in range(self.mod_list.columnCount()):
+            self.settings.setValue(f"column_width_{column}", self.mod_list.columnWidth(column))
+        
+        self.settings.endGroup()
+        # self.settings.setValue("modlist/HeaderGeometry", self.mod_list.header().saveGeometry())
+    
+    def load_settings_state(self):
+        self.settings.beginGroup("modlist/header")
+        modlist_header_state = self.settings.value("state")
+        # modlist_header_geometry = self.settings.value("modlist/HeaderGeometry")
+
+        if isinstance(modlist_header_state, QByteArray):
+            self.mod_list.header().restoreState(modlist_header_state)
+        
+        for column in range(self.mod_list.columnCount()):
+            column_width = self.settings.value(f"column_width_{column}")
+            if isinstance(column_width, int):
+                self.mod_list.setColumnWidth(column, int(column_width))
+                self.mod_list_resized = True
+        
+        self.settings.endGroup()
+        # if isinstance(modlist_header_geometry, QByteArray):
+        #     self.mod_list.header().restoreGeometry(modlist_header_geometry)
 
     def retranslateUI(self):
         self.setWindowTitle(self.tr("Mods Manager"))
@@ -544,7 +574,7 @@ class ModsView(QWidget):
 
             item.setText(0, mod_entry.mod.name)
             item.setText(1, char_name)
-            item.setText(2, mod_entry.mod.type.name if mod_entry.mod.type else "")
+            item.setText(2, mod_entry.mod.type.display_name if mod_entry.mod.type else "")
             item.setText(3, mod_entry.author)
             item.setFlags(
                 item.flags()
@@ -562,12 +592,10 @@ class ModsView(QWidget):
             self.mod_list.addTopLevelItem(item)
 
         self.mod_list.verticalScrollBar().setValue(pos_y)
-        
-        if not self._modlist_loaded:
-            self._modlist_loaded = True
+        if not self.mod_list_resized:
             self.mod_list.header().resizeSections(QHeaderView.ResizeMode.ResizeToContents)
-        
         self._check_all_mod_conflicts()
+
 
     def set_info_text(self, text: str):
         self.info_label.setText(text)

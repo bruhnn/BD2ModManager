@@ -1,13 +1,14 @@
+import sys
+from pathlib import Path
+
 from PySide6.QtWidgets import QMainWindow, QStackedWidget, QVBoxLayout, QApplication
-from PySide6.QtCore import QTranslator, Qt
+from PySide6.QtCore import QTranslator, Qt, QSettings, QByteArray
 
 from src.BD2ModManager import BD2ModManager
 from src.BD2ModManager.errors import GameDirectoryNotSetError, GameNotFoundError
 from .pages import HomePage, SelectFolderPage
 from .config import BD2MMConfigManager
-from pathlib import Path
 
-import sys
 
 if getattr(sys, 'frozen', False):
     # If the application is frozen
@@ -22,9 +23,12 @@ class MainWindow(QMainWindow):
     def __init__(self, mod_manager: BD2ModManager, config_manager: BD2MMConfigManager):
         super().__init__()
         self.setWindowTitle("BD2 Mod Manager - v2.1.0")
-        self.setGeometry(600, 250, 800, 600)
-        # self.setBaseSize(600, 800)
         self.setObjectName("mainWindow")
+        self.setGeometry(600, 250, 800, 600)
+        
+        self.settings = QSettings("Bruhnn", "BD2ModManager")
+        # self.settings.clear()
+        # self.settings.beginGroup("MainWindow")
 
         self.mod_manager = mod_manager
         self.config_manager = config_manager
@@ -37,7 +41,7 @@ class MainWindow(QMainWindow):
         self.config_manager.onModsDirectoryChanged.connect(self._mods_directory_changed)
         
         self.main_stacked_widget = QStackedWidget()
-        self.home_page = HomePage(mod_manager, config_manager)
+        self.home_page = HomePage(self.settings, mod_manager, config_manager)
         
         self.select_folder_page = SelectFolderPage(self.mod_manager.game_directory)
         self.select_folder_page.onGameFolderSelected.connect(self._change_game_directory)
@@ -66,6 +70,18 @@ class MainWindow(QMainWindow):
 
         # remove focus from qlineedit
         self.setFocusPolicy(Qt.FocusPolicy.ClickFocus)
+        
+        self.restore_geometry()
+    
+    def restore_geometry(self):
+        geometry = self.settings.value("mainWindow/geometry")
+        if isinstance(geometry, QByteArray):
+            self.restoreGeometry(geometry)
+    
+    def closeEvent(self, event):
+        self.settings.setValue("mainWindow/geometry", self.saveGeometry())
+        self.home_page.save_settings_state()
+        return super().closeEvent(event)
     
     def _apply_stylesheet(self, theme: str):
         path = STYLES_PATH / f"{theme}.qss"

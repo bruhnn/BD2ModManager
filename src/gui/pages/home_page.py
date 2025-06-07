@@ -2,7 +2,7 @@ from os import startfile
 from pathlib import Path
 
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QStackedWidget, QHBoxLayout, QMessageBox, QLabel, QDialog, QPushButton, QProgressBar
-from PySide6.QtCore import Qt, Signal, QObject, QThread
+from PySide6.QtCore import Qt, Signal, QObject, QThread, QSettings
 from PySide6.QtGui import QIcon
 
 from src.BD2ModManager import BD2ModManager
@@ -93,10 +93,12 @@ class Modal(QDialog):
 
 
 class HomePage(QWidget):
-    def __init__(self, mod_manager: BD2ModManager, config_manager: BD2MMConfigManager):
+    def __init__(self, settings: QSettings, mod_manager: BD2ModManager, config_manager: BD2MMConfigManager):
         super().__init__()
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
+        
+        self.settings = settings
         
         self.sync_thread = None
         self.sync_worker = None
@@ -125,7 +127,7 @@ class HomePage(QWidget):
 
         self.navigation_view = QStackedWidget()
 
-        self.mods_widget = ModsView()
+        self.mods_widget = ModsView(self.settings)
         self.mods_widget.addModRequested.connect(self._add_mod)
         self.mods_widget.modStateChanged.connect(self._enable_or_disable_mod)
         self.mods_widget.modAuthorChanged.connect(self._change_mod_author)
@@ -164,6 +166,9 @@ class HomePage(QWidget):
         
         layout.addWidget(self.navigation_bar)
         layout.addWidget(self.navigation_view)
+    
+    def save_settings_state(self):
+        self.mods_widget.save_settings_state()
     
     def show_error(self, message: str):
         msg_box = QMessageBox(self)
