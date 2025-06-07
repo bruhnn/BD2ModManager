@@ -21,7 +21,7 @@ LANGUAGE_PATH = app_path / "gui" / "translations"
 class MainWindow(QMainWindow):
     def __init__(self, mod_manager: BD2ModManager, config_manager: BD2MMConfigManager):
         super().__init__()
-        self.setWindowTitle("BD2 Mod Manager - v2.0.0")
+        self.setWindowTitle("BD2 Mod Manager - v2.1.0")
         self.setGeometry(600, 250, 800, 600)
         # self.setBaseSize(600, 800)
         self.setObjectName("mainWindow")
