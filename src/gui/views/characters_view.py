@@ -122,10 +122,10 @@ class CostumeTreeDelegate(QStyledItemDelegate):
             metrics_status.height()
         )
 
-        painter.save()  # Save painter state here
+        painter.save() 
 
         painter.setFont(font_title)
-        painter.setPen(QColor("#fff"))
+        painter.setPen(QColor("#ecf0f1"))
         painter.drawText(
             title_rect,
             Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter,
@@ -140,12 +140,12 @@ class CostumeTreeDelegate(QStyledItemDelegate):
             status_text
         )
 
-        painter.restore()  # Restore painter state here
+        painter.restore() 
 
         return max(title_width, status_text_width) + spacing
 
 
-    def paint(self, painter, option, index):
+    def paint(self, painter, option, index):        
         data = index.model().data(index, Qt.UserRole)
         
         # print(option == QStyle)
@@ -172,8 +172,7 @@ class CostumeTreeDelegate(QStyledItemDelegate):
             # Imagem
             img_size = QSize(90, 90)
             img_margin = 12
-            img_rect = QRect(rect.left() + img_margin, rect.top() +
-                             img_margin, img_size.width(), img_size.height())
+            img_rect = QRect(rect.left() + img_margin, rect.top() + img_margin, img_size.width(), img_size.height())
             
             img_path = f":/characters/{character.id}"
 
@@ -201,16 +200,16 @@ class CostumeTreeDelegate(QStyledItemDelegate):
                 font_metrics.height()
             )
 
-            painter.save()
+            # painter.save()
             painter.setFont(font_title)
-            painter.setPen(QColor("#fff"))
+            painter.setPen(QColor("#ecf0f1"))
             title = character.full_name()
             painter.drawText(
                 title_rect,
                 Qt.AlignLeft | Qt.AlignVCenter,
                 title
             )
-            painter.restore()
+            # painter.restore()
 
             # Draw Character ID
             charid_font = QFont("Segoe UI")
@@ -223,17 +222,14 @@ class CostumeTreeDelegate(QStyledItemDelegate):
                 charid_metrics.height()
             )
 
-            painter.save()
             painter.setFont(charid_font)
-            painter.setPen(QColor("#fff"))
+            painter.setPen(QColor("#ecf0f1"))
             painter.drawText(
                 charid_rect,
                 Qt.AlignLeft | Qt.AlignVCenter,
                 character.id
             )
-            painter.restore()
 
-            # Prepare fonts for status
             font_status_title = QFont()
             font_status_title.setPointSize(10)
             font_status_title.setBold(True)
@@ -279,7 +275,7 @@ class CharacterFilterProxyModel(QSortFilterProxyModel):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.search_text = None
-        self.setRecursiveFilteringEnabled(True)  # Important for tree models
+        self.setRecursiveFilteringEnabled(True)
 
     def filterAcceptsRow(self, source_row, source_parent):
         source_model = self.sourceModel()
