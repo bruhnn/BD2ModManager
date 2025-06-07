@@ -530,15 +530,18 @@ class ModsView(QWidget):
     def _mod_state_changed(self, item: QTreeWidgetItem):
         mod_data = item.data(0, Qt.ItemDataRole.UserRole)
         mod_state = item.checkState(0)
-        mod_data.enabled = mod_state == Qt.CheckState.Checked
+        
+        # TODO: add check if it is the same
+
         item.setData(0, Qt.ItemDataRole.UserRole, mod_data)
         self.modStateChanged.emit(mod_data, mod_state == Qt.CheckState.Checked)
     
     def _check_all_mod_conflicts(self):
+        self.mod_list.blockSignals(True)
         for index in range(self.mod_list.topLevelItemCount()):
             item = self.mod_list.topLevelItem(index)
             item.setData(0, Qt.ItemDataRole.UserRole + 1, False)
-
+            
         mod_groups = {}
         for index in range(self.mod_list.topLevelItemCount()):
             item = self.mod_list.topLevelItem(index)
@@ -560,8 +563,12 @@ class ModsView(QWidget):
             if len(items) > 1:
                 for item in items:
                     item.setData(0, Qt.ItemDataRole.UserRole + 1, True)
+        
+        self.mod_list.blockSignals(False)
 
     def load_mods(self, mods: list[BD2ModEntry]):
+        self.mod_list.blockSignals(True)
+        
         pos_y = self.mod_list.verticalScrollBar().value()
         self.mod_list.clear()
 
@@ -591,6 +598,7 @@ class ModsView(QWidget):
             
             self.mod_list.addTopLevelItem(item)
 
+        self.mod_list.blockSignals(False)
         self.mod_list.verticalScrollBar().setValue(pos_y)
         if not self.mod_list_resized:
             self.mod_list.header().resizeSections(QHeaderView.ResizeMode.ResizeToContents)
