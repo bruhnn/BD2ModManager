@@ -195,7 +195,7 @@ class BD2ModManager:
         if recursive:
             modfiles = self._staging_mods_directory.rglob("*.modfile")
         else:
-            modfiles = self._staging_mods_directory.glob("*/*.modfile")
+            modfiles = self._staging_mods_directory.glob("*/*.modfile") 
 
         mods_folders = [modfile.parent for modfile in modfiles]
 
@@ -626,5 +626,11 @@ class BD2ModManager:
         
         for mod in mods:
             author = get_author_by_folder(authors, mod.path)
+            
             if author and not mod.author:
-                self.set_mod_author(mod, author)
+                if not mod.mod.name in self._mods_data:
+                    self._mods_data[mod.mod.name] = {}
+                    
+                self._mods_data[mod.mod.name]["author"] = author
+                
+        self._save_mods_data()
