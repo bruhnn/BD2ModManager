@@ -358,6 +358,9 @@ class ModsView(QWidget):
     def show_context_menu(self, pos):
         selected_items = self.mod_list.selectedItems()
         current_item = self.mod_list.itemAt(pos)
+        
+        if not current_item:
+            return
                 
         menu = QMenu(self)
         menu.addAction(self.tr("Refresh Mods"), self._refresh_mods)
