@@ -4,11 +4,10 @@ from pathlib import Path
 
 from PySide6.QtWidgets import QApplication
 from PySide6.QtGui import QIcon
-from PySide6.QtCore import QTranslator
 
-from src.BD2ModManager import BD2ModManager
 from src.gui import MainWindow
 from src.gui.config import BD2MMConfigManager
+from src.BD2ModManager import BD2ModManager
 
 from src.gui.resources import icons_rc, characters_rc
 
@@ -30,7 +29,6 @@ def main():
         staging_folder = CURRENT_PATH / "mods"
         BD2MMConfig.set("staging_mods_path", str(staging_folder))
 
-    
     BD2MM = BD2ModManager(
         mods_directory = staging_folder,
         data_file = CURRENT_PATH / "mods.json")
@@ -47,6 +45,10 @@ def main():
 
 if __name__ == "__main__":
     logging.basicConfig(
-        level=logging.INFO,
-        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+        filename=CURRENT_PATH / "BD2ModManager.log",
+        filemode="w",
+        level=logging.DEBUG,
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    )
+
     main()
