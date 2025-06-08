@@ -1,10 +1,11 @@
 [project]
-name = "bd2modmanager"
-version = "0.1.0"
+name = "BD2ModManager"
+version = "2.2.0"
 requires-python = ">=3.13"
 dependencies = [
     "pefile>=2024.8.26",
     "pyside6>=6.9.0",
+    "requests>=2.32.3",
 ]
 
 [dependency-groups]

@@ -1,11 +1,14 @@
 import sys
 from pathlib import Path
+import requests
+from packaging import version
 
 from PySide6.QtWidgets import QMainWindow, QStackedWidget, QVBoxLayout, QApplication
 from PySide6.QtCore import QTranslator, Qt, QSettings, QByteArray
 
 from src.BD2ModManager import BD2ModManager
 from src.BD2ModManager.errors import GameDirectoryNotSetError, GameNotFoundError
+from src.version import __version__
 from .pages import HomePage, SelectFolderPage
 from .config import BD2MMConfigManager
 
@@ -19,10 +22,12 @@ else:
 STYLES_PATH = app_path / "gui" / "styles"
 LANGUAGE_PATH = app_path / "gui" / "translations"
 
+
+
 class MainWindow(QMainWindow):
     def __init__(self, mod_manager: BD2ModManager, config_manager: BD2MMConfigManager):
         super().__init__()
-        self.setWindowTitle("BD2 Mod Manager - v2.2.0")
+        self.setWindowTitle("BD2 Mod Manager - v{version}".format(version=__version__))
         self.setObjectName("mainWindow")
         self.setGeometry(600, 250, 800, 600)
         
@@ -72,6 +77,24 @@ class MainWindow(QMainWindow):
         self.setFocusPolicy(Qt.FocusPolicy.ClickFocus)
         
         self.restore_geometry()
+        self.check_github_releases()
+
+    def check_github_releases(self):
+        url = "https://api.github.com/repos/bruhnn/BD2ModManager/releases"
+        
+        try:
+            req = requests.get(url, timeout=5)
+            req.raise_for_status()
+            data = req.json()
+            latest_version = data[0]["tag_name"][1:]
+            
+            if version.parse(__version__) < version.parse(latest_version):
+                self.home_page.set_info_text(self.tr(f"🚀 New version {latest_version} available! Visit the GitHub releases page to update."))
+            # else:
+            #     self.home_page.set_info_text(self.tr(f"You are up to date!"))
+        except requests.exceptions.RequestException:
+            pass
+        
     
     def restore_geometry(self):
         geometry = self.settings.value("mainWindow/geometry")

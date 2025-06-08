@@ -508,3 +508,9 @@ QTextEdit#editModFileData {
     padding: 10px;
     border-radius: 5px;
 }
+
+QLabel#infoLabel {
+    color: #ecf0f1;
+    font-weight: bold;
+    font-size: 14px;
+}
