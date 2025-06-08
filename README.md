@@ -25,7 +25,7 @@
 - Simple drag-and-drop mod installation
 - Enable or disable mods with one click
 - Check which characters have a specific mod type installed
-- Check if a mod conflict with anothers (need to refresh the mod list if enabled a mod to see)
+- Check if a mod conflicts with others (you need to refresh the mod list after enabling/disabling a mod to see conflicts)
 
 ---
 
