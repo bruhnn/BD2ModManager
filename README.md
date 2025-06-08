@@ -17,10 +17,9 @@
 - You can now **edit `.modfile` JSON** directly in the manager 
 → Right-click a mod and select **"Edit Modfile"**
 
-
 ## ✨ Features
 
-- Quick mod search
+- Easily search mods
 - Filter by mod name, character, author, or mod type
 - Copy mods into the game folder with one click (symlink supported)
 - Simple drag-and-drop mod installation
@@ -50,7 +49,7 @@
 
 Choose how mods are synced to your BrownDust X `mods` folder:
 
-#### **Copy**
+#### 📁 Copy
 Copies all enabled mods into the folder.
 
 - ✅ Works everywhere
