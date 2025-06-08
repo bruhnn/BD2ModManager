@@ -10,11 +10,9 @@
 *If you have any questions or suggestions, contact me on Discord: `@bruhnnn`*
 
 ---
-
----
 ## 🔥 New in v2.2.0
 - Remembers and restores **window size and position**
-- Supports installing **.zip mods** (via drag-and-drop or the "Add Mod" button)
+- Supports installing **.zip mods** (via drag-and-drop)
 - Fixed: **"Find Authors"** now works better (still experimental, only works for some mods and only if the mod folder hasn’t been modified)
 - You can now **edit `.modfile` JSON** directly in the manager 
 → Right-click a mod and select **"Edit Modfile"**
@@ -29,7 +27,6 @@
 - Enable or disable mods with one click
 - Check which characters have a specific mod type installed
 - Check if a mod conflict with anothers (need to refresh the mod list if enabled a mod to see)
-
 
 ---
 
@@ -48,7 +45,6 @@
    - This will create a folder named `BD2MM` inside the `BDX` mods folder with all your enabled mods.
 
 > ⚠️ After making any changes (enable, disable, delete, rename), you **must sync** your mods to update the game folder.
-
 
 ### Sync Method: Copy vs Symlink
 
