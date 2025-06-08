@@ -68,6 +68,9 @@ class MainWindow(QMainWindow):
             self.main_stacked_widget.setCurrentIndex(1)
             self.select_folder_page.set_info_text("Select the folder where \"BrownDust 2.exe\" is located." )
         
+        if config_manager.get("debug", boolean=True, default=False) and self.main_stacked_widget.currentIndex() == 1:
+            self.main_stacked_widget.setCurrentIndex(0)
+        
         self._apply_stylesheet(self.config_manager.get("theme", default="dark"))
         self._apply_language(self.config_manager.get("language", default="english"))
         
