@@ -6,7 +6,7 @@ from PySide6.QtCore import Qt, Signal, QObject, QThread, QSettings
 from PySide6.QtGui import QIcon
 
 from src.BD2ModManager import BD2ModManager
-from src.BD2ModManager.errors import GameNotFoundError, GameDirectoryNotSetError, AdminRequiredError, ModAlreadyExistsError
+from src.BD2ModManager.errors import GameNotFoundError, GameDirectoryNotSetError, AdminRequiredError, ModAlreadyExistsError, ModInvalidError
 from src.BD2ModManager.models import BD2ModEntry
 
 from src.gui.config import BD2MMConfigManager
@@ -230,13 +230,26 @@ class HomePage(QWidget):
             self.mod_manager.add_mod(path=filename)
         except ModAlreadyExistsError:
             self.show_error(f"Mod with \"{Path(filename).name}\" name already exists.")
+        except ModInvalidError:
+            self.show_error(
+                f'Mod "{Path(filename).name}" is not a valid mod.\n\n'
+                "Please check the following:\n"
+                "- If it's a zipped mod, make sure it's in a supported format (e.g., .zip — formats like .7z are not supported).\n"
+                "- If it contains multiple mods, please select only one at a time.\n"
+                "- Avoid selecting a parent folder that contains several mods or unrelated files."
+            )
+        except Exception as error:
+            self.show_error(
+                f"An unexpected error occurred:\n\n{str(error)}\n\n"
+                "Please make sure the mod files are valid and try again."
+            )
+
+
     
     def _remove_mod(self, mod: BD2ModEntry):
         self.mod_manager.remove_mod(mod)
 
     def _enable_or_disable_mod(self, mod: BD2ModEntry, state: bool):
-        # discover why it is being called on init
-        print("Calling?")
         if state:
             self.mod_manager.enable_mod(mod)
         else:
@@ -330,7 +343,6 @@ class HomePage(QWidget):
         
     def _rename_mod(self, old_name: str, new_name: str):
         self.mod_manager.rename_mod(old_name, new_name)
-        self._refresh_mods()
     
     def _find_authors(self):
         if self.config_manager.get("search_mods_recursively", boolean=True, default=False):
