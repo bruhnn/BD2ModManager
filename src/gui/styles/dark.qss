@@ -483,3 +483,28 @@ QToolButton#filterChip:checked {
 QToolButton#filterChip:hover {
     background: #44454c;
 }
+
+QWidget#dragFilesModal {
+    background-color: #23242A;
+    border: 2px dashed #57886C;
+    border-radius: 12px;
+    padding: 32px 24px;
+}
+
+QLabel#dragFilesTitle {
+    color: #ecf0f1;
+    font-size: 22px;
+    font-weight: bold;
+    letter-spacing: 1px;
+    margin-bottom: 12px;
+    font-family: "Segoe UI", sans-serif;
+}
+
+QTextEdit#editModFileData {
+    font-family: "Consolas", monospace;
+    font-size: 16px;
+    background-color: #23242A;
+    color: #ecf0f1;
+    padding: 10px;
+    border-radius: 5px;
+}

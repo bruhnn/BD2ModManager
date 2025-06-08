@@ -146,6 +146,7 @@ class ModsView(QWidget):
     addModRequested = Signal(str) # Mod path
     removeModRequested = Signal(BD2ModEntry) # Mod Name
     renameModRequested = Signal(BD2ModEntry, str) # Mod Name, New Name
+    editModfileRequested = Signal(BD2ModEntry)
 
     modStateChanged = Signal(BD2ModEntry, bool) # Mod Name, Enabled State
     bulkModStateChanged = Signal(list, bool) # list[BD2ModEntry]
@@ -380,6 +381,7 @@ class ModsView(QWidget):
             menu.addSeparator()
             menu.addAction(self.tr("Rename Mod"), lambda: self._show_rename_input_dialog(current_item))
             menu.addAction(self.tr("Delete Mod"), lambda: self._confirm_mod_deletion(current_item))
+            menu.addAction(self.tr("Edit Modfile"), lambda: self._edit_modfile(current_item))
             menu.addSeparator()
             
             mod_path = current_item.data(0, Qt.ItemDataRole.UserRole).path
@@ -526,6 +528,10 @@ class ModsView(QWidget):
         if filename:
             path = str(Path(filename).parent)
             self.addModRequested.emit(path)
+    
+    def _edit_modfile(self, item: QTreeWidgetItem):
+        mod_entry = item.data(0,  Qt.ItemDataRole.UserRole)
+        self.editModfileRequested.emit(mod_entry)
 
     def _mod_state_changed(self, item: QTreeWidgetItem):
         mod_data = item.data(0, Qt.ItemDataRole.UserRole)

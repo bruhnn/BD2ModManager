@@ -1,7 +1,7 @@
 from os import startfile
 from pathlib import Path
 
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QStackedWidget, QHBoxLayout, QMessageBox, QLabel, QDialog, QPushButton, QProgressBar
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QStackedWidget, QHBoxLayout, QMessageBox, QLabel, QDialog, QPushButton, QProgressBar, QTextEdit
 from PySide6.QtCore import Qt, Signal, QObject, QThread, QSettings
 from PySide6.QtGui import QIcon
 
@@ -13,6 +13,52 @@ from src.gui.config import BD2MMConfigManager
 
 from ..widgets import NavButton
 from ..views import CharactersView, SettingsView, ModsView
+
+import json
+
+class EditModfileDialog(QDialog):
+    def __init__(self, parent = None, title = None, data = None):
+        super().__init__(parent)
+        self.setWindowTitle("Edit Modfile")
+        
+        self.modfile_data = data
+        
+        layout = QVBoxLayout(self)
+        
+        title = QLabel(text=title)
+        self.error_label = QLabel()
+        
+        self.data_input = QTextEdit(json.dumps(data, indent=4, separators=(",", ": ")))
+        self.data_input.setObjectName("editModFileData")
+        
+        actions_widget = QWidget()
+        actions_layout = QHBoxLayout(actions_widget)
+        
+        close_btn = QPushButton("Close")
+        close_btn.clicked.connect(self.close)
+        save_btn = QPushButton("Save")
+        save_btn.clicked.connect(self.save)
+        
+        actions_layout.addWidget(save_btn)
+        actions_layout.addWidget(close_btn)
+        
+        layout.addWidget(title)
+        layout.addWidget(self.data_input, 1)
+        layout.addWidget(self.error_label)
+        layout.addWidget(actions_widget, alignment=Qt.AlignmentFlag.AlignRight)
+    
+    def save(self):
+        # check if is a json valid
+        data = None
+        try:
+            data = json.loads(self.data_input.toPlainText())
+        except json.JSONDecodeError:
+            self.error_label.setText("Invalid JSON!")
+            return
+        
+        self.modfile_data = data
+        
+        self.accept()
 
 class SyncWorker(QObject):
     finished = Signal()
@@ -138,6 +184,7 @@ class HomePage(QWidget):
         self.mods_widget.openModFolderRequested.connect(self._open_mod_folder)
         self.mods_widget.removeModRequested.connect(self._remove_mod)
         self.mods_widget.renameModRequested.connect(self._rename_mod)
+        self.mods_widget.editModfileRequested.connect(self._edit_modfile)
         
         self.mods_widget.bulkModStateChanged.connect(self._bulk_enable_or_disable_mods)
         self.mods_widget.bulkModAuthorChanged.connect(self._bulk_change_author_name)
@@ -351,6 +398,21 @@ class HomePage(QWidget):
             mods = self.mod_manager.get_mods()
             
         self.mod_manager.auto_detect_authors(mods)
+    
+    def _edit_modfile(self, mod: BD2ModEntry):
+        modfile_data = self.mod_manager.get_modfile_data(mod)
+        
+        if modfile_data is None:
+            modfile_data = {}
+            
+        dialog = EditModfileDialog(self, mod.mod.name, modfile_data)
+        if dialog.exec_() == QDialog.DialogCode.Accepted:
+            print(dialog.modfile_data)
+            self.mod_manager.set_modfile_data(mod, dialog.modfile_data)
+            
+
+        
+        
     
     def set_info_text(self, text: str):
         self.mods_widget.set_info_text(text)
