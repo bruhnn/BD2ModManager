@@ -5,6 +5,7 @@ from typing import Callable, Union, Optional, Any
 from pathlib import Path
 from shutil import copytree, rmtree
 import pefile
+import shutil
 
 from .utils import is_running_as_admin
 from .utils.files import get_folder_hash, is_filename_valid
@@ -274,31 +275,71 @@ class BD2ModManager:
             raise FileNotFoundError(
                 f"Source mod path does not exist: {mod_source!r}")
         
-        modfile = list(mod_source.glob("*.modfile"))
         
-        if len(modfile) == 0:
-            raise ModInvalidError(f"Folder \"{mod_source}\" is not a valid mod.")
-
-        mod_name = name or mod_source.name
+        mod_name = name or mod_source.name.removesuffix(mod_source.suffix)
 
         staging_mod = self._staging_mods_directory / mod_name
-
+        
         logger.debug("Adding mod: %s", mod_name)
 
         if staging_mod.exists():
             logger.error("Mod already exists: %s", mod_name)
             raise ModAlreadyExistsError(mod_name)
+        
+        # check if is compacted (zip, etc.)
+        supported_exts = [ext for name, extensions, desc in shutil.get_unpack_formats() for ext in extensions]
 
+        if mod_source.is_file() and mod_source.suffix.lower() in supported_exts:
+            import tempfile
+            logger.debug("Extracting compacted mod %s.", mod_source)
+            
+            with tempfile.TemporaryDirectory() as temp_folder:
+                logger.debug("Temporary folder created.")
+
+                shutil.unpack_archive(mod_source, temp_folder)
+                
+                modfiles = list(Path(temp_folder).rglob("*.modfile"))
+                modfolder = [modfile.parent for modfile in modfiles]
+                
+                if len(modfiles) == 0:
+                    raise ModInvalidError(f"Folder \"{mod_source}\" is not a valid mod.") 
+
+                if len(modfolder) != 1:
+                    raise ValueError("This mod archive contains multiple variants. Please split or choose one.")
+            
+                logger.debug("Copying mod from %s to %s", temp_folder, staging_mod)
+                copytree(modfolder[0], staging_mod)
+                logger.debug("Mod %s copied successfully.", mod_name)
+                
+            # extracts all mod content to a tempfile
+            # find the .modfile
+            # get the parent to copy all files
+            # the name of the mod will be the name of the zip file
+            # raise a error if multiple modfiles?
+            
+            # shutil.unpack_archive(mod_source, extract_dir=staging_mod)
+            
+            # # TODO: Better unpack archives.
+            # # Limitation: if the compacted mod contains nested folder, it'll not work.
+            
+            # logger.debug("Mod %s extracted successfully.", mod_name)
+            
+        else:
+            modfile = list(mod_source.glob("*.modfile"))
+            
+            if len(modfile) == 0:
+                raise ModInvalidError(f"Folder \"{mod_source}\" is not a valid mod.")
+
+            logger.debug("Copying mod from %s to %s", mod_source, staging_mod)
+            copytree(mod_source, staging_mod)
+            logger.debug("Mod %s copied successfully.", mod_name)
+            
         if author:
             self._set_mod_data(mod_name, "author", author)
 
         if enabled:
             self._set_mod_data(mod_name, "enabled", enabled)
-
-        logger.debug("Copying mod from %s to %s", mod_source, staging_mod)
-        copytree(mod_source, staging_mod)
-        logger.debug("Mod %s copied successfully.", mod_name)
-
+        
     def remove_mod(self, mod: BD2ModEntry) -> None:
         """Remove a mod from staging directory."""
         mod_path = Path(mod.path)
