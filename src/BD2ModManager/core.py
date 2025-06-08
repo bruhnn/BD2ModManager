@@ -675,3 +675,21 @@ class BD2ModManager:
                 self._mods_data[mod.mod.name]["author"] = author
                 
         self._save_mods_data()
+    
+    def get_modfile_data(self, mod: BD2ModEntry):
+        modfile_path = list(Path(mod.path).glob("*.modfile"))[0]
+        data = None
+        with open(modfile_path, "r", encoding="UTF-8") as modfile:
+            try:
+                data = json.load(modfile)
+            except json.JSONDecodeError:
+                pass
+        return data
+
+    def set_modfile_data(self, mod: BD2ModEntry, data: dict):
+        modfile_path = list(Path(mod.path).glob("*.modfile"))[0]
+        with open(modfile_path, "w", encoding="UTF-8") as modfile:
+            try:
+                json.dump(data, modfile, indent=4)
+            except json.JSONDecodeError:
+                pass
