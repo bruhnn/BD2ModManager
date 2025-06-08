@@ -514,3 +514,7 @@ QLabel#infoLabel {
     font-weight: bold;
     font-size: 14px;
 }
+
+QLabel#selectFolderTitle, QLabel#selectFolderInfoText {
+    color: #ecf0f1;
+}

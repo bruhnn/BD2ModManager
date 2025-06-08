@@ -51,6 +51,7 @@ class SelectFolderPage(QWidget):
         
         info_text_font = QFont("Segoe UI", 10, QFont.Weight.Bold)
         self.info_text = QLabel()
+        self.info_text.setObjectName("selectFolderInfoText")
         self.info_text.setFont(info_text_font)
         
         # When it shows this page, it starts searching the game
