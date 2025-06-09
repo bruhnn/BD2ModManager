@@ -1,4 +1,4 @@
-from PySide6.QtCore import Qt, Signal, QRect, QSize, QSettings, QByteArray
+from PySide6.QtCore import Qt, Signal, QSize, QSettings, QByteArray
 from PySide6.QtWidgets import (
     QWidget,
     QVBoxLayout,
@@ -15,36 +15,29 @@ from PySide6.QtWidgets import (
     QMessageBox,
     QStyledItemDelegate,
     QComboBox,
-    QCheckBox,
-    QGridLayout, QDialog, QGroupBox, QButtonGroup, QRadioButton, QToolButton
+    QGridLayout, QToolButton
 )
-from PySide6.QtGui import QDragEnterEvent, QIcon, QShortcut, QKeySequence, QColor, QBrush, QPalette, QPainter
+from PySide6.QtGui import QDragEnterEvent, QIcon, QShortcut, QKeySequence, QColor, QPalette
 
 from pathlib import Path
 from src.BD2ModManager.models import BD2ModEntry, BD2ModType
 
 class DragFilesModal(QWidget):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.setFixedSize(300, 120)
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("Drop Modal")
+        # self.setFixedSize(300, 150)
+        self.setObjectName("dragFilesModal")
 
-        layout = QVBoxLayout(self)
-        layout.setContentsMargins(0, 0, 0, 0)
+        # Layout and widgets
+        layout = QVBoxLayout()
+        label = QLabel("Drop your mod files here to add them!")
+        label.setObjectName("dragFilesTitle")
 
-        self.setStyleSheet("""
-            background: rgba(30, 30, 30, 220);
-            border-radius: 12px;
-            border: 2px solid #888;
-        """)
-
-        self.label = QLabel(text="Drop Files")
-
-        layout.addWidget(self.label)
-
-        self.hide()
-        self.raise_()
-
-    
+        layout.addWidget(label, 1, Qt.AlignmentFlag.AlignHCenter)
+        
+        self.setLayout(layout)
+        
 class ModItemStyledDelegate(QStyledItemDelegate):
     def paint(self, painter, option, index):
         super().paint(painter, option, index)
@@ -166,7 +159,9 @@ class ModsView(QWidget):
         layout.setContentsMargins(6, 6, 6, 6)
 
         # Variables
-        self.drop_modal = DragFilesModal(self)
+        self.drop_modal = DragFilesModal()
+        self.drop_modal.hide()
+        layout.addWidget(self.drop_modal, 0)
 
         self.top_bar = QWidget()
         self.top_bar.setObjectName("topBar")
@@ -249,7 +244,7 @@ class ModsView(QWidget):
         self.footer_bar_layout.setContentsMargins(0, 0, 0, 0)
 
         self.info_label = QLabel()
-        self.info_label.setObjectName("modsInfoText")
+        self.info_label.setObjectName("infoLabel")
 
         self.actions_widget = QWidget()
         self.actions_layout = QHBoxLayout(self.actions_widget)
@@ -303,7 +298,6 @@ class ModsView(QWidget):
     def load_settings_state(self):
         self.settings.beginGroup("modlist/header")
         modlist_header_state = self.settings.value("state")
-        # modlist_header_geometry = self.settings.value("modlist/HeaderGeometry")
 
         if isinstance(modlist_header_state, QByteArray):
             self.mod_list.header().restoreState(modlist_header_state)
@@ -315,8 +309,6 @@ class ModsView(QWidget):
                 self.mod_list_resized = True
         
         self.settings.endGroup()
-        # if isinstance(modlist_header_geometry, QByteArray):
-        #     self.mod_list.header().restoreGeometry(modlist_header_geometry)
 
     def retranslateUI(self):
         self.setWindowTitle(self.tr("Mods Manager"))
@@ -330,14 +322,7 @@ class ModsView(QWidget):
     
     def resizeEvent(self, event):
         super().resizeEvent(event)
-        w = self.drop_modal.width()
-        h = self.drop_modal.height()
-        cw = self.width()
-        ch = self.height()
-        x = (cw - w) // 2
-        y = (ch - h) // 2
-        self.drop_modal.move(x, y)
-
+        
     def dragEnterEvent(self, event: QDragEnterEvent) -> None:
         if event.mimeData().hasUrls():
             self.drop_modal.show()
@@ -354,6 +339,7 @@ class ModsView(QWidget):
             for url in event.mimeData().urls():
                 file_path = url.toLocalFile()
                 self.addModRequested.emit(file_path)
+                self.drop_modal.hide()
     
     def show_context_menu(self, pos):
         selected_items = self.mod_list.selectedItems()
@@ -436,8 +422,8 @@ class ModsView(QWidget):
         mod_entry = item.data(0, Qt.ItemDataRole.UserRole)
         new_name, ok = QInputDialog.getText(self, self.tr("Rename Mod"), self.tr("Enter the new name for the mod:"), text=mod_entry.mod.name)
         if ok and new_name:
-            mod_entry.mod.name = new_name
             self.renameModRequested.emit(mod_entry, new_name)
+            mod_entry.mod.name = new_name
             
             # Temporary until I think in something better
             self._refresh_mods()
@@ -527,7 +513,7 @@ class ModsView(QWidget):
         self._filter_mods()
 
     def _add_mod(self):
-        filename, _ = QFileDialog.getOpenFileName(self, self.tr("Select Mod"), "", "*.modfile")
+        filename, _ = QFileDialog.getOpenFileName(self, self.tr("Select Modfile"), "", "*.modfile")
         if filename:
             path = str(Path(filename).parent)
             self.addModRequested.emit(path)
@@ -588,7 +574,11 @@ class ModsView(QWidget):
             item.setData(0, Qt.ItemDataRole.UserRole, mod_entry)
             item.setData(0, Qt.ItemDataRole.UserRole + 1, False) # has conflict
 
+            # if mod_entry.mod.relative_name:
+            #     item.setText(0, mod_entry.mod.relative_name)
+            # else:
             item.setText(0, mod_entry.mod.name)
+                
             item.setText(1, char_name)
             item.setText(2, mod_entry.mod.type.display_name if mod_entry.mod.type else "")
             item.setText(3, mod_entry.author)
@@ -612,7 +602,6 @@ class ModsView(QWidget):
         if not self.mod_list_resized:
             self.mod_list.header().resizeSections(QHeaderView.ResizeMode.ResizeToContents)
         self._check_all_mod_conflicts()
-
 
     def set_info_text(self, text: str):
         self.info_label.setText(text)

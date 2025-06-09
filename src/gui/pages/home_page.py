@@ -6,7 +6,7 @@ from PySide6.QtCore import Qt, Signal, QObject, QThread, QSettings
 from PySide6.QtGui import QIcon
 
 from src.BD2ModManager import BD2ModManager
-from src.BD2ModManager.errors import GameNotFoundError, GameDirectoryNotSetError, AdminRequiredError, ModAlreadyExistsError, ModInvalidError
+from src.BD2ModManager.errors import GameDirectoryNotSetError, AdminRequiredError, ModAlreadyExistsError, ModInvalidError
 from src.BD2ModManager.models import BD2ModEntry
 
 from src.gui.config import BD2MMConfigManager
@@ -385,11 +385,11 @@ class HomePage(QWidget):
             self.unsync_worker.error.connect(self.unsync_thread.quit)
             self.unsync_thread.start()
 
-    def _change_mod_author(self, name: str, author: str):
-        self.mod_manager.set_mod_author(name, author)
+    def _change_mod_author(self, mod: BD2ModEntry, author: str):
+        self.mod_manager.set_mod_author(mod, author)
         
-    def _rename_mod(self, old_name: str, new_name: str):
-        self.mod_manager.rename_mod(old_name, new_name)
+    def _rename_mod(self, mod: BD2ModEntry, new_name: str):
+        self.mod_manager.rename_mod(mod, new_name)
     
     def _find_authors(self):
         if self.config_manager.get("search_mods_recursively", boolean=True, default=False):

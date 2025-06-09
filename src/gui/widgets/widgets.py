@@ -2,7 +2,6 @@ from PySide6.QtWidgets import QPushButton, QWidget, QLabel, QHBoxLayout, QSizePo
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QIcon
 from typing import Optional
-from pathlib import Path
 
 class NavButton(QPushButton):
     def __init__(self, text):

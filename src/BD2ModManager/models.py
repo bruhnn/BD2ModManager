@@ -27,8 +27,9 @@ class BD2ModType(Enum):
     
 @dataclass
 class BD2Mod:
-    type: Optional[BD2ModType]
     name: str
+    type: Optional[BD2ModType]
+    relative_name: Optional[str]
     character_id: Optional[str]
     scene_id: Optional[str]
     npc_id: Optional[str]
@@ -68,6 +69,7 @@ class BD2Mod:
         return cls(
             type=mod_type,
             name=path.name,
+            relative_name = None,
             character_id=mod_id if mod_type in (BD2ModType.IDLE, BD2ModType.CUTSCENE) else None,
             scene_id=mod_id if mod_type == BD2ModType.SCENE else None,
             npc_id=mod_id if mod_type == BD2ModType.NPC else None,
@@ -105,8 +107,8 @@ class NPC:
 class BD2ModEntry:
     mod: BD2Mod
     path: str
-    author: str
     enabled: bool
+    author: Optional[str]
     character: Optional[Character] = None
     scene: Optional[Scene] = None
     npc: Optional[NPC] = None

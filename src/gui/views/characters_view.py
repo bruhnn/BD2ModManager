@@ -1,6 +1,6 @@
-from PySide6.QtWidgets import QWidget, QTreeView, QVBoxLayout, QStyledItemDelegate, QStyle, QLineEdit, QPushButton, QGridLayout
+from PySide6.QtWidgets import QWidget, QTreeView, QStyledItemDelegate, QStyle, QLineEdit, QPushButton, QGridLayout
 from PySide6.QtCore import QAbstractItemModel, QModelIndex, Qt, QSize, QRect, QRectF, QSortFilterProxyModel, Signal
-from PySide6.QtGui import QPainter, QPixmap, QFont, QColor, QFontMetrics, QPen , QBrush, QIcon
+from PySide6.QtGui import QPixmap, QFont, QColor, QFontMetrics, QPen , QBrush, QIcon
 
 from typing import Any, Union
 

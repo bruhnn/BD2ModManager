@@ -3,9 +3,26 @@ name = "BD2ModManager"
 version = "2.3.1"
 requires-python = ">=3.13"
 dependencies = [
+    "altgraph>=0.17.4",
+    "click>=8.2.1",
+    "colorama>=0.4.6",
+    "markdown-it-py>=3.0.0",
+    "mdurl>=0.1.2",
+    "packaging>=25.0",
     "pefile>=2024.8.26",
+    "pillow>=11.2.1",
+    "py7zr>=1.0.0",
+    "pygments>=2.19.1",
+    "pyinstaller>=6.10.0",
+    "pyinstaller-hooks-contrib>=2025.5",
     "pyside6>=6.9.0",
+    "pywin32>=310",
+    "pywin32-ctypes>=0.2.3",
+    "rarfile>=4.2",
     "requests>=2.32.3",
+    "rich>=14.0.0",
+    "setuptools>=80.9.0",
+    "tomlkit>=0.13.3",
 ]
 
 [dependency-groups]

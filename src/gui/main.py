@@ -3,11 +3,10 @@ from pathlib import Path
 import requests
 from packaging import version
 
-from PySide6.QtWidgets import QMainWindow, QStackedWidget, QVBoxLayout, QApplication
+from PySide6.QtWidgets import QMainWindow, QStackedWidget, QApplication
 from PySide6.QtCore import QTranslator, Qt, QSettings, QByteArray
 
 from src.BD2ModManager import BD2ModManager
-from src.BD2ModManager.errors import GameDirectoryNotSetError, GameNotFoundError
 from src.version import __version__
 from .pages import HomePage, SelectFolderPage
 from .config import BD2MMConfigManager

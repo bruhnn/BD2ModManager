@@ -5,10 +5,8 @@ class GameDirectoryNotSetError(Exception):
 class GameNotFoundError(Exception):
     """Raised when the game is not found in the specified path."""
 
-
 class ModInvalidError(Exception):
     """Raised when the mod is not a valid Brown Dust X mod."""
-
 
 class ModAlreadyExistsError(Exception):
     """Raised when a mod with the same name already exists."""
@@ -22,9 +20,11 @@ class InvalidModNameError(Exception):
 class BrownDustXNotInstalled(Exception):
     """Raised when BrownDustX is not found in the game path."""
 
-
 class AdminRequiredError(Exception):
     """Raised when an operation requires administrative permission."""
+    
+class UnsupportedArchiveFormatError(Exception):
+    pass
 
-
-
+class RarExtractionError(Exception):
+    pass

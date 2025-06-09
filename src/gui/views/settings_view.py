@@ -5,8 +5,6 @@ from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QGroupBox, QHBoxLayo
 from PySide6.QtCore import Qt, Signal, QObject
 from PySide6.QtGui import QIcon
 
-from src.BD2ModManager import BD2ModManager
-from src.BD2ModManager.errors import GameNotFoundError, GameDirectoryNotSetError
 from src.gui.config import BD2MMConfigManager
 from src.gui.widgets import LabelIcon
 
