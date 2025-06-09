@@ -762,8 +762,8 @@ class BD2ModManager:
     def get_modfile_data(self, mod: BD2ModEntry) -> Optional[Dict[str, Any]]:
         """Load and parse JSON data from a mod's modfile."""
         
-        modfile_path = list(Path(mod.path).glob(".modfile"))
-        
+        modfile_path = list(Path(mod.path).rglob("*.modfile"))
+                
         if len(modfile_path) == 0:
             return None
         
@@ -785,7 +785,7 @@ class BD2ModManager:
 
     def set_modfile_data(self, mod: BD2ModEntry, data: dict) -> bool:
         """Write JSON data to a mod's modfile."""
-        modfile_path = list(Path(mod.path).glob(".modfile"))
+        modfile_path = list(Path(mod.path).rglob("*.modfile"))
         
         if len(modfile_path) == 0:
             return False

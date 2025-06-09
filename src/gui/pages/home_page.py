@@ -408,17 +408,17 @@ class HomePage(QWidget):
             
         dialog = EditModfileDialog(self, mod.mod.name, modfile_data)
         if dialog.exec_() == QDialog.DialogCode.Accepted:
-            print(dialog.modfile_data)
             self.mod_manager.set_modfile_data(mod, dialog.modfile_data)
+                
     
     def _launch_game(self):
         if not self.mod_manager.game_directory:
-            return
+            return self.show_error("Game directory not set!")
         
         game_exe = Path(self.mod_manager.game_directory) / "BrownDust II.exe"
         
         if not game_exe.exists():
-            self.show_error("Game Not Found!")
+            return self.show_error("Game Not Found!")
         
         startfile(game_exe)
         
