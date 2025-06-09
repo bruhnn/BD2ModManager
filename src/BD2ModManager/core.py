@@ -269,7 +269,7 @@ class BD2ModManager:
 
         mods_status = {}
 
-        for character in self.game_data.get_characters():
+        for character in sorted(self.game_data.get_characters(), key=lambda char: char.character):
             group = character.character
             mods_status.setdefault(group, []).append({
                 "character": character,
