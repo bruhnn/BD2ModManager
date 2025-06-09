@@ -19,5 +19,6 @@
         <file alias="checkbox_selected_nocolor.svg">../assets/icons/material/checkbox_selected_nocolor.svg</file>
         <file alias="report.svg">../assets/icons/material/report.svg</file>
         <file alias="filter_alt.svg">../assets/icons/material/filter_alt.svg</file>
+        <file alias="exit_to_app.svg">../assets/icons/material/exit_to_app.svg</file>
     </qresource>
 </RCC>

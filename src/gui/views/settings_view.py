@@ -232,14 +232,14 @@ class SettingsView(QScrollArea):
         directory = QFileDialog.getExistingDirectory(self, self.tr("Select Game Directory"), "")
 
         if directory:
-            # Check if BrownDust 2.exe exists
+            # Check if BrownDust II.exe exists
             # Temporary until I find a better way to do via ModManager class.
             exe_path = Path(directory) / "BrownDust II.exe"
             if not exe_path.is_file():
                 msg_box = QMessageBox()
                 msg_box.setIcon(QMessageBox.Critical)
                 msg_box.setWindowTitle(self.tr("Error"))
-                msg_box.setText(self.tr("The selected directory does not contain 'BrownDust 2.exe. Please select a valid game directory."))
+                msg_box.setText(self.tr("The selected directory does not contain 'BrownDust II.exe'. Please select a valid game directory."))
                 msg_box.exec_()
                 return
             

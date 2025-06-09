@@ -147,6 +147,8 @@ class ModsView(QWidget):
     modAuthorChanged = Signal(BD2ModEntry, str) # Mod Name, Author Name
     bulkModAuthorChanged = Signal(list, str) # [mod name], author name
     openModFolderRequested = Signal(str) # Mod Path
+    
+    launchGameRequested = Signal()
 
     def __init__(self, settings: QSettings):
         super().__init__()
@@ -186,14 +188,22 @@ class ModsView(QWidget):
         self.refresh_button.setFocusPolicy(Qt.FocusPolicy.NoFocus)
         self.refresh_button.clicked.connect(self._refresh_mods)
         self.refresh_button.setIcon(QIcon(":/material/refresh.svg"))
+        
+        self.start_game_button = QPushButton(self.tr("Start BrownDust II"))
+        self.start_game_button.setObjectName("modsViewButton")
+        self.start_game_button.setToolTip(self.tr("Launch Brown Dust 2"))
+        self.start_game_button.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.start_game_button.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+        self.start_game_button.setIcon(QIcon(":/material/exit_to_app.svg"))
+        self.start_game_button.clicked.connect(self.launchGameRequested.emit)
 
-        self.add_mod_button = QPushButton(self.tr("Add Mod"))
-        self.add_mod_button.setObjectName("modsViewButton")
-        self.add_mod_button.setToolTip(self.tr("Add a new mod"))
-        self.add_mod_button.setCursor(Qt.CursorShape.PointingHandCursor)
-        self.add_mod_button.setFocusPolicy(Qt.FocusPolicy.NoFocus)
-        self.add_mod_button.setIcon(QIcon(":/material/add.svg"))
-        self.add_mod_button.clicked.connect(self._add_mod)
+        # self.add_mod_button = QPushButton(self.tr("Add Mod"))
+        # self.add_mod_button.setObjectName("modsViewButton")
+        # self.add_mod_button.setToolTip(self.tr("Add a new mod"))
+        # self.add_mod_button.setCursor(Qt.CursorShape.PointingHandCursor)
+        # self.add_mod_button.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+        # self.add_mod_button.setIcon(QIcon(":/material/add.svg"))
+        # self.add_mod_button.clicked.connect(self._add_mod)
                 
         self.filter_widget = FilterWidget()
         self.filter_widget.filterChanged.connect(self._filter_types_changed)
@@ -210,7 +220,8 @@ class ModsView(QWidget):
         self.top_bar_layout.addWidget(self.search_field, 0, 1)
         self.top_bar_layout.addWidget(self.search_type, 0, 2)
         self.top_bar_layout.addWidget(self.refresh_button, 0, 3)
-        self.top_bar_layout.addWidget(self.add_mod_button, 0, 4)
+        # self.top_bar_layout.addWidget(self.add_mod_button, 0, 4)
+        self.top_bar_layout.addWidget(self.start_game_button, 0, 4)
         self.top_bar_layout.addWidget(self.filter_widget, 1, 0, 1, 4, Qt.AlignmentFlag.AlignLeft)
 
         self.mod_list = QTreeWidget()
@@ -314,7 +325,7 @@ class ModsView(QWidget):
         self.setWindowTitle(self.tr("Mods Manager"))
         self.search_field.setPlaceholderText(self.tr("Search Mods"))
         self.refresh_button.setText(self.tr("Refresh Mods"))
-        self.add_mod_button.setText(self.tr("Add Mod"))
+        # self.add_mod_button.setText(self.tr("Add Mod"))
         self.open_mods_folder_button.setText(self.tr("Open Mods Folder"))
         self.sync_button.setText(self.tr("Sync Mods"))
         self.unsync_button.setText(self.tr("Unsync Mods"))

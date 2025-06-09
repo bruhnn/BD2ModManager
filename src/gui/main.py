@@ -62,10 +62,10 @@ class MainWindow(QMainWindow):
             else:
                 self.main_stacked_widget.setCurrentIndex(1)
                 self.select_folder_page.set_folder_text(settings_game_directory)
-                self.select_folder_page.set_info_text("BrownDust 2.exe was not found in the current game directory.")
+                self.select_folder_page.set_info_text("BrownDust II.exe was not found in the current game directory.")
         else:
             self.main_stacked_widget.setCurrentIndex(1)
-            self.select_folder_page.set_info_text("Select the folder where \"BrownDust 2.exe\" is located." )
+            self.select_folder_page.set_info_text("Select the folder where BrownDust II.exe is located." )
         
         if config_manager.get("debug", boolean=True, default=False) and self.main_stacked_widget.currentIndex() == 1:
             self.main_stacked_widget.setCurrentIndex(0)
@@ -146,7 +146,7 @@ class MainWindow(QMainWindow):
             self.check_browndustx()
         else:
             self.select_folder_page.set_folder_text(path)
-            self.select_folder_page.set_info_text("\"BrownDust 2.exe\" not found!")
+            self.select_folder_page.set_info_text("BrownDust II.exe not found!")
         
     def _config_changed(self, config: str, value: str):
         if config == "language":

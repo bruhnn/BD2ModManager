@@ -185,6 +185,7 @@ class HomePage(QWidget):
         self.mods_widget.removeModRequested.connect(self._remove_mod)
         self.mods_widget.renameModRequested.connect(self._rename_mod)
         self.mods_widget.editModfileRequested.connect(self._edit_modfile)
+        self.mods_widget.launchGameRequested.connect(self._launch_game)
         
         self.mods_widget.bulkModStateChanged.connect(self._bulk_enable_or_disable_mods)
         self.mods_widget.bulkModAuthorChanged.connect(self._bulk_change_author_name)
@@ -409,11 +410,19 @@ class HomePage(QWidget):
         if dialog.exec_() == QDialog.DialogCode.Accepted:
             print(dialog.modfile_data)
             self.mod_manager.set_modfile_data(mod, dialog.modfile_data)
-            
-
-        
-        
     
+    def _launch_game(self):
+        if not self.mod_manager.game_directory:
+            return
+        
+        game_exe = Path(self.mod_manager.game_directory) / "BrownDust II.exe"
+        
+        if not game_exe.exists():
+            self.show_error("Game Not Found!")
+        
+        startfile(game_exe)
+        
     def set_info_text(self, text: str):
         self.mods_widget.set_info_text(text)
+    
         

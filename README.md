@@ -32,7 +32,7 @@
 ## 🛠️ How to Use
 
 1. **Download** the app from [GitHub Releases](https://github.com/bruhnn/BD2ModManager/releases).
-2. **Select your Brown Dust 2 directory** (where `browndust 2.exe` is located)
+2. **Select your Brown Dust 2 directory** (where `BrownDust II.exe` is located)
    - Example: F:\Neowiz\Browndust2\Browndust2_10000001
 3. **Add your mods** by:
    - Dragging and dropping them into the Mod Manager  
