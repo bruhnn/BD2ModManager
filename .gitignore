@@ -166,3 +166,4 @@ BD2ModManager.config
 uv.lock
 project.todo
 test.py
+/src/resources/assets/characters/faces

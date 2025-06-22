@@ -1,11 +1,16 @@
-# Brown Dust 2 Mod Manager
+![GitHub License](https://img.shields.io/github/license/bruhnn/BD2ModManager)
+![GitHub Release](https://img.shields.io/github/v/release/bruhnn/BD2ModManager)
+![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/bruhnn/BD2ModManager/total)
 
-**Easily manage your Brown Dust 2 mods.**
+
+# Brown Dust 2 Mod Manager
 
 ---
 
-**Download:** *[BD2ModManager on GitHub Releases](https://github.com/bruhnn/BD2ModManager/releases)*
+**Easily manage your Brown Dust 2 mods.**
 
+> [!INFO]
+> **Download:** *[BD2ModManager on GitHub Releases](https://github.com/bruhnn/BD2ModManager/releases)*
 
 *If you have any questions or suggestions, contact me on Discord: `@bruhnnn`*
 
