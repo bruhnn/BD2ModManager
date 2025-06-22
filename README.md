@@ -79,11 +79,11 @@ Creates shortcuts instead of copying files.
 
 ## 📸 Screenshots
 
-### Mods Page (v2.2.0)
-![Mods Page](./screenshots/mods_page.png)
+### Mods Page (v3.0.0)
+![Mods Page](./screenshots/mods_page_v3.png)
 
-### Characters Page (v2.2.0)
-![Characters Page](./screenshots/characters_page.png)
+### Characters Page (v3.0.0)
+![Characters Page](./screenshots/characters_page_v3.png)
 
 ---
 
