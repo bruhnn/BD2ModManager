@@ -1,3 +1,10 @@
+## 🚧 Upcoming: Version 3.0.0!
+
+A big refactor and new features are coming in **v3.0.0**!  
+You can preview the work-in-progress here (not released yet):  
+> Screenshots here: [refactor/v3 branch](https://github.com/bruhnn/BD2ModManager/tree/refactor/v3?tab=readme-ov-file#-screenshots)
+
+
 # Brown Dust 2 Mod Manager
 
 **Easily manage your Brown Dust 2 mods.**
