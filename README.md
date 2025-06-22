@@ -1,3 +1,7 @@
+![GitHub License](https://img.shields.io/github/license/bruhnn/BD2ModManager)
+![GitHub Release](https://img.shields.io/github/v/release/bruhnn/BD2ModManager)
+![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/bruhnn/BD2ModManager/total)
+
 ## 🚧 Upcoming: Version 3.0.0!
 
 A big refactor and new features are coming in **v3.0.0**!  
