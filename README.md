@@ -9,18 +9,15 @@
 
 **Easily manage your Brown Dust 2 mods.**
 
-> [!INFO]
 > **Download:** *[BD2ModManager on GitHub Releases](https://github.com/bruhnn/BD2ModManager/releases)*
 
 *If you have any questions or suggestions, contact me on Discord: `@bruhnnn`*
 
 ---
-## 🔥 New in v2.2.0
-- Remembers and restores **window size and position**
-- Supports installing **.zip mods** (via drag-and-drop)
-- Fixed: **"Find Authors"** now works better (still experimental, only works for some mods and only if the mod folder hasn’t been modified)
-- You can now **edit `.modfile` JSON** directly in the manager 
-→ Right-click a mod and select **"Edit Modfile"**
+## 🔥 New in v3.0.0
+
+- Profiles! Easily switch between profiles to quickly change enabled mods
+- Filter by mod status in the characters page
 
 ## ✨ Features
 
@@ -30,7 +27,9 @@
 - Simple drag-and-drop mod installation
 - Enable or disable mods with one click
 - Check which characters have a specific mod type installed
-- Check if a mod conflicts with others (you need to refresh the mod list after enabling/disabling a mod to see conflicts)
+- Check if a mod conflicts with others  
+  _(you need to refresh the mod list after enabling/disabling a mod to see conflicts)_
+- **Edit `.modfile` JSON** directly in the manager
 
 ---
 
