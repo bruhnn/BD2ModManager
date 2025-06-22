@@ -427,3 +427,9 @@ QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
 #settingsCheckbox::indicator:checked {
     image: url(:/material/dark/checkbox_checked_fill.svg);
 }
+
+#titleImg {
+    font-family: "Cinzel";
+    font-size: 24px;
+    font-weight: bold;
+}

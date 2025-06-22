@@ -1,6 +1,6 @@
 from PySide6.QtWidgets import QMainWindow, QStackedWidget, QWidget, QHBoxLayout, QVBoxLayout, QLabel, QComboBox, QFrame
 from PySide6.QtCore import Qt, QSettings, QByteArray, Signal, QTimer, QSize, QObject, QEvent
-from PySide6.QtGui import QIcon, QColor, QPixmap
+from PySide6.QtGui import QIcon, QColor, QPixmap, QFont, QFontDatabase
 from typing import Optional
 
 
@@ -11,7 +11,7 @@ from pyqttoast import Toast, ToastPreset, ToastPosition
 from src.version import __version__
 from src.pages.select_game_directory import SelectGameDirectory
 from src.widgets.widgets import CPushButton
-from src.utils.paths import BUNDLE_PATH
+from src.utils.paths import BUNDLE_PATH, CURRENT_PATH
 from src.utils.theme_manager import ThemeManager
 
 
@@ -48,11 +48,11 @@ class MainWindowView(QMainWindow):
         self.title_widget_layout.setContentsMargins(32, 24, 32, 24)
         self.title_widget_layout.setSpacing(0)
         
-        BD2Logo = QPixmap(r"C:\Users\dogui\Documents\CursorGithub\BD2ModManager\src\resources\assets\bd2logo_white_fantasy.png")
-        scaled_pixmap = BD2Logo.scaledToHeight(48, mode=Qt.TransformationMode.SmoothTransformation)
-        
-        self.title_img = QLabel()
-        self.title_img.setPixmap(scaled_pixmap)
+        # BD2Logo = QPixmap(r"C:\Users\dogui\Documents\CursorGithub\BD2ModManager\src\resources\assets\bd2logo_white_fantasy.png")
+        # scaled_pixmap = BD2Logo.scaledToHeight(48, mode=Qt.TransformationMode.SmoothTransformation)
+        self.title_img = QLabel("BROWNDUST II")
+        self.title_img.setObjectName("titleImg")
+        # self.title_img.setPixmap(scaled_pixmap)
         
         self.title_label = QLabel(f"Mod Manager v{__version__}")
         self.title_label.setObjectName("titleLabel")
@@ -64,7 +64,7 @@ class MainWindowView(QMainWindow):
         self._create_pulsing_color()
         
         self.title_widget_layout.addWidget(self.title_img, 0, Qt.AlignmentFlag.AlignCenter)
-        self.title_widget_layout.addWidget(self.title_label, 0, Qt.AlignmentFlag.AlignCenter)
+        self.title_widget_layout.addWidget(self.title_label, 1, Qt.AlignmentFlag.AlignCenter)
         self.title_widget_layout.addWidget(self.update_label, 1, Qt.AlignmentFlag.AlignCenter)
         
         self.navigation_bar_label = QLabel("Navigation")

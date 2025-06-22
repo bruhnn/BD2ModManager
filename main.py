@@ -2,7 +2,7 @@ import sys
 from pathlib import Path
 
 from PySide6.QtWidgets import QApplication
-from PySide6.QtGui import QIcon
+from PySide6.QtGui import QIcon, QFont, QFontDatabase
 from PySide6.QtCore import QSettings, Qt
 
 from src.models import ModsModel, ConfigModel
@@ -21,10 +21,9 @@ else:
 
 def main():
     app = QApplication(sys.argv)
-    app.setAttribute(Qt.ApplicationAttribute.AA_EnableHighDpiScaling)
-    app.setAttribute(Qt.ApplicationAttribute.AA_UseHighDpiPixmaps)
-    # app.setFont(QFont("Segoe UI", 10))
     app.setWindowIcon(QIcon((BUNDLE_PATH / r"icon.ico").as_posix()))
+    
+    QFontDatabase.addApplicationFont(r"C:\Users\dogui\Documents\GitHub\BD2ModManager\src\resources\fonts\Cinzel\Cinzel-VariableFont_wght.ttf")
 
     settings = QSettings("Bruhnn", "BD2ModManager")
 
