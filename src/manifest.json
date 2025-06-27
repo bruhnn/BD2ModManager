@@ -1,0 +1,16 @@
+{
+  "data": {
+    "characters": {
+      "url": "https://raw.githubusercontent.com/bruhnn/BD2ModManager/refs/heads/refactor/v3/src/data/characters.csv",
+      "hash": "177837b9f7cecfe2293b618d7df1bac4780343869bf0da7593cd51a1fa6c06e2"
+    },
+    "authors": {
+      "url": "https://raw.githubusercontent.com/bruhnn/BD2ModManager/refs/heads/refactor/v3/src/data/authors.csv",
+      "hash": "72719499936df20af8621e2575285ce759049d133b99d373b3ec4b326df52fa8"
+    },
+    "datings": {
+      "url": "https://raw.githubusercontent.com/bruhnn/BD2ModManager/refs/heads/refactor/v3/src/data/datings.csv",
+      "hash": "f71f61a6d805a4d886bafcfe2ab7a4db8f5d1a3067a103a1f899869500187403"
+    }
+  }
+}
