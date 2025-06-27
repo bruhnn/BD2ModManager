@@ -12,5 +12,11 @@
       "url": "https://raw.githubusercontent.com/bruhnn/BD2ModManager/refs/heads/refactor/v3/src/data/datings.csv",
       "hash": "f71f61a6d805a4d886bafcfe2ab7a4db8f5d1a3067a103a1f899869500187403"
     }
+  },
+  "character_assets": {
+    "067603": {
+      "url": "https://raw.githubusercontent.com/bruhnn/BD2ModManager/refs/heads/refactor/v3/src/resources/assets/characters/067603.png",
+      "hash": "39c8dbaa59e5fd9baee0bd118e08751eb1a491849ab1ff6685d9d1a4ceef1fd8"
+    }
   }
 }
