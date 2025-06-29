@@ -22,6 +22,8 @@ class ConfigModel(QObject):
         "check_for_updates": True,
         "include_mod_relative_path": False,
         "spine_viewer_enabled": True,
+        "manifest_url": "https://raw.githubusercontent.com/bruhnn/BD2ModManager/refs/heads/main/src/manifest.json",
+        "releases_url": "https://api.github.com/repos/bruhnn/BD2ModManager/releases"
     }
 
     def __init__(self, path: Union[str, Path]) -> None:
@@ -104,16 +106,6 @@ class ConfigModel(QObject):
         self.searchModsRecursivelyChanged.emit(value)
 
     @property
-    def check_for_updates(self) -> bool:
-        """Returns whether to check for updates."""
-        return self._settings.value("check_for_updates", defaultValue=self.DEFAULT_VALUES.get("check_for_updates"), type=bool)
-
-    def set_check_for_updates(self, value: bool) -> None:
-        """Set whether to check for updates."""
-        self._settings.setValue("check_for_updates", value)
-        self.checkForUpdatesChanged.emit(value)
-
-    @property
     def include_mod_relative_path(self) -> bool:
         """Returns whether to include mod relative path."""
         return self._settings.value("Interface/include_mod_relative_path", defaultValue=self.DEFAULT_VALUES.get("include_mod_relative_path"), type=bool)
@@ -132,6 +124,25 @@ class ConfigModel(QObject):
         """Set whether spine viewer is enabled."""
         self._settings.setValue("spine_viewer_enabled", value)
         self.spineViewerEnabledChanged.emit(value)
+        
+    @property
+    def check_for_updates(self) -> bool:
+        """Returns whether to check for updates."""
+        return self._settings.value("Update/check_for_updates", defaultValue=self.DEFAULT_VALUES.get("check_for_updates"), type=bool)
+
+    def set_check_for_updates(self, value: bool) -> None:
+        """Set whether to check for updates."""
+        self._settings.setValue("check_for_updates", value)
+        self.checkForUpdatesChanged.emit(value)
+        
+    @property
+    def manifest_url(self) -> str:
+        return self._settings.value("Update/manifest_url", defaultValue=self.DEFAULT_VALUES.get("manifest_url"))
+    
+    @property
+    def releases_url(self) -> str:
+        return self._settings.value("Update/releases_url", defaultValue=self.DEFAULT_VALUES.get("releases_url"))
+    
 
     def get(self, key: str, default: Any = None, value_type: type = str) -> Any:
         """Get a configuration value by key."""
