@@ -1,13 +1,11 @@
-from .mainwindow_controller import MainWindowController
-from .mods_controller import ModsController
+from .mod_manager_controller import ModManagerController
 from .characters_controller import CharactersController
 from .config_controller import ConfigController
-from .profiles_controller import ProfilesController
+from .main_controller import MainController
 
 __all__ = [
-    "MainWindowController",
-    "ModsController",
+    "MainController",
+    "ModManagerController",
     "CharactersController",
-    "ProfilesController",
-    "ConfigController"
+    "ConfigController",
 ]
