@@ -272,9 +272,9 @@ class MainView(QMainWindow):
         self.navigation_pages[name] = view
         self.navigation_view.addWidget(view)
 
-    def add_navigation_button(self, page: str, text: str, icon: str) -> None:
-        logger.info(
-            f"Adding navigation button for page: {page} with text: {text}")
+    def add_navigation_button(self, page: str, text: str, icon: str, index: int = -1) -> None:
+        logger.info(f"Adding navigation button for page: {page} with text: {text}")
+        
         button = NavigationButton(text)
         button.setObjectName("navigationButton")
         button.setProperty("text", text)
@@ -283,12 +283,19 @@ class MainView(QMainWindow):
         button.setProperty("iconName", icon)
         button.setIconSpacing(12)
         button.clicked.connect(lambda: self.change_navigation_page(page))
-        self.navigation_bar_layout.addWidget(button)
+        
+        if index == -1:
+            self.navigation_bar_layout.addWidget(button)
+        else:
+            self.navigation_bar_layout.insertWidget(index, button)
 
         if self.navigation_view.count() == 1:
             button.set_active(True)
         else:
             self._update_navigation_buttons()
+    
+    def add_navigation_stretch(self, stretch: int = 0) -> None:
+        self.navigation_bar_layout.addStretch(stretch)
 
     def show_main_page(self) -> None:
         logger.info("Showing main page.")
