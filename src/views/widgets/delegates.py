@@ -68,14 +68,19 @@ class ModItemTypeStyledDelegate(QStyledItemDelegate):
         super().paint(painter, option, index)
         text = index.data(Qt.ItemDataRole.DisplayRole)
         mod_type: BD2ModType = index.data(Qt.ItemDataRole.UserRole)
+        
+        if not mod_type:
+            return
 
         painter.setRenderHint(QPainter.RenderHint.Antialiasing)
 
         color_scheme = {
-            "bg_color": ThemeManager.color(f"mod_type_{mod_type.name.lower()}_bg"),
-            "text_color": ThemeManager.color(f"mod_type_{mod_type.name.lower()}_text")
+            "bg_color": 
+                ThemeManager.color(f"mod_type_{mod_type.name.lower()}_bg"),
+            "text_color": 
+                ThemeManager.color(f"mod_type_{mod_type.name.lower()}_text")
         }
-
+        
         painter.save()
         painter.setRenderHint(QPainter.RenderHint.Antialiasing)
 
