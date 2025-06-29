@@ -22,7 +22,7 @@ from src.views.pages import SelectGameDirectory
 from src.views.widgets import BaseButton, NavigationButton, PulsingLabel
 from src.views.notification import NotificationsManager
 from src.themes.theme_manager import ThemeManager
-from src.models.profile_manager import Profile
+from src.models.profile_manager_model import Profile
 
 
 logger = logging.getLogger(__name__)
@@ -372,7 +372,7 @@ class MainView(QMainWindow):
 
     def apply_language(self, language: str, language_path: str) -> None:
         logger.info(f"Applying language '{language}' from: {language_path}")
-        if language == "english":
+        if language == "en-US":
             QApplication.instance().removeTranslator(QTranslator())
             self.retranslateUI()
             logger.info("Switched to default language (English).")
