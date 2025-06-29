@@ -1,14 +1,160 @@
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QHBoxLayout, QLineEdit, QPushButton, QSizePolicy, QSpacerItem, QComboBox, QCheckBox, QFileDialog, QGridLayout, QScrollArea, QFrame
-from PySide6.QtCore import Qt, Signal
+import os
+from typing import Dict, List, Any
+import logging
 
-from os import startfile
+from PySide6.QtWidgets import (
+    QWidget,
+    QVBoxLayout,
+    QLabel,
+    QHBoxLayout,
+    QLineEdit,
+    QPushButton,
+    QSizePolicy,
+    QSpacerItem,
+    QComboBox,
+    QCheckBox,
+    QFileDialog,
+    QGridLayout,
+    QScrollArea,
+    QFrame,
+    QMessageBox,
+)
+from PySide6.QtCore import Qt, Signal, Slot
+
+
+logger = logging.getLogger(__name__)
 
 
 class DirectoryInput(QWidget):
-    onDirectoryChanged = Signal(str)
+    directoryChanged = Signal(str)
 
-    def __init__(self, label: str):
+    def __init__(self, label: str, placeholder: str = "Not Set") -> None:
         super().__init__()
+        self.placeholder = placeholder
+        self._setup_ui(label)
+        self._setup_connections()
+
+    def _setup_ui(self, label: str) -> None:
+        self.setSizePolicy(QSizePolicy.Policy.Expanding,
+                           QSizePolicy.Policy.Fixed)
+
+        layout = QGridLayout(self)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(8)
+
+        self.label = QLabel(text=label)
+        self.label.setObjectName("directoryInputLabel")
+
+        self.input_field = QLineEdit(text=self.tr(self.placeholder))
+        self.input_field.setSizePolicy(
+            QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding
+        )
+        self.input_field.setReadOnly(True)
+        self.input_field.setObjectName("directoryInputValue")
+        self.input_field.setToolTip(self.tr("Selected directory path"))
+
+        self.browse_button = QPushButton(self.tr("Browse"))
+        self.browse_button.setSizePolicy(
+            QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Expanding
+        )
+        self.browse_button.setObjectName("directoryInputButton")
+        self.browse_button.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.browse_button.setToolTip(self.tr("Browse for directory"))
+
+        self.open_button = QPushButton(self.tr("Open"))
+        self.open_button.setSizePolicy(
+            QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Expanding
+        )
+        self.open_button.setObjectName("directoryInputButton")
+        self.open_button.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.open_button.setEnabled(False)
+        self.open_button.setToolTip(self.tr("Open directory in file explorer"))
+
+        # Layout
+        layout.addWidget(self.label, 0, 0, 1, 1)
+        layout.addItem(QSpacerItem(16, 0, QSizePolicy.Policy.Fixed), 0, 1)
+        layout.addWidget(self.input_field, 0, 2, 1, 1)
+        layout.addWidget(self.browse_button, 0, 3, 1, 1)
+        layout.addWidget(self.open_button, 0, 4, 1, 1)
+
+        # Set column stretch to make input field expand
+        layout.setColumnStretch(2, 1)
+
+    def _setup_connections(self) -> None:
+        self.browse_button.clicked.connect(self._open_directory_dialog)
+        self.open_button.clicked.connect(self._open_directory)
+
+    def _open_directory_dialog(self) -> None:
+        current_path = self.input_field.text()
+        if current_path == self.tr(self.placeholder):
+            current_path = ""
+
+        directory = QFileDialog.getExistingDirectory(
+            self,
+            self.tr("Select Directory"),
+            current_path,
+            QFileDialog.Option.ShowDirsOnly | QFileDialog.Option.DontResolveSymlinks
+        )
+
+        if directory:
+            self.set_directory_path(directory)
+            self.directoryChanged.emit(directory)
+
+    def _open_directory(self) -> None:
+        path = self.input_field.text()
+        if path and path != self.tr(self.placeholder) and os.path.exists(path):
+            try:
+                if os.name == 'nt':  # Windows
+                    os.startfile(path)
+                elif os.name == 'posix':  # macOS and Linux
+                    os.system(f'open "{path}"' if os.uname(
+                    ).sysname == 'Darwin' else f'xdg-open "{path}"')
+            except Exception as e:
+                logger.error(f"Failed to open directory: {e}")
+                QMessageBox.warning(
+                    self,
+                    self.tr("Error"),
+                    self.tr("Failed to open directory: {}").format(str(e))
+                )
+
+    def get_directory_path(self) -> str:
+        """Get the current directory path."""
+        path = self.input_field.text()
+        return path if path != self.tr(self.placeholder) else ""
+
+    def set_directory_path(self, path: str) -> None:
+        """Set the directory path."""
+        display_path = path or self.tr(self.placeholder)
+        self.input_field.setText(display_path)
+        self.input_field.setToolTip(display_path if path else "")
+        self.open_button.setEnabled(bool(path and os.path.exists(path)))
+
+    def set_label_text(self, text: str) -> None:
+        """Set the label text."""
+        self.label.setText(text)
+
+    def is_valid_path(self) -> bool:
+        """Check if the current path is valid."""
+        path = self.get_directory_path()
+        return bool(path and os.path.exists(path))
+
+
+class ConfigComboBox(QWidget):
+    valueChanged = Signal(str)
+
+    class _ComboBox(QComboBox):
+        def wheelEvent(self, event) -> None:
+            if not self.view().isVisible():
+                event.ignore()
+            else:
+                super().wheelEvent(event)
+
+    def __init__(self, label: str, options: List[Dict[str, Any]]) -> None:
+        super().__init__()
+        self.options = options
+        self._setup_ui(label)
+
+    def _setup_ui(self, label: str) -> None:
         self.setSizePolicy(QSizePolicy.Policy.Expanding,
                            QSizePolicy.Policy.Fixed)
 
@@ -16,299 +162,385 @@ class DirectoryInput(QWidget):
         layout.setContentsMargins(0, 0, 0, 0)
 
         self.label = QLabel(text=label)
-        self.label.setObjectName("directoryInputLabel")
-
-        self.input_field = QLineEdit(text=self.tr("Not Set."))
-        self.input_field.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
-        self.input_field.setReadOnly(True)
-        self.input_field.setObjectName("directoryInputValue")
-
-        self.browse_button = QPushButton(self.tr("Browse"))
-        self.browse_button.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Expanding)
-        self.browse_button.setObjectName("directoryInputButton")
-        self.browse_button.setCursor(Qt.CursorShape.PointingHandCursor)
-        self.browse_button.clicked.connect(self.open_directory_dialog)
-
-        self.open_button = QPushButton(self.tr("Open Folder"))
-        self.open_button.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Expanding)
-        self.open_button.setObjectName("directoryInputButton")
-        self.open_button.setCursor(Qt.CursorShape.PointingHandCursor)
-        self.open_button.clicked.connect(lambda: startfile(self.input_field.text()))
-
-        layout.addWidget(self.label, 0, 0, 1, 1)
-        layout.addItem(QSpacerItem(64, 0, QSizePolicy.Policy.Maximum), 0, 1)
-        layout.addWidget(self.input_field, 0, 2, 1, 1)
-        layout.addWidget(self.browse_button, 0, 3, 1, 1)
-        layout.addWidget(self.open_button, 0, 4, 1, 1)
-
-    def open_directory_dialog(self):
-        directory = QFileDialog.getExistingDirectory(
-            self, self.tr("Select Directory"), "")
-
-        if directory:
-            self.onDirectoryChanged.emit(directory)
-
-    def set_text(self, text: str):
-        self.label.setText(text)
-
-    def set_directory_path(self, path: str):
-        self.input_field.setText(path or self.tr("Not Set."))
-
-
-class ConfigComboBox(QWidget):
-    valueChanged = Signal(str)
-    
-    class ComboBox(QComboBox):
-        def wheelEvent(self, event):
-            if not self.view().isVisible():
-                event.ignore()
-            else:
-                super().wheelEvent(event)
-
-    def __init__(self, label: str, options: list):
-        super().__init__()
-        self.setSizePolicy(QSizePolicy.Policy.Expanding,
-                           QSizePolicy.Policy.Fixed)
-
-        layout = QHBoxLayout(self)
-        layout.setContentsMargins(0, 0, 0, 0)
-
-        self.label = QLabel(text=label)
         self.label.setObjectName("settingsComboBoxLabel")
 
-        self.combo = self.ComboBox()
-        # self.combo.setSizePolicy(QSizePolicy.Policy.Maximum, QSizePolicy.Policy.Maximum)
+        self.combo = self._ComboBox()
         self.combo.setObjectName("settingsComboBox")
+        self._populate_combo()
 
-        for index, option in enumerate(options):
+        self.combo.currentIndexChanged.connect(
+            lambda index: self.valueChanged.emit(self.combo.itemData(index))
+        )
+
+        layout.addWidget(self.label, 0, 0)
+        layout.addWidget(self.combo, 0, 1)
+        layout.setColumnStretch(0, 1)
+        layout.setColumnStretch(1, 4)
+
+    def _populate_combo(self) -> None:
+        for index, option in enumerate(self.options):
             self.combo.addItem(option["label"], option["value"])
+
             if option.get("disabled", False):
                 item = self.combo.model().item(index)
                 if item:
                     item.setEnabled(False)
 
-        self.combo.currentIndexChanged.connect(lambda index: self.valueChanged.emit(self.combo.itemData(index)))
+            if option.get("tooltip"):
+                self.combo.setItemData(
+                    index, option["tooltip"], Qt.ItemDataRole.ToolTipRole)
 
-        layout.addWidget(self.label, 0, Qt.AlignmentFlag.AlignLeft)
-        layout.addSpacerItem(QSpacerItem(64, 0, QSizePolicy.Policy.Maximum, QSizePolicy.Policy.Minimum))
-        layout.addWidget(self.combo, 1)
+    def get_current_value(self) -> str:
+        return self.combo.currentData() or ""
 
-    def set_text(self, text: str):
+    def set_current_value(self, value: str) -> None:
+        index = self.combo.findData(value)
+        if index != -1:
+            self.combo.blockSignals(True)
+            self.combo.setCurrentIndex(index)
+            self.combo.blockSignals(False)
+
+    def set_label_text(self, text: str) -> None:
         self.label.setText(text)
 
 
 class SectionHeader(QWidget):
-    def __init__(self, title: str):
+    def __init__(self, title: str) -> None:
         super().__init__()
-        self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
-        
+        self._setup_ui(title)
+
+    def _setup_ui(self, title: str) -> None:
+        self.setSizePolicy(QSizePolicy.Policy.Expanding,
+                           QSizePolicy.Policy.Fixed)
+
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(8)
-        
+
         # Title label
         self.title_label = QLabel(title)
         self.title_label.setObjectName("settingsSectionTitle")
-        self.title_label.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
-        
+        self.title_label.setSizePolicy(
+            QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed
+        )
+
         # Separator line
-        separator = QFrame()
-        separator.setFixedHeight(1)
-        separator.setObjectName("settingsSectionSeparator")
-        separator.setFrameShape(QFrame.Shape.HLine)
-        separator.setFrameShadow(QFrame.Shadow.Sunken)
-        separator.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
-        
+        self.separator = QFrame()
+        self.separator.setFixedHeight(1)
+        self.separator.setObjectName("settingsSectionSeparator")
+        self.separator.setFrameShape(QFrame.Shape.HLine)
+        self.separator.setFrameShadow(QFrame.Shadow.Sunken)
+        self.separator.setSizePolicy(
+            QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
+
         layout.addWidget(self.title_label)
-        layout.addWidget(separator)
-    
-    def set_title(self, title: str):
+        layout.addWidget(self.separator)
+
+    def set_title(self, title: str) -> None:
         self.title_label.setText(title)
 
 
+class ConfigCheckBox(QCheckBox):
+    def __init__(self, text: str, tooltip: str = "") -> None:
+        super().__init__(text)
+        self.setObjectName("settingsCheckbox")
+        if tooltip:
+            self.setToolTip(tooltip)
+
+
 class ConfigView(QScrollArea):
-    onLanguageChanged = Signal(str)
-    onThemeChanged = Signal(str)
+    languageChanged = Signal(str)
+    themeChanged = Signal(str)
+    gameDirectoryChanged = Signal(str)
+    modsDirectoryChanged = Signal(str)
+    syncMethodChanged = Signal(str)
+    searchModsRecursivelyChanged = Signal(bool)
+    includeModRelativePathChanged = Signal(bool)
+    enableSpineViewerChanged = Signal(bool)
 
-    onGameDirectoryChanged = Signal(str)
-    onModsDirectoryChanged = Signal(str)
+    # Action signals
+    findAuthorsClicked = Signal()
+    migrateToProfilesClicked = Signal()
 
-    onSyncMethodChanged = Signal(str)
-    onSearchModsRecursivelyChanged = Signal(bool)
-
-    onFindAuthorsClicked = Signal()
-
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
-        self.setWidgetResizable(True)
+        self._config_cache: Dict[str, Any] = {}
+        self._setup_ui()
+        self._setup_connections()
 
+    def _setup_ui(self) -> None:
+        self.setWidgetResizable(True)
+        self.setObjectName("configView")
+
+        # Main widget and layout
         widget = QWidget()
         widget.setObjectName("settingsView")
-        
-        layout = QVBoxLayout(widget)
-        layout.setContentsMargins(*[8]*4)
 
+        self.main_layout = QVBoxLayout(widget)
+        self.main_layout.setContentsMargins(16, 16, 16, 16)
+        self.main_layout.setSpacing(24)
+
+        # Title
         self.title = QLabel(text=self.tr("Settings"))
-        self.title.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
+        self.title.setSizePolicy(
+            QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
         self.title.setObjectName("settingsTitle")
 
-        # PATHS SECTION
+        self._create_sections()
+        self._layout_sections()
+
+        self.setWidget(widget)
+
+    def _create_sections(self) -> None:
+        self._create_paths_section()
+        self._create_general_section()
+        self._create_synchronization_section()
+        self._create_viewer_section()
+        self._create_experimental_section()
+
+    def _create_paths_section(self) -> None:
         self.paths_header = SectionHeader(self.tr("Paths"))
-        
-        self.game_directory_input = DirectoryInput(label=self.tr("Game Directory"))
-        self.game_directory_input.onDirectoryChanged.connect(self.onGameDirectoryChanged.emit)
-        self.mods_directory_input = DirectoryInput(label=self.tr("Mods Directory"))
-        self.mods_directory_input.onDirectoryChanged.connect(self.onModsDirectoryChanged.emit)
 
-        self.recursive_search_checkbox = QCheckBox(self.tr("Search Mods Recursively"))
-        self.recursive_search_checkbox.setObjectName("settingsCheckbox")
-        self.recursive_search_checkbox.stateChanged.connect(self.onSearchModsRecursivelyChanged.emit)
+        self.game_directory_input = DirectoryInput(
+            label=self.tr("Game Directory"),
+            placeholder="Select game installation directory"
+        )
 
-        # GENERAL SECTION
+        self.mods_directory_input = DirectoryInput(
+            label=self.tr("Mods Directory"),
+            placeholder="Select mods storage directory"
+        )
+
+        self.recursive_search_checkbox = ConfigCheckBox(
+            self.tr("Search Mods Recursively"),
+            self.tr("Search for mods in subdirectories")
+        )
+
+    def _create_general_section(self) -> None:
         self.general_header = SectionHeader(self.tr("General"))
 
         self.language_combobox = ConfigComboBox(
             label=self.tr("Language:"),
             options=[
-                {"label": "English", "value": "english"},
-                {"label": "Português (BR)", "value": "portuguese"}
-            ]
+                {"label": "English", "value": "english",
+                    "tooltip": "English (United States)"},
+                {"label": "Português (BR)", "value": "portuguese",
+                 "tooltip": "Portuguese (Brazil)"},
+            ],
         )
-        self.language_combobox.valueChanged.connect(
-            self.onLanguageChanged.emit)
 
         self.theme_combobox = ConfigComboBox(
             label=self.tr("Theme:"),
             options=[
-                {"label": self.tr("Dark"), "value": "dark"},
-                {"label": self.tr("Light"), "value": "light"}
-            ]
+                {"label": self.tr("Dark"), "value": "dark",
+                 "tooltip": self.tr("Dark theme")},
+                {"label": self.tr("Light"), "value": "light",
+                 "tooltip": self.tr("Light theme")},
+            ],
         )
-        self.theme_combobox.valueChanged.connect(self.onThemeChanged.emit)
 
-        # SYNCHRONIZATION SECTION
+        self.include_mod_relative_path_checkbox = ConfigCheckBox(
+            self.tr("Show full mod folder paths"),
+            self.tr("Display complete folder paths in mod list")
+        )
+
+    def _create_synchronization_section(self) -> None:
         self.synchronization_header = SectionHeader(self.tr("Synchronization"))
 
         self.sync_method_combobox = ConfigComboBox(
             label=self.tr("Sync Method:"),
-            options=[{
-                "label": self.tr("Copy (Default)"),
-                "value": "copy"
-            }, {
-                "label": self.tr("Symlink (Administrator)"),
-                "value": "symlink"
-            }, {
-                "label": self.tr("Hardlink (Administrator)"),
-                "value": "hardlink",
-                "disabled": True
-            }]
+            options=[
+                {
+                    "label": self.tr("Copy (Default)"),
+                    "value": "copy",
+                    "tooltip": self.tr("Copy files (slower but safer)")
+                },
+                {
+                    "label": self.tr("Symlink (Administrator)"),
+                    "value": "symlink",
+                    "tooltip": self.tr("Create symbolic links (requires administrator privileges)")
+                },
+            ],
         )
-        self.sync_method_combobox.valueChanged.connect(
-            self.onSyncMethodChanged)
 
-        # MODLIST SECTION
-        self.modlist_header = SectionHeader(self.tr("Modlist"))
-        
-        self.include_folder_paths_checkbox = QCheckBox(self.tr("Include Folder Paths"))
+    def _create_viewer_section(self) -> None:
+        """Create the Spine viewer configuration section."""
+        self.viewer_header = SectionHeader(self.tr("Spine Viewer"))
 
-        self.ask_for_author_checkbox = QCheckBox(self.tr("Ask for author during installation"))
-        self.ask_for_author_checkbox.setDisabled(True)
+        self.enable_viewer_checkbox = ConfigCheckBox(
+            self.tr("Enable Spine Viewer Server"),
+            self.tr("Enable built-in Spine animation viewer")
+        )
 
-        # EXPERIMENTAL SECTION
-        self.experimental_header = SectionHeader("Experimental")
+    def _create_experimental_section(self) -> None:
+        self.experimental_header = SectionHeader(
+            self.tr("Experimental Features"))
 
-        self.find_authors_button = QPushButton("Find Authors")
-        self.find_authors_button.setObjectName("modsViewButton")
-        self.find_authors_button.clicked.connect(self.onFindAuthorsClicked.emit)
+        self.find_authors_button = QPushButton(self.tr("Find Authors"))
+        self.find_authors_button.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.find_authors_button.setObjectName("modsButton")
+        self.find_authors_button.setToolTip(
+            self.tr("Automatically detect mod authors"))
 
-        # Add all widgets to layout
-        layout.setSpacing(20)
-        layout.setAlignment(Qt.AlignmentFlag.AlignTop)
-        layout.addWidget(self.title)
-        
+        self.migrate_to_profiles_button = QPushButton(
+            self.tr("Migrate to Profiles"))
+        self.migrate_to_profiles_button.setCursor(
+            Qt.CursorShape.PointingHandCursor)
+        self.migrate_to_profiles_button.setObjectName("modsButton")
+        self.migrate_to_profiles_button.setToolTip(
+            self.tr("Convert existing setup to profile system"))
+
+    def _layout_sections(self) -> None:
+        self.main_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
+        self.main_layout.addWidget(self.title)
+
         # Paths section
-        layout.addWidget(self.paths_header)
-        layout.addWidget(self.game_directory_input)
-        layout.addWidget(self.mods_directory_input)
-        layout.addWidget(self.recursive_search_checkbox)
-        
+        self.main_layout.addWidget(self.paths_header)
+        self.main_layout.addWidget(self.game_directory_input)
+        self.main_layout.addWidget(self.mods_directory_input)
+        self.main_layout.addWidget(self.recursive_search_checkbox)
+
         # General section
-        layout.addWidget(self.general_header)
-        layout.addWidget(self.theme_combobox)
-        layout.addWidget(self.language_combobox)
-        
+        self.main_layout.addWidget(self.general_header)
+        self.main_layout.addWidget(self.theme_combobox)
+        self.main_layout.addWidget(self.language_combobox)
+        self.main_layout.addWidget(self.include_mod_relative_path_checkbox)
+
         # Synchronization section
-        layout.addWidget(self.synchronization_header)
-        layout.addWidget(self.sync_method_combobox)
-        
-        # Modlist section
-        layout.addWidget(self.modlist_header)
-        layout.addWidget(self.include_folder_paths_checkbox)
-        layout.addWidget(self.ask_for_author_checkbox)
-        
+        self.main_layout.addWidget(self.synchronization_header)
+        self.main_layout.addWidget(self.sync_method_combobox)
+
+        # Viewer section
+        self.main_layout.addWidget(self.viewer_header)
+        self.main_layout.addWidget(self.enable_viewer_checkbox)
+
         # Experimental section
-        layout.addWidget(self.experimental_header)
+        self.main_layout.addWidget(self.experimental_header)
         experimental_container = QWidget()
         experimental_layout = QHBoxLayout(experimental_container)
         experimental_layout.setContentsMargins(0, 0, 0, 0)
+        experimental_layout.setSpacing(12)
         experimental_layout.addWidget(self.find_authors_button)
+        experimental_layout.addWidget(self.migrate_to_profiles_button)
         experimental_layout.addStretch()
-        layout.addWidget(experimental_container)
+        self.main_layout.addWidget(experimental_container)
 
-        self.setWidget(widget)
+        # Add stretch at the end
+        self.main_layout.addStretch()
 
-    def retranslateUI(self):
+    def _setup_connections(self) -> None:
+        # Directory inputs
+        self.game_directory_input.directoryChanged.connect(
+            self.gameDirectoryChanged.emit)
+        self.mods_directory_input.directoryChanged.connect(
+            self.modsDirectoryChanged.emit)
+
+        # Checkboxes
+        self.recursive_search_checkbox.stateChanged.connect(
+            self.searchModsRecursivelyChanged.emit)
+        self.include_mod_relative_path_checkbox.stateChanged.connect(
+            self.includeModRelativePathChanged.emit)
+        self.enable_viewer_checkbox.stateChanged.connect(
+            self.enableSpineViewerChanged.emit)
+
+        # Combo boxes
+        self.language_combobox.valueChanged.connect(self.languageChanged.emit)
+        self.theme_combobox.valueChanged.connect(self.themeChanged.emit)
+        self.sync_method_combobox.valueChanged.connect(
+            self.syncMethodChanged.emit)
+
+        # Buttons
+        self.find_authors_button.clicked.connect(self.findAuthorsClicked.emit)
+        self.migrate_to_profiles_button.clicked.connect(
+            self.migrateToProfilesClicked.emit)
+
+    
+    @Slot(dict)
+    def update_config(self, config: Dict[str, Any]) -> None:
+        self.set_game_directory(config.get("game_directory", ""))
+        self.set_mods_directory(config.get("mods_directory", ""))
+        self.set_search_mods_recursively(config.get("search_mods_recursively", False))
+        self.set_language(config.get("language", "en_US"))
+        self.set_theme(config.get("theme", "System"))
+        self.set_sync_method(config.get("sync_method", "Copy"))
+        self.set_include_mod_relative_path(config.get("include_mod_relative_path", False))
+        self.set_enable_spine_viewer(config.get("enable_spine_viewer", False))
+
+    @Slot(str)
+    def set_game_directory(self, path: str) -> None:
+        self.game_directory_input.blockSignals(True)
+        self.game_directory_input.set_directory_path(path)
+        self.game_directory_input.blockSignals(False)
+
+    @Slot(str)
+    def set_mods_directory(self, path: str) -> None:
+        self.mods_directory_input.blockSignals(True)
+        self.mods_directory_input.set_directory_path(path)
+        self.mods_directory_input.blockSignals(False)
+
+    @Slot(bool)
+    def set_search_mods_recursively(self, value: bool) -> None:
+        self.recursive_search_checkbox.blockSignals(True)
+        self.recursive_search_checkbox.setChecked(value)
+        self.recursive_search_checkbox.blockSignals(False)
+        
+    @Slot(str)
+    def set_language(self, language: str) -> None:
+        self.language_combobox.blockSignals(True)
+        self.language_combobox.set_current_value(language)
+        self.language_combobox.blockSignals(False)
+        
+    @Slot(str)
+    def set_theme(self, theme: str) -> None:
+        self.theme_combobox.blockSignals(True)
+        self.theme_combobox.set_current_value(theme)
+        self.theme_combobox.blockSignals(False)
+
+    @Slot(str)
+    def set_sync_method(self, method: str) -> None:
+        self.sync_method_combobox.blockSignals(True)
+        self.sync_method_combobox.set_current_value(method)
+        self.sync_method_combobox.blockSignals(False)
+        
+    @Slot(bool)
+    def set_include_mod_relative_path(self, value: bool) -> None:
+        self.include_mod_relative_path_checkbox.blockSignals(True)
+        self.include_mod_relative_path_checkbox.setChecked(value)
+        self.include_mod_relative_path_checkbox.blockSignals(False)
+
+    @Slot(bool)
+    def set_enable_spine_viewer(self, value: bool) -> None:
+        self.enable_viewer_checkbox.blockSignals(True)
+        self.enable_viewer_checkbox.setChecked(value)
+        self.enable_viewer_checkbox.blockSignals(False)
+
+    def retranslateUI(self) -> None:
         self.title.setText(self.tr("Settings"))
+
+        # Update section headers
         self.paths_header.set_title(self.tr("Paths"))
         self.general_header.set_title(self.tr("General"))
-        self.modlist_header.set_title(self.tr("Installation"))
         self.synchronization_header.set_title(self.tr("Synchronization"))
-        self.recursive_search_checkbox.setText(self.tr("Search mods recursively"))
-        self.language_combobox.set_text(self.tr("Language"))
-        self.theme_combobox.set_text(self.tr("Theme"))
-        self.sync_method_combobox.set_text(self.tr("Sync Method"))
-        self.game_directory_input.set_text(self.tr("Game Directory"))
-        self.mods_directory_input.set_text(self.tr("Mods Directory"))
-        self.ask_for_author_checkbox.setText(self.tr("Ask for author during installation"))
+        self.viewer_header.set_title(self.tr("Spine Viewer"))
+        self.experimental_header.set_title(self.tr("Experimental Features"))
 
-    def update_config(self, config: dict):
-        if "game_directory" in config:
-            self.game_directory_input.set_directory_path(config["game_directory"])
+        # Update input labels
+        self.game_directory_input.set_label_text(self.tr("Game Directory"))
+        self.mods_directory_input.set_label_text(self.tr("Mods Directory"))
 
-        if "mods_directory" in config:
-            self.mods_directory_input.set_directory_path(config["mods_directory"])
+        # Update combo box labels
+        self.language_combobox.set_label_text(self.tr("Language:"))
+        self.theme_combobox.set_label_text(self.tr("Theme:"))
+        self.sync_method_combobox.set_label_text(self.tr("Sync Method:"))
 
-        if "search_mods_recursively" in config:
-            self.recursive_search_checkbox.blockSignals(True)
-            self.recursive_search_checkbox.setChecked(config["search_mods_recursively"])
-            self.recursive_search_checkbox.blockSignals(False)
+        # Update checkbox text
+        self.recursive_search_checkbox.setText(
+            self.tr("Search Mods Recursively"))
+        self.include_mod_relative_path_checkbox.setText(
+            self.tr("Show full mod folder paths"))
+        self.enable_viewer_checkbox.setText(
+            self.tr("Enable Spine Viewer Server"))
 
-        if "language" in config:
-            idx = self.language_combobox.combo.findData(config["language"])
-            if idx != -1:
-                self.language_combobox.combo.blockSignals(True)
-                self.language_combobox.combo.setCurrentIndex(idx)
-                self.language_combobox.combo.blockSignals(False)
-                self.onLanguageChanged.emit(config["language"])
-
-        if "theme" in config:
-            idx = self.theme_combobox.combo.findData(config["theme"])
-            if idx != -1:
-                self.theme_combobox.combo.blockSignals(True)
-                self.theme_combobox.combo.setCurrentIndex(idx)
-                self.theme_combobox.combo.blockSignals(False)
-                self.onThemeChanged.emit(config["theme"])
-
-        if "sync_method" in config:
-            idx = self.sync_method_combobox.combo.findData(config["sync_method"])
-            if idx != -1:
-                self.sync_method_combobox.combo.blockSignals(True)
-                self.sync_method_combobox.combo.setCurrentIndex(idx)
-                self.sync_method_combobox.combo.blockSignals(False)
-                self.onSyncMethodChanged.emit(config["sync_method"])
-
-        if "ask_for_author" in config:
-            self.ask_for_author_checkbox.blockSignals(True)
-            self.ask_for_author_checkbox.setChecked(bool(config["ask_for_author"]))
-            self.ask_for_author_checkbox.blockSignals(False)
-            # Emit your own signal here if needed
+        # Update button text
+        self.find_authors_button.setText(self.tr("Find Authors"))
+        self.migrate_to_profiles_button.setText(self.tr("Migrate to Profiles"))

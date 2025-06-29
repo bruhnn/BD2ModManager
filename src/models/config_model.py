@@ -1,171 +1,148 @@
 from typing import Union, Optional, Any
 from pathlib import Path
-from configparser import ConfigParser
+from PySide6.QtCore import QObject, Signal, QSettings
 
-from PySide6.QtCore import QObject, Signal
 
 class ConfigModel(QObject):
-    onLanguageChanged = Signal(str)
-    onThemeChanged = Signal(str)
-    
-    onGameDirectoryChanged = Signal(str)
-    onModsDirectoryChanged = Signal(str)
-    onSyncMethodChanged = Signal(str)
-    onAskForAuthorChanged = Signal(bool)
-    onSearchModsRecursivelyChanged = Signal(bool)
-    
-    def __init__(self, path: Union[str, Path]):
+    languageChanged = Signal(str)
+    themeChanged = Signal(str)
+    gameDirectoryChanged = Signal(str)
+    modsDirectoryChanged = Signal(str)
+    syncMethodChanged = Signal(str)
+    searchModsRecursivelyChanged = Signal(bool)
+    includeModRelativePathChanged = Signal(bool)
+    checkForUpdatesChanged = Signal(bool)
+    spineViewerEnabledChanged = Signal(bool)
+
+    def __init__(self, path: Union[str, Path]) -> None:
         super().__init__()
         self._path = Path(path)
-        self._config_parser = ConfigParser()
-
-        if not self._config_parser.read(self._path):
-            self._create_defaults()
+        self._settings: QSettings = QSettings(
+            str(self._path.resolve()), QSettings.Format.IniFormat
+        )
 
     @property
     def game_directory(self) -> Optional[str]:
-        """
-        Returns the game directory path.
-        """
-        return self._config_parser.get("General", "game_path", fallback=None)
+        """Returns the game directory path."""
+        value = self._settings.value("game_path")
+        return str(value) if value is not None else None
 
-    @game_directory.setter
-    def game_directory(self, value: str):
-        self.set("game_path", value)
-        self.onGameDirectoryChanged.emit(value)
+    def set_game_directory(self, value: str) -> None:
+        """Set the game directory path."""
+        if not value:
+            raise ValueError("Game directory cannot be empty")
+        self._settings.setValue("game_path", value)
+        self.gameDirectoryChanged.emit(value)
 
     @property
     def mods_directory(self) -> Optional[str]:
-        """
-        Returns the staging mods directory path.
-        """
-        return self._config_parser.get("General", "staging_mods_path", fallback=None)
+        """Returns the staging mods directory path."""
+        value = self._settings.value("staging_mods_path")
+        return str(value) if value is not None else None
 
-    @mods_directory.setter
-    def mods_directory(self, value: str):
-        self.set("staging_mods_path", value)
-        self.onModsDirectoryChanged.emit(value)
+    def set_mods_directory(self, value: str) -> None:
+        """Set the mods directory path."""
+        if not value:
+            raise ValueError("Mods directory cannot be empty")
+        self._settings.setValue("staging_mods_path", value)
+        self.modsDirectoryChanged.emit(value)
 
     @property
     def language(self) -> str:
-        """
-        Returns the user-defined app language.
-        """
-        return self._config_parser.get("General", "language", fallback="english")
+        """Returns the user-defined app language."""
+        return self._settings.value(
+            "Interface/language", defaultValue="english", type=str
+        )
 
-    @language.setter
-    def language(self, value: str):
-        self.set("language", value)
-        self.onLanguageChanged.emit(value)
+    def set_language(self, value: str) -> None:
+        """Set the app language."""
+        if not value:
+            raise ValueError("Language cannot be empty")
+        self._settings.setValue("Interface/language", value)
+        self.languageChanged.emit(value)
 
     @property
     def theme(self) -> str:
-        """
-        Returns the app theme.
-        """
-        return self._config_parser.get("General", "theme", fallback="dark")
+        """Returns the app theme."""
+        return self._settings.value("Interface/theme", defaultValue="dark", type=str)
 
-    @theme.setter
-    def theme(self, value: str):
-        self.set("theme", value)
-        self.onThemeChanged.emit(value)
-
-    @property
-    def ask_for_author(self) -> bool:
-        """
-        Returns whether to ask for author.
-        """
-        return self._config_parser.getboolean("General", "ask_for_author", fallback=False)
-
-    @ask_for_author.setter
-    def ask_for_author(self, value: bool):
-        self.set("ask_for_author", value)
-        self.onAskForAuthorChanged.emit(value)
+    def set_theme(self, value: str) -> None:
+        """Set the app theme."""
+        valid_themes = {"dark", "light", "auto"}
+        if value not in valid_themes:
+            raise ValueError(f"Theme must be one of: {valid_themes}")
+        self._settings.setValue("Interface/theme", value)
+        self.themeChanged.emit(value)
 
     @property
     def sync_method(self) -> str:
-        """
-        Returns the sync method.
-        """
-        return self._config_parser.get("General", "sync_method", fallback="copy")
+        """Returns the sync method."""
+        return self._settings.value("sync_method", defaultValue="copy", type=str)
 
-    @sync_method.setter
-    def sync_method(self, value: str):
-        self.set("sync_method", value)
-        self.onSyncMethodChanged.emit(value)
+    def set_sync_method(self, value: str) -> None:
+        """Set the sync method."""
+        valid_methods = {"copy", "symlink", "hardlink"}
+        if value not in valid_methods:
+            raise ValueError(f"Sync method must be one of: {valid_methods}")
+        self._settings.setValue("sync_method", value)
+        self.syncMethodChanged.emit(value)
 
     @property
     def search_mods_recursively(self) -> bool:
-        """
-        Returns whether to search mods recursively.
-        """
-        return self._config_parser.getboolean("General", "search_mods_recursively", fallback=False)
+        """Returns whether to search mods recursively."""
+        return self._settings.value(
+            "search_mods_recursively", defaultValue=False, type=bool
+        )
 
-    @search_mods_recursively.setter
-    def search_mods_recursively(self, value: bool):
-        
-        self.set("search_mods_recursively", value)
-        self.onSearchModsRecursivelyChanged.emit(value)
+    def set_search_mods_recursively(self, value: bool) -> None:
+        """Set whether to search mods recursively."""
+        self._settings.setValue("search_mods_recursively", value)
+        self.searchModsRecursivelyChanged.emit(value)
 
-    def get(self, key: str, boolean: bool = False, default: Any = None) -> Optional[Union[str, bool]]:
-        """
-        Returns the value of a specific configuration key.
-        """
-        if boolean:
-            value = self._config_parser.getboolean("General", key, fallback=None)
-            return value if value is not None else False
+    @property
+    def check_for_updates(self) -> bool:
+        """Returns whether to check for updates."""
+        return self._settings.value("check_for_updates", defaultValue=True, type=bool)
 
-        return self._config_parser.get("General", key, fallback=default)
+    def set_check_for_updates(self, value: bool) -> None:
+        """Set whether to check for updates."""
+        self._settings.setValue("check_for_updates", value)
+        self.checkForUpdatesChanged.emit(value)
 
-    def set(self, key: str, value: Union[str, bool]):
-        """
-        Sets the value of a specific configuration key.
-        """
-        if isinstance(value, bool):
-            value = str(value).lower()
-        
-        if "General" not in self._config_parser:
-            self._config_parser.add_section("General")
-            
-        self._config_parser.set("General", key, value)
-        
-        # self.onConfigChanged.emit(key, value)
+    @property
+    def include_mod_relative_path(self) -> bool:
+        """Returns whether to include mod relative path."""
+        return self._settings.value("Interface/include_mod_relative_path", defaultValue=False, type=bool)
 
-        if key == "language":
-            self.onLanguageChanged.emit(value)
-        elif key == "theme":
-            self.onThemeChanged.emit(value)
-        elif key == "game_path":
-            self.onGameDirectoryChanged.emit(value)
-        elif key == "staging_mods_path":
-            self.onModsDirectoryChanged.emit(value)
-        elif key == "sync_method":
-            self.onSyncMethodChanged.emit(value)
-        elif key == "ask_for_author":
-            self.onAskForAuthorChanged.emit(value == "true")
-        elif key == "search_mods_recursively":
-            self.onSearchModsRecursivelyChanged.emit(value == "true")
-        
-        self._save_config()
+    def set_include_mod_relative_path(self, value: bool) -> None:
+        """Set whether to include mod relative path."""
+        self._settings.setValue("Interface/include_mod_relative_path", value)
+        self.includeModRelativePathChanged.emit(value)
 
-    def _create_defaults(self):
-        self._config_parser.read_dict({"General": {
-            "game_path": "",
-            "staging_mods_path": "",
-            "language": "english",
-            "theme": "dark",
-            "sync_method": "copy",
-            "ask_for_author": False,
-            "search_mods_recursively": False
-        }})
+    @property
+    def spine_viewer_enabled(self) -> bool:
+        """Returns whether spine viewer is enabled."""
+        return self._settings.value("spine_viewer_enabled", defaultValue=True, type=bool)
 
-        self._save_config()
+    def set_spine_viewer_enabled(self, value: bool) -> None:
+        """Set whether spine viewer is enabled."""
+        self._settings.setValue("spine_viewer_enabled", value)
+        self.spineViewerEnabledChanged.emit(value)
 
-    def _save_config(self):
-        with self._path.open(mode="w", encoding="UTF-8") as file:
-            self._config_parser.write(file)
+    def get(self, key: str, default: Any = None, value_type: type = str) -> Any:
+        """Get a configuration value by key."""
+        return self._settings.value(key, defaultValue=default, type=value_type)
+
+    def set(self, key: str, value: Any) -> None:
+        """Set a configuration value by key."""
+        self._settings.setValue(key, value)
+
+    def sync(self) -> None:
+        """Force synchronization of settings to storage."""
+        self._settings.sync()
 
     def as_dict(self) -> dict:
+        """Return configuration as a dictionary."""
         return {
             "game_directory": self.game_directory,
             "mods_directory": self.mods_directory,
@@ -173,5 +150,7 @@ class ConfigModel(QObject):
             "language": self.language,
             "theme": self.theme,
             "sync_method": self.sync_method,
-            "ask_for_author": self.ask_for_author
+            "check_for_updates": self.check_for_updates,
+            "spine_viewer_enabled": self.spine_viewer_enabled,
+            "include_mod_relative_path": self.include_mod_relative_path,
         }

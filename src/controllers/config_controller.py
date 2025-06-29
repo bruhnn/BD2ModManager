@@ -1,33 +1,84 @@
-from PySide6.QtCore import QObject
+from PySide6.QtCore import QObject, Signal
 from PySide6.QtWidgets import QMessageBox
 
-# from src.models import ConfigModel
-# from src.views import ConfigView
+from src.models import ConfigModel
+from src.views import ConfigView
+
 
 class ConfigController(QObject):
-    def __init__(self, model, view, mods_model):
+    validateGameDirectory = Signal(str)
+    
+    # Actions
+    findAuthorsClicked = Signal()
+    migrateToProfilesClicked = Signal()
+
+    def __init__(
+            self, model: ConfigModel, view: ConfigView) -> None:
         super().__init__()
 
         self.model = model
         self.view = view
-        self.mods_model = mods_model
+
+        # View signals
+        self.view.gameDirectoryChanged.connect(self._on_game_directory_changed)
+        self.view.modsDirectoryChanged.connect(self._on_mods_directory_changed)
+        self.view.searchModsRecursivelyChanged.connect(
+            self._on_search_mods_recursively_changed)
+        self.view.languageChanged.connect(self._on_language_changed)
+        self.view.themeChanged.connect(self._on_theme_changed)
+        self.view.syncMethodChanged.connect(self._on_sync_method_changed)
+        self.view.includeModRelativePathChanged.connect(
+            self._on_include_mod_relative_path)
+        self.view.enableSpineViewerChanged.connect(
+            self._on_spine_viewer_enabled_changed)
         
-        self.view.onSearchModsRecursivelyChanged.connect(lambda value: self.model.set("search_mods_recursively", value))
-        self.view.onGameDirectoryChanged.connect(self.on_game_directory_changed)
-        self.view.onModsDirectoryChanged.connect(lambda value: self.model.set("staging_mods_path", value))
-        self.view.onLanguageChanged.connect(lambda value: self.model.set("language", value))
-        self.view.onThemeChanged.connect(lambda value: self.model.set("theme", value))
-        self.view.onSyncMethodChanged.connect(lambda value: self.model.set("sync_method", value))
-        
+        # View actions
+        self.view.findAuthorsClicked.connect(self.findAuthorsClicked.emit)
+        self.view.migrateToProfilesClicked.connect(self.migrateToProfilesClicked.emit)
+
+        # Model Signals
+        self.model.gameDirectoryChanged.connect(self.view.set_game_directory)
+        self.model.modsDirectoryChanged.connect(self.view.set_mods_directory)
+        self.model.searchModsRecursivelyChanged.connect(
+            self.view.set_search_mods_recursively)
+        self.model.languageChanged.connect(self.view.set_language)
+        self.model.themeChanged.connect(self.view.set_theme)
+        self.model.syncMethodChanged.connect(self.view.set_sync_method)
+        self.model.includeModRelativePathChanged.connect(
+            self.view.set_include_mod_relative_path)
+        self.model.spineViewerEnabledChanged.connect(
+            self.view.set_enable_spine_viewer)
+
         self.update_config()
-    
-    def on_game_directory_changed(self, path: str):
-        if self.mods_model.check_game_directory(path):
-            self.model.game_directory = path
-            return
-        
-        # show error
-        QMessageBox.critical(None, "Game Not Found", f"Game executable 'BrownDust II.exe' not found in directory:\n{path}")
-    
-    def update_config(self):
+
+    # --- Slots
+    def _on_game_directory_changed(self, path: str) -> None:
+        self.validateGameDirectory.emit(path)
+
+    def _on_mods_directory_changed(self, path: str) -> None:
+        self.model.set_mods_directory(path)
+
+    def _on_search_mods_recursively_changed(self, value: bool) -> None:
+        self.model.set_search_mods_recursively(value)
+
+    def _on_language_changed(self, language: str) -> None:
+        self.model.set_language(language)
+
+    def _on_theme_changed(self, theme: str) -> None:
+        self.model.set_theme(theme)
+
+    def _on_sync_method_changed(self, method: str) -> None:
+        self.model.set_sync_method(method)
+
+    def _on_include_mod_relative_path(self, value: bool) -> None:
+        self.model.set_include_mod_relative_path(value)
+
+    def _on_spine_viewer_enabled_changed(self, value: bool) -> None:
+        self.model.set_spine_viewer_enabled(value)
+
+    # --- Methods
+    def update_config(self) -> None:
         self.view.update_config(self.model.as_dict())
+
+    def set_game_directory(self, path: str) -> None:
+        self.model.set_game_directory(path)
