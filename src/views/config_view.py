@@ -258,7 +258,7 @@ class ConfigView(QScrollArea):
     syncMethodChanged = Signal(str)
     searchModsRecursivelyChanged = Signal(bool)
     includeModRelativePathChanged = Signal(bool)
-    enableSpineViewerChanged = Signal(bool)
+    spineViewerEnabledChanged = Signal(bool)
 
     # Action signals
     findAuthorsClicked = Signal()
@@ -367,7 +367,7 @@ class ConfigView(QScrollArea):
         """Create the Spine viewer configuration section."""
         self.viewer_header = SectionHeader(self.tr("Spine Viewer"))
 
-        self.enable_viewer_checkbox = ConfigCheckBox(
+        self.spine_viewer_enabled = ConfigCheckBox(
             self.tr("Enable Spine Viewer Server"),
             self.tr("Enable built-in Spine animation viewer")
         )
@@ -412,7 +412,7 @@ class ConfigView(QScrollArea):
 
         # Viewer section
         self.main_layout.addWidget(self.viewer_header)
-        self.main_layout.addWidget(self.enable_viewer_checkbox)
+        self.main_layout.addWidget(self.spine_viewer_enabled)
 
         # Experimental section
         self.main_layout.addWidget(self.experimental_header)
@@ -440,8 +440,8 @@ class ConfigView(QScrollArea):
             self.searchModsRecursivelyChanged.emit)
         self.include_mod_relative_path_checkbox.stateChanged.connect(
             self.includeModRelativePathChanged.emit)
-        self.enable_viewer_checkbox.stateChanged.connect(
-            self.enableSpineViewerChanged.emit)
+        self.spine_viewer_enabled.stateChanged.connect(
+            self.spineViewerEnabledChanged.emit)
 
         # Combo boxes
         self.language_combobox.valueChanged.connect(self.languageChanged.emit)
@@ -464,7 +464,7 @@ class ConfigView(QScrollArea):
         self.set_theme(config.get("theme", "System"))
         self.set_sync_method(config.get("sync_method", "Copy"))
         self.set_include_mod_relative_path(config.get("include_mod_relative_path", False))
-        self.set_enable_spine_viewer(config.get("enable_spine_viewer", False))
+        self.set_spine_viewer_enabled(config.get("spine_viewer_enabled", True))
 
     @Slot(str)
     def set_game_directory(self, path: str) -> None:
@@ -509,10 +509,10 @@ class ConfigView(QScrollArea):
         self.include_mod_relative_path_checkbox.blockSignals(False)
 
     @Slot(bool)
-    def set_enable_spine_viewer(self, value: bool) -> None:
-        self.enable_viewer_checkbox.blockSignals(True)
-        self.enable_viewer_checkbox.setChecked(value)
-        self.enable_viewer_checkbox.blockSignals(False)
+    def set_spine_viewer_enabled(self, value: bool) -> None:
+        self.spine_viewer_enabled.blockSignals(True)
+        self.spine_viewer_enabled.setChecked(value)
+        self.spine_viewer_enabled.blockSignals(False)
 
     def retranslateUI(self) -> None:
         self.title.setText(self.tr("Settings"))
@@ -538,7 +538,7 @@ class ConfigView(QScrollArea):
             self.tr("Search Mods Recursively"))
         self.include_mod_relative_path_checkbox.setText(
             self.tr("Show full mod folder paths"))
-        self.enable_viewer_checkbox.setText(
+        self.spine_viewer_enabled.setText(
             self.tr("Enable Spine Viewer Server"))
 
         # Update button text

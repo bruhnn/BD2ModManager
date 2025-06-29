@@ -1,5 +1,4 @@
 from PySide6.QtCore import QObject, Signal
-from PySide6.QtWidgets import QMessageBox
 
 from src.models import ConfigModel
 from src.views import ConfigView
@@ -29,7 +28,7 @@ class ConfigController(QObject):
         self.view.syncMethodChanged.connect(self._on_sync_method_changed)
         self.view.includeModRelativePathChanged.connect(
             self._on_include_mod_relative_path)
-        self.view.enableSpineViewerChanged.connect(
+        self.view.spineViewerEnabledChanged.connect(
             self._on_spine_viewer_enabled_changed)
         
         # View actions
@@ -47,7 +46,7 @@ class ConfigController(QObject):
         self.model.includeModRelativePathChanged.connect(
             self.view.set_include_mod_relative_path)
         self.model.spineViewerEnabledChanged.connect(
-            self.view.set_enable_spine_viewer)
+            self.view.set_spine_viewer_enabled)
 
         self.update_config()
 
@@ -78,7 +77,9 @@ class ConfigController(QObject):
 
     # --- Methods
     def update_config(self) -> None:
-        self.view.update_config(self.model.as_dict())
+        data = self.model.as_dict()
+        print(data)
+        self.view.update_config(data)
 
     def set_game_directory(self, path: str) -> None:
         self.model.set_game_directory(path)
