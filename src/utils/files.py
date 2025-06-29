@@ -1,9 +1,11 @@
-from pathlib import Path
-from pathlib import PurePath
+from pathlib import Path, PurePath
 from hashlib import sha256
 from typing import Union, Any
 import logging
 import shutil
+import sys
+import subprocess
+import os
 
 from py7zr import pack_7zarchive, unpack_7zarchive
 
@@ -150,3 +152,15 @@ def cleanup_empty_parent_dirs(child_path: Path, root_path: Path) -> None:
             logger.error(
                 "Could not remove empty parent directory '%s': %s", current_dir, e)
             break
+
+def open_file_or_directory(path: str | Path):
+    try:
+        if sys.platform == "win32":
+            os.startfile(path)
+        elif sys.platform == "darwin":  # macOS
+            subprocess.run(["open", path], check=True)
+        else:  # Linux
+            subprocess.run(["xdg-open", path], check=True)
+        return True, None
+    except (OSError, subprocess.CalledProcessError) as e:
+        return False, str(e)
