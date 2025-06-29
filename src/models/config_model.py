@@ -13,6 +13,16 @@ class ConfigModel(QObject):
     includeModRelativePathChanged = Signal(bool)
     checkForUpdatesChanged = Signal(bool)
     spineViewerEnabledChanged = Signal(bool)
+    
+    DEFAULT_VALUES = {
+        "language": "en-US",
+        "theme": "dark",
+        "sync_method": "copy",
+        "search_mods_recursively": False,
+        "check_for_updates": True,
+        "include_mod_relative_path": False,
+        "spine_viewer_enabled": True,
+    }
 
     def __init__(self, path: Union[str, Path]) -> None:
         super().__init__()
@@ -51,7 +61,7 @@ class ConfigModel(QObject):
     def language(self) -> str:
         """Returns the user-defined app language."""
         return self._settings.value(
-            "Interface/language", defaultValue="english", type=str
+            "Interface/language", defaultValue=self.DEFAULT_VALUES.get("language"), type=str
         )
 
     def set_language(self, value: str) -> None:
@@ -64,7 +74,7 @@ class ConfigModel(QObject):
     @property
     def theme(self) -> str:
         """Returns the app theme."""
-        return self._settings.value("Interface/theme", defaultValue="dark", type=str)
+        return self._settings.value("Interface/theme", defaultValue=self.DEFAULT_VALUES.get("theme"), type=str)
 
     def set_theme(self, value: str) -> None:
         """Set the app theme."""
@@ -74,13 +84,10 @@ class ConfigModel(QObject):
     @property
     def sync_method(self) -> str:
         """Returns the sync method."""
-        return self._settings.value("sync_method", defaultValue="copy", type=str)
+        return self._settings.value("sync_method", defaultValue=self.DEFAULT_VALUES.get("sync_method"), type=str)
 
     def set_sync_method(self, value: str) -> None:
         """Set the sync method."""
-        valid_methods = {"copy", "symlink", "hardlink"}
-        if value not in valid_methods:
-            raise ValueError(f"Sync method must be one of: {valid_methods}")
         self._settings.setValue("sync_method", value)
         self.syncMethodChanged.emit(value)
 
@@ -88,7 +95,7 @@ class ConfigModel(QObject):
     def search_mods_recursively(self) -> bool:
         """Returns whether to search mods recursively."""
         return self._settings.value(
-            "search_mods_recursively", defaultValue=False, type=bool
+            "search_mods_recursively", defaultValue=self.DEFAULT_VALUES.get("search_mods_recursively"), type=bool
         )
 
     def set_search_mods_recursively(self, value: bool) -> None:
@@ -99,7 +106,7 @@ class ConfigModel(QObject):
     @property
     def check_for_updates(self) -> bool:
         """Returns whether to check for updates."""
-        return self._settings.value("check_for_updates", defaultValue=True, type=bool)
+        return self._settings.value("check_for_updates", defaultValue=self.DEFAULT_VALUES.get("check_for_updates"), type=bool)
 
     def set_check_for_updates(self, value: bool) -> None:
         """Set whether to check for updates."""
@@ -109,7 +116,7 @@ class ConfigModel(QObject):
     @property
     def include_mod_relative_path(self) -> bool:
         """Returns whether to include mod relative path."""
-        return self._settings.value("Interface/include_mod_relative_path", defaultValue=False, type=bool)
+        return self._settings.value("Interface/include_mod_relative_path", defaultValue=self.DEFAULT_VALUES.get("include_mod_relative_path"), type=bool)
 
     def set_include_mod_relative_path(self, value: bool) -> None:
         """Set whether to include mod relative path."""
@@ -119,7 +126,7 @@ class ConfigModel(QObject):
     @property
     def spine_viewer_enabled(self) -> bool:
         """Returns whether spine viewer is enabled."""
-        return self._settings.value("spine_viewer_enabled", defaultValue=True, type=bool)
+        return self._settings.value("spine_viewer_enabled", defaultValue=self.DEFAULT_VALUES.get("spine_viewer_enabled"), type=bool)
 
     def set_spine_viewer_enabled(self, value: bool) -> None:
         """Set whether spine viewer is enabled."""
