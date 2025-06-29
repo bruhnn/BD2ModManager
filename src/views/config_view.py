@@ -21,6 +21,8 @@ from PySide6.QtWidgets import (
 )
 from PySide6.QtCore import Qt, Signal, Slot
 
+from src.themes import ThemeManager
+
 
 logger = logging.getLogger(__name__)
 
@@ -331,12 +333,10 @@ class ConfigView(QScrollArea):
 
         self.theme_combobox = ConfigComboBox(
             label=self.tr("Theme:"),
-            options=[
-                {"label": self.tr("Dark"), "value": "dark",
-                 "tooltip": self.tr("Dark theme")},
-                {"label": self.tr("Light"), "value": "light",
-                 "tooltip": self.tr("Light theme")},
-            ],
+            options=[{
+                "label": theme,
+                "value": theme
+            } for theme in ThemeManager.get_available_themes()]
         )
 
         self.include_mod_relative_path_checkbox = ConfigCheckBox(

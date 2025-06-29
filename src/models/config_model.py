@@ -68,9 +68,6 @@ class ConfigModel(QObject):
 
     def set_theme(self, value: str) -> None:
         """Set the app theme."""
-        valid_themes = {"dark", "light", "auto"}
-        if value not in valid_themes:
-            raise ValueError(f"Theme must be one of: {valid_themes}")
         self._settings.setValue("Interface/theme", value)
         self.themeChanged.emit(value)
 

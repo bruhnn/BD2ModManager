@@ -1,0 +1,733 @@
+/* Modern Light Theme
+   Generated from the dark theme. Color palette has been inverted for a light, clean UI.
+*/
+
+* {
+    font-family: "Segoe UI", sans-serif;
+    outline: none;
+}
+
+/* ---- MAIN WINDOW ---- */
+
+#mainWindow {
+    background-color: #f9fafb; /* Light gray background */
+    color: #1f2937; /* Dark primary text */
+}
+
+/* ---- SIDE BAR ---- */
+
+#sideBar {
+    background-color: #ffffff; /* White sidebar */
+    border-right: 1px solid #e5e7eb; /* Subtle border for separation */
+}
+
+#titleWidget {
+    background-color: transparent;
+}
+
+#titleLabel {
+    font-family: "Cinzel";
+    font-size: 24px;
+    font-weight: bold;
+    color: #111827; /* Match dark text */
+}
+
+#subtitleLabel {
+    color: #6b7280; /* Lighter secondary text */
+    font-size: 14px;
+    font-weight: bold;
+}
+
+#updateLabel {
+    font-size: 12px;
+    color: #6b7280;
+}
+
+#navigationView {
+
+}
+
+#navigationBar {
+    
+}
+
+#navigationTitle {
+    color: #6b7280; /* Secondary text */
+    font-size: 14px;
+    font-weight: 600;
+    padding: 4px 0px;
+}
+
+#navigationButton {
+    background-color: transparent;
+    color: #374151; /* Dark text for buttons */
+    border: none;
+    padding: 8px;
+    border-radius: 20px;
+    font-weight: bold;
+}
+
+#navigationButton:hover {
+    background-color: #f3f4f6; /* Light hover effect */
+}
+
+#navigationButton[active="true"] {
+    background-color: #e5e7eb; /* Active state background */
+    color: #1f2937; /* Dark text for active state */
+}
+
+#profileDropdown {
+    background-color: #ffffff;
+    color: #374151;
+    border-radius: 4px;
+    padding: 8px 12px;
+    border: 1px solid #d1d5db; /* Border for definition */
+}
+
+#profileDropdown::drop-down {
+    subcontrol-origin: padding;
+    subcontrol-position: top right;
+    width: 24px;
+    border: none;
+    margin-right: 4px;
+}
+
+#profileDropdown::down-arrow {
+    image: url(:/icons/material/light/arrow_down.svg); /* USE LIGHT ICONS */
+    width: 24px;
+    height: 24px;
+}
+
+#profileDropdown QAbstractItemView {
+    background-color: #ffffff;
+    color: #374151;
+    border-radius: 4px;
+    border: 1px solid #e5e7eb;
+}
+
+#profileDropdown QAbstractItemView::item {
+    padding: 8px 12px;
+}
+
+#profileDropdown QAbstractItemView::item:selected {
+    background-color: #e5e7eb;
+    color: #1f2937;
+}
+
+#startGameButton {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 6px;
+    font-weight: bold;
+    color: #1f2937;
+    background-color: #e5e7eb;
+}
+
+#startGameButton:hover {
+    background-color: #d1d5db;
+}
+
+/* ---- MODS VIEW ----- */
+
+#modsView {
+    background-color: #f9fafb; /* Match main window background */
+    border-radius: 8px;
+}
+
+#modsHeader {
+
+}
+
+#modsTitleLabel {
+    font-family: "Segoe UI";
+    font-weight: bold;
+    font-size: 20px;
+    color: #1f2937;
+}
+
+#modsCountLabel {
+    font-family: "Segoe UI";
+    font-size: 14px;
+    font-weight: 600;
+    color: #6b7280;
+}
+
+#searchField, #charactersSearchField {
+    background-color: #ffffff;
+    color: #1f2937;
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    padding: 8px 12px;
+    padding-left: 0px;
+    font-size: 14px;
+}
+
+#charactersSearchField {
+    padding-left: 8px;
+}
+
+#searchType {
+    background-color: #ffffff;
+    color: #1f2937;
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    padding: 8px 12px;
+}
+
+#searchType::drop-down {
+    subcontrol-origin: padding;
+    subcontrol-position: top right;
+    width: 24px;
+    border: none;
+    margin-right: 4px;
+}
+
+#searchType::down-arrow {
+    image: url(:/icons/material/light/arrow_down.svg); /* USE LIGHT ICONS */
+    width: 24px;
+    height: 24px;
+}
+
+#searchType QAbstractItemView {
+    background-color: #ffffff;
+    color: #374151;
+    border-radius: 4px;
+    border: 1px solid #e5e7eb;
+}
+
+#searchType QAbstractItemView::item {
+    padding: 8px 12px;
+}
+
+#modsButton {
+    border-radius: 6px;
+    padding: 8px 16px;
+    color: #374151;
+    background-color: #ffffff;
+    border: 1px solid #d1d5db;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+#modsButton:hover {
+    background-color: #f3f4f6;
+}
+
+#modsTopBar {
+    
+}
+
+#modTypesFilterChip {
+    padding: 4px 12px;
+    border: 1px solid #d1d5db;
+    color: #374151;
+    font-size: 14px;
+    font-weight: 500;
+    border-radius: 14px;
+    font-family: "Segoe UI";
+}
+
+#modTypesFilterChip:hover {
+    background-color: #f3f4f6;
+}
+
+#modTypesFilterChip:checked {
+    background-color: #374151;
+    color: #ffffff;
+    border-color: transparent;
+}
+
+#modlistArea {
+
+}
+
+#modlistHeader {
+    background-color: #f3f4f6;
+    color: #6b7280;
+    font-weight: bold;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+#modlist {
+    background-color: #ffffff;
+    alternate-background-color: #f9fafb;
+    border: none;
+    color: #1f2937;
+}
+
+#modlist::item {
+    padding: 16px 0px;
+}
+
+#modlist::item:hover {
+    background-color: #f3f4f6;
+}
+
+#modlist::item:selected {
+    color: #1f2937;
+    background-color: #e5e7eb;
+}
+
+#modlist::indicator {
+    width: 24px;
+    height: 24px;
+}
+
+#modlist::indicator:unchecked {
+    image: url(:/icons/material/light/checkbox.svg); /* USE LIGHT ICONS */
+}
+
+#modlist::indicator:checked {
+    image: url(:/icons/material/light/checkbox_checked_colored_fill.svg); /* USE LIGHT ICONS */
+}
+
+#modsInfoLabel {
+    color: #1f2937;
+    font-weight: bold;
+}
+
+/* --- CHARACTERS VIEW --- */
+
+#charactersTreeView {
+    background-color: #f9fafb;
+    color: #1f2937;
+    border: none;
+    border-radius: 8px;
+}
+
+#charactersTreeView::branch:hover {
+    background: transparent;
+}
+
+/* ---- SCROLL BAR ---- */
+
+QScrollBar:vertical {
+    border: none;
+    background-color: #f9fafb;
+    width: 14px;
+    margin: 15px 0 15px 0;
+    border-radius: 0px;
+}
+
+QScrollBar::handle:vertical {
+    background-color: #d1d5db;
+    min-height: 30px;
+    border-radius: 7px;
+}
+
+QScrollBar::handle:vertical:hover {
+    background-color: #9ca3af;
+}
+
+QScrollBar::handle:vertical:pressed {
+    background-color: #6b7280;
+}
+
+QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
+    border: none;
+    background: none;
+    height: 15px;
+    subcontrol-origin: margin;
+}
+
+QScrollBar::up-arrow:vertical, QScrollBar::down-arrow:vertical {
+      background: none;
+}
+
+QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
+      background: none;
+}
+
+#configView {
+    background-color: transparent;
+}
+
+#customComboBoxLabel {
+    color: #1f2937;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+#customComboBox, #settingsComboBox {
+    background-color: #ffffff;
+    color: #374151;
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    padding: 8px 12px;
+}
+
+#customComboBox::drop-down, #settingsComboBox::drop-down {
+    subcontrol-origin: padding;
+    subcontrol-position: top right;
+    width: 24px;
+    border: none;
+    margin-right: 4px;
+}
+
+#customComboBox::down-arrow, #settingsComboBox::down-arrow {
+    image: url(:/icons/material/light/arrow_down.svg); /* USE LIGHT ICONS */
+    width: 24px;
+    height: 24px;
+}
+
+#customComboBox QAbstractItemView, #settingsComboBox QAbstractItemView {
+    background-color: #ffffff;
+    color: #374151;
+    border: 1px solid #e5e7eb;
+    border-radius: 4px;
+}
+
+#customComboBox QAbstractItemView::item, #settingsComboBox QAbstractItemView::item {
+    padding: 8px 12px;
+}
+
+#customComboBox QAbstractItemView::item:selected, #settingsComboBox QAbstractItemView::item:selected {
+    background-color: #e5e7eb;
+    color: #1f2937;
+}
+
+/* --- SETTINGS VIEW --- */
+#settingsView {
+    background-color: #ffffff;
+    border-radius: 8px;
+    padding: 16px; /* Add some padding */
+}
+
+#settingsTitle {
+    font-size: 24px;
+    color: #1f2937;
+    font-weight: bold;
+}
+
+#settingsSectionTitle {
+    font-size: 16px;
+    color: #1f2937;
+    font-weight: bold;
+}
+
+#settingsSectionSeparator {
+    background-color: #e5e7eb;
+}
+
+#directoryInputLabel {
+    font-family: "Segoe UI";
+    font-size: 12px;
+    color: #374151;
+}
+
+#directoryInputValue {
+    font-family: "Segoe UI";
+    font-size: 12px;
+    color: #1f2937;
+    background-color: #f3f4f6;
+    padding: 4px;
+    border-radius: 4px;
+    border: 1px solid #e5e7eb;
+}
+
+#directoryInputButton {
+    border-radius: 6px;
+    padding: 6px 16px;
+    color: #374151;
+    background-color: #e5e7eb;
+    font-size: 12px;
+    font-weight: 600;
+    border: none;
+}
+
+#directoryInputButton:hover {
+    background-color: #d1d5db;
+}
+
+#settingsComboBoxLabel {
+    font-family: "Segoe UI";
+    font-size: 12px;
+    color: #374151;
+}
+
+#settingsCheckbox {
+    color: #374151;
+}
+
+#settingsCheckbox::indicator:unchecked {
+    image: url(:/icons/material/light/checkbox.svg); /* USE LIGHT ICONS */
+}
+
+#settingsCheckbox::indicator:checked {
+    image: url(:/icons/material/light/checkbox_checked_fill.svg); /* USE LIGHT ICONS */
+}
+
+
+/* NOTIFICATION */
+
+#notificationWidget {
+    background-color: #ffffff;
+    border: 1px solid #e5e7eb;
+    padding: 24px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08); /* Add subtle shadow for pop */
+}
+
+#notificationType {
+
+}
+
+#notificationTitle {
+    font-size: 16px;
+    font-weight: bold;
+    color: #1f2937;
+}
+
+#notificationText {
+    font-size: 14px;
+    color: #6b7280;
+}
+
+#notificationCloseButton {
+    background-color: transparent;
+    border: none;
+}
+
+/* SELECTION GAME FOLDER PAGE */
+
+#selectTitle {
+    font-size: 24px;
+    font-weight: bold;
+    color: #111827;
+    margin-bottom: 8px;
+}
+
+#selectInput {
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-family: "Segoe UI", sans-serif;
+    font-size: 14px;
+    color: #1f2937;
+    background-color: #ffffff;
+    border: 1px solid #d1d5db;
+}
+
+#selectInput:focus {
+    border: 1px solid #60a5fa; /* Blue focus ring */
+    background-color: #ffffff;
+}
+
+#selectBrowseButton {
+    border-radius: 6px;
+    padding: 6px 14px;
+    color: #374151;
+    background-color: #e5e7eb;
+    font-size: 14px;
+    font-weight: 600;
+    border: none;
+}
+
+#selectBrowseButton:hover {
+    background-color: #d1d5db;
+}
+
+#selectBrowseButton:pressed {
+    background-color: #b0b5bb;
+}
+
+#selectPathList {
+    background-color: #ffffff;
+    border-radius: 6px;
+    padding: 4px;
+    border: 1px solid #d1d5db;
+}
+
+#selectPathList::item {
+    padding: 6px 12px;
+    color: #1f2937;
+    background-color: transparent;
+    border-radius: 4px; /* Slight rounding for items */
+}
+
+#selectPathList::item:hover {
+    background-color: #f3f4f6;
+}
+
+#selectPathList::item:selected {
+    background-color: #e5e7eb;
+    color: #1f2937;
+}
+
+#selectInfoText {
+    font-size: 14px;
+    font-weight: 500;
+    color: #6b7280;
+    margin-top: 6px;
+}
+
+/* MANAGE PROFILES PAGE */
+
+#profilesPage {
+    background-color: #ffffff;
+    border-radius: 8px;
+    padding: 16px;
+}
+
+#profilesPageTitle {
+    font-family: "Segoe UI";
+    font-weight: bold;
+    font-size: 20px;
+    color: #1f2937;
+}
+
+#profilesList {
+    background-color: #ffffff;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    color: #1f2937;
+}
+
+#profilesList::item {
+    padding: 12px;
+}
+
+#profilesList::item:hover {
+    background-color: #f3f4f6;
+}
+
+#profilesList::item:selected {
+    background-color: #e5e7eb;
+    color: #1f2937;
+}
+
+#profilesPageButton {
+    border-radius: 6px;
+    padding: 8px 16px;
+    color: #374151;
+    background-color: #ffffff;
+    border: 1px solid #d1d5db;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+#profilesPageButton:hover {
+    background-color: #f3f4f6;
+}
+
+#profilesPageButton:disabled {
+    color: #9ca3af;
+    background-color: #f9fafb;
+    border-color: #e5e7eb;
+}
+
+/* ---- PROFILE DIALOG ---- */
+#profileDialog {
+    background-color: #ffffff;
+    border: 1px solid #e5e7eb;
+}
+
+#profileDialogTitle {
+    font-size: 16px;
+    font-weight: bold;
+    color: #1f2937;
+}
+
+#profileInput {
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 14px;
+    color: #1f2937;
+    background-color: #ffffff;
+    border: 1px solid #d1d5db;
+}
+
+#profileInput:focus {
+    border: 1px solid #60a5fa;
+}
+
+QLabel {
+    color: #374151;
+    font-size: 14px;
+}
+
+#profileButton {
+    border-radius: 6px;
+    padding: 6px 14px;
+    color: #ffffff;
+    background-color: #374151;
+    font-size: 14px;
+    font-weight: 600;
+    border: none;
+}
+
+#profileButton:hover {
+    background-color: #4b5563;
+}
+
+#profileButton:disabled {
+    background-color: #e5e7eb;
+    color: #9ca3af;
+}
+
+/* ---- PROGRESS MODAL ---- */
+
+#progressModal {
+    background-color: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 16px;
+}
+
+#progressModalTitleLabel {
+    font-size: 16px;
+    font-weight: bold;
+    color: #1f2937;
+}
+
+#progressModalStatusLabel {
+    color: #6b7280;
+    font-size: 13px;
+}
+
+/* ---- Progress Bar Styling ---- */
+QProgressBar#progressModalProgressBar {
+    background-color: #e5e7eb;
+    border: none;
+    border-radius: 4px;
+    text-align: center;
+    color: #6b7280;
+}
+
+QProgressBar#progressModalProgressBar::chunk {
+    background-color: #818cf8; /* A pleasant indigo */
+    border-radius: 4px;
+}
+
+/* Custom property to indicate error */
+QProgressBar#progressModalProgressBar[error="true"]::chunk {
+    background-color: #f87171; /* A fitting red for light themes */
+}
+
+/* ---- Progress Modal Buttons ---- */
+#progressModalButton, #progressModalCancelButton {
+    border-radius: 6px;
+    padding: 6px 14px;
+    color: #ffffff;
+    background-color: #4b5563;
+    font-size: 14px;
+    font-weight: 600;
+    border: none;
+    min-width: 80px; /* Give buttons a consistent width */
+}
+
+#progressModalButton:hover, #progressModalCancelButton:hover {
+    background-color: #6b7280;
+}
+
+#progressModalButton:disabled {
+    background-color: #e5e7eb;
+    color: #9ca3af;
+}
+
+/* Make cancel button stand out slightly on hover */
+#progressModalCancelButton {
+    background-color: #ef4444; /* Red */
+}
+#progressModalCancelButton:hover {
+    background-color: #dc2626; /* Darker red for hover */
+}

@@ -179,6 +179,10 @@ def main() -> None:
     logger.info("=" * 50)
 
     start_time = time.perf_counter()
+    
+    from src.themes import ThemeManager
+    
+    ThemeManager.load_themes()
 
     app = Application(start_time=start_time)
     sys.exit(app.run())
