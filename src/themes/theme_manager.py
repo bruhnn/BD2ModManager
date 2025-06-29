@@ -1,3 +1,4 @@
+from pickle import NONE
 from PySide6.QtGui import QColor, QPixmap, QPainter, QIcon, QAction
 from PySide6.QtWidgets import QWidget
 from PySide6.QtCore import QSize, Qt
@@ -50,11 +51,14 @@ class ThemeManager:
         return list(cls.themes.keys())
 
     @classmethod
-    def color(cls, key: str) -> QColor:
-        color_hex = cls.themes.get(cls.current_theme, {}).get("colors", {}).get(key)
+    def color(cls, key: str, default: str | None = None) -> QColor:
+        color_hex = cls.themes.get(cls.current_theme, {}).get("colors", {}).get(key, default)
+        
         if color_hex:
             return QColor(color_hex)
+        
         print(f"Warning: Color key '{key}' not found in theme '{cls.current_theme}'.")
+        
         return QColor(cls.DEFAULT_COLOR)
 
     @classmethod
