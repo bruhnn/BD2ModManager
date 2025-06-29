@@ -55,6 +55,11 @@ class ConfigController(QObject):
         self.validateGameDirectory.emit(path)
 
     def _on_mods_directory_changed(self, path: str) -> None:
+        if self.model.search_mods_recursively: 
+            # Avoids UI freeze when selecting folders with many files/subfolders
+            # this trigger the update view mods two times
+            self.model.set_search_mods_recursively(False)
+            
         self.model.set_mods_directory(path)
 
     def _on_search_mods_recursively_changed(self, value: bool) -> None:
