@@ -1110,19 +1110,22 @@ class ModManagerModel(QObject):
             return
 
         mods = self.get_mods()
-
+          
+        _ma = {}
         for mod in mods:
-            folder_hash = get_folder_hash(Path(mod.path))
+            folder_hash = get_folder_hash(Path(mod.path), False)
             author = self._experimental_authors.get(folder_hash)
+        
 
             mod_author = (
                 mod.author.strip() if isinstance(mod.author, str) else mod.author
             )
-
+            
             if author is not None and not mod_author:
-                self._set_mod_data(mod.name, "author", mod_author)
-
-        self._save_mods_data()
+                _ma.setdefault(author, []).append(mod.name)
+        
+        for author, mods in _ma.items():
+            self._set_bulk_mod_data(mods, "author", author)
 
         return mods
 
