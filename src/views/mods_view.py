@@ -420,7 +420,7 @@ class ModsView(QWidget):
     
     def _on_mod_double_click(self, index) -> None:
         mod_entry = self.mod_list.model().index(index.row(), 0, index.parent()).data(Qt.ItemDataRole.UserRole)
-        self.modPreviewRequested.emit(mod_entry.mod.path)
+        self.modPreviewRequested.emit(mod_entry.name)
 
     # --- Public Methods
     def save_settings_state(self) -> None:
