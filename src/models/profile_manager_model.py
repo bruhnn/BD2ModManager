@@ -624,17 +624,14 @@ class ProfileManager(QObject):
         
         if profile is None:
             raise ProfileNotFoundError(f'Profile with ID "{profile_id}" not found!')
-
-        # if self._current_profile and self._current_profile.id == profile.id:
-        #     logger.warning("Cannot edit the currently active profile '%s'.", profile.name)
-        #     raise ProfileInUseError("Cannot edit the currently active profile.")
-
+        
         if profile.name == name and profile.description == description:
             logger.debug("No changes detected for profile '%s'.", profile.name)
             return
         
         # Check if a profile with the new name already exists
-        if self._get_profile_by_name(name):
+        other_profile = self._get_profile_by_name(name)
+        if other_profile is not None and profile_id != other_profile.id:
             logger.warning("Profile with name '%s' already exists.", name)
             raise ProfileAlreadyExistsError(f'Profile with name "{name}" already exists.')
 
