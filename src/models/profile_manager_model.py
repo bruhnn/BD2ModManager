@@ -1,4 +1,5 @@
 from dataclasses import dataclass, field
+from faulthandler import is_enabled
 from pathlib import Path
 import json
 import logging
@@ -372,277 +373,170 @@ class Profile:
 
 
 class ProfileManager(QObject):
+    """Manages the loading, saving, and manipulation of all profiles."""
     profilesChanged = Signal()
     activeProfileChanged = Signal(str)
 
     def __init__(self, profiles_directory: Path | str) -> None:
         super().__init__()
-        logger.info("Initializing ProfileManager with folder: %s", profiles_directory)
+        self._profiles_folder = Path(profiles_directory)
+        self._profiles_folder.mkdir(parents=True, exist_ok=True)
 
-        self._profiles_folder: Path = Path(profiles_directory)
-
-        if not (self._profiles_folder).exists():
-            logger.info("Creating profiles folder: %s", str(self._profiles_folder))
-            self._profiles_folder.mkdir(parents=True, exist_ok=True)
-        else:
-            logger.debug("Profiles folder already exists: %s", self._profiles_folder)
-
-        self._profiles: dict[str, Profile] = {}
+        self._profiles: Dict[str, Profile] = {}
         self._profiles_by_name: Dict[str, Profile] = {}
-        self._default_profile: Profile | None = None
-        self._current_profile: Profile | None = None
+        self._current_profile: Optional[Profile] = None
 
-        logger.debug("Creating default profile.")
         self._create_default_profile()
-
-        logger.debug("Loading profiles.")
         self._load_profiles()
 
-        logger.info("ProfileManager initialized with %d profiles", len(self._profiles))
+        if not self._current_profile and "default" in self._profiles:
+            logger.info("No active profile found. Setting 'Default' as active.")
+            self.switch_profile("default")
+        
+        logger.info(f"ProfileManager initialized with {len(self._profiles)} profiles.")
 
     def _create_default_profile(self) -> None:
+        """Loads the default profile or creates it if it doesn't exist or is corrupt."""
         default_path = self._profiles_folder / "default.json"
-
-        logger.debug("Checking for default profile at: %s", default_path)
-
-        default_profile = Profile(
-            id="default",
-            _name="Default",
-            _description="The standard profile for managing mods.",
-        )
-
-        if not default_path.exists():
-            logger.info("Default profile not found. Creating new default profile.")
-            self.save_profile(default_profile)
-        else:
-            logger.debug("Default profile file exists. Loading from .json.")
+        if default_path.exists():
             try:
-                with default_path.open("r", encoding="UTF-8") as default_data:
-                    default_profile = Profile.from_dict(json.load(default_data))
+                with default_path.open("r", encoding="utf-8") as f:
+                    profile = Profile.from_dict(json.load(f))
+                    self._profiles[profile.id] = profile
+                    self._profiles_by_name[profile.name.lower().strip()] = profile
+                    if profile.active:
+                        self._current_profile = profile
+                    return
+            except (json.JSONDecodeError, ValueError) as e:
+                logger.error(f"Default profile is corrupt: {e}. A new one will be created.")
 
-                logger.debug("Default profile loaded successfully.")
-            except json.JSONDecodeError as error:
-                logger.error("Invalid JSON in default profile file: %s", error)
-
-                logger.info("Creating new default profile.")
-                self.save_profile(default_profile)
-            except Exception as error:
-                logger.error("Unexpected error loading default profile: %s", error)
-                logger.info("Creating new default profile.")
-                self.save_profile(default_profile)
-
-        self._default_profile = default_profile
+        default_profile = Profile(id="default", _name="Default", _description="The standard profile for managing mods.")
+        self.save_profile(default_profile)
+        self._profiles["default"] = default_profile
+        self._profiles_by_name["default"] = default_profile
 
     def _load_profiles(self) -> None:
-        files = list(self._profiles_folder.glob("*.json"))
-        logger.info("Found %d profiles.", len(files))
-
-        loaded_count = 0
-        error_count = 0
-
-        for file in files:
+        """Loads all profiles from the profiles directory."""
+        for file in self._profiles_folder.glob("*.json"):
+            if file.stem == "default" or file.stem in self._profiles:
+                continue # Skip default as it's already handled, or if already loaded
             try:
-                with file.open("r", encoding="UTF-8") as pfile:
-                    data = json.load(pfile)
-
-                profile = Profile.from_dict(data)
-                self._profiles[data["id"]] = profile
-                self._profiles_by_name[profile.name.lower().strip()] = profile
-                loaded_count += 1
-
-                logger.debug(
-                    "Successfully loaded profile: %s (ID: %s)", profile.name, profile.id
-                )
-
-                # # Check if this profile should be the active
-                if not self._current_profile and profile.active:
-                    logger.info("Found active profile: %s", profile.name)
-                    self._current_profile = profile
-
-            except json.JSONDecodeError as error:
-                logger.error("Invalid JSON in profile file %s: %s", file.name, error)
-                error_count += 1
-            except KeyError as error:
-                logger.error(
-                    "Missing required field in profile file %s: %s", file.name, error
-                )
-                error_count += 1
-            except Exception as error:
-                logger.error(
-                    "Unexpected error loading profile file %s: %s", file.name, error
-                )
-                error_count += 1
-
-        if self._current_profile is None and self._default_profile:
-            logger.info("No active profile found. Activating the default profile.")
-            self._default_profile.active = True
-            self.save_profile(self._default_profile)
-            self._current_profile = self._default_profile
-
-        self.profilesChanged.emit()
-
-        logger.info(
-            "Profile loading complete: %d loaded, %d errors.", loaded_count, error_count
-        )
-
-    def _get_profile_by_id(self, profile_id: str) -> Profile | None:
-        logger.debug("Getting profile by ID: %s", profile_id)
-
-        profile = self._profiles.get(profile_id)
-
-        return profile
-
-    def _get_profile_by_name(self, profile_name: str) -> Profile | None:
-        logger.debug("Getting profile by name: %s", profile_name)
-        return self._profiles_by_name.get(profile_name.lower().strip())
+                with file.open("r", encoding="utf-8") as f:
+                    data = json.load(f)
+                    profile = Profile.from_dict(data)
+                    self._profiles[profile.id] = profile
+                    self._profiles_by_name[profile.name.lower().strip()] = profile
+                    if profile.active and not self._current_profile:
+                        self._current_profile = profile
+            except (json.JSONDecodeError, ValueError, KeyError) as e:
+                logger.error(f"Could not load profile {file.name}: {e}")
 
     def get_profiles(self) -> list[Profile]:
-        # put "default" on top, then sort by creation date
-        profiles = sorted(
-            [profile for _, profile in self._profiles.items()],
-            key=lambda p: (p.id != "default", p.created_at),
-            reverse=False,
+        # Sort with "Default" profile first, then by creation date.
+        return sorted(
+            self._profiles.values(),
+            key=lambda p: (p.id != "default", p.created_at)
         )
-        return profiles
 
-    def get_current_profile(self) -> Profile | None:
+    def get_current_profile(self) -> Optional[Profile]:
         return self._current_profile
 
-    def create_profile(
-        self, profile_name: str, description: str | None = None
-    ) -> Profile:
-        logger.info("Creating new profile: '%s'", profile_name)
+    def create_profile(self, name: str, description: Optional[str] = None) -> Profile:
+        norm_name = name.lower().strip()
+        if norm_name in self._profiles_by_name:
+            raise ProfileAlreadyExistsError(f"Profile with name '{name}' already exists.")
 
-        # Check if profile with same name already exists
-        if self._get_profile_by_name(profile_name):
-            logger.warning("Profile with ID '%s' already exists", profile_name)
-            raise ProfileAlreadyExistsError(
-                f"Profile with ID '{profile_name}' already exists"
-            )
-
-        try:
-            profile = Profile(
-                id=str(uuid4()), _name=profile_name, _description=description
-            )
-
-            self._profiles[profile.id] = profile
-            self.save_profile(profile)
-
-            logger.info(
-                "Profile '%s' created successfully with ID: %s",
-                profile_name,
-                profile.id,
-            )
-            self.profilesChanged.emit()
-            return profile
-
-        except Exception as error:
-            logger.error("Failed to create profile '%s': %s", profile_name, error)
-            raise
-
-    def switch_profile(self, profile_id: str) -> bool:
-        logger.info("Switching to profile with ID: %s", profile_id)
-
-        # Get new profile
-        profile = self._get_profile_by_id(profile_id)
-
-        if profile is None:
-            logger.error("Profile with ID '%s' not found", profile_id)
-            raise ProfileNotFoundError(f'Profile with ID "{profile_id}" not found.')
-
-        # Deactivate current profile
-        if self._current_profile is not None:
-            logger.debug("Deactivating current profile: %s", self._current_profile.name)
-            self._current_profile.active = False
-            self.save_profile(self._current_profile)
-
-        # Activate new profile
-        logger.info("Activating profile: %s", profile.name)
-
-        profile.active = True
-
-        self._current_profile = profile
-
-        self.activeProfileChanged.emit(profile.id)
-
+        profile = Profile(id=str(uuid4()), _name=name, _description=description)
+        
         self.save_profile(profile)
 
-        logger.info("Successfully switched to profile: %s", profile.name)
-
-        return True
-
-    def save_profile(self, profile: Profile) -> None:
-        profile_file = self._profiles_folder / f"{profile.id}.json"
-
-        logger.debug("Saving profile '%s' to: %s", profile.name, profile_file)
-
-        try:
-            profile.updated_at = datetime.now()
-
-            with tempfile.NamedTemporaryFile(
-                "w",
-                encoding="UTF-8",
-                delete=False,
-                dir=self._profiles_folder,
-                suffix=".tmp",
-            ) as tempf:
-                json.dump(profile.as_dict(), tempf, indent=4)
-                temp_path = tempf.name
-
-            shutil.move(temp_path, profile_file)
-
-            logger.debug("Profile '%s' saved successfully", profile.name)
-
-        except Exception as e:
-            logger.error("Failed to save profile '%s': %s", profile.name, e)
-            raise
+        self._profiles[profile.id] = profile
+        self._profiles_by_name[norm_name] = profile
+        self.profilesChanged.emit()
+        return profile
 
     def delete_profile(self, profile_id: str) -> None:
-        logger.debug("Deleting profile with ID '%s'", profile_id)
-
-        profile_file = self._profiles_folder / f"{profile_id}.json"
-        profile = self._get_profile_by_id(profile_id)
-
-        if not profile_file.exists() or profile is None:
-            raise ProfileNotFoundError(f'Profile with ID "{profile_id}" not found!')
-
-        if profile == self._current_profile:
+        if profile_id == "default":
+            raise ValueError("Cannot delete the default profile.")
+        if self._current_profile and profile_id == self._current_profile.id:
             raise ProfileInUseError("Cannot delete the currently active profile.")
 
-        try:
+        profile = self._profiles.get(profile_id)
+        
+        if not profile:
+            raise ProfileNotFoundError(f"Profile with ID '{profile_id}' not found.")
+    
+        if profile.is_default:
+            raise ProfileInUseError("Cannot delete the default profile.")
+
+        profile_file = self._profiles_folder / f"{profile_id}.json"
+        if profile_file.exists():
             profile_file.unlink()
-            self._profiles.pop(profile.id)
-            self.profilesChanged.emit()
-        except Exception as e:
-            logger.error("Failed to remove profile with ID '%s': %s", profile_id, e)
-            raise
 
-    def edit_profile(self, profile_id: str, name: str, description: str):
-        logger.debug("Editing profile with ID '%s'", profile_id)
-        
-        profile = self._get_profile_by_id(profile_id)
-        
-        if profile is None:
-            raise ProfileNotFoundError(f'Profile with ID "{profile_id}" not found!')
-        
-        if profile.name == name and profile.description == description:
-            logger.debug("No changes detected for profile '%s'.", profile.name)
-            return
-        
-        # Check if a profile with the new name already exists
-        other_profile = self._get_profile_by_name(name)
-        if other_profile is not None and profile_id != other_profile.id:
-            logger.warning("Profile with name '%s' already exists.", name)
-            raise ProfileAlreadyExistsError(f'Profile with name "{name}" already exists.')
+        self._profiles.pop(profile_id, None)
+        self._profiles_by_name.pop(profile.name.lower().strip(), None)
+        self.profilesChanged.emit()
 
-        logger.info("Updating profile '%s' with new name '%s' and description '%s'.",
-                    profile.name, name, description)
+    def edit_profile(self, profile_id: str, name: str, description: Optional[str]):
+        profile = self._profiles.get(profile_id)
+        if not profile:
+            raise ProfileNotFoundError(f"Profile with ID '{profile_id}' not found.")
+
+        new_name = name.lower().strip()
+        if (new_name in self._profiles_by_name and
+                self._profiles_by_name[new_name].id != profile_id):
+            raise ProfileAlreadyExistsError(f"Profile with name '{name}' already exists.")
+
+        old_name = profile.name.lower().strip()
         
         profile.name = name
         profile.description = description
-        profile.update_timestamp()
+        
+        # Update name cache if it changed
+        if old_name != new_name:
+            self._profiles_by_name.pop(old_name)
+            self._profiles_by_name[new_name] = profile
         
         self.save_profile(profile)
-        
         self.profilesChanged.emit()
-        logger.info("Profile '%s' updated successfully.", profile.name)
+
+    def switch_profile(self, profile_id: str) -> None:
+        target_profile = self._profiles.get(profile_id)
+        if not target_profile:
+            raise ProfileNotFoundError(f"Profile with ID '{profile_id}' not found.")
+
+        # Deactivate the old profile if it exists and is different
+        if self._current_profile and self._current_profile.id != target_profile.id:
+            self._current_profile.active = False
+            self.save_profile(self._current_profile)
+
+        # Activate the new profile
+        target_profile.active = True
+        self.save_profile(target_profile)
+        
+        self._current_profile = target_profile
+        self.activeProfileChanged.emit(target_profile.id)
+
+    def save_profile(self, profile: Profile) -> None:
+        profile.update_timestamp()
+        
+        profile_file = self._profiles_folder / f"{profile.id}.json"
+        
+        temp_path = None
+        try:
+            with tempfile.NamedTemporaryFile(
+                "w", encoding="utf-8", delete=False,
+                dir=self._profiles_folder, suffix=".tmp"
+            ) as temp_f:
+                json.dump(profile.as_dict(), temp_f, indent=4)
+                temp_path = Path(temp_f.name)
+            
+            shutil.move(temp_path, profile_file)
+        except Exception as e:
+            logger.error(f"Failed to save profile '{profile.name}': {e}", exc_info=True)
+            raise
+        finally:
+            if temp_path is not None and temp_path.exists():
+                logger.debug(f"Cleaning up temporary file: {temp_path}")
+                temp_path.unlink(missing_ok=True)
+            
