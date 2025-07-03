@@ -50,13 +50,6 @@ class ProfileManagerController(QObject):
                 "error",
                 3000,
             )
-        except ProfileInUseError:
-            self.notificationRequested.emit(
-                self.tr("Action Blocked"),
-                self.tr("Cannot edit the profile that is currently in use."),
-                "warning",
-                3000,
-            )
         except ProfileAlreadyExistsError:
             self.notificationRequested.emit(
                 self.tr("Duplicate Profile"),
