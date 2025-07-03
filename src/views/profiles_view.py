@@ -1,3 +1,6 @@
+from ctypes import Union
+from optparse import Option
+from typing import Optional
 from PySide6.QtWidgets import (
     QPushButton,
     QDialog,
@@ -94,8 +97,8 @@ class ProfileDialog(QDialog):
         has_text = bool(self.name_input.text().strip())
         self.ok_button.setEnabled(has_text)
 
-    def get_data(self) -> tuple[str, str]:
-        return self.profile_name, self.profile_description
+    def get_data(self) -> tuple[str, Optional[str]]:
+        return self.profile_name, self.profile_description or None
 
     def accept(self) -> None:
         self.profile_name = self.name_input.text().strip()
@@ -248,22 +251,19 @@ class ManageProfilesView(QWidget):
             item = QListWidgetItem(pid)
             item.setData(Qt.ItemDataRole.UserRole, profile)
             self.profile_list_widget.addItem(item)
-            self.profile_list_widget.addItem(item)
 
     def _update_button_states(self) -> None:
         selected_items = self.profile_list_widget.selectedItems()
         is_item_selected = bool(selected_items)
 
-        if (
-            len(selected_items) > 0
-            and selected_items[0].data(Qt.ItemDataRole.UserRole).id == "default"
-        ):
-            self.edit_button.setEnabled(False)
-            self.delete_button.setEnabled(False)
-            return
-
         self.edit_button.setEnabled(is_item_selected)
         self.delete_button.setEnabled(is_item_selected)
+
+        if is_item_selected:
+            profile = selected_items[0].data(Qt.ItemDataRole.UserRole)
+            if profile and profile.id == "default":
+                self.edit_button.setEnabled(False)
+                self.delete_button.setEnabled(False)
 
     def create_profile(self) -> None:
         dialog = ProfileDialog(self)
