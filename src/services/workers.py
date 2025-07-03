@@ -7,6 +7,7 @@ from src.models.mod_manager_model import ModManagerModel
 
 logger = logging.getLogger(__name__)
 
+# TODO: DRY
 
 class BaseWorker(QObject):
     started = Signal(str)
@@ -35,7 +36,7 @@ class SyncWorker(BaseWorker):
             logger.info("SyncWorker started.")
             self.started.emit("Syncing Mods...")
             self._mod_manager_model.sync_mods(
-                symlink=self._symlink, progress_callback=self.progress.emit, cancel_callback=lambda: self._is_canceled
+                symlink=self._symlink, progress_callback=self.progress.emit
             )
         except GameDirectoryNotSetError:
             logger.error("Game directory not set.")
@@ -54,7 +55,6 @@ class SyncWorker(BaseWorker):
 
     def stop(self) -> None:
         logger.info("SyncWorker stop requested.")
-        self._is_canceled = True
 
 
 class UnsyncWorker(BaseWorker):
@@ -62,7 +62,7 @@ class UnsyncWorker(BaseWorker):
         try:
             logger.info("UnsyncWorker started.")
             self.started.emit("Unsyncing Mods...")
-            self._mod_manager_model.unsync_mods(progress_callback=self.progress.emit, cancel_callback=lambda: self._is_canceled)
+            self._mod_manager_model.unsync_mods(progress_callback=self.progress.emit)
         except GameDirectoryNotSetError:
             logger.error("Game directory not set.")
             return self.error.emit("Game directory not set.")
@@ -80,5 +80,3 @@ class UnsyncWorker(BaseWorker):
 
     def stop(self) -> None:
         logger.info("UnsyncWorker stop requested.")
-        self._is_canceled = True
-        # self.finished.emit("Unsync stopped.")
