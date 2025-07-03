@@ -20,7 +20,7 @@ from PySide6.QtGui import QCloseEvent
 from src.version import __version__
 from src.views.pages import SelectGameDirectory
 from src.views.widgets import BaseButton, NavigationButton, PulsingLabel
-from src.views.notification import NotificationsManager
+from src.services.notification_service import NotificationsManager
 from src.themes.theme_manager import ThemeManager
 from src.models.profile_manager_model import Profile
 

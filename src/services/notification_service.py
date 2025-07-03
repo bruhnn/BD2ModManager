@@ -1,22 +1,18 @@
-from turtle import title
 from PySide6.QtWidgets import (
-    QDialog,
     QLabel,
     QHBoxLayout,
     QVBoxLayout,
     QWidget,
     QSizePolicy,
-    QScrollArea,
     QStyleOption,
-    QApplication,
     QGraphicsOpacityEffect,
     QPushButton,
 )
-from PySide6.QtCore import Qt, QTimer, QEvent, QPoint, QRect, QPropertyAnimation, QEasingCurve, Signal, QObject, QSize
-from PySide6.QtGui import QPainter, QIcon, QPixmap, QColor, QFont
+from PySide6.QtCore import Qt, QTimer, QEvent, QPoint, QPropertyAnimation, QEasingCurve, Signal, QObject, QSize
+from PySide6.QtGui import QPainter
 
 from dataclasses import dataclass, field
-from typing import List, Optional, Dict, Any, Callable
+from typing import List, Optional, Dict, Any
 from enum import Enum, Flag, auto
 import logging
 
@@ -71,7 +67,7 @@ class Notification:
 class NotificationWidget(QWidget):
     closed = Signal()
 
-    def __init__(self, notification: Notification, parent=None):
+    def __init__(self, notification: Notification, parent=None) -> None:
         super().__init__(parent)
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground, True)
         self.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose)
@@ -83,6 +79,7 @@ class NotificationWidget(QWidget):
         self._setup_animations()
         self._create_ui()
         self._setup_timer()
+        self.adjustSize()
 
     def _setup_animations(self) -> None:
         self.animation_duration = 300
@@ -146,7 +143,7 @@ class NotificationWidget(QWidget):
         if self._notification.description:
             text_label = QLabel(self._notification.description)
             text_label.setObjectName("notificationText")
-            text_label.setWordWrap(True)
+            text_label.setWordWrap(False)
             text_label.setSizePolicy(
                 QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred)
             content_layout.addWidget(text_label)
@@ -154,13 +151,13 @@ class NotificationWidget(QWidget):
         return content_widget
 
     def _add_close_button(self, layout):
-        close_btn = QPushButton()
-        close_btn.setIcon(ThemeManager.icon("close", "icon_color"))
-        close_btn.setCursor(Qt.CursorShape.PointingHandCursor)
-        close_btn.setObjectName("notificationCloseButton")
-        close_btn.clicked.connect(self.hide_animation)
-        close_btn.setIconSize(QSize(24, 24))
-        layout.addWidget(close_btn)
+        self.close_btn = QPushButton()
+        self.close_btn.setIcon(ThemeManager.icon("close", "icon_color"))
+        self.close_btn.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.close_btn.setObjectName("notificationCloseButton")
+        self.close_btn.clicked.connect(self.hide_animation)
+        self.close_btn.setIconSize(QSize(24, 24))
+        layout.addWidget(self.close_btn)
 
     def _setup_timer(self) -> None:
         self.close_timer = QTimer(self)
@@ -188,6 +185,8 @@ class NotificationWidget(QWidget):
             self.close_timer.start()
 
     def hide_animation(self) -> None:
+        self.close_btn.setEnabled(False)
+        
         self.close_timer.stop()
         self.opacity_animation.setStartValue(1.0)
         self.opacity_animation.setEndValue(0.0)
