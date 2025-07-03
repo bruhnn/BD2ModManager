@@ -1,5 +1,3 @@
-from ctypes import Union
-from optparse import Option
 from typing import Optional
 from PySide6.QtWidgets import (
     QPushButton,
@@ -38,13 +36,6 @@ class ProfileDialog(QDialog):
 
         self.name_input.setText(self.profile_name)
         self.description_input.setPlainText(self.profile_description)
-
-        if name:
-            self.setWindowTitle(self.tr("Edit Profile"))
-            self.ok_button.setText(self.tr("Save Changes"))
-        else:
-            self.setWindowTitle(self.tr("Create New Profile"))
-            self.ok_button.setText(self.tr("Create Profile"))
 
     def _setup_ui(self) -> None:
         layout = QVBoxLayout(self)
@@ -131,37 +122,30 @@ class ProfileItemDelegate(QStyledItemDelegate):
 
         padding = 12
         line_spacing = 5
-        content_rect = option.rect.adjusted(padding, padding, -padding, -padding)
+        content_rect = option.rect.adjusted(
+            padding, padding, -padding, -padding)
 
+        # Draw Name
         name_font = painter.font()
         name_font.setBold(True)
         painter.setFont(name_font)
         painter.setPen(name_color)
-        painter.drawText(
-            content_rect,
-            Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignLeft,
-            profile.name,
-        )
+        painter.drawText(content_rect, Qt.AlignmentFlag.AlignTop, profile.name)
 
         desc_font = painter.font()
         desc_font.setBold(False)
         painter.setFont(desc_font)
 
-        name_metrics = QFontMetrics(name_font)
-        desc_rect = content_rect.adjusted(0, name_metrics.height() + line_spacing, 0, 0)
+        name_height = painter.fontMetrics().boundingRect(profile.name).height()
+        desc_rect = content_rect.adjusted(0, name_height + line_spacing, 0, 0)
 
         painter.setPen(desc_color)
-
         elided_desc = painter.fontMetrics().elidedText(
             profile.description or self.tr("No description."),
             Qt.TextElideMode.ElideRight,
             desc_rect.width(),
         )
-        painter.drawText(
-            desc_rect,
-            Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignLeft,
-            elided_desc,
-        )
+        painter.drawText(desc_rect, Qt.AlignmentFlag.AlignTop, elided_desc)
 
         painter.restore()
 
