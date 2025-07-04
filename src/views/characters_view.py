@@ -488,7 +488,7 @@ class CharactersView(QWidget):
     def __init__(self):
         super().__init__()
 
-        self.search_input = QLineEdit(placeholderText="Search Character")
+        self.search_input = QLineEdit(placeholderText=self.tr("Search Character"))
         self.search_input.setSizePolicy(
             QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding
         )
@@ -520,15 +520,17 @@ class CharactersView(QWidget):
         self.filters_layout.setContentsMargins(*[0] * 4)
 
         self.filters = {
-            "cutscene": CComboBox("Cutscene"),
-            "idle": CComboBox("Idle"),
-            "dating": CComboBox("Dating"),
+            "cutscene": CComboBox(self.tr("Cutscene")),
+            "idle": CComboBox(self.tr("Idle")),
+            "dating": CComboBox(self.tr("Dating")),
         }
+        
+        self.combo_items = ["Any", "Installed", "Not Installed"]
 
         for _, filter_widget in self.filters.items():
             filter_widget.label.setObjectName("customComboBoxLabel")
             filter_widget.combobox.setObjectName("customComboBox")
-            filter_widget.combobox.addItems(["Any", "Installed", "Not Installed"])
+            filter_widget.combobox.addItems(self.combo_items)
             filter_widget.combobox.currentIndexChanged.connect(self._filter_char)
             self.filters_layout.addWidget(filter_widget)
 
@@ -561,7 +563,14 @@ class CharactersView(QWidget):
         self.view.expandAll()
 
     def retranslateUI(self):
-        pass
+        self.search_input.setPlaceholderText(self.tr("Search Character"))
+
+        self.refresh_button.setText(self.tr("Refresh"))
+
+        self.filters["cutscene"].label.setText(self.tr("Cutscene"))
+        self.filters["idle"].label.setText(self.tr("Idle"))
+        self.filters["dating"].label.setText(self.tr("Dating"))
+
 
     def updateIcons(self):
         self.refresh_button.setIcon(
