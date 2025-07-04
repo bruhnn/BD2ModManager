@@ -128,7 +128,7 @@ class NPC:
 @dataclass
 class BD2ModEntry:
     mod: BD2Mod
-    author: Optional[str]
+    author: Optional[str] = None
     enabled: bool = False
     character: Optional[Character] = None
     scene: Optional[Scene] = None
@@ -142,3 +142,25 @@ class BD2ModEntry:
     @property
     def path(self):
         return self.mod.path
+
+    @classmethod
+    def create_from_mod(cls, mod: BD2Mod, game_data: "BD2GameData", **kwargs) -> "BD2ModEntry":
+        entry = cls(mod=mod, **kwargs)
+
+        if (
+            mod.type in (BD2ModType.CUTSCENE, BD2ModType.IDLE)
+            and mod.character_id is not None
+        ):
+            entry.character = game_data.get_character_by_id(
+                mod.character_id
+            )
+        elif mod.type == BD2ModType.DATING and mod.dating_id is not None:
+            entry.character = game_data.get_character_by_dating_id(
+                mod.dating_id
+            )
+        elif mod.type == BD2ModType.NPC and mod.npc_id is not None:
+            entry.npc = game_data.get_npc_by_id(mod.npc_id)
+        elif mod.type == BD2ModType.SCENE and mod.scene_id is not None:
+            entry.scene = game_data.get_scene_by_id(mod.scene_id)
+            
+        return entry
