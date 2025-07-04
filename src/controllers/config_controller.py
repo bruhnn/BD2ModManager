@@ -26,10 +26,7 @@ class ConfigController(QObject):
         self.view.languageChanged.connect(self._on_language_changed)
         self.view.themeChanged.connect(self._on_theme_changed)
         self.view.syncMethodChanged.connect(self._on_sync_method_changed)
-        self.view.includeModRelativePathChanged.connect(
-            self._on_include_mod_relative_path)
-        self.view.spineViewerEnabledChanged.connect(
-            self._on_spine_viewer_enabled_changed)
+        self.view.includeModRelativePathChanged.connect(self._on_include_mod_relative_path)
         
         # View actions
         self.view.findAuthorsClicked.connect(self.findAuthorsClicked.emit)
@@ -45,9 +42,6 @@ class ConfigController(QObject):
         self.model.syncMethodChanged.connect(self.view.set_sync_method)
         self.model.includeModRelativePathChanged.connect(
             self.view.set_include_mod_relative_path)
-        self.model.spineViewerEnabledChanged.connect(
-            self.view.set_spine_viewer_enabled)
-
         self.update_config()
 
     # --- Slots
@@ -57,7 +51,7 @@ class ConfigController(QObject):
     def _on_mods_directory_changed(self, path: str) -> None:
         if self.model.search_mods_recursively: 
             # Avoids UI freeze when selecting folders with many files/subfolders
-            # this trigger the update view mods two times
+            # this trigger the update view mods two times*
             self.model.set_search_mods_recursively(False)
             
         self.model.set_mods_directory(path)
@@ -76,9 +70,6 @@ class ConfigController(QObject):
 
     def _on_include_mod_relative_path(self, value: bool) -> None:
         self.model.set_include_mod_relative_path(value)
-
-    def _on_spine_viewer_enabled_changed(self, value: bool) -> None:
-        self.model.set_spine_viewer_enabled(value)
 
     # --- Methods
     def update_config(self) -> None:
