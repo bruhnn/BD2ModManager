@@ -61,7 +61,7 @@ class ModsView(QWidget):
     openModsFolderRequested = Signal()
     openModFolderRequested = Signal(str)  # Mod Path
 
-    addModRequested = Signal(str)  # Mod path
+    addModsRequested = Signal(list)  # Mod path
     removeModRequested = Signal(str)  # Mod entry
     renameModRequested = Signal(str, str)  # Mod entry, New Name
     editModfileRequested = Signal(str)
@@ -97,11 +97,7 @@ class ModsView(QWidget):
         self.title_label = QLabel(self.tr("Mods"))
         self.title_label.setObjectName("modsTitleLabel")
         self.mods_count_label = QLabel(
-            self.tr(
-                "{enabled_mods} of {total_mods} mods enabled.".format(
-                    enabled_mods=0, total_mods=0
-                )
-            )
+            self.tr("{} of {} mods enabled.").format(0, 0)
         )
         self.mods_count_label.setObjectName("modsCountLabel")
 
@@ -154,9 +150,8 @@ class ModsView(QWidget):
 
         self.search_type = QComboBox()
         self.search_type.setObjectName("searchType")
-        self.search_type.addItems(
-            (self.tr("Mod"), self.tr("Character"), self.tr("Author"))
-        )
+        for label, data in [(self.tr("Mod"), "mod"), (self.tr("Character"), "character"), (self.tr("Author"), "author")]:
+            self.search_type.addItem(label, data)
         self.search_type.setCursor(Qt.CursorShape.PointingHandCursor)
         self.search_type.setSizePolicy(
             QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding
@@ -366,6 +361,9 @@ class ModsView(QWidget):
                 self.tr("Author"),
             ]
         )
+        self.search_type.clear()
+        for label, data in [(self.tr("Mod"), "mod"), (self.tr("Character"), "character"), (self.tr("Author"), "author")]:
+            self.search_type.addItem(label, data)
 
     # --- Events
     def paintEvent(self, _) -> None:
@@ -396,10 +394,13 @@ class ModsView(QWidget):
 
     def dropEvent(self, event) -> None:
         if event.mimeData().hasUrls():
-            for url in event.mimeData().urls():
-                file_path = url.toLocalFile()
-                self.addModRequested.emit(file_path)
-                self.view_stacked.setCurrentIndex(0)
+            paths = [url.toLocalFile() for url in event.mimeData().urls()]
+            self.addModsRequested.emit(paths)
+            self.view_stacked.setCurrentIndex(0)
+            # for url in event.mimeData().urls():
+            #     file_path = url.toLocalFile()
+            #     self.addModsRequested.emit(file_path)
+            #     self.view_stacked.setCurrentIndex(0)
 
     # --- Signals
     def _on_search_field_changed(self) -> None:
@@ -511,7 +512,7 @@ class ModsView(QWidget):
             mod_path = current_item.data(0, Qt.ItemDataRole.UserRole).mod.path
             menu.addAction(
                 self.tr("Preview Mod"), lambda: self.modPreviewRequested.emit(
-                    current_item.data(0, Qt.ItemDataRole.UserRole).mod.path
+                    current_item.data(0, Qt.ItemDataRole.UserRole).mod.name
                 )
             )
             menu.addAction(
@@ -700,55 +701,19 @@ class ModsView(QWidget):
         self._filter_mods()
         self._update_mods_count_label()
 
-    def update_single_mod(
-        self, mod_entry: BD2ModEntry, show_full_path: bool = False
-    ) -> None:
-        mod_item = self._mod_item_cache.get(mod_entry.name)
-
-        if mod_item:
-            self.mod_list.blockSignals(True)
-            self._populate_mod_item(mod_item, mod_entry, show_full_path)
-            self.mod_list.blockSignals(False)
-            logger.debug(f"Updated cached mod item for '{mod_entry.name}'")
-        else:
-            logger.warning(
-                f"Mod '{mod_entry.name}' not found in cache, performing linear search"
-            )
-            for index in range(self.mod_list.topLevelItemCount()):
-                item = self.mod_list.topLevelItem(index)
-                if not item:
-                    continue
-
-                existing_mod_entry: BD2ModEntry = item.data(0, Qt.ItemDataRole.UserRole)
-                if existing_mod_entry and existing_mod_entry.name == mod_entry.name:
-                    self._populate_mod_item(item, mod_entry, show_full_path)
-                    self._mod_item_cache[mod_entry.name] = item
-                    break
-            else:
-                logger.error(f"Mod '{mod_entry.name}' not found in view during update")
-
-        self._update_mods_count_label()
-
-    def update_bulk_mods(
+    def update_mods(
         self, mod_entries: List[BD2ModEntry], show_full_path: bool = False
     ) -> None:
         self.mod_list.blockSignals(True)
 
         for mod_entry in mod_entries:
-
             mod_item = self._mod_item_cache.get(mod_entry.name)
             
             if not mod_item:
-                continue 
-
-            mod_item.setData(0, Qt.ItemDataRole.UserRole, mod_entry)
+                continue
             
-            if show_full_path:
-                mod_item.setText(0, mod_entry.mod.name)
-            else:
-                mod_item.setText(0, mod_entry.mod.display_name or "[NAME NOT FOUND!]")
-                
-            mod_item.setText(3, mod_entry.author or "")
+            self._populate_mod_item(mod_item, mod_entry, show_full_path)
+            
 
         self.mod_list.blockSignals(False)
 
@@ -768,14 +733,15 @@ class ModsView(QWidget):
         self.mods_count_label.setProperty("enabledMods", enabled_mods)
         self.mods_count_label.setProperty("totalMods", total_mods)
         self.mods_count_label.setText(
-            self.tr(f"{enabled_mods} of {total_mods} mods enabled.")
+            self.tr("{} of {} mods enabled.").format(enabled_mods, total_mods)
         )
 
     def set_info_text(self, text: str) -> None:
         self.info_label.setText(text)
         
     def _filter_mods(self) -> None:
-        search_type = self.search_type.currentText()
+        search_type = self.search_type.currentData(Qt.ItemDataRole.UserRole)
+        print(search_type)
         search_query = self.search_field.text().lower()
         types = {
             "idle": self.filter_chip_types["idle"].isChecked(),
@@ -809,17 +775,18 @@ class ModsView(QWidget):
                     matches_type = True
 
             data = ""
-            if search_type == "Mod":
+            if search_type == "mod":
                 data = mod_entry.mod.name
-            elif search_type == "Character":
+            elif search_type == "character":
                 if mod_entry.character:
                     data = mod_entry.character.full_name()
-            elif search_type == "Author":
+            elif search_type == "author":
                 data = mod_entry.author or ""
 
             matches_search = search_query in data.lower()
 
             mod_item.setHidden(not (matches_type and matches_search))
+
     # --- Signals
 
     @Slot(QTreeWidgetItem)
@@ -846,16 +813,59 @@ class ModsView(QWidget):
             self.progress_modal = ProgressModal(self)
         return self.progress_modal
 
-    def remove_mod_from_view(self, mod_name: str) -> None:
-        """Remove a mod from the view by its name."""
-        mod_item = self._mod_item_cache.pop(mod_name, None)
+    def remove_mods_from_view(self, mod_names: list[str]) -> None:
+        """Remove mods from the view by its name."""
+        
+        for mod_name in mod_names:
+            mod_item = self._mod_item_cache.pop(mod_name, None)
 
-        if mod_item:
-            index = self.mod_list.indexOfTopLevelItem(mod_item)
-            if index != -1:
-                self.mod_list.takeTopLevelItem(index)
-                logger.debug(f"Removed mod '{mod_name}' from view.")
+            if mod_item:
+                index = self.mod_list.indexOfTopLevelItem(mod_item)
+                if index != -1:
+                    self.mod_list.takeTopLevelItem(index)
+                    logger.debug(f"Removed mod '{mod_name}' from view.")
+                else:
+                    logger.error(f"Mod '{mod_name}' not found in view during removal.")
             else:
-                logger.error(f"Mod '{mod_name}' not found in view during removal.")
-        else:
-            logger.warning(f"Mod '{mod_name}' not found in cache during removal.")
+                logger.warning(f"Mod '{mod_name}' not found in cache during removal.")
+    
+    def add_mods_to_view(self, mod_entries: list[BD2ModEntry], show_full_path: bool = False):
+        self.mod_list.blockSignals(True)
+        try:
+            for mod_entry in mod_entries:
+                item = ModTreeItem()
+
+                self._populate_mod_item(item, mod_entry, show_full_path)
+                
+                self.mod_list.addTopLevelItem(item)
+
+                self._mod_item_cache[mod_entry.name] = item
+        except Exception as e:
+            logger.error("Error adding mod to mod list: %s", e)
+            self.showNotificationRequested.emit(
+                "Error", self.tr("Failed to add mod"), str(e), 5000
+            )
+        finally:
+            self.mod_list.blockSignals(False)
+
+        self._filter_mods()
+        self._update_mods_count_label()
+        
+    def show_error_dialog(self, title: str, details: str):
+
+        dialog = QMessageBox(self)
+        dialog.setWindowTitle("Add Mods Failed")
+        dialog.setIcon(QMessageBox.Icon.Warning)
+
+        dialog.setTextFormat(Qt.TextFormat.RichText)
+        dialog.setText(f"<h3>{title}</h3>")
+
+        dialog.setInformativeText(
+            "Please see details for a list of errors.<hr>"
+        )
+        dialog.setDetailedText(details)
+        dialog.setStandardButtons(QMessageBox.StandardButton.Ok)
+
+        dialog.setObjectName("errorDialog")
+
+        dialog.exec()
