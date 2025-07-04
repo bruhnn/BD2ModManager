@@ -8,7 +8,7 @@ from PySide6.QtCore import QObject, QThread, Signal
 
 from src.models import ConfigModel, ModManagerModel
 from src.services import SyncWorker, UnsyncWorker
-from src.utils.errors import (GameNotFoundError, InvalidModNameError, ModAlreadyExistsError,
+from src.utils.errors import (ExtractionPasswordError, GameNotFoundError, InvalidModNameError, ModAlreadyExistsError, ModInvalidError,
                             ModNotFoundError)
 from src.views import ModsView
 
@@ -61,7 +61,7 @@ class ModManagerController(QObject):
         self.model.modRenamed.connect(self._on_mod_renamed)
         self.model.modsRemoved.connect(self._on_mods_removed)
         self.model.modsAdded.connect(self._on_mods_added)
-        self.model.modsAddFailed.connect(self._on_add_mod_failed)
+        self.model.modsAddFailed.connect(self._on_add_mods_failed)
 
     def _setup_view_connections(self) -> None:
         self.view.refreshRequested.connect(self._on_refresh_requested)
@@ -88,8 +88,54 @@ class ModManagerController(QObject):
 
     def add_mods(self, paths: list[str]) -> None:
         logger.info(f"Add mods requested for {len(paths)} path(s).")
+        
         if len(paths) == 1:
-            self.model.add_mod(path=paths[0])
+            try:
+                self.model.add_mod(path=paths[0])
+            except ModAlreadyExistsError as error:
+                logger.warning("Attempted to add a mod that already exists: %s", error)
+                self.notificationRequested.emit(
+                    "Mod Already Exists",
+                    str(error),
+                    "warning",
+                    4000
+                )
+
+            except ModInvalidError as error:
+                logger.error("Failed to add invalid mod: %s", error)
+                self.notificationRequested.emit(
+                    "Invalid Mod",
+                    f"The selected folder is not a valid mod. Error: {error}",
+                    "error",
+                    5000
+                )
+
+            except FileNotFoundError as error:
+                logger.error("File not found during add_mod: %s", error)
+                self.notificationRequested.emit(
+                    "File Not Found",
+                    "The selected folder could not be found. It may have been moved or deleted.",
+                    "error",
+                    5000
+                )
+            
+            except ExtractionPasswordError as error: # Password required if zip?
+                logger.error("An error occured when adding mod: %s", error)
+                self.notificationRequested.emit(
+                    "Extraction Failed",
+                    "The mod requires a password. Extract it manually before installing.",
+                    "error",
+                    5000
+                )
+
+            except Exception as error:
+                logger.critical("An unexpected error occurred while adding a mod: %s", error, exc_info=True)
+                self.notificationRequested.emit(
+                    "Unexpected Error",
+                    "An unknown error occurred. Please check the logs for details.",
+                    "error",
+                    5000
+                )
         elif len(paths) > 1:
             self.model.add_multiple_mods(paths=paths)
 
@@ -97,23 +143,23 @@ class ModManagerController(QObject):
         logger.info(f"Attempting to remove mod: {mod_name}")
         try:
             self.model.remove_mod(mod_name)
-        except ModNotFoundError as e:
-            logger.warning(f"Could not remove mod: {e}")
-            self.notificationRequested.emit("Mod Not Found", str(e), "error", 5000)
-        except Exception as e:
-            logger.error(f"An unexpected error occurred while removing mod '{mod_name}': {e}", exc_info=True)
-            self.notificationRequested.emit("Error", f"Could not remove mod: {e}", "error", 5000)
+        except ModNotFoundError as error:
+            logger.warning(f"Could not remove mod: {error}")
+            self.notificationRequested.emit("Mod Not Found", str(error), "error", 5000)
+        except Exception as error:
+            logger.error(f"An unexpected error occurred while removing mod '{mod_name}': {error}", exc_info=True)
+            self.notificationRequested.emit("Error", f"Could not remove mod: {error}", "error", 5000)
 
     def rename_mod(self, mod_name: str, new_name: str) -> None:
         logger.info(f"Attempting to rename mod '{mod_name}' to '{new_name}'.")
         try:
             self.model.rename_mod(mod_name, new_name)
-        except (ModAlreadyExistsError, InvalidModNameError, ModNotFoundError) as e:
-            logger.warning(e)
-            self.notificationRequested.emit("Rename Failed", str(e), "error", 5000)
-        except Exception as e:
-            logger.error(f"An unexpected error occurred while renaming mod '{mod_name}': {e}", exc_info=True)
-            self.notificationRequested.emit("Error", f"Could not rename mod: {e}", "error", 5000)
+        except (ModAlreadyExistsError, InvalidModNameError, ModNotFoundError) as error:
+            logger.warning(error)
+            self.notificationRequested.emit("Rename Failed", str(error), "error", 5000)
+        except Exception as error:
+            logger.error(f"An unexpected error occurred while renaming mod '{mod_name}': {error}", exc_info=True)
+            self.notificationRequested.emit("Error", f"Could not rename mod: {error}", "error", 5000)
 
     def mod_state_changed(self, mod_name: str, state: bool) -> None:
         logger.info(f"Changing state of '{mod_name}' to {'enabled' if state else 'disabled'}.")
@@ -198,8 +244,18 @@ class ModManagerController(QObject):
         if mods_to_update:
             self.view.update_mods(mods_to_update, self.config_model.include_mod_relative_path)
 
-    def _on_add_mod_failed(self, message: str):
-        self.notificationRequested.emit("Add Mod Error", message, "error", 5000)
+    def _on_add_mods_failed(self, failed_mods: list[str]):
+        # self.notificationRequested.emit("Add Mod Error", message, "error", 5000)
+        
+        title = f"Failed to install {len(failed_mods)} mod(s)"
+        
+        details = []
+        for path, error in failed_mods:
+            details.append(f"- {Path(path).name}:\n {error}")
+            
+        detailed_message = "\n\n".join(details)
+    
+        self.view.show_error_dialog(title, detailed_message)
 
     # --- Configuration Handlers
 
