@@ -50,6 +50,7 @@ class ApplicationPaths:
             self.user_characters_assets,
             self.profiles_path,
             self.user_cache_path,
+            self.user_tools_path
         ]
         for path in dirs_to_create:
             path.mkdir(parents=True, exist_ok=True)
@@ -148,6 +149,15 @@ class ApplicationPaths:
     def manifest_json(self) -> Path:
         """Path to the user's manifest.json file."""
         return self.user_data_path / "manifest.json"
+
+    @property
+    def tools_path(self) -> Path:
+        return self.bundle_path / "tools"
+    
+    @property
+    def user_tools_path(self) -> Path:
+        return self._user_data_path / "tools"
+        
 
 
 app_paths = ApplicationPaths()
