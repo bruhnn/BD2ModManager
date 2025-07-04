@@ -14,12 +14,11 @@ class CharactersController(QObject):
         self.characters_view = characters_view
         self.characters_view.refreshCharactersRequested.connect(self.update_chars)
 
-        # if enabled, disable, etc.
+        # if mod enabled, disabled, etc.
         self.mod_manager_model.modsRefreshed.connect(self.update_chars)
-        self.mod_manager_model.modStateChanged.connect(self.update_chars)
-        self.mod_manager_model.modsBulkStateChanged.connect(self.update_chars)
-        self.mod_manager_model.modAdded.connect(self.update_chars)
-        self.mod_manager_model.modRemoved.connect(self.update_chars)
+        self.mod_manager_model.modsStateChanged.connect(self.update_chars)
+        self.mod_manager_model.modsAdded.connect(self.update_chars)
+        self.mod_manager_model.modsRemoved.connect(self.update_chars)
 
         self.update_chars()
 
