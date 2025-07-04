@@ -1,18 +1,26 @@
-from PySide6.QtCore import QObject, Slot
+from PySide6.QtWidgets import QApplication
+from PySide6.QtCore import QObject, Slot, QTranslator
 from PySide6.QtGui import QCloseEvent
+
+
+from pathlib import Path
+import logging
 
 from src.controllers.profile_manager_controller import ProfileManagerController
 from src.models import ConfigModel, ModManagerModel
 
 from src.models import ProfileManager
+from src.services.mod_preview import BD2ModPreview
 from src.views import MainView, ModsView, ConfigView, CharactersView, ManageProfilesView
 from src.controllers import CharactersController, ConfigController, ModManagerController
 from src.services import BD2GameData, UpdateManager
 from src.themes import ThemeManager
-from src.spine_viewer import SpineViewerWidget
 
-from src.utils.paths import app_paths
 from src.utils.files import open_file_or_directory
+from src.utils.paths import app_paths
+
+
+logger = logging.getLogger(__name__)
 
 
 class MainController(QObject):
@@ -23,6 +31,9 @@ class MainController(QObject):
         super().__init__()
 
         self.view = view
+        
+        self.mod_previewer = BD2ModPreview()
+        self.mod_previewer.errorOccurred.connect(self._on_mod_preview_error)
 
         # to prevent update manager to trigger multiple notifications
         self._is_currently_updating = False
@@ -41,8 +52,7 @@ class MainController(QObject):
 
         # Apply initial theme and language
         self._on_apply_stylesheet(self.config_model.theme)
-        current_language = self.config_model.language
-        self._on_apply_language(current_language)
+        self._on_apply_language(self.config_model.language)
 
     # --- Setups
     def _setup_models(self) -> None:
@@ -63,8 +73,7 @@ class MainController(QObject):
         if staging_mods_dir is None:
             staging_mods_dir = app_paths.app_path / "mods"
 
-            self.config_model.set_mods_directory(
-                str(staging_mods_dir.resolve()))
+            self.config_model.set_mods_directory(str(staging_mods_dir.resolve()))
 
         self.mod_manager_model = ModManagerModel(
             game_data=self.game_data_model,
@@ -73,9 +82,6 @@ class MainController(QObject):
             mods_data_file=app_paths.user_data_path / "mods.json",
             game_directory=self.config_model.game_directory,
         )
-
-        self.mod_manager_model.set_experimental_mod_authors_csv(
-            app_paths.authors_csv)
 
     def _setup_views(self) -> None:
         self.mods_view = ModsView()
@@ -115,13 +121,19 @@ class MainController(QObject):
         self.config_model.themeChanged.connect(self._on_apply_stylesheet)
         self.config_model.languageChanged.connect(self._on_apply_language)
 
+        # Config Controller actions
+        self.config_controller.findAuthorsClicked.connect(
+            self._on_find_authors_clicked)
+        self.config_controller.migrateToProfilesClicked.connect(
+            self._on_migrate_to_profiles_clicked)
+
         # View Signals
         self.view.appClosing.connect(self._on_app_close)
         self.view.gameFolderSelected.connect(self._on_game_directory_selected)
         self.view.launchGameRequested.connect(self._on_launch_game_requested)
         self.view.profileChanged.connect(self._profile_changed)
         self.view.showProfilePageRequested.connect(
-            self._show_profile_page_requested)
+            self._on_show_profile_page_requested)
 
         # Profile Signals
         self.profile_manager_model.profilesChanged.connect(
@@ -138,7 +150,6 @@ class MainController(QObject):
         self.view.add_navigation_button("mods", self.tr("Mods"), "extension")
         self.view.add_navigation_button(
             "characters", self.tr("Characters"), "book4_fill")
-        self.view.add_navigation_stretch(1)
         self.view.add_navigation_button(
             "settings", self.tr("Settings"), "settings")
 
@@ -148,36 +159,42 @@ class MainController(QObject):
             releases_url=self.config_model.releases_url,
         )
 
-        self.update_manager.appVersionAvailable.connect(
+        self.update_manager.appUpdateAvailable.connect(
             self._on_app_new_version_available
         )
         self.update_manager.dataUpdateAvailable.connect(
             self._on_update_started)
         self.update_manager.assetUpdateAvailable.connect(
             self._on_update_started
-        )  # Also trigger for assets
+        )
         self.update_manager.allDownloadsFinished.connect(
             self._on_all_updates_finished)
-        self.update_manager.dataUpdated.connect(self._on_data_updated)
-        self.update_manager.error.connect(self._on_update_error)
-        self.update_manager.check_for_updates()
+        # self.update_manager.dataUpdated.connect(self._on_data_updated)
+        self.update_manager.errorOccurred.connect(self._on_update_error)
+
+        if self.config_model.check_for_updates:
+            self.update_manager.start_update_process()
 
     def _setup_spine_viewer(self) -> None:
-        if not self.config_model.spine_viewer_enabled:
-            return
-
-        self.spine_web = SpineViewerWidget(
-            self.mod_manager_model.staging_mods_directory,
-            self.view
-        )
-
-        self.view.add_page("viewer", self.spine_web)
-        self.view.add_navigation_button(
-            "viewer", self.tr("Viewer"), "view_list", 3)
-
         self.mod_manager_controller.modPreviewRequested.connect(
             self._on_mod_preview_requested
         )
+        
+        # if not self.config_model.spine_viewer_enabled:
+        #     return
+
+        # self.spine_web = SpineViewerWidget(
+        #     self.mod_manager_model.staging_mods_directory,
+        #     self.view
+        # )
+
+        # self.view.add_page("viewer", self.spine_web)
+        # self.view.add_navigation_button(
+        #     "viewer", self.tr("Viewer"), "view_list", 3)
+
+        # self.mod_manager_controller.modPreviewRequested.connect(
+        #     self._on_mod_preview_requested
+        # )
 
     # --- Slots
     @Slot(str)
@@ -204,7 +221,7 @@ class MainController(QObject):
             self.view.show_notification(
                 title="Update Complete!",
                 text="Game data has been successfully updated.",
-                duration=4000,  # Shorter duration for success messages
+                duration=2000,  # Shorter duration for success messages
             )
             self.mod_manager_model.refresh_game_data()
 
@@ -212,18 +229,18 @@ class MainController(QObject):
 
     @Slot(str)
     def _on_update_error(self, error_message: str):
-        self.view.show_notification(
-            title="Update Failed",
-            text="Could not download necessary data.",
-            duration=10000,
-        )
-        print(f"UpdateManager Error: {error_message}")
+        # self.view.show_notification(
+        #     title="Update Failed",
+        #     text="Could not download necessary data.",
+        #     duration=10000,
+        # )
+        # print(f"UpdateManager Error: {error_message}")
         self._is_currently_updating = False
 
-    @Slot(str)
-    def _on_data_updated(self, key: str):
-        print(f"Data for '{key}' updated, refreshing game data...")
-        self.mod_manager_model.refresh_game_data()
+    # @Slot(str)
+    # def _on_data_updated(self, key: str):
+    #     print(f"Data for '{key}' updated, refreshing game data...")
+    #     self.mod_manager_model.refresh_game_data()
 
     @Slot()
     def _on_app_close(self, event: QCloseEvent) -> None:
@@ -232,23 +249,11 @@ class MainController(QObject):
 
     @Slot(str)
     def _on_apply_stylesheet(self, theme: str) -> None:
-        current_theme = ThemeManager.themes.get(theme)
-
-        if current_theme:
-            self.view.apply_stylesheet(
-                current_theme["name"], current_theme["style_path"])
+        self.apply_stylesheet(theme)
 
     @Slot(str)
     def _on_apply_language(self, language: str) -> None:
-        self.view.apply_language(
-            language,
-            str(
-                app_paths.source_path
-                / "resources"
-                / "translations"
-                / (language + ".qm")
-            ),
-        )
+        self.apply_language(language)
 
     @Slot()
     def _on_game_directory_selected(self, path: str) -> None:
@@ -303,9 +308,36 @@ class MainController(QObject):
         self.profile_manager_model.switch_profile(profile_id)
 
     @Slot()
-    def _show_profile_page_requested(self) -> None:
-        print("ABCV")
+    def _on_show_profile_page_requested(self) -> None:
         self.view.change_navigation_page("profiles")
+
+    @Slot()
+    def _on_find_authors_clicked(self):
+        self.mod_manager_model.set_experimental_mod_authors_csv(
+            app_paths.authors_csv)
+        self.mod_manager_model.experimental_find_mod_authors()
+
+    @Slot()
+    def _on_migrate_to_profiles_clicked(self):
+        try:
+            if self.mod_manager_model.experimental_migrate_to_profiles():
+                self.view.show_notification(
+                    "Success", 
+                    "All mod states were successfully migrated to the Default profile."
+                )
+            else:
+                self.view.show_notification(
+                    "Migration Skipped",
+                    "Migration was not needed or the data file was not found.",
+                    "info"
+                )
+        except Exception as error:
+            print(f"Migration Error: {error}") 
+            self.view.show_notification(
+                "Error", 
+                "An unexpected error occurred during migration.", 
+                "error"
+            )
 
     @Slot(str)
     def _validate_config_game_directory(self, path: str) -> None:
@@ -322,16 +354,27 @@ class MainController(QObject):
 
     @Slot(str)
     def _on_mod_preview_requested(self, mod_name: str):
-        if not hasattr(self, "spine_web"):
-            return
-
         mod = self.mod_manager_model.get_mod_by_name(mod_name)
 
         if not mod:
             return self.view.show_notification("Mod Not Found", f"Mod with the name '{mod_name}' was not found.", "error")
+    
+        self.mod_previewer.launch_preview(mod.path)
+    
+    @Slot(str)
+    def _on_mod_preview_error(self, message: str):
+        self.view.show_notification("Mod Preview Error", message, "error")
 
-        self.spine_web.load_from_path(mod.path)
-        self.view.change_navigation_page("viewer")
+        # if not hasattr(self, "spine_web"):
+        #     return
+
+        # mod = self.mod_manager_model.get_mod_by_name(mod_name)
+
+        # if not mod:
+        #     return self.view.show_notification("Mod Not Found", f"Mod with the name '{mod_name}' was not found.", "error")
+
+        # self.spine_web.load_from_path(mod.path)
+        # self.view.change_navigation_page("viewer")
 
     # --- Private Methods
     def _check_game_directory(self) -> None:
@@ -353,3 +396,62 @@ class MainController(QObject):
     # --- Public Methods
     def show(self) -> None:
         self.view.show()
+
+    def apply_stylesheet(self, theme: str) -> None:
+        current_theme = ThemeManager.themes.get(theme)
+
+        if not current_theme:
+            return logger.warning(f"Theme '{theme}' not found.")
+        
+        theme_path = current_theme.get("style_path")
+        
+        if not theme_path:
+            return logger.error(f"Path of theme '{theme}' was not found.")
+        
+        
+        logger.info(f"Applying stylesheet for theme '{theme}' from: {theme_path}")
+        
+        try:
+            with open(theme_path, "r", encoding="utf-8") as f:
+                stylesheet = f.read()
+                self.view.setStyleSheet(stylesheet)
+                ThemeManager.set_theme(theme)
+            self.view.updateIcons()
+            logger.info(f"Successfully applied stylesheet for theme: {theme}")
+        except Exception as e:
+            logger.error(
+                f"Failed to apply stylesheet from {path}: {e}", exc_info=True)
+            self.view.show_notification(
+                title=self.tr("Theme Error"),
+                text=self.tr(f"Failed to apply the '{theme}' theme. Please check the logs."),
+                type="error",
+                duration=5000  # 5 seconds
+            )
+
+    def apply_language(self, language: str) -> None:
+        language_path = (
+                app_paths.source_path
+                / "translations"
+                / (language + ".qm")
+        )
+        
+        if language == "en-US":
+            QApplication.instance().removeTranslator(QTranslator())
+            self.view.retranslateUI()
+            logger.info("Switched to default language (English).")
+            return
+        
+        if not language_path.exists():
+            return logger.error(f"Path of language '{language}' not found.")
+        
+        logger.info(f"Applying language '{language}' from: {language_path}")
+        
+        translator = QTranslator()
+        if translator.load(language_path.as_posix()):
+            QApplication.instance().installTranslator(translator)
+            self.view.retranslateUI()
+            logger.info(f"Successfully applied language: {language}")
+        else:
+            logger.warning(
+                f"Failed to load translation for '{language}' from path: {language_path}"
+            )
