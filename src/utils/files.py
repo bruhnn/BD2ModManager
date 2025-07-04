@@ -6,13 +6,16 @@ import shutil
 import sys
 import subprocess
 import os
+import zipfile
 
-from py7zr import pack_7zarchive, unpack_7zarchive
+import py7zr
+
+from src.utils.errors import ExtractionPasswordError
 
 try:
     shutil.register_archive_format(
-        "7zip", pack_7zarchive, description="7zip archive")
-    shutil.register_unpack_format("7zip", [".7z"], unpack_7zarchive)
+        "7zip", py7zr.pack_7zarchive, description="7zip archive")
+    shutil.register_unpack_format("7zip", [".7z"], py7zr.unpack_7zarchive)
 except shutil.RegistryError:
     pass  # already registred I hope
 
@@ -20,13 +23,14 @@ logger = logging.getLogger(__name__)
 COMPRESSED_EXTENSIONS = {".7z", ".zip", ".rar", ".tar", ".gz", ".bz2", ".xz"}
 
 
-def get_folder_hash(path: Path) -> str:
+def get_folder_hash(path: Path, add_relative_path: bool = True) -> str:
     hash = sha256()
 
     for file in sorted(path.rglob("*")):
         if file.is_file():
-            relative_path = str(file.relative_to(path))
-            hash.update(relative_path.encode())
+            if add_relative_path:
+                relative_path = str(file.relative_to(path))
+                hash.update(relative_path.encode())
 
             # Stream file contents in chunks
             with file.open("rb") as f:
@@ -51,12 +55,52 @@ def get_data_hash(data: Any) -> str:
 
 
 def is_filename_valid(filename: str) -> bool:
+    print('1', PurePath(filename).name, '2', filename)
     return PurePath(filename).name == filename
 
 
 def is_compressed_file(path: Path) -> bool:
     return path.suffix.lower() in COMPRESSED_EXTENSIONS
 
+def is_zip_encrypted(source_path: Path) -> bool:
+    try:
+        with zipfile.ZipFile(source_path, 'r') as zf:
+            for zinfo in zf.infolist():
+                if zinfo.flag_bits & 0x1:
+                    return True
+    except zipfile.BadZipFile:
+        return False
+    return False
+
+# def is_rar_encrypted(source_path: Path) -> bool:
+#     """Checks if a .rar file is password-protected."""
+#     try:
+#         with rarfile.RarFile(source_path) as rf:
+#             # The needs_password() method is a reliable check
+#             return any(f.needs_password() for f in rf.infolist())
+#     except rarfile.BadRarFile:
+#         return False
+
+def is_7z_encrypted(source_path: Path) -> bool:
+    try:
+        with py7zr.SevenZipFile(source_path, 'r') as zf:
+            _ = zf.getnames()
+            return False
+    except py7zr.PasswordRequired:
+        return True
+    except py7zr.Bad7zFile:
+        return False
+
+def is_archive_encrypted(source_path: Path) -> bool:
+    suffix = source_path.suffix.lower()
+    if suffix == '.zip':
+        return is_zip_encrypted(source_path)
+    if suffix == '.7z':
+        return is_7z_encrypted(source_path)
+    # if suffix == '.rar':
+    #     return is_rar_encrypted(source_path)
+        
+    return False
 
 def extract_file(source_path: Union[str, Path], output_path: Union[str, Path]) -> None:
     source_path = Path(source_path)
@@ -64,6 +108,11 @@ def extract_file(source_path: Union[str, Path], output_path: Union[str, Path]) -
 
     if not source_path.exists():
         raise FileNotFoundError(f"Source archive not found: {source_path}")
+
+    if is_archive_encrypted(source_path):
+        error_msg = f"Archive '{source_path.name}' is password-protected and cannot be extracted."
+        logger.error(error_msg)
+        raise ExtractionPasswordError(error_msg)
 
     # Create output directory if it doesn't exist
     output_path.mkdir(parents=True, exist_ok=True)
