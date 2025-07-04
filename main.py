@@ -1,8 +1,8 @@
+from argparse import ArgumentParser
 import logging
+import time
 import sys
 import shutil
-import time
-from argparse import ArgumentParser
 
 from PySide6.QtWidgets import QApplication, QMessageBox, QSplashScreen
 from PySide6.QtGui import QIcon, QFontDatabase, QPixmap
@@ -26,12 +26,10 @@ class Application:
         logger.info("Initializing Application...")
         self._start_time = start_time
         
-
         self.app = QApplication(sys.argv)
         self.app.setOrganizationName("Bruhnn")
         self.app.setApplicationName("BD2ModManager")
         
-        self.splash = None
         # self._show_splash_screen()
         
         self._init_appdata()
@@ -81,14 +79,15 @@ class Application:
             logger.warning("Font not found at %s", font_path)
 
     def _init_appdata(self) -> None:
-        logger.info("Initializing application data (first-time setup)...")
-        app_data_to_check = (
+        logger.info("Initializing application data...")
+        
+        data = (
             (app_paths.default_characters_csv, app_paths.characters_csv),
             (app_paths.default_datings_csv, app_paths.datings_csv),
             (app_paths.default_authors_csv, app_paths.authors_csv),
         )
 
-        for original_data, user_data in app_data_to_check:
+        for original_data, user_data in data:
             logger.debug(f"Checking for user data file: {user_data}")
             try:
                 if not user_data.exists():
@@ -112,6 +111,30 @@ class Application:
                 )
                 sys.exit(1)
 
+        tools = (
+            (app_paths.tools_path / "BD2ModPreview.exe", app_paths.user_tools_path / "BD2ModPreview.exe"),
+        )
+
+        for tool_src, user_tool_dst in tools:
+            logger.debug(f"Checking for tool: {user_tool_dst}")
+            
+            try:
+                if not user_tool_dst.exists():
+                    if tool_src.exists():
+                        logger.info(
+                            "User tool not found. Copying from '%s' to '%s'",
+                            tool_src, user_tool_dst
+                        )
+                        shutil.copy2(tool_src, user_tool_dst)
+                    else:
+                        raise FileNotFoundError(f"Default tool not found at {tool_src}")
+            except (IOError, OSError, FileNotFoundError) as e:
+                logger.critical(
+                    "Could not initialize tool: %s. Error: %s",
+                    user_tool_dst, e,
+                    exc_info=True,
+                )
+        
     def _create_ui(self) -> None:
         logger.info("Creating user interface...")
         self.main_view = MainView()
@@ -123,14 +146,15 @@ class Application:
     def run(self) -> int:
         end_time = time.perf_counter()
         load_time = end_time - self._start_time
-        logger.info("Application loaded in %.5f seconds.", load_time)
+        logger.info("Application loaded in %.3f seconds.", load_time)
 
         logger.info("Showing main window and starting application event loop.")
         self.main_controller.show()
         
-        if self.splash:
+        if hasattr(self, "splash"):
             self.splash.finish(self.main_view)
-            self.splash.deleteLater() 
+            self.splash.deleteLater()
+        
         return self.app.exec()
 
 
