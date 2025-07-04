@@ -1,7 +1,6 @@
 import logging
 import time
 from typing import Optional
-from pathlib import Path
 
 from PySide6.QtWidgets import (
     QMainWindow,
@@ -12,9 +11,10 @@ from PySide6.QtWidgets import (
     QLabel,
     QComboBox,
     QFrame,
-    QApplication,
+    QDialog,
+    QMessageBox
 )
-from PySide6.QtCore import Qt, QSettings, QByteArray, Signal, QSize, QTranslator, Slot
+from PySide6.QtCore import Qt, QSettings, QByteArray, Signal, QSize, Slot
 from PySide6.QtGui import QCloseEvent
 
 from src.version import __version__
@@ -22,7 +22,6 @@ from src.views.pages import SelectGameDirectory
 from src.views.widgets import BaseButton, NavigationButton, PulsingLabel
 from src.services.notification_service import NotificationsManager
 from src.themes.theme_manager import ThemeManager
-from src.models.profile_manager_model import Profile
 
 
 logger = logging.getLogger(__name__)
@@ -34,7 +33,7 @@ class MainView(QMainWindow):
 
     launchGameRequested = Signal()
 
-    profileChanged = Signal(Profile)
+    profileChanged = Signal(str)
     newProfile = Signal(str)
 
     showProfilePageRequested = Signal()
@@ -248,6 +247,13 @@ class MainView(QMainWindow):
             widget = self.navigation_view.widget(i)
             if hasattr(widget, "retranslateUI"):
                 widget.retranslateUI()
+        
+
+        if self.profile_dropdown.itemData(self.profile_dropdown.count()-1) == "manage_profiles":
+            self.profile_dropdown.removeItem(self.profile_dropdown.count()-1)
+            self.profile_dropdown.addItem(
+            ThemeManager.icon("build"), self.tr("Manage Profiles"), "manage_profiles"
+        )
 
     def updateIcons(self) -> None:
         for btn in self.navigation_bar.findChildren(NavigationButton):
@@ -340,7 +346,7 @@ class MainView(QMainWindow):
                     f"Set '{profile.name}' as active profile in dropdown.")
 
         self.profile_dropdown.addItem(
-            ThemeManager.icon("build"), "Manage Profiles", "manage_profile"
+            ThemeManager.icon("build"), self.tr("Manage Profiles"), "manage_profiles"
         )
         self.profile_dropdown.blockSignals(False)
         logger.info("Profiles dropdown updated.")
@@ -350,50 +356,6 @@ class MainView(QMainWindow):
             f"Setting game directory error for path '{path}': {error_message}")
         self.select_game_dir_page.set_folder_text(path)
         self.select_game_dir_page.set_info_text(error_message)
-
-    def apply_stylesheet(self, theme: str, theme_path: str) -> None:
-        path = Path(theme_path)
-        
-        # TODO: move this to controller
-        
-        logger.info(
-            f"Applying stylesheet for theme '{theme}' from: {theme_path}")
-        
-        try:
-            with open(path, "r", encoding="utf-8") as f:
-                stylesheet = f.read()
-                self.setStyleSheet(stylesheet)
-                ThemeManager.set_theme(theme)
-
-            self.updateIcons()
-            logger.info(f"Successfully applied stylesheet for theme: {theme}")
-        except Exception as e:
-            logger.error(
-                f"Failed to apply stylesheet from {path}: {e}", exc_info=True)
-            self.show_notification(
-                title=self.tr("Theme Error"),
-                text=self.tr(f"Failed to apply the '{theme}' theme. Please check the logs."),
-                type="error",
-                duration=5000  # 5 seconds
-            )
-
-    def apply_language(self, language: str, language_path: str) -> None:
-        logger.info(f"Applying language '{language}' from: {language_path}")
-        if language == "en-US":
-            QApplication.instance().removeTranslator(QTranslator())
-            self.retranslateUI()
-            logger.info("Switched to default language (English).")
-            return
-
-        translator = QTranslator()
-        if translator.load(language_path):
-            QApplication.instance().installTranslator(translator)
-            self.retranslateUI()
-            logger.info(f"Successfully applied language: {language}")
-        else:
-            logger.warning(
-                f"Failed to load translation for '{language}' from path: {language_path}"
-            )
 
     def show_notification(
         self,
@@ -408,13 +370,15 @@ class MainView(QMainWindow):
         self.notifications.add_notification(
             title=title, description=text, notification_type=type, duration=duration
         )
+    
+
 
     # --- Signals
     @Slot(int)
     def on_profile_changed(self, index: int) -> None:
         profile_data = self.profile_dropdown.itemData(index)
 
-        if profile_data == "manage_profile":
+        if profile_data == "manage_profiles":
             logger.info(
                 "'Manage Profiles' selected. Emitting request to show profile page."
             )
