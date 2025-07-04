@@ -650,7 +650,7 @@ QLabel {
 }
 
 #progressModalStatusLabel {
-    color: #9ca3af; /* A less prominent color for status updates */
+    color: #9ca3af;
     font-size: 13px;
 }
 
@@ -660,7 +660,7 @@ QProgressBar#progressModalProgressBar {
     border: none;
     border-radius: 4px;
     text-align: center;
-    color: #d1d5db; /* Hide text, but set color just in case */
+    color: #d1d5db;
 }
 
 QProgressBar#progressModalProgressBar::chunk {
@@ -668,12 +668,12 @@ QProgressBar#progressModalProgressBar::chunk {
     border-radius: 4px;
 }
 
-/* Custom property to indicate error */
 QProgressBar#progressModalProgressBar[error="true"]::chunk {
-    background-color: #ef4444; /* A fitting red for dark themes */
+    background-color: #ef4444;
 }
 
 /* ---- Progress Modal Buttons ---- */
+
 #progressModalButton, #progressModalCancelButton {
     border-radius: 6px;
     padding: 6px 14px;
@@ -694,11 +694,52 @@ QProgressBar#progressModalProgressBar[error="true"]::chunk {
     color: #6b7280;
 }
 
-/* Make cancel button stand out slightly on hover */
 #progressModalCancelButton:hover {
     background-color: #991b1b; /* A darker red for hover */
 }
 
 #configView {
     background-color: transparent;
+}
+
+#updateAlertWidget {
+    background-color: #111827;
+    border-radius: 4px;
+}
+/* ---- MESSAGE BOX / DIALOGS ---- */
+
+QMessageBox#errorDialog {
+    background-color: #1f2937; /* Same as profile dialog */
+    border: 1px solid #4b5563;
+    border-radius: 8px;
+}
+
+/* Style for the main text and informative text labels */
+QMessageBox#errorDialog QLabel {
+    color: #d1d5db;
+    font-size: 14px;
+}
+
+/* Style for the "OK", "Cancel" buttons */
+QMessageBox#errorDialog QPushButton {
+    background-color: #4b5563;
+    color: #e5e7eb;
+    border: none;
+    border-radius: 6px;
+    padding: 6px 14px;
+    font-size: 14px;
+    font-weight: 600;
+    min-width: 80px;
+}
+
+QMessageBox#errorDialog QPushButton:hover {
+    background-color: #6b7280;
+}
+
+/* Specifically style the scroll area for the detailed text */
+QMessageBox#errorDialog QTextEdit {
+    background-color: #111827; /* Darker background for contrast */
+    color: #9ca3af;
+    border-radius: 4px;
+    border: 1px solid #4b5563;
 }
