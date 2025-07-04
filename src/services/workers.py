@@ -2,8 +2,7 @@ import logging
 
 from PySide6.QtCore import QObject, Signal
 
-from src.utils.errors import GameDirectoryNotSetError, AdminRequiredError
-from src.models.mod_manager_model import ModManagerModel
+from src.utils.errors import BrownDustXNotInstalled, GameDirectoryNotSetError, AdminRequiredError
 
 logger = logging.getLogger(__name__)
 
@@ -16,7 +15,7 @@ class BaseWorker(QObject):
     progress = Signal(int, int, str)
 
     def __init__(
-        self, mod_manager_model: ModManagerModel, symlink: bool = False
+        self, mod_manager_model: "ModManagerModel", symlink: bool = False
     ) -> None:
         super().__init__()
         self._mod_manager_model = mod_manager_model
@@ -44,6 +43,9 @@ class SyncWorker(BaseWorker):
         except AdminRequiredError:
             logger.error("Admin privileges required for symlinks.")
             return self.error.emit("You need to run as administrator to use symlinks.")
+        except BrownDustXNotInstalled:
+            logger.error("BrownDustX not installed.")
+            return self.error.emit("BrownDustX not installed!")
         except Exception as error:  # to not frozen the app
             logger.error(
                 f"An unexpected error occurred during sync: {error}", exc_info=True
