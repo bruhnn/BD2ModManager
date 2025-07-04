@@ -5,7 +5,9 @@ requires-python = ">=3.13"
 dependencies = [
     "packaging>=25.0",
     "pefile>=2024.8.26",
+    "pillow>=11.2.1",
     "py7zr>=1.0.0",
+    "pyinstaller>=6.10.0",
     "pyqt6>=6.9.1",
     "pyside6>=6.9.1",
     "requests>=2.32.4",
@@ -14,5 +16,6 @@ dependencies = [
 [dependency-groups]
 dev = [
     "pytest>=8.4.1",
+    "pytest-qt>=4.5.0",
     "ruff>=0.11.12",
 ]
