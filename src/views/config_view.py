@@ -18,8 +18,10 @@ from PySide6.QtWidgets import (
     QScrollArea,
     QFrame,
     QMessageBox,
+    QStyleOption
 )
 from PySide6.QtCore import Qt, Signal, Slot
+from PySide6.QtGui import QPainter
 
 from src.themes import ThemeManager
 
@@ -43,6 +45,8 @@ class DirectoryInput(QWidget):
         layout = QGridLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(8)
+        
+        self._text_label = label
 
         self.label = QLabel(text=label)
         self.label.setObjectName("directoryInputLabel")
@@ -139,6 +143,15 @@ class DirectoryInput(QWidget):
         """Check if the current path is valid."""
         path = self.get_directory_path()
         return bool(path and os.path.exists(path))
+
+    def retranslateUI(self) -> None:
+        self.label.setText(self.tr(self._text_label))
+        self.input_field.setText(self.tr(self.placeholder if not self.get_directory_path() else self.get_directory_path()))
+        self.input_field.setToolTip(self.tr("Selected directory path") if self.get_directory_path() else "")
+        self.browse_button.setText(self.tr("Browse"))
+        self.browse_button.setToolTip(self.tr("Browse for directory"))
+        self.open_button.setText(self.tr("Open"))
+        self.open_button.setToolTip(self.tr("Open directory in file explorer"))
 
 
 class ConfigComboBox(QWidget):
@@ -250,6 +263,59 @@ class ConfigCheckBox(QCheckBox):
             self.setToolTip(tooltip)
 
 
+# class BD2ModPreviewUpdateAlert(QWidget):
+#     updateButtonClicked = Signal()
+
+#     def __init__(self, parent: QWidget | None = None) -> None:
+#         super().__init__(parent)
+#         self.setObjectName("updateAlertWidget")
+
+#         self._icon_label = QLabel()
+#         self._icon_label.setObjectName("updateAlertIcon")
+#         self._icon_label.setPixmap(ThemeManager.icon("cloud_download").pixmap(64, 64))
+
+#         self._title = QLabel("An update for BD2ModPreview is available")
+#         self._title.setObjectName("updateAlertTitle")
+
+#         self._desc = QLabel()
+#         self._desc.setObjectName("updateAlertDesc")
+#         self._desc.setWordWrap(True)
+
+#         self._update_btn = QPushButton("Update")
+#         self._update_btn.setObjectName("updateAlertButton")
+#         self._update_btn.setCursor(Qt.CursorShape.PointingHandCursor)
+
+#         main_layout = QHBoxLayout(self)
+#         main_layout.setContentsMargins(*[16]*4)
+#         main_layout.setSpacing(16)
+
+#         text_layout = QVBoxLayout()
+#         text_layout.setSpacing(4)
+#         text_layout.addWidget(self._title)
+#         text_layout.addWidget(self._desc)
+
+#         main_layout.addWidget(self._icon_label, 0, Qt.AlignmentFlag.AlignCenter)
+#         main_layout.addLayout(text_layout, 1)
+#         main_layout.addWidget(self._update_btn, 0, Qt.AlignmentFlag.AlignCenter)
+
+#         self._update_btn.clicked.connect(self.updateButtonClicked.emit)
+
+#         self.set_version("2.3.0")
+
+#     def set_version(self, version: str) -> None:
+#         self._desc.setText(
+#             f"BD2ModPreview v{version} is available. Click 'Update' to automatically install it."
+#         )
+
+#     def paintEvent(self, event) -> None:
+#         option = QStyleOption()
+#         option.initFrom(self)
+#         painter = QPainter(self)
+#         self.style().drawPrimitive(
+#             self.style().PrimitiveElement.PE_Widget, option, painter, self
+#         )
+
+
 class ConfigView(QScrollArea):
     languageChanged = Signal(str)
     themeChanged = Signal(str)
@@ -258,7 +324,6 @@ class ConfigView(QScrollArea):
     syncMethodChanged = Signal(str)
     searchModsRecursivelyChanged = Signal(bool)
     includeModRelativePathChanged = Signal(bool)
-    spineViewerEnabledChanged = Signal(bool)
 
     # Action signals
     findAuthorsClicked = Signal()
@@ -288,6 +353,8 @@ class ConfigView(QScrollArea):
             QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
         self.title.setObjectName("settingsTitle")
 
+        # self.bd2modpreview_update =  BD2ModPreviewUpdateAlert()
+
         self._create_sections()
         self._layout_sections()
 
@@ -297,7 +364,6 @@ class ConfigView(QScrollArea):
         self._create_paths_section()
         self._create_general_section()
         self._create_synchronization_section()
-        self._create_viewer_section()
         self._create_experimental_section()
 
     def _create_paths_section(self) -> None:
@@ -305,12 +371,12 @@ class ConfigView(QScrollArea):
 
         self.game_directory_input = DirectoryInput(
             label=self.tr("Game Directory"),
-            placeholder="Select game installation directory"
+            placeholder=self.tr("Select game installation directory")
         )
 
         self.mods_directory_input = DirectoryInput(
             label=self.tr("Mods Directory"),
-            placeholder="Select mods storage directory"
+            placeholder=self.tr("Select mods staging directory")
         )
 
         self.recursive_search_checkbox = ConfigCheckBox(
@@ -324,10 +390,10 @@ class ConfigView(QScrollArea):
         self.language_combobox = ConfigComboBox(
             label=self.tr("Language:"),
             options=[
-                {"label": "English", "value": "english",
-                    "tooltip": "English (United States)"},
-                {"label": "Português (BR)", "value": "portuguese",
-                 "tooltip": "Portuguese (Brazil)"},
+                {"label": "English", "value": "en-US", "tooltip": "English (United States)"},
+                {"label": "Português (BR)", "value": "pt-BR", "tooltip": "Portuguese (Brazil)"},
+                {"label": "日本語", "value": "ja-JP", "tooltip": "Japanese"},
+                {"label": "한국어", "value": "ko-KR", "tooltip": "Korean"},
             ],
         )
 
@@ -363,15 +429,6 @@ class ConfigView(QScrollArea):
             ],
         )
 
-    def _create_viewer_section(self) -> None:
-        """Create the Spine viewer configuration section."""
-        self.viewer_header = SectionHeader(self.tr("Spine Viewer"))
-
-        self.spine_viewer_enabled = ConfigCheckBox(
-            self.tr("Enable Spine Viewer Server"),
-            self.tr("Enable built-in Spine animation viewer")
-        )
-
     def _create_experimental_section(self) -> None:
         self.experimental_header = SectionHeader(
             self.tr("Experimental Features"))
@@ -394,6 +451,8 @@ class ConfigView(QScrollArea):
         self.main_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
         self.main_layout.addWidget(self.title)
 
+        # self.main_layout.addWidget(self.bd2modpreview_update)
+
         # Paths section
         self.main_layout.addWidget(self.paths_header)
         self.main_layout.addWidget(self.game_directory_input)
@@ -409,10 +468,6 @@ class ConfigView(QScrollArea):
         # Synchronization section
         self.main_layout.addWidget(self.synchronization_header)
         self.main_layout.addWidget(self.sync_method_combobox)
-
-        # Viewer section
-        self.main_layout.addWidget(self.viewer_header)
-        self.main_layout.addWidget(self.spine_viewer_enabled)
 
         # Experimental section
         self.main_layout.addWidget(self.experimental_header)
@@ -440,8 +495,6 @@ class ConfigView(QScrollArea):
             self.searchModsRecursivelyChanged.emit)
         self.include_mod_relative_path_checkbox.stateChanged.connect(
             self.includeModRelativePathChanged.emit)
-        self.spine_viewer_enabled.stateChanged.connect(
-            self.spineViewerEnabledChanged.emit)
 
         # Combo boxes
         self.language_combobox.valueChanged.connect(self.languageChanged.emit)
@@ -454,17 +507,17 @@ class ConfigView(QScrollArea):
         self.migrate_to_profiles_button.clicked.connect(
             self.migrateToProfilesClicked.emit)
 
-    
     @Slot(dict)
     def update_config(self, config: Dict[str, Any]) -> None:
         self.set_game_directory(config.get("game_directory", ""))
         self.set_mods_directory(config.get("mods_directory", ""))
-        self.set_search_mods_recursively(config.get("search_mods_recursively", False))
+        self.set_search_mods_recursively(
+            config.get("search_mods_recursively", False))
         self.set_language(config.get("language", "en_US"))
         self.set_theme(config.get("theme", "System"))
         self.set_sync_method(config.get("sync_method", "Copy"))
-        self.set_include_mod_relative_path(config.get("include_mod_relative_path", False))
-        self.set_spine_viewer_enabled(config.get("spine_viewer_enabled", True))
+        self.set_include_mod_relative_path(
+            config.get("include_mod_relative_path", False))
 
     @Slot(str)
     def set_game_directory(self, path: str) -> None:
@@ -483,13 +536,13 @@ class ConfigView(QScrollArea):
         self.recursive_search_checkbox.blockSignals(True)
         self.recursive_search_checkbox.setChecked(value)
         self.recursive_search_checkbox.blockSignals(False)
-        
+
     @Slot(str)
     def set_language(self, language: str) -> None:
         self.language_combobox.blockSignals(True)
         self.language_combobox.set_current_value(language)
         self.language_combobox.blockSignals(False)
-        
+
     @Slot(str)
     def set_theme(self, theme: str) -> None:
         self.theme_combobox.blockSignals(True)
@@ -501,18 +554,12 @@ class ConfigView(QScrollArea):
         self.sync_method_combobox.blockSignals(True)
         self.sync_method_combobox.set_current_value(method)
         self.sync_method_combobox.blockSignals(False)
-        
+
     @Slot(bool)
     def set_include_mod_relative_path(self, value: bool) -> None:
         self.include_mod_relative_path_checkbox.blockSignals(True)
         self.include_mod_relative_path_checkbox.setChecked(value)
         self.include_mod_relative_path_checkbox.blockSignals(False)
-
-    @Slot(bool)
-    def set_spine_viewer_enabled(self, value: bool) -> None:
-        self.spine_viewer_enabled.blockSignals(True)
-        self.spine_viewer_enabled.setChecked(value)
-        self.spine_viewer_enabled.blockSignals(False)
 
     def retranslateUI(self) -> None:
         self.title.setText(self.tr("Settings"))
@@ -521,10 +568,11 @@ class ConfigView(QScrollArea):
         self.paths_header.set_title(self.tr("Paths"))
         self.general_header.set_title(self.tr("General"))
         self.synchronization_header.set_title(self.tr("Synchronization"))
-        self.viewer_header.set_title(self.tr("Spine Viewer"))
         self.experimental_header.set_title(self.tr("Experimental Features"))
 
         # Update input labels
+        self.game_directory_input.retranslateUI()
+        self.mods_directory_input.retranslateUI()
         self.game_directory_input.set_label_text(self.tr("Game Directory"))
         self.mods_directory_input.set_label_text(self.tr("Mods Directory"))
 
@@ -538,8 +586,6 @@ class ConfigView(QScrollArea):
             self.tr("Search Mods Recursively"))
         self.include_mod_relative_path_checkbox.setText(
             self.tr("Show full mod folder paths"))
-        self.spine_viewer_enabled.setText(
-            self.tr("Enable Spine Viewer Server"))
 
         # Update button text
         self.find_authors_button.setText(self.tr("Find Authors"))
