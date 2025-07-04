@@ -2,6 +2,7 @@ import hashlib
 import json
 import logging
 import shutil
+import subprocess
 import tempfile
 from pathlib import Path
 from typing import Any, Dict
@@ -16,9 +17,23 @@ from src.version import __version__
 
 logger = logging.getLogger(__name__)
 
+# def get_bd2modpreview_version(exe_path: str | Path) -> str | None:
+#     try:
+#         result = subprocess.run(
+#             [str(exe_path), "--version"],
+#             capture_output=True,
+#             text=True,
+#             timeout=3
+#         )
+#         version = result.stdout.strip()
+#         return version if version else None
+#     except (subprocess.SubprocessError, FileNotFoundError, OSError) as e:
+#         print(f"Error checking mod preview version: {e}")
+#         return None
+
 
 class UpdateManager(QObject):
-    appVersionAvailable = Signal(str)
+    appUpdateAvailable = Signal(str)
 
     # Signals for data files
     dataUpdateAvailable = Signal(str)  # key of the data file
@@ -27,13 +42,20 @@ class UpdateManager(QObject):
     # Signals for asset files
     assetUpdateAvailable = Signal(str)  # key of the asset
     assetUpdated = Signal(str)  # key of the asset
+    
+    # Signals for tools
+    # toolUpdateAvailable = Signal(str)
+    # toolUpdated = Signal(str)
 
     updateCheckFinished = Signal()
     allDownloadsFinished = Signal()
-    error = Signal(str)
+    errorOccurred = Signal(str)
 
     def __init__(
-        self, manifest_url: str, releases_url: str, parent: QObject = None
+        self, 
+        manifest_url: str, 
+        releases_url: str,
+        parent: QObject | None = None
     ) -> None:
         super().__init__(parent)
 
@@ -43,7 +65,7 @@ class UpdateManager(QObject):
 
         self._remote_manifest_data: Dict[str, Any] = {}
         self._local_manifest_data = self._load_local_manifest()
-
+        
         self._active_downloads = 0
 
         logger.info("UpdateManager initialized.")
@@ -69,7 +91,7 @@ class UpdateManager(QObject):
                     "Local manifest at %s is corrupted. A new one will be created.",
                     app_paths.manifest_json,
                 )
-                self.error.emit(
+                self.errorOccurred.emit(
                     "Local manifest is corrupted. A new one will be created."
                 )
                 return default_manifest
@@ -78,7 +100,7 @@ class UpdateManager(QObject):
             return data
         except (json.JSONDecodeError, IOError) as e:
             logger.error("Could not read local manifest: %s", e)
-            self.error.emit(f"Could not read local manifest: {e}")
+            self.errorOccurred.emit(f"Could not read local manifest: {e}")
             return default_manifest
 
     def _save_local_manifest(self) -> None:
@@ -88,7 +110,7 @@ class UpdateManager(QObject):
             app_paths.manifest_json.parent.mkdir(parents=True, exist_ok=True)
 
             logger.info("Saving local manifest to %s", app_paths.manifest_json)
-            # Use temporary file and atomic move to prevent corruption
+
             with tempfile.NamedTemporaryFile(
                 "w",
                 encoding="utf-8",
@@ -103,13 +125,13 @@ class UpdateManager(QObject):
             logger.info("Local manifest saved successfully.")
         except (IOError, json.JSONDecodeError) as e:
             logger.error("Could not save local manifest: %s", e)
-            self.error.emit(f"Could not save local manifest: {e}")
+            self.errorOccurred.emit(f"Could not save local manifest: {e}")
             if temp_path and temp_path.exists():
                 temp_path.unlink()
 
-    def check_for_updates(self) -> None:
-        """Starts the update check process."""
+    def start_update_process(self) -> None:
         logger.info("Checking for updates...")
+        
         self.check_app_version()
         self._get_remote_manifest()
 
@@ -120,12 +142,95 @@ class UpdateManager(QObject):
         reply = self._network_manager.get(request)
         reply.finished.connect(self._on_app_version_received)
 
+    # def check_bd2modpreview_updates(self) -> None:
+    #     """Checks for BD2ModPreview new version"""
+    #     logger.info("Checking for a new version of BD2ModPreview from %s", self._bd2modpreview_releases_url)
+    #     request = QNetworkRequest(QUrl(self._bd2modpreview_releases_url))
+    #     reply = self._network_manager.get(request)
+    #     reply.finished.connect(self._on_bd2modpreview_version_received)
+    
+    # def _on_bd2modpreview_version_received(self):
+    #     reply: QNetworkReply = self.sender()
+        
+    #     if reply.error() != QNetworkReply.NetworkError.NoError:
+    #         logger.error("BD2ModPreview version check failed: %s", reply.errorString())
+    #         self.errorOccurred.emit(f"BD2ModPreview version check failed: {reply.errorString()}")
+    #         return
+
+    #     bd2mod_preview = app_paths.user_tools_path / "BD2ModPreview.exe"
+        
+    #     current_version = get_bd2modpreview_version(bd2mod_preview)
+
+    #     try:
+    #         data = json.loads(reply.readAll().data())
+            
+    #         if data and isinstance(data, list) and "tag_name" in data[0]:
+    #             latest_version = data[0]["tag_name"].lstrip("v")
+    #             logger.info(
+    #                 "BD2ModPreview: Current version: %s, Latest version: %s",
+    #                 current_version,
+    #                 latest_version,
+    #             )
+    #             if current_version is None or version.parse(current_version) < version.parse(latest_version):
+    #                 logger.info(
+    #                     "New BD2ModPreview version available: %s", latest_version
+    #                 )
+    #                 url = data[0]["assets"][0]["browser_download_url"]
+    #                 self._download_bd2modpreview(url)
+                        
+    #     except (json.JSONDecodeError, IndexError, KeyError) as e:
+    #         logger.error("Failed to parse app version data: %s", e)
+    #         self.errorOccurred.emit(f"Failed to parse app version data: {e}")
+            
+    #     reply.deleteLater()
+    
+    # def _download_bd2modpreview(self, url: str):
+    #     request = QNetworkRequest(QUrl(url))
+    #     reply = self._network_manager.get(request)
+    #     reply.finished.connect(self._on_bd2modpreview_downloaded)
+    
+    # def _on_bd2modpreview_downloaded(self):
+    #     reply: QNetworkReply = self.sender()
+        
+    #     if reply.error() != QNetworkReply.NetworkError.NoError:
+    #         logger.error("Failed to download BD2ModPreview.exe: %s", reply.errorString())
+    #         self.errorOccurred.emit(f"Failed to download BD2ModPreview: {reply.errorString()}")
+    #         return
+        
+    #     try:
+    #         data = reply.readAll()
+            
+    #         # Ensure directory exists
+    #         app_paths.user_tools_path.mkdir(parents=True, exist_ok=True)
+            
+    #         with tempfile.NamedTemporaryFile(
+    #             mode="wb",
+    #             dir=app_paths.user_cache_path,
+    #             delete=False,
+    #             suffix=".exe"
+    #         ) as temp_file:
+    #             temp_file.write(data.data())
+    #             temp_path = Path(temp_file.name)
+            
+    #         # Atomic move to final location
+    #         final_path = app_paths.user_tools_path / "BD2ModPreview.exe"
+    #         shutil.move(temp_path, final_path)
+            
+    #         logger.info("BD2ModPreview.exe updated successfully")
+    #         self.toolUpdated.emit("BD2ModPreview")
+            
+    #     except Exception as error:
+    #         logger.error("Error updating BD2ModPreview: %s", error)
+    #         self.errorOccurred.emit(f"Error updating BD2ModPreview: {error}")
+    #     finally:
+    #         reply.deleteLater()
+        
     @Slot()
     def _on_app_version_received(self) -> None:
         reply: QNetworkReply = self.sender()
         if reply.error() != QNetworkReply.NetworkError.NoError:
             logger.error("App version check failed: %s", reply.errorString())
-            self.error.emit(f"App version check failed: {reply.errorString()}")
+            self.errorOccurred.emit(f"App version check failed: {reply.errorString()}")
         else:
             try:
                 data = json.loads(reply.readAll().data())
@@ -143,7 +248,7 @@ class UpdateManager(QObject):
                         self.appVersionAvailable.emit(latest_version)
             except (json.JSONDecodeError, IndexError, KeyError) as e:
                 logger.error("Failed to parse app version data: %s", e)
-                self.error.emit(f"Failed to parse app version data: {e}")
+                self.errorOccurred.emit(f"Failed to parse app version data: {e}")
         reply.deleteLater()
 
     def _get_remote_manifest(self) -> None:
@@ -169,7 +274,7 @@ class UpdateManager(QObject):
 
         if reply.error() != QNetworkReply.NetworkError.NoError:
             logger.error("Could not fetch remote manifest: %s", reply.errorString())
-            self.error.emit(f"Could not fetch remote manifest: {reply.errorString()}")
+            self.errorOccurred.emit(f"Could not fetch remote manifest: {reply.errorString()}")
             self.updateCheckFinished.emit()
             reply.deleteLater()
             return
@@ -179,7 +284,7 @@ class UpdateManager(QObject):
             logger.debug("Remote manifest data loaded successfully.")
         except json.JSONDecodeError as e:
             logger.error("Failed to parse remote manifest: %s", e)
-            self.error.emit(f"Failed to parse remote manifest: {e}")
+            self.errorOccurred.emit(f"Failed to parse remote manifest: {e}")
             self.updateCheckFinished.emit()
             reply.deleteLater()
             return
@@ -243,7 +348,7 @@ class UpdateManager(QObject):
         url = item_info.get("url")
         if not url:
             logger.error("No URL found for key '%s' in manifest.", key)
-            self.error.emit(f"No URL found for key '{key}' in manifest.")
+            self.errorOccurred.emit(f"No URL found for key '{key}' in manifest.")
             return
 
         logger.info("Starting download for '%s' from %s", key, url)
@@ -265,7 +370,7 @@ class UpdateManager(QObject):
                 logger.error(
                     "Download for data '%s' failed: %s", key, reply.errorString()
                 )
-                self.error.emit(f"Download for '{key}' failed: {reply.errorString()}")
+                self.errorOccurred.emit(f"Download for '{key}' failed: {reply.errorString()}")
                 return
 
             data = reply.readAll().data()
@@ -274,7 +379,7 @@ class UpdateManager(QObject):
             # expected_hash = self._remote_manifest_data.get("data", {}).get(key, {}).get("hash")
             # if expected_hash and hashlib.sha256(data).hexdigest() != expected_hash:
             #     logger.error("Hash mismatch for '%s'. Download may be corrupted.", key)
-            #     self.error.emit(f"Hash mismatch for '{key}'. Download may be corrupted.")
+            #     self.errorOccurred.emit(f"Hash mismatch for '{key}'. Download may be corrupted.")
             #     return
 
             destination_path = self._get_destination_path(key)
@@ -303,7 +408,7 @@ class UpdateManager(QObject):
                     char_id,
                     reply.errorString(),
                 )
-                self.error.emit(
+                self.errorOccurred.emit(
                     f"Download for asset ID '{char_id}' failed: {reply.errorString()}"
                 )
                 return
@@ -320,7 +425,7 @@ class UpdateManager(QObject):
                 logger.error(
                     "Hash mismatch for asset '%s'. Download may be corrupted.", char_id
                 )
-                self.error.emit(
+                self.errorOccurred.emit(
                     f"Hash mismatch for asset '{char_id}'. Download may be corrupted."
                 )
                 return
@@ -345,7 +450,7 @@ class UpdateManager(QObject):
         destination_path = path_map.get(key)
         if not destination_path:
             logger.error("No destination path configured for data key '%s'.", key)
-            self.error.emit(f"No destination path configured for data key '{key}'.")
+            self.errorOccurred.emit(f"No destination path configured for data key '{key}'.")
         return destination_path
 
     def _save_downloaded_file(self, data: bytes, destination_path: Path) -> None:
@@ -363,7 +468,7 @@ class UpdateManager(QObject):
             logger.error(
                 "Could not save downloaded file to %s: %s", destination_path, e
             )
-            self.error.emit(f"Could not save file {destination_path.name}: {e}")
+            self.errorOccurred.emit(f"Could not save file {destination_path.name}: {e}")
             if temp_path and temp_path.exists():
                 temp_path.unlink()
 
