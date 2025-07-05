@@ -3,15 +3,15 @@
     "data": {
         "authors": {
             "hash": "72719499936df20af8621e2575285ce759049d133b99d373b3ec4b326df52fa8",
-            "url": "https: //raw.githubusercontent.com/bruhnn/BD2ModManager/refs/heads/refactor/v3/src/data/authors.csv"
+            "url": "https://raw.githubusercontent.com/bruhnn/BD2ModManager/refs/heads/refactor/v3/src/data/authors.csv"
         },
         "characters": {
             "hash": "ca71b157d78b88a402f36be0e1d69528c50cab8b5a4688e970277dbeedaef5e3",
-            "url": "https: //raw.githubusercontent.com/bruhnn/BD2ModManager/refs/heads/refactor/v3/src/data/characters.csv"
+            "url": "https://raw.githubusercontent.com/bruhnn/BD2ModManager/refs/heads/refactor/v3/src/data/characters.csv"
         },
         "datings": {
             "hash": "0e0bbcda15899d4a8a6244f4d20cfe9a757c3c612e071180b4cc446123a50cdf",
-            "url": "https: //raw.githubusercontent.com/bruhnn/BD2ModManager/refs/heads/refactor/v3/src/data/datings.csv"
+            "url": "https://raw.githubusercontent.com/bruhnn/BD2ModManager/refs/heads/refactor/v3/src/data/datings.csv"
         }
     }
 }
