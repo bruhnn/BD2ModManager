@@ -322,27 +322,27 @@ class ModManagerController(QObject):
         self._active_worker.error.connect(self.progress_modal.on_error)
         
         self._active_worker.finished.connect(self._active_thread.quit)
+        self._active_worker.error.connect(self._active_thread.quit)
         
         self._active_worker.finished.connect(self._active_worker.deleteLater)
+        self._active_worker.error.connect(self._active_worker.deleteLater)
+        
         self._active_thread.finished.connect(self._active_thread.deleteLater)
         
         self._active_thread.finished.connect(lambda: self._on_worker_complete(button_to_disable))
-        self._active_worker.error.connect(lambda: self._on_worker_complete(button_to_disable))
         
         self._active_thread.start()
+        
         self.progress_modal.open()
         
-    
-    def _on_worker_complete(self, button_to_enable):
+    def _on_worker_complete(self, button_to_enable) -> None:
         if button_to_enable:
             button_to_enable.setEnabled(True)
         
-
         self._active_thread = None
         self._active_worker = None
         
         logger.info("Worker process has finished and resources are cleaned up.")
-
 
     def set_browndustx_version(self) -> None:
         logger.info("Setting BrownDustX version info.")
