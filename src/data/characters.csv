@@ -10,6 +10,7 @@ id,character,costume
 000203,Justia,Blood Glutton
 000204,Justia,Kendo Club
 000206,Justia,Pool Party
+000296,Justia,Hot Summer Dream
 000301,Scheherazade,The Lapis Witch
 000303,Scheherazade,The Magic School Professor
 000304,Scheherazade,Code Name S
@@ -27,6 +28,7 @@ id,character,costume
 000701,Eclipse,Dimension Witch
 000706,Eclipse,Nightmare Bunny
 000707,Eclipse,Beach Vacation
+000708,Eclipse,Dream Bride
 000801,Rubia,Thorn of the Desert
 000804,Rubia,The Empress of the Ocean
 000806,Rubia,Maid Name C
@@ -89,6 +91,7 @@ id,character,costume
 061302,Dalvi,Bright Moon
 061305,Dalvi,Summer Vacation
 061402,Zenith,Robin Hood
+061404,Zenith,Poolside Guardian
 062001,Andrew,Loyal Butler
 062002,Andrew,Specialist
 063001,Ingrid,Kardis' Bullet
@@ -101,7 +104,8 @@ id,character,costume
 066402,Angelica,Pool Party
 066403,Angelica,Neon Savior
 066801,Refithea,The Gluttonous
-066802,Refithea,Pure White Blessing
+066802,Refithea,Pure White Blessing,
+066803,Refithea,Poolside Fairy
 066902,Glacia,Alice
 066906,Glacia,Disciplinary Committee
 067002,Ventana,Snow White
