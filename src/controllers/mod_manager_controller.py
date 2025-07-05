@@ -300,39 +300,49 @@ class ModManagerController(QObject):
             logger.info(f"{worker_class.__name__} cancelled by user.")
             return
 
+        if self._active_thread is not None:
+            logger.warning("A worker process is already running.")
+            return
+
         self.progress_modal = self.view.create_progress_modal()
+        
         button_to_disable.setDisabled(True)
 
         is_symlink = self.config_model.sync_method == "symlink"
+        
         self._active_thread = QThread()
         self._active_worker = worker_class(self.model, symlink=is_symlink)
         self._active_worker.moveToThread(self._active_thread)
 
+        self._active_thread.started.connect(self._active_worker.run)
+        
         self._active_worker.started.connect(self.progress_modal.on_started)
         self._active_worker.progress.connect(self.progress_modal.update_progress)
         self._active_worker.finished.connect(self.progress_modal.on_finished)
         self._active_worker.error.connect(self.progress_modal.on_error)
         
-        on_complete = lambda: self._on_worker_complete(button_to_disable)
-        self._active_worker.finished.connect(on_complete)
-        self._active_worker.error.connect(on_complete)
-
-        self._active_thread.started.connect(self._active_worker.run)
+        self._active_worker.finished.connect(self._active_thread.quit)
+        
+        self._active_worker.finished.connect(self._active_worker.deleteLater)
+        self._active_thread.finished.connect(self._active_thread.deleteLater)
+        
+        self._active_thread.finished.connect(lambda: self._on_worker_complete(button_to_disable))
+        self._active_worker.error.connect(lambda: self._on_worker_complete(button_to_disable))
+        
         self._active_thread.start()
-        self.progress_modal.exec()
+        self.progress_modal.open()
+        
     
     def _on_worker_complete(self, button_to_enable):
-        button_to_enable.setEnabled(True)
+        if button_to_enable:
+            button_to_enable.setEnabled(True)
         
-        if self._active_worker:
-            self._active_worker.deleteLater()
-            
-        if self._active_thread and self._active_thread.isRunning():
-            self._active_thread.quit()
-            self._active_thread.deleteLater()
-            
+
         self._active_thread = None
         self._active_worker = None
+        
+        logger.info("Worker process has finished and resources are cleaned up.")
+
 
     def set_browndustx_version(self) -> None:
         logger.info("Setting BrownDustX version info.")
