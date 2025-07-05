@@ -1044,8 +1044,9 @@ class ModManagerModel(QObject):
         installed_mods = {
             path.relative_to(self._game_mods_directory).as_posix(): path
             for path in self._game_mods_directory.rglob("*")
-            if path.is_symlink()
+            # if path.is_symlink()
         }
+        
         installed_relpaths = set(installed_mods.keys())
 
         mods_to_link = enabled_relpaths - installed_relpaths
