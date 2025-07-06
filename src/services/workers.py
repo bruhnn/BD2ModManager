@@ -8,6 +8,7 @@ logger = logging.getLogger(__name__)
 
 # TODO: DRY
 
+
 class BaseWorker(QObject):
     started = Signal(str)
     finished = Signal(str)
@@ -29,6 +30,7 @@ class BaseWorker(QObject):
     def stop(self) -> None:
         raise NotImplementedError
 
+
 class SyncWorker(BaseWorker):
     def run(self) -> None:
         try:
@@ -37,6 +39,8 @@ class SyncWorker(BaseWorker):
             self._mod_manager_model.sync_mods(
                 symlink=self._symlink, progress_callback=self.progress.emit
             )
+            logger.info("SyncWorker finished successfully.")
+            self.finished.emit("Sync completed successfully.")
         except GameDirectoryNotSetError:
             logger.error("Game directory not set.")
             return self.error.emit("Game directory not set.")
@@ -52,9 +56,6 @@ class SyncWorker(BaseWorker):
             )
             return self.error.emit(str(error))
 
-        logger.info("SyncWorker finished successfully.")
-        self.finished.emit("Sync completed successfully.")
-
     def stop(self) -> None:
         logger.info("SyncWorker stop requested.")
 
@@ -64,7 +65,10 @@ class UnsyncWorker(BaseWorker):
         try:
             logger.info("UnsyncWorker started.")
             self.started.emit("Unsyncing Mods...")
-            self._mod_manager_model.unsync_mods(progress_callback=self.progress.emit)
+            self._mod_manager_model.unsync_mods(
+                progress_callback=self.progress.emit)
+            self.finished.emit("Unsync completed successfully.")
+            logger.info("UnsyncWorker finished successfully.")
         except GameDirectoryNotSetError:
             logger.error("Game directory not set.")
             return self.error.emit("Game directory not set.")
@@ -76,9 +80,6 @@ class UnsyncWorker(BaseWorker):
                 f"An unexpected error occurred during unsync: {error}", exc_info=True
             )
             return self.error.emit(str(error))
-
-        logger.info("UnsyncWorker finished successfully.")
-        self.finished.emit("Unsync completed successfully.")
 
     def stop(self) -> None:
         logger.info("UnsyncWorker stop requested.")
