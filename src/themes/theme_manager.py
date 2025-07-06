@@ -1,4 +1,4 @@
-from pickle import NONE
+import logging
 from PySide6.QtGui import QColor, QPixmap, QPainter, QIcon, QAction
 from PySide6.QtWidgets import QWidget
 from PySide6.QtCore import QSize, Qt
@@ -8,6 +8,9 @@ import json
 from functools import singledispatchmethod
 
 from src.utils.paths import app_paths
+
+logger = logging.getLogger(__name__)
+logger.addHandler(logging.NullHandler())
 
 
 class ThemeManager:
@@ -21,7 +24,7 @@ class ThemeManager:
     USER_THEMES_FOLDER = app_paths.user_data_path / "themes"
 
     @classmethod
-    def load_themes(cls):
+    def load_themes(cls) -> None:
         cls.themes = {}
         theme_folders = [cls.APP_THEMES_FOLDER, cls.USER_THEMES_FOLDER]
 
@@ -30,7 +33,6 @@ class ThemeManager:
                 continue
             
             for theme_file in folder.glob("**/colors.json"):
-                print(theme_file)
                 if not (theme_file.parent / "theme.qss").exists():
                     continue
                 
@@ -44,7 +46,7 @@ class ThemeManager:
                             "colors": theme_colors
                         }
                 except (json.JSONDecodeError, IOError) as e:
-                    print(f"Error loading theme file {theme_file}: {e}")
+                    logger.error(f"Error loading theme file {theme_file}: {e}")
     
     @classmethod
     def get_available_themes(cls) -> list[str]:
@@ -57,7 +59,7 @@ class ThemeManager:
         if color_hex:
             return QColor(color_hex)
         
-        print(f"Warning: Color key '{key}' not found in theme '{cls.current_theme}'.")
+        logger.warning(f"Color key '{key}' not found in theme '{cls.current_theme}'.")
         
         return QColor(cls.DEFAULT_COLOR)
 
@@ -66,9 +68,9 @@ class ThemeManager:
         if theme_name in cls.themes and cls.current_theme != theme_name:
             cls.current_theme = theme_name
             cls._icon_cache.clear()
-            print(f"Theme set to '{theme_name}'. Icon cache cleared.")
+            logger.info(f"Theme set to '{theme_name}'. Icon cache cleared.")
         elif theme_name not in cls.themes:
-            print(f"Warning: Theme '{theme_name}' not found.")
+            logger.warning(f"Theme '{theme_name}' not found.")
 
     @singledispatchmethod
     @classmethod
@@ -87,10 +89,10 @@ class ThemeManager:
             icon_path = f":/icons/material/{cls.current_theme}/{icon_name}.svg"
             renderer = QSvgRenderer(icon_path)
             if not renderer.isValid():
-                 print(f"Warning: Could not load fallback icon at path: {icon_path}")
-                 generated_icon = QIcon() # Return empty icon
+                logger.warning(f"Could not load fallback icon at path: {icon_path}")
+                generated_icon = QIcon() # Return empty icon
             else:
-                 generated_icon = QIcon(icon_path)
+                generated_icon = QIcon(icon_path)
 
         cls._icon_cache[cache_key] = generated_icon
         
@@ -101,7 +103,7 @@ class ThemeManager:
     def _(cls, widget: QWidget, color_key: str = "icon_color") -> QIcon:
         icon_name = widget.property("iconName")
         if not icon_name:
-            print(f"Warning: Widget {widget} does not have an 'iconName' property.")
+            logger.warning(f"Widget {widget} does not have an 'iconName' property.")
             return QIcon()
         return cls.icon(icon_name, color_key)
 
@@ -110,7 +112,7 @@ class ThemeManager:
     def _(cls, action: QAction) -> QIcon:
         icon_name = action.property("iconName")
         if not icon_name:
-            print(f"Warning: Action {action.text()} does not have an 'iconName' property.")
+            logger.warning(f"Action {action.text()} does not have an 'iconName' property.")
             return QIcon()
         return cls.icon(icon_name)
 
@@ -118,7 +120,7 @@ class ThemeManager:
     def _create_recolored_icon(cls, icon_path: str, color: QColor, size=QSize(24, 24)) -> QIcon:
         renderer = QSvgRenderer(icon_path)
         if not renderer.isValid():
-            print(f"Warning: Could not load icon for recoloring at path: {icon_path}")
+            logger.warning(f"Could not load icon for recoloring at path: {icon_path}")
             return QIcon()
 
         pixmap = QPixmap(size)
@@ -130,6 +132,6 @@ class ThemeManager:
             painter.setCompositionMode(QPainter.CompositionMode.CompositionMode_SourceIn)
             painter.fillRect(pixmap.rect(), color)
         finally:
-            painter.end()  # Ensure cleanup even if exception occurs
+            painter.end() 
 
         return QIcon(pixmap)
