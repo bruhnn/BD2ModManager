@@ -31,8 +31,6 @@
 - Drag-and-drop to install new mods
 - Enable/disable mods with a single click
 - See which characters have which mods at a glance
-- Detect conflicts automatically  
-  _(Tip: refresh the mod list after toggling mods to update conflicts)_
 - Edit `.modfile` JSON data directly inside the app
 
 ---
