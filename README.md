@@ -30,7 +30,7 @@
 - One-click install (symlink or copy)
 - Drag-and-drop to install new mods
 - Enable/disable mods with a single click
-- See which characters have which mods at a glance
+- Easily view which characters have each mod type enabled on the characters page
 - Edit `.modfile` JSON data directly inside the app
 
 ---
