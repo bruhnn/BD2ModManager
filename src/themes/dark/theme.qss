@@ -203,6 +203,12 @@
     border-color: transparent;
 }
 
+#modsButton:disabled {
+    background-color: #374151;
+    color: #6b7280;
+    border-color: #374151;
+}
+
 #modsTopBar {
    
 }
