@@ -645,29 +645,29 @@ class ModManagerModel(QObject):
         if not dll_path or not dll_path.exists():
             raise BrownDustXNotInstalled("BrownDustX not installed.")
 
-        pe = pefile.PE(dll_path)
-        data = {}
+        try:
+            data = {}
+            with pefile.PE(dll_path) as pe:
+                if hasattr(pe, 'FileInfo'):
+                    for file_info_entry in pe.FileInfo:
+                        entries_to_process = (
+                            file_info_entry
+                            if isinstance(file_info_entry, list)
+                            else [file_info_entry]
+                        )
 
-        if hasattr(pe, "FileInfo"):
-            for file_info_entry in pe.FileInfo:
-                entries_to_process = (
-                    file_info_entry
-                    if isinstance(file_info_entry, list)
-                    else [file_info_entry]
-                )
-                for entry in entries_to_process:
-                    if hasattr(entry, "StringTable"):
-                        for st in entry.StringTable:
-                            for key, value in st.entries.items():
-                                try:
-                                    data[key.decode("utf-8")
-                                         ] = value.decode("utf-8")
-                                except UnicodeDecodeError:
-                                    data[key.decode("latin-1", "ignore")] = (
-                                        value.decode("latin-1", "ignore")
-                                    )
+                        for entry in entries_to_process:
+                            if hasattr(entry, "StringTable"):
+                                for st in entry.StringTable:
+                                    for key, value in st.entries.items():
+                                        data[key.decode("utf-8", "ignore")] = value.decode("utf-8", "ignore")
 
-        return data.get("FileVersion")
+            version = data.get("FileVersion")
+            logging.info(f"BrownDustX version found => %s", version)
+            return version
+        except pefile.PEFormatError as error:
+            logging.error(f"Error parsing PE file: %s", error)
+            return None
 
     def get_modfile_data(self, mod_name: str) -> Optional[Dict[str, Any]]:
         mod = self.get_mod_by_name(mod_name)
