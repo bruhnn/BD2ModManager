@@ -245,7 +245,7 @@ class UpdateManager(QObject):
                         logger.info(
                             "New application version available: %s", latest_version
                         )
-                        self.appVersionAvailable.emit(latest_version)
+                        self.appUpdateAvailable.emit(latest_version)
             except (json.JSONDecodeError, IndexError, KeyError) as e:
                 logger.error("Failed to parse app version data: %s", e)
                 self.errorOccurred.emit(f"Failed to parse app version data: {e}")
