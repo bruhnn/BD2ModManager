@@ -1,7 +1,5 @@
 from PySide6.QtCore import Qt, Signal
-import json
 from PySide6.QtGui import QKeyEvent
-from typing import Optional
 from PySide6.QtWidgets import (
     QDialog,
     QVBoxLayout,
@@ -23,6 +21,10 @@ from PySide6.QtWidgets import (
     QSizePolicy,
 )
 
+from typing import Optional
+import json
+
+
 
 class ProgressModal(QDialog):
     cancelled = Signal()
@@ -33,12 +35,10 @@ class ProgressModal(QDialog):
         self.setModal(True)
         self.setObjectName("progressModal")
 
-        # --- Main Layout ---
         layout = QVBoxLayout(self)
         layout.setContentsMargins(20, 20, 20, 20)
         layout.setSpacing(16)
 
-        # --- Widgets ---
         self.title_label = QLabel(self)
         self.title_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.title_label.setObjectName("progressModalTitleLabel")
@@ -58,7 +58,7 @@ class ProgressModal(QDialog):
 
         layout.addWidget(self.title_label)
         layout.addWidget(self.progress_bar)
-        layout.addWidget(self.status_label)
+        layout.addWidget(self.status_label, 1)
         layout.addSpacing(10)
         layout.addWidget(self.button_stack)
 
@@ -82,7 +82,7 @@ class ProgressModal(QDialog):
         progress_layout.addWidget(self.cancel_button)
         progress_layout.addSpacerItem(
             QSpacerItem(
-                40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum
+                40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Maximum
             )
         )
 
@@ -96,13 +96,13 @@ class ProgressModal(QDialog):
 
         finished_layout.addSpacerItem(
             QSpacerItem(
-                40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum
+                40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Maximum
             )
         )
         finished_layout.addWidget(self.close_button)
         finished_layout.addSpacerItem(
             QSpacerItem(
-                40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum
+                40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Maximum
             )
         )
 
@@ -117,14 +117,11 @@ class ProgressModal(QDialog):
             return
         super().keyPressEvent(event)
 
-    # def _request_cancel(self) -> None:
-    #     """Handles the cancel request, emits the signal, and updates the UI."""
-    #     self.cancel_button.setDisabled(True)
-    #     self.cancel_button.setText("Cancelling...")
-    #     self.status_label.setText("Cancellation requested, please wait...")
-    #     self.cancelled.emit()
-
     def on_started(self, title: str) -> None:
+        self.adjustSize()
+        self.setMinimumWidth(int(self.parent().width() * 0.6))
+        self.adjustPosition(self.parent())
+        
         self.title_label.setText(title)
         self.status_label.setText("Initializing...")
 
@@ -136,13 +133,14 @@ class ProgressModal(QDialog):
         self.progress_bar.setRange(0, 100)
         self.progress_bar.setValue(0)
 
-        # there's no cancel function
+        # currently there's no cancel function
         self.cancel_button.setEnabled(False)
         self.cancel_button.setText("Wait!")
         self.button_stack.setCurrentIndex(0)  # Show Cancel button
 
+
     def on_finished(self, message: str) -> None:
-        self.title_label.setText("Completed")
+        self.title_label.setText(message)
         # self.status_label.setText(message)
         self.progress_bar.setRange(0, 1)
         self.progress_bar.setValue(1)
@@ -161,8 +159,6 @@ class ProgressModal(QDialog):
         self.button_stack.setCurrentIndex(1) 
 
     def update_progress(self, value: int, max_val: int, text: Optional[str] = None):
-        print(f"Updating progress: {value}/{max_val} - {text if text else ''}")
-
         if self.progress_bar.maximum() != max_val:
             self.progress_bar.setMaximum(max_val)
 
@@ -170,6 +166,8 @@ class ProgressModal(QDialog):
 
         if text:
             self.status_label.setText(text)
+            
+        # self.adjustSize()
 
     def set_indeterminate(self, status_text: str):
         self.progress_bar.setRange(0, 0)
