@@ -402,7 +402,15 @@ class MainController(QObject):
         current_theme = ThemeManager.themes.get(theme)
 
         if not current_theme:
-            return logger.warning(f"Theme '{theme}' not found.")
+            logger.warning(f"Theme '{theme}' not found.")
+            if ThemeManager.themes:
+                try:
+                    themes = ThemeManager.themes
+                    theme = themes[list(themes.keys())[0]].get("name")
+                    self.apply_stylesheet(theme)
+                except IndexError:
+                    pass
+            return
         
         theme_path = current_theme.get("style_path")
         
@@ -419,6 +427,10 @@ class MainController(QObject):
                 ThemeManager.set_theme(theme)
             self.view.updateIcons()
             logger.info(f"Successfully applied stylesheet for theme: {theme}")
+            
+            # TODO: quick hack
+            if self.config_model.theme != theme:
+                self.config_model.set_theme(theme)
         except Exception as e:
             logger.error(
                 f"Failed to apply stylesheet from {path}: {e}", exc_info=True)
