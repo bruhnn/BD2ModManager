@@ -2,8 +2,6 @@ from PySide6.QtWidgets import QApplication
 from PySide6.QtCore import QObject, Slot, QTranslator
 from PySide6.QtGui import QCloseEvent
 
-
-from pathlib import Path
 import logging
 
 from src.controllers.profile_manager_controller import ProfileManagerController
@@ -201,8 +199,8 @@ class MainController(QObject):
     def _on_app_new_version_available(self, version: str) -> None:
         self.view.set_update_available(version)
         self.view.show_notification(
-            title=f"New version {version} available!",
-            text="Visit the GitHub releases page to update.",
+            title=self.tr(f"New version {version} available!"),
+            text=self.tr("Visit the GitHub releases page to update."),
             duration=20000,
         )
 
@@ -211,17 +209,17 @@ class MainController(QObject):
         if not self._is_currently_updating:
             self._is_currently_updating = True
             self.view.show_notification(
-                title="Downloading new game data...",
-                text="The application will update in the background.",
+                title=self.tr("Downloading new game data..."),
+                text=self.tr("The application will update in the background."),
             )
 
     @Slot()
     def _on_all_updates_finished(self):
         if self._is_currently_updating:
             self.view.show_notification(
-                title="Update Complete!",
-                text="Game data has been successfully updated.",
-                duration=2000,  # Shorter duration for success messages
+                title=self.tr("Update Complete!"),
+                text=self.tr("Game data has been successfully updated."),
+                duration=2000,
             )
             self.mod_manager_model.refresh_game_data()
 
