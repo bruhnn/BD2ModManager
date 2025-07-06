@@ -8,7 +8,7 @@ from PySide6.QtCore import QObject, QThread, Signal
 
 from src.models import ConfigModel, ModManagerModel
 from src.services import SyncWorker, UnsyncWorker
-from src.utils.errors import (ExtractionPasswordError, GameNotFoundError, InvalidModNameError, ModAlreadyExistsError, ModInvalidError,
+from src.utils.errors import (ExtractionPasswordError, GameNotFoundError, InvalidModNameError, ModAlreadyExistsError, ModInstallError, ModInvalidError,
                             ModNotFoundError)
 from src.views import ModsView
 
@@ -67,6 +67,7 @@ class ModManagerController(QObject):
         self.view.refreshRequested.connect(self._on_refresh_requested)
         self.view.addModsRequested.connect(self.add_mods)
         self.view.removeModRequested.connect(self.remove_mod)
+        self.view.removeModsRequested.connect(self.remove_mods)
         self.view.renameModRequested.connect(self.rename_mod)
         self.view.syncRequested.connect(self.sync_mods)
         self.view.unsyncRequested.connect(self.unsync_mods)
@@ -105,7 +106,7 @@ class ModManagerController(QObject):
                 logger.error("Failed to add invalid mod: %s", error)
                 self.notificationRequested.emit(
                     "Invalid Mod",
-                    f"The selected folder is not a valid mod. Error: {error}",
+                    str(error),
                     "error",
                     5000
                 )
@@ -115,6 +116,15 @@ class ModManagerController(QObject):
                 self.notificationRequested.emit(
                     "File Not Found",
                     "The selected folder could not be found. It may have been moved or deleted.",
+                    "error",
+                    5000
+                )
+            
+            except ModInstallError as error:
+                logger.exception(f"Failed to install mod '{error.mod_name}'.")
+                self.notificationRequested.emit(
+                    f"Error Installing '{error.mod_name}'",
+                    str(error), 
                     "error",
                     5000
                 )
@@ -149,11 +159,20 @@ class ModManagerController(QObject):
         except Exception as error:
             logger.error(f"An unexpected error occurred while removing mod '{mod_name}': {error}", exc_info=True)
             self.notificationRequested.emit("Error", f"Could not remove mod: {error}", "error", 5000)
+    
+    def remove_mods(self, mod_names: list[str]):
+        self.model.remove_multiple_mods(mod_names)
+        
 
     def rename_mod(self, mod_name: str, new_name: str) -> None:
         logger.info(f"Attempting to rename mod '{mod_name}' to '{new_name}'.")
+        
+        if mod_name == new_name:
+            return self.notificationRequested.emit("No Change Needed", f"The mod is already named '{new_name}'.", "info", 3000)
+        
         try:
-            self.model.rename_mod(mod_name, new_name)
+            if self.model.rename_mod(mod_name, new_name) is False:
+                self.notificationRequested.emit("No Change Needed", f"The mod is already named '{new_name}'.", "info", 3000)
         except (ModAlreadyExistsError, InvalidModNameError, ModNotFoundError) as error:
             logger.warning(error)
             self.notificationRequested.emit("Rename Failed", str(error), "error", 5000)
@@ -209,9 +228,6 @@ class ModManagerController(QObject):
 
     def _on_mods_added(self, mod_names: list[str]) -> None:
         mods = list(filter(lambda mod: mod is not None, [self.model.get_mod_by_name(mod_name) for mod_name in mod_names]))
-        
-        if not mods:
-            return
                 
         if mods:
             self.view.add_mods_to_view(mods, self.config_model.include_mod_relative_path)
@@ -219,7 +235,7 @@ class ModManagerController(QObject):
             if len(mods) > 1:
                 self.notificationRequested.emit("Mods Added", f"Added {len(mods)} mods.", "success", 3000)
             else:
-                self.notificationRequested.emit("Mod added!", f"Mod \"{mods[0].name}\" was added.", "success", 3000)
+                self.notificationRequested.emit("Mod added!", f"Mod \"{mods[0].display_name}\" was added.", "success", 3000)
 
     def _on_mods_removed(self, mod_names: list[str]) -> None:
         self.view.remove_mods_from_view(mod_names)

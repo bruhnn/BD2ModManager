@@ -17,6 +17,7 @@ from src.models.profile_manager_model import ProfileManager
 from src.utils.errors import (
     GameDirectoryNotSetError,
     GameNotFoundError,
+    ModInstallError,
     ModNotFoundError,
     ModAlreadyExistsError,
     InvalidModNameError,
@@ -726,7 +727,7 @@ class ModManagerModel(QObject):
             shutil.move(old_mods_json, app_paths.user_data_path / "old_mods_v2.json")
         except (OSError, PermissionError) as e:
             logger.warning("Could not back up old mods.json file: %s", e)
-                    
+
         return True
 
     def locate_game(self) -> str | None:
@@ -864,7 +865,7 @@ class ModManagerModel(QObject):
             return None
 
         return Path(self._game_directory) / "BrownDust II.exe"
-    
+
     @property
     def _browndustx_dll_path(self) -> Optional[Path]:
         if not self._game_directory:
@@ -873,7 +874,7 @@ class ModManagerModel(QObject):
             self._game_directory
             / r"BepInEx\plugins\BrownDustX\lynesth.bd2.browndustx.dll"
         )
-        
+
     @property
     def staging_mods_directory(self) -> Path:
         """Returns the path to the staging mods directory."""
@@ -883,13 +884,13 @@ class ModManagerModel(QObject):
         modfiles = list(search_path.rglob("*.modfile"))
 
         if not modfiles:
-            raise ModInvalidError(f"No .modfile found in: {source_path}")
+            raise ModInvalidError(message=f"No .modfile found in: {source_path}")
 
         mod_folders = list(set(modfile.parent for modfile in modfiles))
 
         if len(mod_folders) > 1:
             raise ModInvalidError(
-                f"Multiple mod folders found in {source_path}. Please install mods individually."
+                message=f"Multiple mod folders found in {source_path}. Please install mods individually."
             )
 
         return mod_folders[0]
@@ -900,13 +901,34 @@ class ModManagerModel(QObject):
     def _install_mod(self, path: Union[str, Path]) -> BD2ModEntry:
         mod_source = Path(path).resolve()
         if not mod_source.exists():
-            raise FileNotFoundError(f"Source mod path does not exist: {mod_source}")
+            raise FileNotFoundError(
+                f"Source mod path does not exist: {mod_source}")
 
         mod_name = mod_source.stem
         staging_mod_path = self._staging_mods_directory / mod_name
-
+        
+        # BUG: if there's a folder named without a .modfile, it will not install the mod
         if staging_mod_path.exists():
-            raise ModAlreadyExistsError(mod_name)
+            if staging_mod_path.is_dir():
+                if os.listdir(staging_mod_path):
+                    if next(staging_mod_path.rglob("*.modfile"), None):
+                        raise ModAlreadyExistsError(mod_name)
+                    
+                    raise ModInstallError(
+                        mod_name=mod_name,
+                        message=f"Mod '{mod_name}' cannot be installed because a non-empty directory "
+                        f"already exists. Please remove it first."
+                    )
+                # directory is empty
+                else:
+                    logger.info(f"Removing existing empty directory at {staging_mod_path}")
+                    os.rmdir(staging_mod_path)
+            else:
+                raise ModInstallError(
+                    mod_name=mod_name,
+                    message=f"A file exists at mods folder, which prevents the mod "
+                    f"'{mod_name}' from being installed. Please remove or rename this file."
+                )
 
         source_to_copy_from = None
         temp_dir = None
@@ -915,15 +937,15 @@ class ModManagerModel(QObject):
             if is_compressed_file(mod_source):
                 temp_dir = tempfile.TemporaryDirectory()
                 temp_path = Path(temp_dir.name)
-                
+
                 extract_file(mod_source, temp_path)
-                
+
                 source_to_copy_from = self._get_mod_source_folder(temp_path)
 
             elif mod_source.is_dir():
                 source_to_copy_from = self._get_mod_source_folder(mod_source)
             else:
-                raise ModInvalidError(f"Source path is not a valid directory or supported archive: {mod_source}")
+                raise ModInvalidError(message=f"Source path is not a valid directory or supported archive: {mod_source}")
 
             shutil.copytree(source_to_copy_from, staging_mod_path)
         finally:
@@ -983,7 +1005,7 @@ class ModManagerModel(QObject):
                      key, value, mod_name)
         self._set_bulk_mod_data([mod_name], key, value, trigger_event)
         return True
-    
+
     def _set_bulk_mod_data(self, mod_names: list[str], key: str, value: Any, trigger_event: bool = True) -> bool:
         logger.debug(
             "Starting bulk update: setting %s = %s for %d mods",
