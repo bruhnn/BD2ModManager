@@ -280,6 +280,12 @@ class ModManagerController(QObject):
         try:
             self.model.set_game_directory(path)
             self.set_browndustx_version()
+            self.notificationRequested.emit(
+                "Success",
+                f"The game directory has been updated to:\n{path}",
+                "success",
+                3000
+            )        
         except GameNotFoundError:
             logger.error(f"Game not found at the specified directory: {path}")
             self.notificationRequested.emit("Invalid Game Directory", "The game was not found in the specified directory.", "error", 3000)

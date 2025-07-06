@@ -60,7 +60,7 @@ def require_game_path(function: Callable) -> Callable:
 
 
 def require_bdx_installed(function: Callable):  # -> Callable[..., Any]:
-    def wrapper(self, *args, **kwargs):  # -> Any:
+    def wrapper(self, *args, **kwargs):# -> Any:
         if not self.is_browndustx_installed():
             raise BrownDustXNotInstalled("BrownDustX is not installed!")
 
@@ -226,6 +226,8 @@ class ModManagerModel(QObject):
 
     def remove_mod(self, mod_name: str) -> None:
         """Remove a mod from staging directory."""
+        # TODO: remove parents if is empty.
+        
         mod_entry = self.get_mod_by_name(mod_name)
         if not mod_entry:
             raise ModNotFoundError(

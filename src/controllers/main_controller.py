@@ -344,8 +344,8 @@ class MainController(QObject):
     def _validate_config_game_directory(self, path: str) -> None:
         if not self.mod_manager_model.check_game_directory(path):
             self.view.show_notification(
-                self.tr("BrownDust II.exe not found in the selected directory."),
-                None,
+                self.tr("Game Not Detected"),
+                self.tr("'BrownDust II.exe' is missing from the selected folder. Make sure you've picked the correct installation path."),
                 "error",
                 5000,
             )
