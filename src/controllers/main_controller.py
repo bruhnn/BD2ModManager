@@ -222,8 +222,11 @@ class MainController(QObject):
                 duration=2000,
             )
             self.mod_manager_model.refresh_game_data()
+            
+            # if new characters was added
+            self.characters_controller.update_chars()
 
-        self._is_currently_updating = False  # Reset the flag for the next check
+        self._is_currently_updating = False 
 
     @Slot(str)
     def _on_update_error(self, error_message: str):
