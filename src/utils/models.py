@@ -29,13 +29,13 @@ class BD2ModType(Enum):
 @dataclass
 class BD2Mod:
     name: str
-    display_name: Optional[str]
+    display_name: str
     type: Optional[BD2ModType]
-    path: str
     character_id: Optional[str]
     scene_id: Optional[str]
     npc_id: Optional[str]
     dating_id: Optional[str]
+    path: str
 
     @classmethod
     def from_mod_path(cls, path: Union[str, Path], staging_path: Path):
@@ -54,7 +54,7 @@ class BD2Mod:
                 r"(?:specialillust|illust_special|storypack)(\d+)(?:_?\d+)?\.modfile$",
                 re.I,
             ),
-            BD2ModType.NPC: re.compile(r"^npc(\d+)\.modfile$", re.I),
+            BD2ModType.NPC: re.compile(r"^(npc(\d+)|illust_talk(\d+))\.modfile$", re.I),
             BD2ModType.DATING: re.compile(r"^illust_dating(\d+)\.modfile$", re.I),
         }
 
@@ -136,8 +136,12 @@ class BD2ModEntry:
     has_conflict: bool = False
 
     @property
-    def name(self):
+    def name(self) -> str:
         return self.mod.name
+    
+    @property
+    def display_name(self) -> str:
+        return self.mod.display_name
 
     @property
     def path(self):
