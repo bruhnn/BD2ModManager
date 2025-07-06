@@ -160,10 +160,4 @@ cython_debug/
 #.idea/
 
 # Project
-mods.json
-/mods/
-BD2ModManager.config
-uv.lock
-project.todo
-test.py
-/src/resources/assets/characters/faces
+mods/

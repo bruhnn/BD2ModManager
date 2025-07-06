@@ -79,6 +79,8 @@ class ApplicationPaths:
 
     @property
     def source_path(self) -> Path:
+        if self.is_running_as_exe:
+            return self.bundle_path
         return self.bundle_path / self.SRC_DIR_NAME
 
     @property
