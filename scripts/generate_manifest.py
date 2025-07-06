@@ -1,7 +1,6 @@
 import hashlib
 import json
 from pathlib import Path
-import pprint
 
 DATA_DIR = Path("src/data")
 MANIFEST_PATH = Path("src/manifest.json")
@@ -41,12 +40,7 @@ def generate_manifest():
         manifest["data"][key]["hash"] = file_hash
         print(f"✅ Updated hash for '{key}'")
 
-    pprint.pprint(manifest)
-
-    # Uncomment to write the updated manifest to disk
-    # with MANIFEST_PATH.open("w", encoding="utf-8") as f:
-    #     json.dump(manifest, f, indent=4)
-    #     print(f"✅ Manifest saved to {MANIFEST_PATH.resolve()}")
+    print(json.dumps(manifest, indent=4))
 
 if __name__ == "__main__":
     generate_manifest()

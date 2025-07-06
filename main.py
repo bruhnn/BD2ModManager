@@ -7,7 +7,6 @@ from src.utils.files import get_file_hash
 from argparse import ArgumentParser
 import json
 import logging
-import pprint
 import time
 import sys
 import shutil

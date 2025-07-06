@@ -74,7 +74,6 @@ class ConfigController(QObject):
     # --- Methods
     def update_config(self) -> None:
         data = self.model.as_dict()
-        print(data)
         self.view.update_config(data)
 
     def set_game_directory(self, path: str) -> None:

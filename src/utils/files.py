@@ -55,7 +55,6 @@ def get_data_hash(data: Any) -> str:
 
 
 def is_filename_valid(filename: str) -> bool:
-    print('1', PurePath(filename).name, '2', filename)
     return PurePath(filename).name == filename
 
 

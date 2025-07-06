@@ -7,7 +7,7 @@ from PySide6.QtCore import QObject, Signal
 class BD2ModPreview(QObject):
     errorOccurred = Signal(str)
     
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         
         self._tool_path = app_paths.user_tools_path / "BD2ModPreview.exe"
@@ -15,7 +15,7 @@ class BD2ModPreview(QObject):
         if not self._tool_path.is_file():
             self._tool_path = app_paths.tools_path / "BD2ModPreview.exe"
     
-    def get_version(self):
+    def get_version(self) -> str | None:
         try:
             result = subprocess.run(
                 [str(self._tool_path), "--version"],
@@ -29,7 +29,7 @@ class BD2ModPreview(QObject):
             print(f"Error checking mod preview version: {e}")
             return None
     
-    def launch_preview(self, path: str):
+    def launch_preview(self, path: str) -> None:
         if not self._tool_path.exists():
             return self.errorOccurred.emit("BD2ModPreview.exe not found. Please update or reinstall the tool.")
         
