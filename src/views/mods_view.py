@@ -62,8 +62,9 @@ class ModsView(QWidget):
     openModFolderRequested = Signal(str)  # Mod Path
 
     addModsRequested = Signal(list)  # Mod path
-    removeModRequested = Signal(str)  # Mod entry
     renameModRequested = Signal(str, str)  # Mod entry, New Name
+    removeModsRequested = Signal(list)
+    removeModRequested = Signal(str)  # mod_name
     editModfileRequested = Signal(str)
 
     modStateChanged = Signal(str, bool)  # Mod entry, Enabled State
@@ -619,9 +620,11 @@ class ModsView(QWidget):
         )
 
         if reply == QMessageBox.StandardButton.Yes:
-            for item in items:
-                mod = item.data(0, Qt.ItemDataRole.UserRole)
-                self.removeModRequested.emit(mod.name)
+            mod_names = [
+                item.data(0, Qt.ItemDataRole.UserRole).name
+                for item in items
+            ]
+            self.removeModsRequested.emit(mod_names)
 
     def show_modfile_dialog(self, mod_name: str, modfile_data: dict) -> None:
         dialog = EditModfileDialog(self, mod_name, modfile_data)
