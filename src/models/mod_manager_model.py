@@ -1,3 +1,4 @@
+import os
 import winreg
 import logging
 from pathlib import Path
@@ -85,7 +86,7 @@ class ModManagerModel(QObject):
 
     # A mod's metadata (name, author, version, etc.) was changed.
     modsMetadataChanged = Signal(list)
-    
+
     modsStateChanged = Signal(list)  # list of mod names
 
     currentProfileChanged = Signal()
@@ -134,7 +135,7 @@ class ModManagerModel(QObject):
     def _on_profile_switched(self) -> None:
         self._refresh_mods_state()
         self.currentProfileChanged.emit()
-    
+
     def _refresh_mods_state(self) -> None:
         profile = self._profile_manager.get_current_profile()
 
@@ -145,8 +146,8 @@ class ModManagerModel(QObject):
                     mod_entry.enabled = modinfo.enabled
                 else:
                     mod_entry.enabled = False
-    
-    # --- Public API Methods
+
+    # --- Public Methods
     def refresh_mods(self) -> None:
         logger.info("Refreshing mod cache from staging directory...")
 
@@ -158,7 +159,7 @@ class ModManagerModel(QObject):
 
         for mod in staging_mods:
             mod_metadata = self._mods_data.get(mod.name, {})
-            entry = BD2ModEntry.create_from_mod(
+            mod_entry = BD2ModEntry.create_from_mod(
                 mod=mod,
                 game_data=self.game_data,
                 author=mod_metadata.get("author"),
@@ -167,32 +168,28 @@ class ModManagerModel(QObject):
             if profile:
                 modinfo = profile.get_mod(mod.name)
                 if modinfo:
-                    entry.enabled = modinfo.enabled
+                    mod_entry.enabled = modinfo.enabled
 
-            self._mod_entries[entry.name] = entry
+            self._mod_entries[mod_entry.name] = mod_entry
 
         self.modsRefreshed.emit()
 
     def get_mods(self) -> List[BD2ModEntry]:
         return list(self._mod_entries.values())
 
-    def get_mod_by_name(self, mod_name: str) -> Optional[BD2ModEntry]:
-        # TODO: instead of iterating, cache the mod name already lower case
-        _entries_lowercase = {
-            mod_name.lower(): mod_entry for mod_name, mod_entry in self._mod_entries.items()
-        }
-        return _entries_lowercase.get(mod_name.lower())
+    def get_mod_by_name(self, mod_name: str, case_insensitive: bool = False) -> Optional[BD2ModEntry]:
+        if not case_insensitive:
+            return self._mod_entries.get(mod_name)
+
+        for mname, mentry in self._mod_entries.items():
+            if mname.lower() == mod_name.lower():
+                return mentry
 
     def add_mod(self, *, path: Union[str, Path]) -> Optional[BD2ModEntry]:
         mod_entry = self._install_mod(path)
         logger.info("Successfully added mod '%s'", mod_entry.mod.name)
         self.modsAdded.emit([mod_entry.mod.name])
         return mod_entry
-        # try:
-        # except Exception as error:
-        #     logger.error("Failed to install mod from path %s: %s", path, error)
-        #     self.modsAddFailed.emit(f"Failed to install {Path(path).name}: {error}")
-        #     return None
 
     def add_multiple_mods(self, paths: List[Union[str, Path]]) -> None:
         new_entries = []
@@ -205,14 +202,16 @@ class ModManagerModel(QObject):
                 new_entries.append(entry)
             except Exception as e:
                 error_message = f"{e}"
-                logger.error("Failed to process mod from path %s: %s", path, error_message)
+                logger.error(
+                    "Failed to process mod from path %s: %s", path, error_message)
                 failed_mods.append((str(path), error_message))
 
         if new_entries:
             for entry in new_entries:
                 self._mod_entries[entry.mod.name] = entry
 
-            logger.info("Successfully installed %d mods in a batch.", len(new_entries))
+            logger.info(
+                "Successfully installed %d mods in a batch.", len(new_entries))
             self.modsAdded.emit([entry.mod.name for entry in new_entries])
 
         if failed_mods:
@@ -256,7 +255,7 @@ class ModManagerModel(QObject):
                     "CRITICAL: Mod '%s' was deleted from disk, but failed to update profile '%s'. Manual correction may be needed. Error: %s",
                     mod_name, profile.name, e
                 )
-                
+
         self._mod_entries.pop(mod_name, None)
 
         if self._mods_data.pop(mod_name, None):
@@ -326,51 +325,73 @@ class ModManagerModel(QObject):
         if failed_removals:
             logger.warning("Failed to remove %d mods: %s", len(failed_removals), list(failed_removals.keys()))
 
+    def rename_mod(self, mod_name: str, new_name: str) -> bool:
+        """Renames a mod"""
+        
         if not is_filename_valid(new_name):
             raise InvalidModNameError(new_name)
 
         if mod_name == new_name:
-            return  # Nothing to do
+            if Path(mod_name).name == new_name:
+                logger.info("New name is identical to the old name. Nothing to do.")
+                return False
 
         mod_entry = self.get_mod_by_name(mod_name)
         if not mod_entry:
             raise ModNotFoundError(mod_name)
+        
+        old_path = Path(mod_entry.path)
+        new_path = old_path.with_name(new_name)
+        
+        new_full_name = new_path.relative_to(self._staging_mods_directory).as_posix()
 
-        if self.get_mod_by_name(new_name):
-            raise ModAlreadyExistsError(mod_name)
+        existing_mod = self.get_mod_by_name(new_full_name, case_insensitive=True)
+
+        if existing_mod and mod_entry is not existing_mod:
+            raise ModAlreadyExistsError(new_name)
 
         old_path = Path(mod_entry.path)
         new_path = old_path.with_name(new_name)
-
+        
+        # if old_path.resolve().as_posix() == new_path.as_posix(): # a/b == a/B
+        #     # check if the cases are different
+        #     logger.info("New name is identical to the old name. Nothing to do.")
+        #     return False
+        
+        if str(old_path.parent).lower() == str(new_path.parent).lower():
+            if old_path.name == new_path.name:
+                logger.info("New name is identical to the old name. Nothing to do.")
+                return False        
         try:
-            logger.debug("Renaming mod folder from '%s' to '%s'",
-                         old_path, new_path)
+            logger.debug("Renaming mod folder from '%s' to '%s'", old_path, new_path)
             old_path.rename(new_path)
+        except FileExistsError as error:
+            raise ModAlreadyExistsError(new_name) from error
         except OSError as e:
             logger.error("Failed to rename mod folder for '%s': %s", mod_name, e)
-            raise InvalidModNameError(new_name) from e
+            raise IOError(f"Could not rename '{mod_name}' to '{new_name}'.") from e
 
-        mod_entry.mod.name = new_name
         mod_entry.mod.path = str(new_path)
+        mod_entry.mod.name = new_full_name
         mod_entry.mod.display_name = new_path.name
 
         self._mod_entries.pop(mod_name)
-        self._mod_entries[new_name] = mod_entry
+        self._mod_entries[new_full_name] = mod_entry
 
         if mod_name in self._mods_data:
-            self._mods_data[new_name] = self._mods_data.pop(mod_name)
+            self._mods_data[new_full_name] = self._mods_data.pop(mod_name)
             self._save_mods_data()
 
-        # TODO: add remove_from_all_profiles, rename_from_all_profiles, etc.
         for profile in self._profile_manager.get_profiles():
-            if profile.get_mod(mod_name):
-                profile.rename_mod(mod_name, new_name)
+            if profile.has_mod(mod_name):
+                profile.rename_mod(mod_name, new_full_name)
                 self._profile_manager.save_profile(profile)
 
-        logger.info("Successfully renamed mod '%s' to '%s'.",
-                    mod_name, new_name)
+        logger.info("Successfully renamed mod '%s' to '%s'.", mod_name, new_full_name)
         
-        self.modRenamed.emit(mod_name, new_name)
+        self.modRenamed.emit(mod_name, new_full_name)
+
+        return True
 
     def get_characters_mod_status(self) -> dict:
         """Returns a dictionary with characters and their mod status."""
@@ -422,7 +443,7 @@ class ModManagerModel(QObject):
             mod_name,
             mod.enabled,
         )
-        
+
         self._set_mod_state(mod_name, True)
 
     def enable_bulk_mods(self, mod_names: list[str]) -> None:
@@ -451,7 +472,7 @@ class ModManagerModel(QObject):
                 mod_names), ", ".join(mod_names)
         )
         self._set_bulk_mod_state(mod_names, False)
-    
+
     def set_mod_author(self, mod_name: str, author: str) -> None:
         logger.debug("Setting author for mod '%s' to '%s'", mod_name, author)
         self._set_mod_data(mod_name, "author", author)
@@ -464,7 +485,7 @@ class ModManagerModel(QObject):
             ", ".join(mod_names),
         )
         self._set_bulk_mod_data(mod_names, "author", author)
-    
+
     def check_game_directory(self, path: Path | str) -> bool:
         """Returns True if the path contains the game executable."""
 
@@ -516,7 +537,7 @@ class ModManagerModel(QObject):
                      self._staging_mods_directory)
 
         self.refresh_mods()
-    
+
     @require_bdx_installed
     @require_game_path
     def sync_mods(
@@ -574,7 +595,8 @@ class ModManagerModel(QObject):
                 progress_callback(1, 1, "No mods directory to clear.")
             return
 
-        logger.debug("Clearing all content from: %s", self._game_mods_directory)
+        logger.debug("Clearing all content from: %s",
+                     self._game_mods_directory)
 
         try:
             items_to_remove = list(self._game_mods_directory.iterdir())
@@ -637,7 +659,8 @@ class ModManagerModel(QObject):
                         for st in entry.StringTable:
                             for key, value in st.entries.items():
                                 try:
-                                    data[key.decode("utf-8")] = value.decode("utf-8")
+                                    data[key.decode("utf-8")
+                                         ] = value.decode("utf-8")
                                 except UnicodeDecodeError:
                                     data[key.decode("latin-1", "ignore")] = (
                                         value.decode("latin-1", "ignore")
@@ -647,10 +670,10 @@ class ModManagerModel(QObject):
 
     def get_modfile_data(self, mod_name: str) -> Optional[Dict[str, Any]]:
         mod = self.get_mod_by_name(mod_name)
-        
+
         if not mod:
             raise ModNotFoundError(mod_name)
-        
+
         modfile_path = list(Path(mod.path).rglob("*.modfile"))
 
         if not modfile_path:
@@ -670,7 +693,8 @@ class ModManagerModel(QObject):
         except json.JSONDecodeError as error:
             logger.error("Invalid JSON in modfile %s: %s", modfile_path, error)
         except Exception as error:
-            logger.error("Unexpected error reading modfile %s: %s", modfile_path, error)
+            logger.error("Unexpected error reading modfile %s: %s",
+                         modfile_path, error)
 
         return data
 
@@ -686,7 +710,7 @@ class ModManagerModel(QObject):
             return False
 
         modfile_path = modfile_path[0]
-        
+
         temp_path = None
         try:
             with tempfile.NamedTemporaryFile("w", encoding="UTF-8", dir=mod.path, delete=False) as tempf:
@@ -696,12 +720,14 @@ class ModManagerModel(QObject):
             shutil.move(temp_path, modfile_path)
 
             logger.info("Successfully saved modfile: %s", modfile_path)
-            
+
             return True
         except PermissionError:
-            logger.error("Permission denied writing to modfile: %s", modfile_path)
+            logger.error(
+                "Permission denied writing to modfile: %s", modfile_path)
         except Exception as error:
-            logger.error("Unexpected error writing modfile %s: %s", modfile_path, error)
+            logger.error("Unexpected error writing modfile %s: %s",
+                         modfile_path, error)
         finally:
             if temp_path and temp_path.exists():
                 temp_path.unlink(missing_ok=True)
@@ -758,23 +784,23 @@ class ModManagerModel(QObject):
             for mod_name, data in data.items()
             if data.get("enabled")
         ]
-        
+
         self._set_bulk_mod_state(enabled_mods, True, False)
-        
+
         authors = {}
-        
+
         for mod_name, data in data.items():
-            if not data.get("author"): 
+            if not data.get("author"):
                 continue
-            
+
             authors.setdefault(data.get("author"), []).append(mod_name)
-        
+
         for author, mods in authors.items():
             self._set_bulk_mod_data(mods, "author", author, False)
-        
+
         # update cache
         self.refresh_mods()
-        
+
         # make backup of the mods.json
         try:
             shutil.move(old_mods_json, app_paths.user_data_path / "old_mods_v2.json")
@@ -1078,7 +1104,7 @@ class ModManagerModel(QObject):
                 logger.debug(
                     "Mod '%s' marked for update: %s = %s", mod_name, key, value
                 )
-            
+
             # update cache
             cached_mod_entry = self._mod_entries.get(mod_name)
             if cached_mod_entry:
@@ -1090,12 +1116,12 @@ class ModManagerModel(QObject):
             return False
 
         logger.debug("Saving profile after changing %d mods.", len(changed_mods))
-        
+
         self._save_mods_data()
-        
+
         if trigger_event:
             self.modsMetadataChanged.emit(changed_mods)
-            
+
         return True
 
     def _sync_mods_symlink(
@@ -1121,7 +1147,7 @@ class ModManagerModel(QObject):
             for path in self._game_mods_directory.rglob("*")
             # if path.is_symlink()
         }
-        
+
         installed_relpaths = set(installed_mods.keys())
 
         mods_to_link = enabled_relpaths - installed_relpaths
@@ -1145,6 +1171,7 @@ class ModManagerModel(QObject):
 
         total_steps = len(mods_to_unlink) + len(mods_to_link)
         current_step = 0
+
         if total_steps == 0:
             update_progress("Mods are already up to date.", 1, 1)
             return
@@ -1155,7 +1182,7 @@ class ModManagerModel(QObject):
                 f"Removing '{mod_relpath}'", current_step, total_steps)
             try:
                 mod_game_path = installed_mods[mod_relpath]
-                
+
                 # remove_folder correctly handles symlinksw
                 remove_folder(mod_game_path)
                 logger.debug("Removed mod link '%s'.", mod_relpath)
