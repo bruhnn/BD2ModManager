@@ -1,0 +1,1066 @@
+
+
+* {
+    font-family: "Segoe UI", sans-serif;
+    outline: none;
+}
+
+/* ---- MAIN WINDOW ---- */
+
+#mainWindow {
+    background-color: #111827;
+    color: #f0f0f0;
+}
+
+/* ---- SIDE BAR ---- */
+
+#sideBar {
+    background-color: #1f2937;
+}
+
+#titleWidget {
+    background-color: transparent;
+}
+
+#titleLabel {
+    font-family: "Cinzel";
+    font-size: 24px;
+    font-weight: bold;
+}
+
+#subtitleLabel {
+    color: #9ca3af;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+#updateLabel {
+    font-size: 12px;
+}
+
+#navigationView {
+
+}
+
+#navigationBar {
+    
+}
+
+#navigationTitle {
+    color: #9ca3af;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 4px 0px;
+}
+
+#navigationButton {
+    background-color: transparent;
+    color: #9ca3af;
+    border: none;
+    padding: 8px;
+    border-radius: 20px;
+    font-weight: bold;
+}
+
+#navigationButton:hover {
+    background-color: #6b7280;
+}
+
+#navigationButton[active="true"] {
+    background-color: #6b7280;
+    color: #fff;
+}
+
+#profileDropdown {
+    background-color: #374151;
+    color: #9ca3af;
+    border-radius: 4px;
+    padding: 8px 12px;
+}
+
+#profileDropdown::drop-down {
+    subcontrol-origin: padding;
+    subcontrol-position: top right;
+    width: 24px;
+    border: none;
+    margin-right: 4px;
+}
+
+#profileDropdown::down-arrow {
+    image: url(:/icons/material/dark/arrow_down.svg);
+    width: 24px;
+    height: 24px;
+}
+
+#profileDropdown QAbstractItemView {
+    background-color: #374151;
+    color: #9ca3af;
+    border-radius: 4px;
+}
+
+#profileDropdown QAbstractItemView::item {
+    padding: 8px 12px;
+}
+
+#profileDropdown QAbstractItemView::item:selected {
+    background-color: #6b7280;
+    color: #fff;
+}
+
+#startGameButton {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 6px;
+    font-weight: bold;
+    color: #fff;
+    background-color: #374151;
+}
+
+#startGameButton:hover {
+    background-color: #6b7280;
+}
+
+/* ---- MODS VIEW ----- */
+
+#modsView {
+    background-color: #111827;
+    border-radius: 8px;
+}
+
+#modsHeader {
+
+}
+
+#modsTitleLabel {
+    font-family: "Segoe UI";
+    font-weight: bold;
+    font-size: 20px;
+    color: #d1d5db;
+}
+
+#modsCountLabel {
+    font-family: "Segoe UI";
+    font-size: 14px;
+    font-weight: 600;
+    color: #9ca3af;
+}
+
+#searchField, #charactersSearchField {
+    background-color: #374151;
+    color: #d1d5db;
+    border-radius: 4px;
+    padding: 8px 12px;
+    padding-left: 0px;
+    font-size: 14px;
+}
+
+#charactersSearchField {
+    padding-left: 8px;
+}
+
+#searchType {
+    background-color: #374151;
+    color: #d1d5db;
+    border-radius: 4px;
+    padding: 8px 12px;
+}
+
+#searchType::drop-down {
+    subcontrol-origin: padding;
+    subcontrol-position: top right;
+    width: 24px;
+    border: none;
+    margin-right: 4px;
+}
+
+#searchType::down-arrow {
+    image: url(:/icons/material/dark/arrow_down.svg);
+    width: 24px;
+    height: 24px;
+}
+
+#searchType QAbstractItemView {
+    background-color: #374151;
+    color: #d1d5db;
+    border-radius: 4px;
+}
+
+#searchType QAbstractItemView::item {
+    padding: 8px 12px;
+}
+
+#modsButton {
+    border-radius: 6px;
+    padding: 8px 16px;
+    color: #d1d5db;
+    border: 2px solid #4b5563;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+#modsButton:hover {
+    background-color: #6b7280;
+    border-color: transparent;
+}
+
+#modsTopBar {
+   
+}
+
+#modTypesFilterChip {
+    padding: 4px 12px;
+    border: 1px solid #4b5563;
+    color: #d1d5db;
+    font-size: 14px;
+    font-weight: 500;
+    border-radius: 14px;
+    font-family: "Segoe UI";
+}
+
+#modTypesFilterChip:hover {
+    background-color: #6b7280;
+    border-color: transparent;
+}
+
+#modTypesFilterChip:checked {
+    background-color: #6b7280;
+    color: #fff;
+    border-color: transparent;
+}
+
+#modlistArea {
+
+}
+
+#modlistHeader {
+    background-color: #374151;
+    font-weight: bold;
+}
+
+#modlist {
+    background-color: #1f2937;
+    alternate-background-color: #1f2937;
+    border: none;
+    color: #d1d5db;
+}
+
+#modlist::item {
+    padding: 16px 0px;
+}
+
+#modlist::item:hover {
+    background-color: #4b5563
+}
+
+#modlist::item:selected {
+    color: #fff;
+    background-color: #6b7280;
+}
+
+#modlist::indicator {
+    width: 24px;
+    height: 24px;
+}
+
+#modlist::indicator:unchecked {
+    image: url(:/icons/material/dark/checkbox.svg)
+}
+
+#modlist::indicator:checked {
+    image: url(:/icons/material/dark/checkbox_checked_colored_fill.svg);
+}
+
+#modsInfoLabel {
+    color: #d1d5db;
+    font-weight: bold;
+}
+
+/* --- CHARACTERS VIEW --- */
+
+#charactersTreeView {
+    background-color: #111827;
+    color: #ecf0f1;
+    border: none;
+    border-radius: 8px;
+}
+
+#charactersTreeView::branch:hover {
+    background: transparent;
+}
+
+/* ---- SCROLL BAR ---- */
+
+QScrollBar:vertical {
+    border: none;
+    background-color: #1f2937;
+    width: 14px;
+    margin: 15px 0 15px 0;
+    border-radius: 0px;
+}
+
+QScrollBar::handle:vertical {
+    background-color: #4b5563;
+    min-height: 30px;
+    border-radius: 7px;
+}
+
+QScrollBar::handle:vertical:hover {
+    background-color: #6b7280;
+}
+
+QScrollBar::handle:vertical:pressed {
+    background-color: #9ca3af;
+}
+
+QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
+    border: none;
+    background: none;
+    height: 15px;
+    subcontrol-origin: margin;
+}
+
+QScrollBar::up-arrow:vertical, QScrollBar::down-arrow:vertical {
+     background: none;
+}
+
+QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
+     background: none;
+}
+
+#customComboBoxLabel {
+    color: #ecf0f1;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+#customComboBox, #settingsComboBox {
+    background-color: #374151;
+    color: #9ca3af;
+    border-radius: 4px;
+    padding: 8px 12px;
+}
+
+#customComboBox::drop-down, #settingsComboBox::drop-down {
+    subcontrol-origin: padding;
+    subcontrol-position: top right;
+    width: 24px;
+    border: none;
+    margin-right: 4px;
+}
+
+#customComboBox::down-arrow, #settingsComboBox::down-arrow {
+    image: url(:/icons/material/dark/arrow_down.svg);
+    width: 24px;
+    height: 24px;
+}
+
+#customComboBox QAbstractItemView, #settingsComboBox QAbstractItemView {
+    background-color: #374151;
+    color: #9ca3af;
+    border-radius: 4px;
+}
+
+#customComboBox QAbstractItemView::item, #settingsComboBox QAbstractItemView::item {
+    padding: 8px 12px;
+}
+
+#customComboBox QAbstractItemView::item:selected, #settingsComboBox::item:selected {
+    background-color: #6b7280;
+    color: #fff;
+}
+
+/* --- SETTINGS VIEW --- */
+#settingsView {
+    background-color: #1f2937;
+    border-radius: 8px;
+}
+
+#settingsTitle {
+    font-size: 24px;
+    color: #f0f0f0;
+    font-weight: bold;
+}
+
+#settingsSectionTitle {
+    font-size: 16px;
+    color: #f0f0f0;
+    font-weight: bold;
+}
+
+#settingsSectionSeparator {
+    background-color: #4b5563;
+}
+
+#directoryInputLabel {
+    font-family: "Segoe UI";
+    font-size: 12px;
+    color: #f0f0f0;
+}
+
+#directoryInputValue {
+    font-family: "Segoe UI";
+    font-size: 12px;
+    color: #f0f0f0;
+    background-color: #374151;
+    padding: 4px;
+    border-radius: 4px;
+}
+
+#directoryInputButton {
+    border-radius: 6px;
+    padding: 6px 16px;
+    color: #d1d5db;
+    background-color: #374151;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+#directoryInputButton:hover {
+    background-color: #6b7280;
+}
+
+#settingsComboBoxLabel {
+    font-family: "Segoe UI";
+    font-size: 12px;
+    color: #f0f0f0;
+}
+
+#settingsCheckbox::indicator:unchecked {
+    image: url(:/icons/material/dark/checkbox.svg)
+}
+
+#settingsCheckbox::indicator:checked {
+    image: url(:/icons/material/dark/checkbox_checked_fill.svg);
+}
+
+
+/* NOTIFICATION */
+
+#notificationWidget {
+    background-color: #1f2937;
+    border: 1px solid #4b5563;
+    padding: 24px;
+    border-radius: 12px;
+}
+
+#notificationType {
+
+}
+
+#notificationTitle {
+    font-size: 16px;
+    font-weight: bold;
+    color: #d1d5db;
+}
+
+#notificationText {
+    font-size: 14px;
+    color: #9ca3af;
+}
+
+#notificationCloseButton {
+    background-color: transparent;
+    border: none;
+}
+
+/* SELECTION GAME FOLDER PAGE */
+
+#selectTitle {
+    font-size: 24px;
+    font-weight: bold;
+    color: #e5e7eb;
+    margin-bottom: 8px;
+}
+
+#selectInput {
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-family: "Segoe UI", sans-serif;
+    font-size: 14px;
+    color: #f9fafb;
+    background-color: #1f2937;
+    border: 1px solid #4b5563;
+}
+
+#selectInput:focus {
+    border: 1px solid #93c5fd;
+    background-color: #111827;
+}
+
+#selectBrowseButton {
+    border-radius: 6px;
+    padding: 6px 14px;
+    color: #e5e7eb;
+    background-color: #4b5563;
+    font-size: 14px;
+    font-weight: 600;
+    border: none;
+}
+
+#selectBrowseButton:hover {
+    background-color: #6b7280;
+}
+
+#selectBrowseButton:pressed {
+    background-color: #9ca3af;
+}
+
+#selectPathList {
+    background-color: #1f2937;
+    border-radius: 6px;
+    padding: 4px;
+}
+
+#selectPathList::item {
+    padding: 6px 12px;
+    color: #f3f4f6;
+    background-color: transparent;
+}
+
+#selectPathList::item:hover {
+    background-color: #374151
+}
+
+#selectPathList::item:selected {
+    background-color: #374151;
+    color: #ffffff;
+}
+
+#selectInfoText {
+    font-size: 14px;
+    font-weight: 500;
+    color: #9ca3af;
+    margin-top: 6px;
+}
+
+/* MANAGE PROFILES PAGE */
+
+#profilesPage {
+    background-color: #1f2937;
+    border-radius: 8px;
+}
+
+#profilesPageTitle {
+    font-family: "Segoe UI";
+    font-weight: bold;
+    font-size: 20px;
+    color: #d1d5db;
+}
+
+#profilesList {
+    background-color: #1f2937;
+    border: 1px solid #4b5563;
+    border-radius: 6px;
+    color: #d1d5db;
+}
+
+#profilesList::item {
+    padding: 12px;
+}
+
+#profilesList::item:hover {
+    background-color: #374151;
+}
+
+#profilesList::item:selected {
+    background-color: #4b5563;
+    color: #ffffff;
+}
+
+#profilesPageButton {
+    border-radius: 6px;
+    padding: 8px 16px;
+    color: #d1d5db;
+    border: 1px solid #4b5563;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+#profilesPageButton:hover {
+    background-color: #4b5563;
+    border-color: #6b7280;
+}
+
+#profilesPageButton:disabled {
+    color: #6b7280;
+    border-color: #374151;
+}
+
+/* ---- PROFILE DIALOG ---- */
+#profileDialog {
+    background-color: #1f2937;
+    border: 1px solid #4b5563;
+}
+
+#profileDialogTitle {
+    font-size: 16px;
+    font-weight: bold;
+    color: #d1d5db;
+}
+
+#profileInput {
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 14px;
+    color: #f9fafb;
+    background-color: #111827;
+    border: 1px solid #4b5563;
+}
+
+#profileInput:focus {
+    border: 1px solid #93c5fd;
+}
+
+QLabel {
+    color: #d1d5db;
+    font-size: 14px;
+}
+
+#profileButton {
+    border-radius: 6px;
+    padding: 6px 14px;
+    color: #e5e7eb;
+    background-color: #4b5563;
+    font-size: 14px;
+    font-weight: 600;
+    border: none;
+}
+
+#profileButton:hover {
+    background-color: #6b7280;
+}
+
+#profileButton:disabled {
+    background-color: #374151;
+    color: #6b7280;
+}
+
+/* ---- PROGRESS MODAL ---- */
+
+#progressModal {
+    background-color: #1f2937;
+    border: 1px solid #4b5563;
+    border-radius: 8px;
+}
+
+#progressModalTitleLabel {
+    font-size: 16px;
+    font-weight: bold;
+    color: #d1d5db;
+}
+
+#progressModalStatusLabel {
+    color: #9ca3af;
+    font-size: 13px;
+}
+
+/* ---- Progress Bar Styling ---- */
+QProgressBar#progressModalProgressBar {
+    background-color: #374151;
+    border: none;
+    border-radius: 4px;
+    text-align: center;
+    color: #d1d5db;
+}
+
+QProgressBar#progressModalProgressBar::chunk {
+    background-color: #6b7280;
+    border-radius: 4px;
+}
+
+QProgressBar#progressModalProgressBar[error="true"]::chunk {
+    background-color: #ef4444;
+}
+
+/* ---- Progress Modal Buttons ---- */
+
+#progressModalButton, #progressModalCancelButton {
+    border-radius: 6px;
+    padding: 6px 14px;
+    color: #e5e7eb;
+    background-color: #4b5563;
+    font-size: 14px;
+    font-weight: 600;
+    border: none;
+    min-width: 80px; /* Give buttons a consistent width */
+}
+
+#progressModalButton:hover, #progressModalCancelButton:hover {
+    background-color: #6b7280;
+}
+
+#progressModalButton:disabled {
+    background-color: #374151;
+    color: #6b7280;
+}
+
+#progressModalCancelButton:hover {
+    background-color: #991b1b; /* A darker red for hover */
+}
+
+#configView {
+    background-color: transparent;
+}
+
+#updateAlertWidget {
+    background-color: #111827;
+    border-radius: 4px;
+}
+/* ---- MESSAGE BOX / DIALOGS ---- */
+
+QMessageBox#errorDialog {
+    background-color: #1f2937; /* Same as profile dialog */
+    border: 1px solid #4b5563;
+    border-radius: 8px;
+}
+
+QMessageBox#errorDialog QLabel {
+    color: #d1d5db;
+    font-size: 14px;
+}
+
+QMessageBox#errorDialog QPushButton {
+    background-color: #4b5563;
+    color: #e5e7eb;
+    border: none;
+    border-radius: 6px;
+    padding: 6px 14px;
+    font-size: 14px;
+    font-weight: 600;
+    min-width: 80px;
+}
+
+QMessageBox#errorDialog QPushButton:hover {
+    background-color: #6b7280;
+}
+
+QMessageBox#errorDialog QTextEdit {
+    background-color: #111827; /* Darker background for contrast */
+    color: #9ca3af;
+    border-radius: 4px;
+    border: 1px solid #4b5563;
+}
+
+/* ---- GENERIC DIALOGS (Confirmation, Input, etc.) ---- */
+
+/* ---- CONFIRMATION DIALOGS (QMessageBox) ---- */
+
+QMessageBox {
+    background-color: #1f2937;
+    border: 1px solid #4b5563;
+    border-radius: 8px;
+}
+
+QMessageBox QLabel {
+    color: #d1d5db;
+    font-size: 14px;
+    font-family: "Segoe UI", sans-serif;
+}
+
+QMessageBox QPushButton {
+    background-color: #4b5563;
+    color: #e5e7eb;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 16px;
+    font-size: 14px;
+    font-weight: 600;
+    min-width: 80px;
+    margin: 2px;
+}
+
+QMessageBox QPushButton:hover {
+    background-color: #6b7280;
+}
+
+QMessageBox QPushButton:pressed {
+    background-color: #9ca3af;
+}
+
+/* Style for the "Yes" button in dangerous operations */
+QMessageBox QPushButton[text="Yes"] {
+    background-color: #dc2626;
+    color: #ffffff;
+}
+
+QMessageBox QPushButton[text="Yes"]:hover {
+    background-color: #b91c1c;
+}
+
+QMessageBox QPushButton[text="Yes"]:pressed {
+    background-color: #991b1b;
+}
+
+/* Style for the "No" button (default/safe choice) */
+QMessageBox QPushButton[text="No"] {
+    background-color: #4b5563;
+    color: #e5e7eb;
+}
+
+QMessageBox QPushButton[text="No"]:hover {
+    background-color: #6b7280;
+}
+
+/* ---- INPUT DIALOGS (QInputDialog) ---- */
+
+QInputDialog {
+    background-color: #1f2937;
+    border: 1px solid #4b5563;
+    border-radius: 8px;
+}
+
+QInputDialog QLabel {
+    color: #d1d5db;
+    font-size: 14px;
+    font-family: "Segoe UI", sans-serif;
+}
+
+QInputDialog QLineEdit {
+    background-color: #111827;
+    color: #f9fafb;
+    border: 1px solid #4b5563;
+    border-radius: 4px;
+    padding: 8px 12px;
+    font-size: 14px;
+    font-family: "Segoe UI", sans-serif;
+}
+
+QInputDialog QLineEdit:focus {
+    border: 1px solid #93c5fd;
+    background-color: #111827;
+}
+
+QInputDialog QPushButton {
+    background-color: #4b5563;
+    color: #e5e7eb;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 16px;
+    font-size: 14px;
+    font-weight: 600;
+    min-width: 80px;
+    margin: 2px;
+}
+
+QInputDialog QPushButton:hover {
+    background-color: #6b7280;
+}
+
+QInputDialog QPushButton:pressed {
+    background-color: #9ca3af;
+}
+
+/* OK button styling */
+QInputDialog QPushButton[text="OK"] {
+    background-color: #059669;
+    color: #ffffff;
+}
+
+QInputDialog QPushButton[text="OK"]:hover {
+    background-color: #047857;
+}
+
+QInputDialog QPushButton[text="OK"]:pressed {
+    background-color: #065f46;
+}
+
+/* ---- FILE DIALOGS (QFileDialog) ---- */
+
+QFileDialog {
+    background-color: #1f2937;
+    color: #d1d5db;
+}
+
+QFileDialog QLabel {
+    color: #d1d5db;
+    font-size: 14px;
+}
+
+QFileDialog QLineEdit {
+    background-color: #111827;
+    color: #f9fafb;
+    border: 1px solid #4b5563;
+    border-radius: 4px;
+    padding: 6px 10px;
+    font-size: 14px;
+}
+
+QFileDialog QLineEdit:focus {
+    border: 1px solid #93c5fd;
+}
+
+QFileDialog QPushButton {
+    background-color: #4b5563;
+    color: #e5e7eb;
+    border: none;
+    border-radius: 6px;
+    padding: 6px 14px;
+    font-size: 14px;
+    font-weight: 600;
+    min-width: 80px;
+}
+
+QFileDialog QPushButton:hover {
+    background-color: #6b7280;
+}
+
+QFileDialog QListView {
+    background-color: #111827;
+    color: #d1d5db;
+    border: 1px solid #4b5563;
+    border-radius: 4px;
+}
+
+QFileDialog QListView::item {
+    padding: 4px;
+}
+
+QFileDialog QListView::item:hover {
+    background-color: #374151;
+}
+
+QFileDialog QListView::item:selected {
+    background-color: #4b5563;
+    color: #ffffff;
+}
+
+QFileDialog QTreeView {
+    background-color: #111827;
+    color: #d1d5db;
+    border: 1px solid #4b5563;
+    border-radius: 4px;
+}
+
+QFileDialog QTreeView::item {
+    padding: 4px;
+}
+
+QFileDialog QTreeView::item:hover {
+    background-color: #374151;
+}
+
+QFileDialog QTreeView::item:selected {
+    background-color: #4b5563;
+    color: #ffffff;
+}
+
+QFileDialog QComboBox {
+    background-color: #374151;
+    color: #9ca3af;
+    border-radius: 4px;
+    padding: 6px 10px;
+    border: 1px solid #4b5563;
+}
+
+QFileDialog QComboBox::drop-down {
+    subcontrol-origin: padding;
+    subcontrol-position: top right;
+    width: 24px;
+    border: none;
+    margin-right: 4px;
+}
+
+QFileDialog QComboBox::down-arrow {
+    image: url(:/icons/material/dark/arrow_down.svg);
+    width: 16px;
+    height: 16px;
+}
+
+QFileDialog QComboBox QAbstractItemView {
+    background-color: #374151;
+    color: #9ca3af;
+    border-radius: 4px;
+    selection-background-color: #4b5563;
+}
+
+/* ---- DIALOG STYLING ---- */
+
+QDialog {
+    background-color: #1f2937;
+    border: 1px solid #4b5563;
+    border-radius: 8px;
+}
+
+QDialog QLabel {
+    color: #d1d5db;
+    font-size: 14px;
+    font-family: "Segoe UI", sans-serif;
+}
+
+QDialog QPushButton {
+    background-color: #4b5563;
+    color: #e5e7eb;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 16px;
+    font-size: 14px;
+    font-weight: 600;
+    min-width: 80px;
+    margin: 2px;
+}
+
+QDialog QPushButton:hover {
+    background-color: #6b7280;
+}
+
+QDialog QPushButton:pressed {
+    background-color: #9ca3af;
+}
+
+QDialog QPushButton:disabled {
+    background-color: #374151;
+    color: #6b7280;
+}
+
+/* ---- TOOLTI ---- */
+
+QToolTip {
+    background-color: #374151;
+    color: #d1d5db;
+    border: 1px solid #4b5563;
+    border-radius: 4px;
+    padding: 4px 8px;
+    font-size: 12px;
+    font-family: "Segoe UI", sans-serif;
+}
+
+/* ---- CONTEXT MENU---- */
+
+QMenu {
+    background-color: #374151;
+    color: #d1d5db;
+    border: 1px solid #4b5563;
+    border-radius: 4px;
+    padding: 4px;
+}
+
+QMenu::item {
+    padding: 6px 12px;
+    border-radius: 4px;
+    margin: 1px;
+}
+
+QMenu::item:selected {
+    background-color: #4b5563;
+    color: #ffffff;
+}
+
+QMenu::item:disabled {
+    color: #6b7280;
+}
+
+QMenu::separator {
+    height: 1px;
+    background-color: #4b5563;
+    margin: 4px 8px;
+}
+
+/* ---- DIALOG TITLE BAR ---- */
+
+QDialog::title {
+    background-color: #1f2937;
+    color: #d1d5db;
+    font-weight: bold;
+    font-size: 16px;
+    padding: 8px;
+}

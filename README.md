@@ -1,42 +1,39 @@
 ![GitHub License](https://img.shields.io/github/license/bruhnn/BD2ModManager)
 ![GitHub Release](https://img.shields.io/github/v/release/bruhnn/BD2ModManager)
-![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/bruhnn/BD2ModManager/total)
-
-## 🚧 Upcoming: Version 3.0.0!
-
-A big refactor and new features are coming in **v3.0.0**!  
-You can preview the work-in-progress here (not released yet):  
-> Screenshots here: [refactor/v3 branch](https://github.com/bruhnn/BD2ModManager/tree/refactor/v3?tab=readme-ov-file#-screenshots)
-
+![GitHub Downloads (all assets, latest release)](https://img.shields.io/github/downloads/bruhnn/BD2ModManager/latest/total)
+![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/bruhnn/BD2ModManager/total?label=Total%20downloads)
 
 # Brown Dust 2 Mod Manager
 
-**Easily manage your Brown Dust 2 mods.**
-
 ---
 
-**Download:** *[BD2ModManager on GitHub Releases](https://github.com/bruhnn/BD2ModManager/releases)*
+**Easily manage your Brown Dust 2 mods.**
 
+> 🎉 **Download the latest version:** [GitHub Releases](https://github.com/bruhnn/BD2ModManager/releases)
 
 *If you have any questions or suggestions, contact me on Discord: `@bruhnnn`*
 
 ---
-## 🔥 New in v2.2.0
-- Remembers and restores **window size and position**
-- Supports installing **.zip mods** (via drag-and-drop)
-- Fixed: **"Find Authors"** now works better (still experimental, only works for some mods and only if the mod folder hasn’t been modified)
-- You can now **edit `.modfile` JSON** directly in the manager 
-→ Right-click a mod and select **"Edit Modfile"**
+## 🔥 What's New in v3.0.0
+
+- New UI design (still a WIP, expect changes).
+- Mod Profiles to quickly switch between different setups.
+- Preview mods spine ani   mations.
+- Filter mods by status directly on the characters page.
+- Finds your game installation automatically.
+- New characters are added automatically, no more manual updates.
+- Language support (auto-translated, so might not be perfect).
 
 ## ✨ Features
 
-- Easily search mods
-- Filter by mod name, character, author, or mod type
-- Copy mods into the game folder with one click (symlink supported)
-- Simple drag-and-drop mod installation
-- Enable or disable mods with one click
-- Check which characters have a specific mod type installed
-- Check if a mod conflicts with others (you need to refresh the mod list after enabling/disabling a mod to see conflicts)
+- Search mods by name, character, author, or type
+- One-click install (symlink or copy)
+- Drag-and-drop to install new mods
+- Enable/disable mods with a single click
+- See which characters have which mods at a glance
+- Detect conflicts automatically  
+  _(Tip: refresh the mod list after toggling mods to update conflicts)_
+- Edit `.modfile` JSON data directly inside the app
 
 ---
 
@@ -52,7 +49,7 @@ You can preview the work-in-progress here (not released yet):
 
 4. **Enable or disable mods**.
 5. **Sync your mods** to apply changes:
-   - This will create a folder named `BD2MM` inside the `BDX` mods folder with all your enabled mods.
+   - This will create a folder named `BD2ModManager` inside the `BrownDustX` mods folder with all your enabled mods.
 
 > ⚠️ After making any changes (enable, disable, delete, rename), you **must sync** your mods to update the game folder.
 
@@ -85,13 +82,19 @@ Creates shortcuts instead of copying files.
 
 ## 📸 Screenshots
 
-### Mods Page (v2.2.0)
-![Mods Page](./screenshots/mods_page.png)
+### Mods Page (v3.0.0)
+![Mods Page](./screenshots/mods_page_v3.png)
 
-### Characters Page (v2.2.0)
-![Characters Page](./screenshots/characters_page.png)
+### Characters Page (v3.0.0)
+![Characters Page](./screenshots/characters_page_v3.png)
 
 ---
+
+---
+## 🧰 Other Tools
+
+If you're looking for alternatives, check out this manager by [kxdekxde](https://github.com/kxdekxde/browndust2-mod-manager)
+
 
 ## Credits
 

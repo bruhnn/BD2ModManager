@@ -1,0 +1,38 @@
+{
+  "background": "#111827",
+  "sidebar": "#1f2937",
+  "surface": "#374151",
+  "border": "#4b5563",
+  "hover": "#374151",
+
+  "text_primary": "#9ca3af",
+  "text_secondary": "#d1d5db",
+
+  "color_primary": "#6b7280",
+  "color_secondary": "#d1d5db",
+  
+  "success": "#34d399",
+  "error": "#f87171",
+  "info": "#60a5fa",
+  "warning": "#f59e0b",
+  
+  "icon_color": "#d1d5db",
+  "icon_color_accent": "#60a5fa",
+  "icon_color_success": "#34d399",
+  "icon_color_error": "#f87171",
+  "icon_color_info": "#60a5fa",
+  "icon_color_warning": "#f59e0b",
+  
+  "mod_type_idle_text": "#7BDE82",
+  "mod_type_idle_bg": "#2A4235",
+  "mod_type_cutscene_text": "#A5A9F4",
+  "mod_type_cutscene_bg": "#3A3D6F",
+  "mod_type_dating_text": "#D0A0F5",
+  "mod_type_dating_bg": "#4D3867",
+  "mod_type_npc_text": "#CCCCCC",
+  "mod_type_npc_bg": "#3C444D",
+  "mod_type_scene_text": "#F0B97D",
+  "mod_type_scene_bg": "#5D4037",
+  "mod_type_default_text": "#FFFFFF",
+  "mod_type_default_bg": "#222222"
+}
