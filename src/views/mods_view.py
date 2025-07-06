@@ -1,6 +1,6 @@
-from ast import mod
-from typing import Dict
+from typing import Callable, Dict, List
 import logging
+
 from PySide6.QtWidgets import (
     QWidget,
     QVBoxLayout,
@@ -19,6 +19,7 @@ from PySide6.QtWidgets import (
     QSizePolicy,
     QStyleOption,
     QStackedWidget,
+    QSpacerItem
 )
 from PySide6.QtGui import (
     QDragEnterEvent,
@@ -29,8 +30,6 @@ from PySide6.QtGui import (
     QPainter,
 )
 from PySide6.QtCore import Qt, Signal, QSettings, QByteArray, QSize, Slot
-
-from typing import List
 
 from src.utils.models import BD2ModEntry, BD2ModType
 from src.views.widgets import (
@@ -548,6 +547,43 @@ class ModsView(QWidget):
         
         self._update_mods_count_label()
 
+    def _show_confirmation_dialog(
+        self,
+        title: str,
+        msg: str,
+        on_confirm: Callable[[], None]
+    ) -> None:
+        reply = QMessageBox.question(
+            self,
+            title,
+            msg,
+            QMessageBox.StandardButton.No | QMessageBox.StandardButton.Yes,
+            QMessageBox.StandardButton.No,
+        )
+        if reply == QMessageBox.StandardButton.Yes:
+            on_confirm()
+
+    def _confirm_mod_deletion(self, item: QTreeWidgetItem) -> None:
+        mod = item.data(0, Qt.ItemDataRole.UserRole)
+        msg = self.tr('Are you sure you want to delete the mod "{mod_name}"?').format(
+            mod_name=mod.name
+        )
+        self._show_confirmation_dialog(
+            self.tr("Delete Mod"),
+            msg,
+            lambda: self.removeModRequested.emit(mod.name),
+        )
+
+    def _confirm_mods_deletion(self, items: list[QTreeWidgetItem]) -> None:
+        msg = self.tr("Are you sure you want to delete {count} selected mods?").format(
+            count=len(items)
+        )
+        def on_confirm():
+            mod_names = [item.data(0, Qt.ItemDataRole.UserRole).name for item in items]
+            self.removeModsRequested.emit(mod_names)
+
+        self._show_confirmation_dialog(self.tr("Delete Mods"), msg, on_confirm)
+
     def _show_author_input_dialog(self, item: ModTreeItem) -> None:
         mod_entry = item.data(0, Qt.ItemDataRole.UserRole)
         author, ok = QInputDialog.getText(
@@ -556,9 +592,8 @@ class ModsView(QWidget):
             self.tr("Enter the author's name:"),
             text=mod_entry.author,
         )
-        if ok and author:
-            if mod_entry.author != author:
-                self.modAuthorChanged.emit(mod_entry.name, author)
+        if ok and author and mod_entry.author != author:
+            self.modAuthorChanged.emit(mod_entry.name, author)
 
     def _show_bulk_author_input_dialog(self, items: list[QTreeWidgetItem]) -> None:
         author, ok = QInputDialog.getText(
@@ -567,23 +602,18 @@ class ModsView(QWidget):
             self.tr("Enter the author's name:"),
             text="",
         )
+        if not ok or not author:
+            return
 
-        mods = []
+        mods_to_update = []
+        
+        for item in items:
+            mod_entry = item.data(0, Qt.ItemDataRole.UserRole)
+            if mod_entry.author != author:
+                mods_to_update.append(mod_entry.name)
 
-        if ok:
-            self.mod_list.blockSignals(True)
-
-            for item in items:
-                mod_entry = item.data(0, Qt.ItemDataRole.UserRole)
-
-                if mod_entry.author != author:
-                    mod_entry.author = author
-
-                    mods.append(mod_entry.name)
-
-            self.mod_list.blockSignals(False)
-
-            self.modBulkAuthorChanged.emit(mods, author)
+        if mods_to_update:
+            self.modBulkAuthorChanged.emit(mods_to_update, author)
 
     def _show_rename_input_dialog(self, item: QTreeWidgetItem) -> None:
         mod_entry = item.data(0, Qt.ItemDataRole.UserRole)
@@ -596,42 +626,10 @@ class ModsView(QWidget):
         if ok and new_name:
             self.renameModRequested.emit(mod_entry.name, new_name)
 
-    def _confirm_mod_deletion(self, item: QTreeWidgetItem) -> None:
-        mod = item.data(0, Qt.ItemDataRole.UserRole)
-        msg_template = self.tr('Are you sure you want to delete the mod "{mod_name}"?')
-        msg = msg_template.format(mod_name=mod.mod.name)
-        reply = QMessageBox.question(
-            self,
-            self.tr("Delete Mod"),
-            msg,
-            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
-            QMessageBox.StandardButton.No,
-        )
-        if reply == QMessageBox.StandardButton.Yes:
-            self.removeModRequested.emit(mod.name)
-
-    def _confirm_mods_deletion(self, items: list[QTreeWidgetItem]) -> None:
-        msg_template = self.tr("Are you sure you want to delete {count} selected mods?")
-        msg = msg_template.format(count=len(items))
-
-        reply = QMessageBox.question(
-            self,
-            self.tr("Delete Mods"),
-            msg,
-            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
-            QMessageBox.StandardButton.No,
-        )
-
-        if reply == QMessageBox.StandardButton.Yes:
-            mod_names = [
-                item.data(0, Qt.ItemDataRole.UserRole).name
-                for item in items
-            ]
-            self.removeModsRequested.emit(mod_names)
 
     def show_modfile_dialog(self, mod_name: str, modfile_data: dict) -> None:
         dialog = EditModfileDialog(self, mod_name, modfile_data)
-        if dialog.exec_() == QDialog.DialogCode.Accepted:
+        if dialog.exec() == QDialog.DialogCode.Accepted:
             self.modModfileChanged.emit(mod_name, dialog.modfile_data)
 
     def _populate_mod_item(
@@ -859,6 +857,7 @@ class ModsView(QWidget):
     def show_error_dialog(self, title: str, details: str):
 
         dialog = QMessageBox(self)
+        dialog.setMinimumWidth(self.parent().width() * 0.6)
         dialog.setWindowTitle("Add Mods Failed")
         dialog.setIcon(QMessageBox.Icon.Warning)
 
@@ -872,5 +871,9 @@ class ModsView(QWidget):
         dialog.setStandardButtons(QMessageBox.StandardButton.Ok)
 
         dialog.setObjectName("errorDialog")
+        
+        spacer = QSpacerItem(600, 0, QSizePolicy.Policy.MinimumExpanding, QSizePolicy.Policy.Expanding)
+        layout = dialog.layout()
+        layout.addItem(spacer, layout.rowCount(), 0, 1, layout.columnCount())
 
         dialog.exec()
