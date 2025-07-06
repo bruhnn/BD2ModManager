@@ -31,7 +31,7 @@ from PySide6.QtGui import (
 )
 from PySide6.QtCore import Qt, Signal, QSettings, QByteArray, QSize, Slot
 
-from typing import List, Optional
+from typing import List
 
 from src.utils.models import BD2ModEntry, BD2ModType
 from src.views.widgets import (
@@ -62,15 +62,15 @@ class ModsView(QWidget):
     openModFolderRequested = Signal(str)  # Mod Path
 
     addModsRequested = Signal(list)  # Mod path
-    renameModRequested = Signal(str, str)  # Mod entry, New Name
     removeModsRequested = Signal(list)
     removeModRequested = Signal(str)  # mod_name
+    renameModRequested = Signal(str, str)  # mod_name, New Name
     editModfileRequested = Signal(str)
 
-    modStateChanged = Signal(str, bool)  # Mod entry, Enabled State
+    modStateChanged = Signal(str, bool)  # mod_name, Enabled State
     modBulkStateChanged = Signal(list, bool)  # list[str]
 
-    modAuthorChanged = Signal(str, str)  # Mod entry, Author Name
+    modAuthorChanged = Signal(str, str)  # mod_name, Author Name
     modBulkAuthorChanged = Signal(list, str)  # [str], author name
     modModfileChanged = Signal(str, dict)
 
@@ -588,7 +588,7 @@ class ModsView(QWidget):
             self,
             self.tr("Rename Mod"),
             self.tr("Enter the new name for the mod:"),
-            text=mod_entry.mod.name,
+            text=mod_entry.display_name,
         )
         if ok and new_name:
             self.renameModRequested.emit(mod_entry.name, new_name)
@@ -641,13 +641,13 @@ class ModsView(QWidget):
         item.setData(1, Qt.ItemDataRole.UserRole, mod_entry.character)
         item.setData(2, Qt.ItemDataRole.UserRole, mod_entry.mod.type)
 
-        display_name = (
-            mod_entry.mod.display_name
-            if (mod_entry.mod.display_name and not show_full_path)
-            else mod_entry.name.replace("/", " / ")
+        mod_name = (
+            mod_entry.name.replace("/", " / ")
+            if show_full_path
+            else mod_entry.display_name
         )
 
-        item.setText(0, display_name)
+        item.setText(0, mod_name)
         item.setText(1, char_name)
         item.setText(2, mod_entry.mod.type.display_name if mod_entry.mod.type else "")
         item.setText(3, mod_entry.author or "")
@@ -744,7 +744,6 @@ class ModsView(QWidget):
         
     def _filter_mods(self) -> None:
         search_type = self.search_type.currentData(Qt.ItemDataRole.UserRole)
-        print(search_type)
         search_query = self.search_field.text().lower()
         types = {
             "idle": self.filter_chip_types["idle"].isChecked(),
