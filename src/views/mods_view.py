@@ -8,7 +8,6 @@ from PySide6.QtWidgets import (
     QHBoxLayout,
     QLineEdit,
     QLabel,
-    QTreeWidget,
     QTreeWidgetItem,
     QHeaderView,
     QMenu,
@@ -293,6 +292,10 @@ class ModsView(QWidget):
         )
         QShortcut(QKeySequence("Ctrl+R"), self.refresh_button).activated.connect(
             self.refresh_button.click
+        )
+        QShortcut(QKeySequence("F2"), self).activated.connect(
+            lambda: self._show_rename_input_dialog(self.mod_list.selectedItems()[0]) 
+            if len(self.mod_list.selectedItems()) == 1 else ...
         )
 
         # -> -> -> LAYOUTS
