@@ -116,10 +116,8 @@ class Profile:
 
     def update_timestamp(self) -> None:
         """Update the last modified timestamp."""
-        old_timestamp = self.updated_at
+        _old_timestamp = self.updated_at
         self.updated_at = datetime.now()
-        logger.debug("Profile '%s' timestamp updated from %s to %s", 
-                    self._name, old_timestamp, self.updated_at)
 
     def add_mod(self, mod_name: str, enabled: bool = False) -> ModInfo:
         """Add a mod to the profile. If mod exists, update its state."""
