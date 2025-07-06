@@ -177,45 +177,58 @@ class ProgressModal(QDialog):
 class EditModfileDialog(QDialog):
     def __init__(self, parent=None, title=None, data=None) -> None:
         super().__init__(parent)
+        self.setObjectName("editModfileDialog")
         self.setWindowTitle("Edit Modfile")
 
         self.modfile_data = data
 
         layout = QVBoxLayout(self)
+        layout.setSpacing(10)
 
-        title = QLabel(text=title)
+        title_label = QLabel(text=title)
+        title_label.setObjectName("editModfileDialogTitle")
+
         self.error_label = QLabel()
+        self.error_label.setObjectName("editModfileErrorLabel")
+        self.error_label.setVisible(False)
 
-        self.data_input = QTextEdit(json.dumps(data, indent=4, separators=(",", ": ")))
+        self.data_input = QTextEdit(json.dumps(data, indent=4))
         self.data_input.setObjectName("editModFileData")
+        self.data_input.setFontFamily("Courier New")
+
 
         actions_widget = QWidget()
         actions_layout = QHBoxLayout(actions_widget)
+        actions_layout.setContentsMargins(0, 0, 0, 0)
+        actions_layout.setSpacing(10)
 
         close_btn = QPushButton("Close")
-        close_btn.clicked.connect(self.close)
+        close_btn.setObjectName("editModfileCloseButton")
+        close_btn.clicked.connect(self.reject)
+
         save_btn = QPushButton("Save")
+        save_btn.setObjectName("editModfileSaveButton")
         save_btn.clicked.connect(self.save)
 
         actions_layout.addWidget(save_btn)
         actions_layout.addWidget(close_btn)
 
-        layout.addWidget(title)
+        layout.addWidget(title_label)
         layout.addWidget(self.data_input, 1)
         layout.addWidget(self.error_label)
         layout.addWidget(actions_widget, alignment=Qt.AlignmentFlag.AlignRight)
 
     def save(self):
-        # check if is a json valid
+        self.error_label.setVisible(False)
         data = None
         try:
             data = json.loads(self.data_input.toPlainText())
-        except json.JSONDecodeError:
-            self.error_label.setText("Invalid JSON!")
+        except json.JSONDecodeError as e:
+            self.error_label.setText(f"Invalid JSON: {e}")
+            self.error_label.setVisible(True) # Show the error
             return
 
         self.modfile_data = data
-
         self.accept()
 
 

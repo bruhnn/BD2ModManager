@@ -69,7 +69,7 @@ def require_bdx_installed(function: Callable):  # -> Callable[..., Any]:
     return wrapper
 
 
-BD2MM_MODS_FOLDER = "BD2ModManager"
+BD2MM_MODS_FOLDER = "BD2MM"
 
 
 class ModManagerModel(QObject):

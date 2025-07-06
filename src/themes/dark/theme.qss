@@ -235,6 +235,7 @@
 #modlistHeader {
     background-color: #374151;
     font-weight: bold;
+    color: #d1d5db;
 }
 
 #modlist {
@@ -423,6 +424,10 @@ QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
     font-family: "Segoe UI";
     font-size: 12px;
     color: #f0f0f0;
+}
+
+#settingsCheckbox {
+    color: #d1d5db;
 }
 
 #settingsCheckbox::indicator:unchecked {
@@ -1063,4 +1068,79 @@ QDialog::title {
     font-weight: bold;
     font-size: 16px;
     padding: 8px;
+}
+
+
+/* ---- EDIT MODFILE DIALOG ---- */
+
+#editModfileDialog {
+    background-color: #1f2937;
+    border: 1px solid #4b5563;
+    min-width: 500px; /* Optional: give it a minimum width */
+    min-height: 400px; /* Optional: give it a minimum height */
+}
+
+#editModfileDialogTitle {
+    font-size: 16px;
+    font-weight: bold;
+    color: #d1d5db;
+    padding-bottom: 5px; /* Add some space below the title */
+}
+
+#editModFileData {
+    background-color: #111827;
+    color: #d1d5db;
+    border: 1px solid #4b5563;
+    border-radius: 6px;
+    padding: 8px;
+    font-size: 18px; 
+}
+
+#editModFileData:focus {
+    border: 1px solid #93c5fd;
+}
+
+#editModfileErrorLabel {
+    color: #ef4444;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 4px;
+    border-radius: 4px;
+}
+
+#editModfileSaveButton, #editModfileCloseButton {
+    border-radius: 6px;
+    padding: 8px 16px;
+    color: #e5e7eb;
+    font-size: 14px;
+    font-weight: 600;
+    border: none;
+    min-width: 80px;
+}
+
+/* --- Save Button --- */
+#editModfileSaveButton {
+    background-color: #059669;
+    color: #ffffff;
+}
+
+#editModfileSaveButton:hover {
+    background-color: #047857;
+}
+
+#editModfileSaveButton:pressed {
+    background-color: #065f46;
+}
+
+/* --- Close Button --- */
+#editModfileCloseButton {
+    background-color: #4b5563;
+}
+
+#editModfileCloseButton:hover {
+    background-color: #6b7280;
+}
+
+#editModfileCloseButton:pressed {
+    background-color: #9ca3af;
 }
