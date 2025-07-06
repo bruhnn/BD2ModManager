@@ -264,14 +264,67 @@ class ModManagerModel(QObject):
             self._save_mods_data()
 
         self.modsRemoved.emit([mod_name])
-        
-        logger.info("Successfully removed mod '%s'.", mod_name)
-    
-    def remove_multiple_mods(self, mod_names: list[str]):
-        pass
 
-    def rename_mod(self, mod_name: str, new_name: str) -> Optional[BD2ModEntry]:
-        """Renames a mod"""
+        logger.info("Successfully removed mod '%s'.", mod_name)
+
+    def remove_multiple_mods(self, mod_names: list[str]) -> None:
+        successfully_removed_mods = []
+        failed_removals = {}
+
+        for mod_name in mod_names:
+            mod_entry = self.get_mod_by_name(mod_name)
+            if not mod_entry:
+                logger.warning("Cannot remove mod '%s' because it was not found.", mod_name)
+                continue
+
+            mod_path = Path(mod_entry.path)
+
+            if mod_path.exists():
+                try:
+                    logger.debug("Removing mod directory: %s", mod_path)
+                    shutil.rmtree(mod_path)
+                    successfully_removed_mods.append(mod_name)
+                except (PermissionError, OSError) as e:
+                    error_msg = f"Could not delete files for '{mod_name}'. Please check file permissions."
+                    logger.error("%s Error: %s", error_msg, e)
+                    failed_removals[mod_name] = error_msg
+            else:
+                successfully_removed_mods.append(mod_name)
+
+        if not successfully_removed_mods:
+            logger.error("Could not remove any of the specified mods due to errors.")
+            return
+
+        for profile in self._profile_manager.get_profiles():
+            mods_to_remove_from_profile = [
+                mod for mod in successfully_removed_mods if profile.get_mod(mod)
+            ]
+            if mods_to_remove_from_profile:
+                try:
+                    for mod_name in mods_to_remove_from_profile:
+                        profile.remove_mod(mod_name)
+                    self._profile_manager.save_profile(profile)
+                except Exception as e:
+                    logger.critical(
+                        "CRITICAL: Mods %s were deleted, but failed to update profile '%s'. Manual correction may be needed. Error: %s",
+                        mods_to_remove_from_profile, profile.name, e
+                    )
+
+        metadata_was_changed = False
+        for mod_name in successfully_removed_mods:
+            self._mod_entries.pop(mod_name, None)
+            if self._mods_data.pop(mod_name, None):
+                metadata_was_changed = True
+
+        if metadata_was_changed:
+            logger.debug("Removing metadata for %d mods.", len(successfully_removed_mods))
+            self._save_mods_data()
+
+        self.modsRemoved.emit(successfully_removed_mods)
+
+        logger.info("Completed removal process. Successfully removed %d mods.", len(successfully_removed_mods))
+        if failed_removals:
+            logger.warning("Failed to remove %d mods: %s", len(failed_removals), list(failed_removals.keys()))
 
         if not is_filename_valid(new_name):
             raise InvalidModNameError(new_name)
