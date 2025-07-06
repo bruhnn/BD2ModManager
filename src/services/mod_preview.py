@@ -4,6 +4,10 @@ from src.utils.paths import app_paths
 
 from PySide6.QtCore import QObject, Signal
 
+
+# this is the best way to handle spine animations
+# python does not have a spine runtime 
+# and using qtwebengine makes the app bigger ~+100MB and makes it slower because of the chromium
 class BD2ModPreview(QObject):
     errorOccurred = Signal(str)
     

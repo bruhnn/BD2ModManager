@@ -10,9 +10,7 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
     QLabel,
     QComboBox,
-    QFrame,
-    QDialog,
-    QMessageBox
+    QFrame
 )
 from PySide6.QtCore import Qt, QSettings, QByteArray, Signal, QSize, Slot
 from PySide6.QtGui import QCloseEvent

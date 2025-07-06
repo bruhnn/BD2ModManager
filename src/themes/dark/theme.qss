@@ -714,13 +714,11 @@ QMessageBox#errorDialog {
     border-radius: 8px;
 }
 
-/* Style for the main text and informative text labels */
 QMessageBox#errorDialog QLabel {
     color: #d1d5db;
     font-size: 14px;
 }
 
-/* Style for the "OK", "Cancel" buttons */
 QMessageBox#errorDialog QPushButton {
     background-color: #4b5563;
     color: #e5e7eb;
@@ -736,10 +734,333 @@ QMessageBox#errorDialog QPushButton:hover {
     background-color: #6b7280;
 }
 
-/* Specifically style the scroll area for the detailed text */
 QMessageBox#errorDialog QTextEdit {
     background-color: #111827; /* Darker background for contrast */
     color: #9ca3af;
     border-radius: 4px;
     border: 1px solid #4b5563;
+}
+
+/* ---- GENERIC DIALOGS (Confirmation, Input, etc.) ---- */
+
+/* ---- CONFIRMATION DIALOGS (QMessageBox) ---- */
+
+QMessageBox {
+    background-color: #1f2937;
+    border: 1px solid #4b5563;
+    border-radius: 8px;
+}
+
+QMessageBox QLabel {
+    color: #d1d5db;
+    font-size: 14px;
+    font-family: "Segoe UI", sans-serif;
+}
+
+QMessageBox QPushButton {
+    background-color: #4b5563;
+    color: #e5e7eb;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 16px;
+    font-size: 14px;
+    font-weight: 600;
+    min-width: 80px;
+    margin: 2px;
+}
+
+QMessageBox QPushButton:hover {
+    background-color: #6b7280;
+}
+
+QMessageBox QPushButton:pressed {
+    background-color: #9ca3af;
+}
+
+/* Style for the "Yes" button in dangerous operations */
+QMessageBox QPushButton[text="Yes"] {
+    background-color: #dc2626;
+    color: #ffffff;
+}
+
+QMessageBox QPushButton[text="Yes"]:hover {
+    background-color: #b91c1c;
+}
+
+QMessageBox QPushButton[text="Yes"]:pressed {
+    background-color: #991b1b;
+}
+
+/* Style for the "No" button (default/safe choice) */
+QMessageBox QPushButton[text="No"] {
+    background-color: #4b5563;
+    color: #e5e7eb;
+}
+
+QMessageBox QPushButton[text="No"]:hover {
+    background-color: #6b7280;
+}
+
+/* ---- INPUT DIALOGS (QInputDialog) ---- */
+
+QInputDialog {
+    background-color: #1f2937;
+    border: 1px solid #4b5563;
+    border-radius: 8px;
+}
+
+QInputDialog QLabel {
+    color: #d1d5db;
+    font-size: 14px;
+    font-family: "Segoe UI", sans-serif;
+}
+
+QInputDialog QLineEdit {
+    background-color: #111827;
+    color: #f9fafb;
+    border: 1px solid #4b5563;
+    border-radius: 4px;
+    padding: 8px 12px;
+    font-size: 14px;
+    font-family: "Segoe UI", sans-serif;
+}
+
+QInputDialog QLineEdit:focus {
+    border: 1px solid #93c5fd;
+    background-color: #111827;
+}
+
+QInputDialog QPushButton {
+    background-color: #4b5563;
+    color: #e5e7eb;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 16px;
+    font-size: 14px;
+    font-weight: 600;
+    min-width: 80px;
+    margin: 2px;
+}
+
+QInputDialog QPushButton:hover {
+    background-color: #6b7280;
+}
+
+QInputDialog QPushButton:pressed {
+    background-color: #9ca3af;
+}
+
+/* OK button styling */
+QInputDialog QPushButton[text="OK"] {
+    background-color: #059669;
+    color: #ffffff;
+}
+
+QInputDialog QPushButton[text="OK"]:hover {
+    background-color: #047857;
+}
+
+QInputDialog QPushButton[text="OK"]:pressed {
+    background-color: #065f46;
+}
+
+/* ---- FILE DIALOGS (QFileDialog) ---- */
+
+QFileDialog {
+    background-color: #1f2937;
+    color: #d1d5db;
+}
+
+QFileDialog QLabel {
+    color: #d1d5db;
+    font-size: 14px;
+}
+
+QFileDialog QLineEdit {
+    background-color: #111827;
+    color: #f9fafb;
+    border: 1px solid #4b5563;
+    border-radius: 4px;
+    padding: 6px 10px;
+    font-size: 14px;
+}
+
+QFileDialog QLineEdit:focus {
+    border: 1px solid #93c5fd;
+}
+
+QFileDialog QPushButton {
+    background-color: #4b5563;
+    color: #e5e7eb;
+    border: none;
+    border-radius: 6px;
+    padding: 6px 14px;
+    font-size: 14px;
+    font-weight: 600;
+    min-width: 80px;
+}
+
+QFileDialog QPushButton:hover {
+    background-color: #6b7280;
+}
+
+QFileDialog QListView {
+    background-color: #111827;
+    color: #d1d5db;
+    border: 1px solid #4b5563;
+    border-radius: 4px;
+}
+
+QFileDialog QListView::item {
+    padding: 4px;
+}
+
+QFileDialog QListView::item:hover {
+    background-color: #374151;
+}
+
+QFileDialog QListView::item:selected {
+    background-color: #4b5563;
+    color: #ffffff;
+}
+
+QFileDialog QTreeView {
+    background-color: #111827;
+    color: #d1d5db;
+    border: 1px solid #4b5563;
+    border-radius: 4px;
+}
+
+QFileDialog QTreeView::item {
+    padding: 4px;
+}
+
+QFileDialog QTreeView::item:hover {
+    background-color: #374151;
+}
+
+QFileDialog QTreeView::item:selected {
+    background-color: #4b5563;
+    color: #ffffff;
+}
+
+QFileDialog QComboBox {
+    background-color: #374151;
+    color: #9ca3af;
+    border-radius: 4px;
+    padding: 6px 10px;
+    border: 1px solid #4b5563;
+}
+
+QFileDialog QComboBox::drop-down {
+    subcontrol-origin: padding;
+    subcontrol-position: top right;
+    width: 24px;
+    border: none;
+    margin-right: 4px;
+}
+
+QFileDialog QComboBox::down-arrow {
+    image: url(:/icons/material/dark/arrow_down.svg);
+    width: 16px;
+    height: 16px;
+}
+
+QFileDialog QComboBox QAbstractItemView {
+    background-color: #374151;
+    color: #9ca3af;
+    border-radius: 4px;
+    selection-background-color: #4b5563;
+}
+
+/* ---- DIALOG STYLING ---- */
+
+QDialog {
+    background-color: #1f2937;
+    border: 1px solid #4b5563;
+    border-radius: 8px;
+}
+
+QDialog QLabel {
+    color: #d1d5db;
+    font-size: 14px;
+    font-family: "Segoe UI", sans-serif;
+}
+
+QDialog QPushButton {
+    background-color: #4b5563;
+    color: #e5e7eb;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 16px;
+    font-size: 14px;
+    font-weight: 600;
+    min-width: 80px;
+    margin: 2px;
+}
+
+QDialog QPushButton:hover {
+    background-color: #6b7280;
+}
+
+QDialog QPushButton:pressed {
+    background-color: #9ca3af;
+}
+
+QDialog QPushButton:disabled {
+    background-color: #374151;
+    color: #6b7280;
+}
+
+/* ---- TOOLTI ---- */
+
+QToolTip {
+    background-color: #374151;
+    color: #d1d5db;
+    border: 1px solid #4b5563;
+    border-radius: 4px;
+    padding: 4px 8px;
+    font-size: 12px;
+    font-family: "Segoe UI", sans-serif;
+}
+
+/* ---- CONTEXT MENU---- */
+
+QMenu {
+    background-color: #374151;
+    color: #d1d5db;
+    border: 1px solid #4b5563;
+    border-radius: 4px;
+    padding: 4px;
+}
+
+QMenu::item {
+    padding: 6px 12px;
+    border-radius: 4px;
+    margin: 1px;
+}
+
+QMenu::item:selected {
+    background-color: #4b5563;
+    color: #ffffff;
+}
+
+QMenu::item:disabled {
+    color: #6b7280;
+}
+
+QMenu::separator {
+    height: 1px;
+    background-color: #4b5563;
+    margin: 4px 8px;
+}
+
+/* ---- DIALOG TITLE BAR ---- */
+
+QDialog::title {
+    background-color: #1f2937;
+    color: #d1d5db;
+    font-weight: bold;
+    font-size: 16px;
+    padding: 8px;
 }
