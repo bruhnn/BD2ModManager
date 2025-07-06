@@ -17,11 +17,9 @@ from PySide6.QtWidgets import (
     QGridLayout,
     QScrollArea,
     QFrame,
-    QMessageBox,
-    QStyleOption
+    QMessageBox
 )
 from PySide6.QtCore import Qt, Signal, Slot
-from PySide6.QtGui import QPainter
 
 from src.themes import ThemeManager
 
@@ -103,7 +101,6 @@ class DirectoryInput(QWidget):
         )
 
         if directory:
-            self.set_directory_path(directory)
             self.directoryChanged.emit(directory)
 
     def _open_directory(self) -> None:
