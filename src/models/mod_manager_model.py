@@ -621,7 +621,6 @@ class ModManagerModel(QObject):
                     i, total_steps, f"Removing: {path_to_remove.name}")
 
             try:
-
                 remove_folder(path_to_remove)
             except (OSError, PermissionError) as e:
                 logger.error("Failed to remove '%s': %s",
@@ -1220,29 +1219,35 @@ class ModManagerModel(QObject):
             logger.error("Could not get current profile. Aborting sync.")
             return
 
-        staging_mods_by_id = {
+        staging_mods_by_names = {
             mod_path.relative_to(self._staging_mods_directory).as_posix(): mod_path
             for mod_path in staging_mods_folders
         }
 
-        enabled_mod_ids = {
-            mod_id for mod_id, mod_path in staging_mods_by_id.items()
-            if (mod_info := profile.get_mod(mod_id)) and mod_info.enabled
+        enabled_mod_names = {
+            mod_names for mod_names, mod_path in staging_mods_by_names.items()
+            if (mod_info := profile.get_mod(mod_names)) and mod_info.enabled
         }
 
         enabled_mods_by_relpath = {
-            mod_id: staging_mods_by_id[mod_id]
-            for mod_id in enabled_mod_ids
+            mod_id: staging_mods_by_names[mod_id]
+            for mod_id in enabled_mod_names
         }
 
-        if len(enabled_mods_by_relpath) != len(enabled_mod_ids):
-            logger.warning(
-                "Duplicate mod folder names found in staging. Sync may be unpredictable.")
+        if len(enabled_mods_by_relpath) != len(enabled_mod_names):
+            logger.warning("Duplicate mod folder names found in staging. Sync may be unpredictable.")
 
         installed_mods = {
             path.parent.relative_to(self._game_mods_directory).as_posix(): path.parent
-            for path in self._game_mods_directory.rglob("*.modfile")
+            for path in self._game_mods_directory.rglob("*.modfile", recurse_symlinks=True)
         }
+        
+        # print(installed_mods)
+        
+        # installed_mods = {
+        #     path.relative_to(self._game_mods_directory).as_posix(): path
+        #     for path in self._game_mods_directory.iterdir()
+        # }
 
         installed_relpaths = set(installed_mods.keys())
         enabled_relpaths = set(enabled_mods_by_relpath.keys())
