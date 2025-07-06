@@ -324,6 +324,12 @@ class ModManagerController(QObject):
 
         if self._active_thread is not None:
             logger.warning("A worker process is already running.")
+            self.notificationRequested.emit(
+                "Warning",
+                "A mod operation is already running. Please wait for it to finish.",
+                "warning",
+                3000
+            )
             return
 
         self.progress_modal = self.view.create_progress_modal()
@@ -340,23 +346,20 @@ class ModManagerController(QObject):
         
         self._active_worker.started.connect(self.progress_modal.on_started)
         self._active_worker.progress.connect(self.progress_modal.update_progress)
+        
         self._active_worker.finished.connect(self.progress_modal.on_finished)
         self._active_worker.error.connect(self.progress_modal.on_error)
         
         self._active_worker.finished.connect(self._active_thread.quit)
         self._active_worker.error.connect(self._active_thread.quit)
-        
-        self._active_worker.finished.connect(self._active_worker.deleteLater)
-        self._active_worker.error.connect(self._active_worker.deleteLater)
-        
-        self._active_thread.finished.connect(self._active_thread.deleteLater)
-        
         self._active_thread.finished.connect(lambda: self._on_worker_complete(button_to_disable))
         
+        self._active_thread.finished.connect(self._active_worker.deleteLater)
+        self._active_thread.finished.connect(self._active_thread.deleteLater)
+            
         self._active_thread.start()
-        
         self.progress_modal.open()
-        
+
     def _on_worker_complete(self, button_to_enable) -> None:
         if button_to_enable:
             button_to_enable.setEnabled(True)
