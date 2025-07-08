@@ -11,17 +11,19 @@ class ConfigModel(QObject):
     syncMethodChanged = Signal(str)
     searchModsRecursivelyChanged = Signal(bool)
     includeModRelativePathChanged = Signal(bool)
-    checkForUpdatesChanged = Signal(bool)
     spineViewerEnabledChanged = Signal(bool)
-    
+    notifyAppUpdateChanged = Signal(bool)
+    autoDownloadGameDataChanged = Signal(bool)
+
     DEFAULT_VALUES = {
         "language": "en-US",
         "theme": "dark",
         "sync_method": "copy",
         "search_mods_recursively": False,
-        "check_for_updates": True,
         "include_mod_relative_path": False,
         "spine_viewer_enabled": True,
+        "notify_on_app_update": True,
+        "auto_download_game_data": True,
         "manifest_url": "https://raw.githubusercontent.com/bruhnn/BD2ModManager/refs/heads/main/src/manifest.json",
         "releases_url": "https://api.github.com/repos/bruhnn/BD2ModManager/releases"
     }
@@ -124,25 +126,36 @@ class ConfigModel(QObject):
         """Set whether spine viewer is enabled."""
         self._settings.setValue("spine_viewer_enabled", value)
         self.spineViewerEnabledChanged.emit(value)
-        
-    @property
-    def check_for_updates(self) -> bool:
-        """Returns whether to check for updates."""
-        return self._settings.value("Update/check_for_updates", defaultValue=self.DEFAULT_VALUES.get("check_for_updates"), type=bool)
 
-    def set_check_for_updates(self, value: bool) -> None:
-        """Set whether to check for updates."""
-        self._settings.setValue("check_for_updates", value)
-        self.checkForUpdatesChanged.emit(value)
-        
+    @property
+    def notify_on_app_update(self) -> bool:
+        """Returns whether to notify the user about available app updates."""
+        return self._settings.value("Update/notify_on_app_update", defaultValue=self.DEFAULT_VALUES.get("notify_on_app_update"), type=bool)
+
+    def set_notify_on_app_update(self, value: bool) -> None:
+        """Set whether to notify the user about available app updates."""
+        self._settings.setValue("Update/notify_on_app_update", value)
+        self.notifyAppUpdateChanged.emit(value)
+
+    @property
+    def auto_download_game_data(self) -> bool:
+        """Returns whether to automatically download new game data (characters, etc.)."""
+        return self._settings.value("Update/auto_download_game_data", defaultValue=self.DEFAULT_VALUES.get("auto_download_game_data"), type=bool)
+
+    def set_auto_download_game_data(self, value: bool) -> None:
+        """Set whether to automatically download new game data."""
+        self._settings.setValue("Update/auto_download_game_data", value)
+        self.autoDownloadGameDataChanged.emit(value)
+
     @property
     def manifest_url(self) -> str:
-        return self._settings.value("Update/manifest_url", defaultValue=self.DEFAULT_VALUES.get("manifest_url"))
-    
+        """Returns the URL for the update manifest."""
+        return self._settings.value("Update/manifest_url", defaultValue=self.DEFAULT_VALUES.get("manifest_url"), type=str)
+
     @property
     def releases_url(self) -> str:
-        return self._settings.value("Update/releases_url", defaultValue=self.DEFAULT_VALUES.get("releases_url"))
-    
+        """Returns the URL for the GitHub releases API."""
+        return self._settings.value("Update/releases_url", defaultValue=self.DEFAULT_VALUES.get("releases_url"), type=str)
 
     def get(self, key: str, default: Any = None, value_type: type = str) -> Any:
         """Get a configuration value by key."""
@@ -161,11 +174,12 @@ class ConfigModel(QObject):
         return {
             "game_directory": self.game_directory,
             "mods_directory": self.mods_directory,
-            "search_mods_recursively": self.search_mods_recursively,
             "language": self.language,
             "theme": self.theme,
             "sync_method": self.sync_method,
-            "check_for_updates": self.check_for_updates,
-            "spine_viewer_enabled": self.spine_viewer_enabled,
+            "search_mods_recursively": self.search_mods_recursively,
             "include_mod_relative_path": self.include_mod_relative_path,
+            "spine_viewer_enabled": self.spine_viewer_enabled,
+            "notify_on_app_update": self.notify_on_app_update,
+            "auto_download_game_data": self.auto_download_game_data,
         }

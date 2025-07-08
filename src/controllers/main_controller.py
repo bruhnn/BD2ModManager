@@ -161,6 +161,7 @@ class MainController(QObject):
         self.update_manager.appUpdateAvailable.connect(
             self._on_app_new_version_available
         )
+            
         self.update_manager.dataUpdateAvailable.connect(
             self._on_update_started)
         self.update_manager.assetUpdateAvailable.connect(
@@ -171,8 +172,11 @@ class MainController(QObject):
         # self.update_manager.dataUpdated.connect(self._on_data_updated)
         self.update_manager.errorOccurred.connect(self._on_update_error)
 
-        if self.config_model.check_for_updates:
+        if self.config_model.auto_download_game_data:
             self.update_manager.start_update_process()
+        
+        # if self.config_model.notify_on_app_update:
+        self.update_manager.check_app_version()
 
     def _setup_spine_viewer(self) -> None:
         self.mod_manager_controller.modPreviewRequested.connect(

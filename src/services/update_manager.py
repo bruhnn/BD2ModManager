@@ -131,8 +131,6 @@ class UpdateManager(QObject):
 
     def start_update_process(self) -> None:
         logger.info("Checking for updates...")
-        
-        self.check_app_version()
         self._get_remote_manifest()
 
     def check_app_version(self) -> None:

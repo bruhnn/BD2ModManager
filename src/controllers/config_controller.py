@@ -26,7 +26,10 @@ class ConfigController(QObject):
         self.view.languageChanged.connect(self._on_language_changed)
         self.view.themeChanged.connect(self._on_theme_changed)
         self.view.syncMethodChanged.connect(self._on_sync_method_changed)
-        self.view.includeModRelativePathChanged.connect(self._on_include_mod_relative_path)
+        self.view.includeModRelativePathChanged.connect(self._on_include_mod_relative_path_changed)
+        
+        self.view.notifyAppUpdateChanged.connect(self._on_notify_app_update_changed)
+        self.view.autoDownloadGameDataChanged.connect(self._on_auto_download_game_data_changed)
         
         # View actions
         self.view.findAuthorsClicked.connect(self.findAuthorsClicked.emit)
@@ -68,8 +71,14 @@ class ConfigController(QObject):
     def _on_sync_method_changed(self, method: str) -> None:
         self.model.set_sync_method(method)
 
-    def _on_include_mod_relative_path(self, value: bool) -> None:
+    def _on_include_mod_relative_path_changed(self, value: bool) -> None:
         self.model.set_include_mod_relative_path(value)
+    
+    def _on_notify_app_update_changed(self, value: bool) -> None:
+        self.model.set_notify_on_app_update(value)
+    
+    def _on_auto_download_game_data_changed(self, value: bool) -> None:
+        self.model.set_auto_download_game_data(value)
 
     # --- Methods
     def update_config(self) -> None:

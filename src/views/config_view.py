@@ -321,6 +321,9 @@ class ConfigView(QScrollArea):
     syncMethodChanged = Signal(str)
     searchModsRecursivelyChanged = Signal(bool)
     includeModRelativePathChanged = Signal(bool)
+    
+    autoDownloadGameDataChanged = Signal(bool)
+    notifyAppUpdateChanged = Signal(bool)
 
     # Action signals
     findAuthorsClicked = Signal()
@@ -406,6 +409,16 @@ class ConfigView(QScrollArea):
             self.tr("Show full mod folder paths"),
             self.tr("Display complete folder paths in mod list")
         )
+        
+        # self.notify_on_app_update_checkbox = ConfigCheckBox(
+        #     self.tr("Notify when a new app version is available"),
+        #     self.tr("Shows a notification when there's a new app update to download.") 
+        # )
+        
+        self.auto_download_game_data_checkbox = ConfigCheckBox(
+            self.tr("Automatically download new game data"),
+            self.tr("Keeps content like characters, authors, and NPCs up-to-date.")
+        )
 
     def _create_synchronization_section(self) -> None:
         self.synchronization_header = SectionHeader(self.tr("Synchronization"))
@@ -460,6 +473,8 @@ class ConfigView(QScrollArea):
         self.main_layout.addWidget(self.general_header)
         self.main_layout.addWidget(self.theme_combobox)
         self.main_layout.addWidget(self.language_combobox)
+        # self.main_layout.addWidget(self.notify_on_app_update_checkbox)
+        self.main_layout.addWidget(self.auto_download_game_data_checkbox)
         self.main_layout.addWidget(self.include_mod_relative_path_checkbox)
 
         # Synchronization section
@@ -492,6 +507,12 @@ class ConfigView(QScrollArea):
             self.searchModsRecursivelyChanged.emit)
         self.include_mod_relative_path_checkbox.stateChanged.connect(
             self.includeModRelativePathChanged.emit)
+        self.auto_download_game_data_checkbox.stateChanged.connect(
+            self.autoDownloadGameDataChanged.emit
+        )
+        # self.notify_on_app_update_checkbox.stateChanged.connect(
+        #     self.notifyAppUpdateChanged.emit
+        # )
 
         # Combo boxes
         self.language_combobox.valueChanged.connect(self.languageChanged.emit)
@@ -515,6 +536,11 @@ class ConfigView(QScrollArea):
         self.set_sync_method(config.get("sync_method", "Copy"))
         self.set_include_mod_relative_path(
             config.get("include_mod_relative_path", False))
+
+        # self.set_notify_on_app_update(
+        #     config.get("notify_on_app_update", True))
+        self.set_auto_download_game_data(
+            config.get("auto_download_game_data", True))
 
     @Slot(str)
     def set_game_directory(self, path: str) -> None:
@@ -557,6 +583,20 @@ class ConfigView(QScrollArea):
         self.include_mod_relative_path_checkbox.blockSignals(True)
         self.include_mod_relative_path_checkbox.setChecked(value)
         self.include_mod_relative_path_checkbox.blockSignals(False)
+    
+    # @Slot(bool)
+    # def set_notify_on_app_update(self, value: bool) -> None:
+    #     """Sets the state of the app update notification checkbox."""
+    #     self.notify_on_app_update_checkbox.blockSignals(True)
+    #     self.notify_on_app_update_checkbox.setChecked(value)
+    #     self.notify_on_app_update_checkbox.blockSignals(False)
+
+    @Slot(bool)
+    def set_auto_download_game_data(self, value: bool) -> None:
+        """Sets the state of the auto download game data checkbox."""
+        self.auto_download_game_data_checkbox.blockSignals(True)
+        self.auto_download_game_data_checkbox.setChecked(value)
+        self.auto_download_game_data_checkbox.blockSignals(False)
 
     def retranslateUI(self) -> None:
         self.title.setText(self.tr("Settings"))
@@ -567,23 +607,29 @@ class ConfigView(QScrollArea):
         self.synchronization_header.set_title(self.tr("Synchronization"))
         self.experimental_header.set_title(self.tr("Experimental Features"))
 
-        # Update input labels
+        # Update input widgets
         self.game_directory_input.retranslateUI()
         self.mods_directory_input.retranslateUI()
         self.game_directory_input.set_label_text(self.tr("Game Directory"))
         self.mods_directory_input.set_label_text(self.tr("Mods Directory"))
 
-        # Update combo box labels
         self.language_combobox.set_label_text(self.tr("Language:"))
         self.theme_combobox.set_label_text(self.tr("Theme:"))
         self.sync_method_combobox.set_label_text(self.tr("Sync Method:"))
 
-        # Update checkbox text
         self.recursive_search_checkbox.setText(
             self.tr("Search Mods Recursively"))
         self.include_mod_relative_path_checkbox.setText(
             self.tr("Show full mod folder paths"))
+        
+        # self.notify_on_app_update_checkbox.setText(
+        #     self.tr("Notify when a new app version is available"))
+        # self.notify_on_app_update_checkbox.setToolTip(
+        #     self.tr("Shows a notification when there's a new app update to download."))
+        self.auto_download_game_data_checkbox.setText(
+            self.tr("Automatically download new game data"))
+        self.auto_download_game_data_checkbox.setToolTip(
+            self.tr("Keeps content like characters, authors, and NPCs up-to-date."))
 
-        # Update button text
         self.find_authors_button.setText(self.tr("Find Authors"))
         self.migrate_to_profiles_button.setText(self.tr("Migrate to Profiles"))
