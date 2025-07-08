@@ -11,7 +11,7 @@
 
 > 🎉 **Download the latest version:** [GitHub Releases](https://github.com/bruhnn/BD2ModManager/releases)
 
-*If you have any questions or suggestions, contact me on Discord: `@bruhnnn`*
+If you have suggestions or run into any problems with the app, feel free to open an issue or contact me.
 
 ---
 ## 🔥 What's New in v3.0.0
@@ -80,11 +80,11 @@ Creates shortcuts instead of copying files.
 
 ## 📸 Screenshots
 
-### Mods Page (v3.0.0)
-![Mods Page](./screenshots/mods_page_v3.png)
+### Mods Page (v3.1.0)
+![Mods Page](./screenshots/mods_page_v31.png)
 
-### Characters Page (v3.0.0)
-![Characters Page](./screenshots/characters_page_v3.png)
+### Characters Page (v3.1.0)
+![Characters Page](./screenshots/characters_page_v31.png)
 
 ---
 
