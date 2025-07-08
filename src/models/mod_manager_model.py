@@ -13,7 +13,7 @@ from PySide6.QtCore import QObject, Signal
 
 from src.utils.paths import app_paths
 from src.utils import is_running_as_admin
-from src.utils.models import BD2Mod, BD2ModEntry, BD2ModType
+from src.models.models import BD2Mod, BD2ModEntry, BD2ModType
 from src.models.profile_manager_model import ProfileManager
 from src.utils.errors import (
     GameDirectoryNotSetError,
@@ -409,7 +409,7 @@ class ModManagerModel(QObject):
 
             if mod_entry.mod.type == BD2ModType.CUTSCENE:
                 mods_ids_cutscenes.add(mod_entry.character.id)
-            elif mod_entry.mod.type == BD2ModType.IDLE:
+            elif mod_entry.mod.type == BD2ModType.IDLE or mod_entry.mod.type == BD2ModType.NPC and mod_entry.character is not None:
                 mods_ids_idles.add(mod_entry.character.id)
             elif mod_entry.mod.type == BD2ModType.DATING:
                 mods_ids_dating.add(mod_entry.character.id)

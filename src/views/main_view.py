@@ -141,6 +141,7 @@ class MainView(QMainWindow):
         self.start_game_button.clicked.connect(self.launchGameRequested.emit)
 
         bline = QFrame()
+        bline.setObjectName("line")
         bline.setFrameShape(QFrame.Shape.HLine)
         bline.setFixedHeight(1)
         bline.setFrameShadow(QFrame.Shadow.Sunken)

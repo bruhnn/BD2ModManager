@@ -113,6 +113,11 @@ class ApplicationPaths:
         return self.app_data_path / "datings.csv"
 
     @property
+    def default_npcs_csv(self) -> Path:
+        """Path to the default npcs.csv included with the app."""
+        return self.app_data_path / "npcs.csv"
+
+    @property
     def default_authors_csv(self) -> Path:
         """Path to the default authors.csv included with the app."""
         return self.app_data_path / "authors.csv"
@@ -155,6 +160,11 @@ class ApplicationPaths:
     def datings_csv(self) -> Path:
         """Path to the user's writable datings.csv."""
         return self.user_data_subpath / "datings.csv"
+
+    @property
+    def npcs_csv(self) -> Path:
+        """Path to the user's writable npcs.csv"""
+        return self.user_data_subpath / "npcs.csv"
 
     @property
     def authors_csv(self) -> Path:

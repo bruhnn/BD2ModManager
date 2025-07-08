@@ -1,4 +1,4 @@
-from enum import Enum
+from enum import Enum, auto
 from dataclasses import dataclass
 from typing import Union, Optional
 from pathlib import Path
@@ -12,11 +12,11 @@ logger.addHandler(logging.NullHandler())
 
 
 class BD2ModType(Enum):
-    IDLE = 0
-    CUTSCENE = 1
-    SCENE = 2
-    NPC = 3
-    DATING = 4
+    IDLE = auto()
+    CUTSCENE = auto()
+    SCENE = auto()
+    NPC = auto()
+    DATING = auto()
 
     @property
     def display_name(self):
@@ -46,7 +46,7 @@ class BD2Mod:
         if modfile is None:
             logger.error("No .modfile found in %s", path)
             raise ModInvalidError(f"No .modfile found in {path}")
-
+        
         type_patterns = {
             BD2ModType.IDLE: re.compile(r"^char(\d+)\.modfile$", re.I),
             BD2ModType.CUTSCENE: re.compile(r"cutscene_char(\d+)\.modfile$", re.I),
@@ -54,7 +54,7 @@ class BD2Mod:
                 r"(?:specialillust|illust_special|storypack)(\d+)(?:_?\d+)?\.modfile$",
                 re.I,
             ),
-            BD2ModType.NPC: re.compile(r"^(npc(\d+)|illust_talk(\d+))\.modfile$", re.I),
+            BD2ModType.NPC: re.compile(r"^(?:npc(\d+)|illust_talk(\d+))\.modfile$", re.I),
             BD2ModType.DATING: re.compile(r"^illust_dating(\d+)\.modfile$", re.I),
         }
 
@@ -105,7 +105,7 @@ class Character:
     def from_dict(cls, data: dict):
         return cls(id=data["id"], character=data["character"], costume=data["costume"])
 
-    def full_name(self, separator: Optional[str] = None):
+    def full_name(self, separator: Optional[str] = None) -> str:
         return (
             f"{self.character} {self.costume}"
             if not separator
@@ -123,7 +123,7 @@ class Scene:
 class NPC:
     id: str
     name: str
-
+    character_id: Optional[str] = None
 
 @dataclass
 class BD2ModEntry:
@@ -144,7 +144,7 @@ class BD2ModEntry:
         return self.mod.display_name
 
     @property
-    def path(self):
+    def path(self) -> str:
         return self.mod.path
 
     @classmethod
@@ -163,7 +163,11 @@ class BD2ModEntry:
                 mod.dating_id
             )
         elif mod.type == BD2ModType.NPC and mod.npc_id is not None:
-            entry.npc = game_data.get_npc_by_id(mod.npc_id)
+            entry.npc = game_data.get_npc_by_id(mod.npc_id)           
+            if entry.npc and entry.npc.character_id is not None:
+                entry.character = game_data.get_character_by_id(
+                    entry.npc.character_id
+                ) 
         elif mod.type == BD2ModType.SCENE and mod.scene_id is not None:
             entry.scene = game_data.get_scene_by_id(mod.scene_id)
             

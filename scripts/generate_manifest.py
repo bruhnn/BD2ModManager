@@ -5,7 +5,7 @@ from pathlib import Path
 DATA_DIR = Path("src/data")
 MANIFEST_PATH = Path("src/manifest.json")
 
-FILES = ["characters.csv", "authors.csv", "datings.csv"]
+FILES = ["characters.csv", "authors.csv", "npcs.csv", "datings.csv"]
 
 def sha256sum(path: Path) -> str:
     h = hashlib.sha256()

@@ -3,7 +3,7 @@ from PySide6.QtCore import Qt, QRectF, QSize
 from PySide6.QtGui import QPainter, QColor, QFontMetrics, QBrush, QPalette, QMouseEvent
 
 from src.themes.theme_manager import ThemeManager
-from src.utils.models import BD2ModType
+from src.models.models import BD2ModType
 
 
 class ModlistTreeWidget(QTreeWidget):

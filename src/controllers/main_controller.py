@@ -59,7 +59,8 @@ class MainController(QObject):
 
         self.game_data_model = BD2GameData(
             characters_csv=app_paths.characters_csv,
-            datings_csv=app_paths.datings_csv
+            datings_csv=app_paths.datings_csv,
+            npcs_csv=app_paths.npcs_csv
         )
 
         self.profile_manager_model = ProfileManager(

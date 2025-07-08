@@ -31,7 +31,7 @@ from PySide6.QtGui import (
 )
 from PySide6.QtCore import Qt, Signal, QSettings, QByteArray, QSize, Slot
 
-from src.utils.models import BD2ModEntry, BD2ModType
+from src.models.models import BD2ModEntry, BD2ModType
 from src.views.widgets import (
     DropFilesWidget,
     ModTreeItem,
@@ -210,7 +210,7 @@ class ModsView(QWidget):
         self.mod_list.setRootIsDecorated(False)
         self.mod_list.setAlternatingRowColors(True)
         self.mod_list.header().setObjectName("modlistHeader")
-        self.mod_list.header().setFixedHeight(32)
+        self.mod_list.header().setMinimumHeight(32)
         self.mod_list.header().setSectionResizeMode(QHeaderView.ResizeMode.Interactive)
         self.mod_list.setFocusPolicy(Qt.FocusPolicy.NoFocus)
         self.mod_list.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)

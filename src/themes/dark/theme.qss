@@ -1150,3 +1150,7 @@ QDialog::title {
 #editModfileCloseButton:pressed {
     background-color: #9ca3af;
 }
+
+#line {
+    background-color: #4b5563;
+}
