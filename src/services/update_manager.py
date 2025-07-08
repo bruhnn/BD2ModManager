@@ -446,6 +446,7 @@ class UpdateManager(QObject):
             "characters": app_paths.characters_csv,
             "authors": app_paths.authors_csv,
             "datings": app_paths.datings_csv,
+            "npcs": app_paths.npcs_csv
         }
         destination_path = path_map.get(key)
         if not destination_path:
