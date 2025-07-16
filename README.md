@@ -91,7 +91,7 @@ Creates shortcuts instead of copying files.
 ---
 ## 🧰 Other Tools
 
-If you're looking for alternatives, check out this manager by [kxdekxde](https://github.com/kxdekxde/browndust2-mod-manager)
+If you're looking for alternatives, check out this manager by [kxdekxde](https://codeberg.org/kxdekxde/browndust2-mod-manager)
 
 
 ## Credits
