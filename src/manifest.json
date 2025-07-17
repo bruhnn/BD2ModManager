@@ -1,12 +1,11 @@
 {
-    "character_assets": {},
     "data": {
         "authors": {
             "hash": "72719499936df20af8621e2575285ce759049d133b99d373b3ec4b326df52fa8",
             "url": "https://raw.githubusercontent.com/bruhnn/BD2ModManager/refs/heads/main/src/data/authors.csv"
         },
         "characters": {
-            "hash": "ca71b157d78b88a402f36be0e1d69528c50cab8b5a4688e970277dbeedaef5e3",
+            "hash": "ca3861b1213398cf4a5a723971c53bbb17ac52e8bc3220ed90b880cfa5907624",
             "url": "https://raw.githubusercontent.com/bruhnn/BD2ModManager/refs/heads/main/src/data/characters.csv"
         },
         "datings": {
@@ -16,6 +15,16 @@
         "npcs": {
             "hash": "eab1a0d2d4fce0f901a6cdcc6cfea5984151d02794cabd58a3e98fa909af4bf8",
             "url": "https://raw.githubusercontent.com/bruhnn/BD2ModManager/refs/heads/main/src/data/npcs.csv"
+        }
+    },
+    "character_assets": {
+        "003601": {
+            "url": "https://raw.githubusercontent.com/bruhnn/BD2ModManager/refs/heads/main/src/resources/assets/characters/003601.png",
+            "hash": "7ff6bad07e700e0a09ef8ed4d31bee438abce1ad3a6f690ba7ce21eaf44b8495"
+        },
+        "003603": {
+            "url": "https://raw.githubusercontent.com/bruhnn/BD2ModManager/refs/heads/main/src/resources/assets/characters/003603.png",
+            "hash": "ceb9ee589b23b36efb49ce8f94e403848189d16b4ac7c6ce9907429133d9034f"
         }
     }
 }
