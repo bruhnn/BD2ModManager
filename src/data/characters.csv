@@ -12,7 +12,7 @@ id,character,costume,is_collab
 000206,Justia,Pool Party,false
 000296,Justia,Hot Summer Dream,false
 000301,Scheherazade,The Lapis Witch,false
-000303,Scheherazade,The Magic School Profes,falsesor
+000303,Scheherazade,The Magic School Professor,false
 000304,Scheherazade,Code Name S,false
 000306,Scheherazade,Pool Party,false
 000401,Gray,The Sharpshooter of the Mist,false
@@ -148,7 +148,7 @@ id,character,costume,is_collab
 103201,Carlson,The Mercenary Knight,false
 103301,Lydia,Apprentice Spearman,false
 103401,Rigenette,Little Hunter,false
-103501,Beatrice,The Mighty Warrior of the Tribe
+103501,Beatrice,The Mighty Warrior of the Tribe,false
 103601,Maria,Archmage,false
 103701,Arines,Priest of Vitality,false
 003601,Olivier,White Witch,false

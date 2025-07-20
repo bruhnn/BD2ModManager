@@ -2,28 +2,28 @@
     "manifest_version": "1.0.0",
     "data": {
         "authors.csv": {
-            "version": "1",
+            "version": "0.1.0",
             "hash": "72719499936df20af8621e2575285ce759049d133b99d373b3ec4b326df52fa8",
             "url": "https://raw.githubusercontent.com/bruhnn/BD2ModManager/refs/heads/feature/manifest-version-based/src/data/authors.csv"
         },
         "characters.csv": {
-            "version": "1",
-            "hash": "57d9dfe85b101ef4139d2aa26502653acbe765c2f4fa1408030a3c7a07d8bb3e",
+            "version": "0.2.0",
+            "hash": "161f4e28468322f4f95ac42df96cae3f1a80385bb00c2f9605615250e3e42283",
             "url": "https://raw.githubusercontent.com/bruhnn/BD2ModManager/refs/heads/feature/manifest-version-based/src/data/characters.csv"
         },
         "datings.csv": {
-            "version": "1",
+            "version": "0.1.0",
             "hash": "34ba65235fe3184d4f8e9adf1a46b0de40a07d49939d524ea243e9d107caf692",
             "url": "https://raw.githubusercontent.com/bruhnn/BD2ModManager/refs/heads/feature/manifest-version-based/src/data/datings.csv"
         },
         "npcs.csv": {
-            "version": "1",
+            "version": "0.1.0",
             "hash": "eab1a0d2d4fce0f901a6cdcc6cfea5984151d02794cabd58a3e98fa909af4bf8",
             "url": "https://raw.githubusercontent.com/bruhnn/BD2ModManager/refs/heads/feature/manifest-version-based/src/data/npcs.csv"
         }
     },
     "assets": {
         "version": "0.0.0",
-        "assets": []
+        "characters": {}
     }
 }
