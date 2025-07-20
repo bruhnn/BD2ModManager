@@ -13,7 +13,6 @@
         <file alias="base/checkbox_checked_colored_fill.svg">assets/icons/material/base/checkbox_checked_colored_fill.svg</file>
         <file alias="base/checkbox_checked_fill.svg">assets/icons/material/base/checkbox_checked_fill.svg</file>
         <file alias="base/close.svg">assets/icons/material/base/close.svg</file>
-        <file alias="base/cloud_download.svg">assets/icons/material/base/cloud_download.svg</file>
         <file alias="base/delete.svg">assets/icons/material/base/delete.svg</file>
         <file alias="base/exit_to_app.svg">assets/icons/material/base/exit_to_app.svg</file>
         <file alias="base/extension.svg">assets/icons/material/base/extension.svg</file>
@@ -53,7 +52,6 @@
         <file alias="dark/checkbox_checked_colored_fill.svg">assets/icons/material/dark/checkbox_checked_colored_fill.svg</file>
         <file alias="dark/checkbox_checked_fill.svg">assets/icons/material/dark/checkbox_checked_fill.svg</file>
         <file alias="dark/close.svg">assets/icons/material/dark/close.svg</file>
-        <file alias="dark/cloud_download.svg">assets/icons/material/dark/cloud_download.svg</file>
         <file alias="dark/delete.svg">assets/icons/material/dark/delete.svg</file>
         <file alias="dark/exit_to_app.svg">assets/icons/material/dark/exit_to_app.svg</file>
         <file alias="dark/extension.svg">assets/icons/material/dark/extension.svg</file>
@@ -93,7 +91,6 @@
         <file alias="light/checkbox_checked_colored_fill.svg">assets/icons/material/light/checkbox_checked_colored_fill.svg</file>
         <file alias="light/checkbox_checked_fill.svg">assets/icons/material/light/checkbox_checked_fill.svg</file>
         <file alias="light/close.svg">assets/icons/material/light/close.svg</file>
-        <file alias="light/cloud_download.svg">assets/icons/material/light/cloud_download.svg</file>
         <file alias="light/delete.svg">assets/icons/material/light/delete.svg</file>
         <file alias="light/exit_to_app.svg">assets/icons/material/light/exit_to_app.svg</file>
         <file alias="light/extension.svg">assets/icons/material/light/extension.svg</file>
