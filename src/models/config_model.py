@@ -27,7 +27,8 @@ class ConfigModel(QObject):
         "auto_download_game_data": True,
         "auto_update_mod_preview": True,
         "manifest_url": "https://raw.githubusercontent.com/bruhnn/BD2ModManager/refs/heads/main/src/manifest.json",
-        "releases_url": "https://api.github.com/repos/bruhnn/BD2ModManager/releases"
+        "releases_url": "https://api.github.com/repos/bruhnn/BD2ModManager/releases",
+        "ignored_version": None
     }
 
     def __init__(self, path: Union[str, Path]) -> None:
@@ -168,6 +169,13 @@ class ConfigModel(QObject):
     def releases_url(self) -> str:
         """Returns the URL for the GitHub releases API."""
         return self._settings.value("Update/releases_url", defaultValue=self.DEFAULT_VALUES.get("releases_url"), type=str)
+
+    @property
+    def ignored_version(self) -> str:
+        return self._settings.value("Update/ignored_version", defaultValue=self.DEFAULT_VALUES.get("ignored_version"))
+    
+    def set_ignored_version(self, value: str):
+        self._settings.setValue("Update/ignored_version", value)
 
     def get(self, key: str, default: Any = None, value_type: type = str) -> Any:
         """Get a configuration value by key."""

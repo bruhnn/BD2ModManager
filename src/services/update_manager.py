@@ -18,7 +18,7 @@ from src.version import __version__
 logger = logging.getLogger(__name__)
 
 class UpdateManager(QObject):
-    appUpdateAvailable = Signal(str)
+    appUpdateAvailable = Signal(str, str, str)
 
     # Signals for data files
     dataUpdateAvailable = Signal(str)  # key of the data file
@@ -219,26 +219,35 @@ class UpdateManager(QObject):
         else:
             try:
                 data = json.loads(reply.readAll().data())
+                
                 # finds the latest version that is not pre-release
                 if data and isinstance(data, list):
-                    latest_version = None
+                    latest_release = None
                     for release in data:
                         if not release["prerelease"]:
-                            latest_version = release["tag_name"].lstrip("v")
+                            latest_release = release
+                            break
                      
-                    if not latest_version:
-                        return logger.critical("Latest version not found.")
-                        
+                    if not latest_release:
+                        return logger.critical("Latest release not found.")
+                    
+                    print(latest_release)
+                    
+                    latest_version = latest_release["tag_name"].lstrip("v")
+                    
                     logger.info(
                         "Current version: %s, Latest version: %s",
                         __version__,
                         latest_version,
                     )
+                    
                     if version.parse(__version__) < version.parse(latest_version):
+                        body = latest_release["body"]
+                        url = latest_release["html_url"]
                         logger.info(
                             "New application version available: %s", latest_version
                         )
-                        self.appUpdateAvailable.emit(latest_version)
+                        self.appUpdateAvailable.emit(latest_version, body, url)
             except (json.JSONDecodeError, IndexError, KeyError) as e:
                 logger.error("Failed to parse app version data: %s", e)
                 self.errorOccurred.emit(f"Failed to parse app version data: {e}")

@@ -1,11 +1,12 @@
+
 from PySide6.QtWidgets import QApplication
-from PySide6.QtCore import QObject, Slot, QTranslator
+from PySide6.QtCore import QObject, Slot, QTranslator, QTimer
 from PySide6.QtGui import QCloseEvent
 
 import logging
 
 from src.controllers.profile_manager_controller import ProfileManagerController
-from src.models import ConfigModel, ModManagerModel
+from src.models import ConfigModel, ModManagerModel, config_model
 
 from src.models import ProfileManager
 from src.services.mod_preview import BD2ModPreview
@@ -16,6 +17,8 @@ from src.themes import ThemeManager
 
 from src.utils.files import open_file_or_directory
 from src.utils.paths import app_paths
+from src.views.widgets.modals import UpdateModal
+from src.version import __version__
 
 
 logger = logging.getLogger(__name__)
@@ -50,6 +53,9 @@ class MainController(QObject):
         # Apply initial theme and language
         self._on_apply_stylesheet(self.config_model.theme)
         self._on_apply_language(self.config_model.language)
+        
+        # to show the update dialog only after the app is loaded
+        QTimer.singleShot(300, self._check_for_updates)
 
     # --- Setups
     def _setup_models(self) -> None:
@@ -136,9 +142,7 @@ class MainController(QObject):
         # Profile Signals
         self.profile_manager_model.profilesChanged.connect(
             self._refresh_profiles_dropdown
-        )
-        
-        
+        )        
         # preview
         self.mod_manager_controller.modPreviewRequested.connect(
             self._on_mod_preview_requested
@@ -181,6 +185,7 @@ class MainController(QObject):
         self.update_manager.toolUpdateAvailable.connect(self._on_tool_update_available)
         self.update_manager.toolUpdated.connect(self._on_tool_updated)
 
+    def _check_for_updates(self):
         if self.config_model.auto_download_game_data:
             self.update_manager.start_update_process()
         
@@ -210,13 +215,23 @@ class MainController(QObject):
 
     # --- Slots
     @Slot(str)
-    def _on_app_new_version_available(self, version: str) -> None:
-        self.view.set_update_available(version)
-        self.view.show_notification(
-            title=self.tr(f"New version {version} available!"),
-            text=self.tr("Visit the GitHub releases page to update."),
-            duration=20000,
+    def _on_app_new_version_available(self, version: str, changelog: str, release_url: str) -> None:
+        if version == self.config_model.ignored_version:
+            return 
+        
+        update_dialog = UpdateModal(
+            self.view,
+            __version__,
+            version,
+            changelog,
+            release_url
         )
+        update_dialog.exec()
+        
+        dont_show_again, ignore_version = (update_dialog.get_dont_show_again_state())
+        
+        if dont_show_again:
+            self.config_model.set_ignored_version(ignore_version)
 
     @Slot(str)
     def _on_update_started(self, key: str):
