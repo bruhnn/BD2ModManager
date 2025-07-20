@@ -30,8 +30,8 @@ class MainController(QObject):
 
         self.view = view
         
-        self.mod_previewer = BD2ModPreview()
-        self.mod_previewer.errorOccurred.connect(self._on_mod_preview_error)
+        self.mod_preview = BD2ModPreview()
+        self.mod_preview.errorOccurred.connect(self._on_mod_preview_error)
 
         # to prevent update manager to trigger multiple notifications
         self._is_currently_updating = False
@@ -42,7 +42,6 @@ class MainController(QObject):
         self._setup_signals()
         self._setup_navigation()
         self._setup_update_manager()
-        self._setup_spine_viewer()
 
         # check if the game directory is stil valid, if not show the game selection page
         self._check_game_directory()
@@ -138,6 +137,12 @@ class MainController(QObject):
         self.profile_manager_model.profilesChanged.connect(
             self._refresh_profiles_dropdown
         )
+        
+        
+        # preview
+        self.mod_manager_controller.modPreviewRequested.connect(
+            self._on_mod_preview_requested
+        )
 
     def _setup_navigation(self) -> None:
         # Navigation
@@ -156,6 +161,7 @@ class MainController(QObject):
         self.update_manager = UpdateManager(
             manifest_url=self.config_model.manifest_url,
             releases_url=self.config_model.releases_url,
+            modpreview_releases_url="https://api.github.com/repos/bruhnn/BD2ModPreview/releases"
         )
 
         self.update_manager.appUpdateAvailable.connect(
@@ -169,35 +175,38 @@ class MainController(QObject):
         )
         self.update_manager.allDownloadsFinished.connect(
             self._on_all_updates_finished)
-        # self.update_manager.dataUpdated.connect(self._on_data_updated)
+        
         self.update_manager.errorOccurred.connect(self._on_update_error)
+        
+        self.update_manager.toolUpdateAvailable.connect(self._on_tool_update_available)
+        self.update_manager.toolUpdated.connect(self._on_tool_updated)
 
         if self.config_model.auto_download_game_data:
             self.update_manager.start_update_process()
         
-        # if self.config_model.notify_on_app_update:
-        self.update_manager.check_app_version()
-
-    def _setup_spine_viewer(self) -> None:
-        self.mod_manager_controller.modPreviewRequested.connect(
-            self._on_mod_preview_requested
-        )
+        if self.config_model.auto_update_mod_preview:
+            self.update_manager.check_bd2modpreview_version()
         
-        # if not self.config_model.spine_viewer_enabled:
-        #     return
+        self.update_manager.check_app_version()
+    
+    @Slot(str)
+    def _on_tool_update_available(self, tool_name: str):
+        self.view.show_notification(
+            title=self.tr("Tool Update Available"),
+            text=self.tr(f"A new version of {tool_name} is available. Updating now..."),
+            duration=3000,
+        )
 
-        # self.spine_web = SpineViewerWidget(
-        #     self.mod_manager_model.staging_mods_directory,
-        #     self.view
-        # )
-
-        # self.view.add_page("viewer", self.spine_web)
-        # self.view.add_navigation_button(
-        #     "viewer", self.tr("Viewer"), "view_list", 3)
-
-        # self.mod_manager_controller.modPreviewRequested.connect(
-        #     self._on_mod_preview_requested
-        # )
+    @Slot(str)
+    def _on_tool_updated(self, tool_name: str):
+        if tool_name == "BD2ModPreview":
+            self.mod_preview.refresh_path()
+            
+        self.view.show_notification(
+            title=self.tr("Tool Updated"),
+            text=self.tr(f"{tool_name} was successfully updated."),
+            duration=3000,
+        )
 
     # --- Slots
     @Slot(str)
@@ -235,18 +244,7 @@ class MainController(QObject):
 
     @Slot(str)
     def _on_update_error(self, error_message: str):
-        # self.view.show_notification(
-        #     title="Update Failed",
-        #     text="Could not download necessary data.",
-        #     duration=10000,
-        # )
-        # print(f"UpdateManager Error: {error_message}")
         self._is_currently_updating = False
-
-    # @Slot(str)
-    # def _on_data_updated(self, key: str):
-    #     print(f"Data for '{key}' updated, refreshing game data...")
-    #     self.mod_manager_model.refresh_game_data()
 
     @Slot()
     def _on_app_close(self, event: QCloseEvent) -> None:
@@ -360,12 +358,13 @@ class MainController(QObject):
 
     @Slot(str)
     def _on_mod_preview_requested(self, mod_name: str):
+
         mod = self.mod_manager_model.get_mod_by_name(mod_name)
 
         if not mod:
             return self.view.show_notification("Mod Not Found", f"Mod with the name '{mod_name}' was not found.", "error")
     
-        self.mod_previewer.launch_preview(mod.path)
+        self.mod_preview.launch_preview(mod.path)
     
     @Slot(str)
     def _on_mod_preview_error(self, message: str):

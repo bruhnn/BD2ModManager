@@ -1,3 +1,4 @@
+from calendar import TUESDAY
 import os
 from typing import Dict, List, Any
 import logging
@@ -323,6 +324,7 @@ class ConfigView(QScrollArea):
     includeModRelativePathChanged = Signal(bool)
     
     autoDownloadGameDataChanged = Signal(bool)
+    autoUpdateModPreviewChanged = Signal(bool)
     notifyAppUpdateChanged = Signal(bool)
 
     # Action signals
@@ -419,6 +421,11 @@ class ConfigView(QScrollArea):
             self.tr("Automatically download new game data"),
             self.tr("Keeps content like characters, authors, and NPCs up-to-date.")
         )
+        
+        self.auto_update_mod_preview_checkbox = ConfigCheckBox(
+            self.tr("Automatically update BD2ModPreview"),
+            self.tr("Automatically update the mod preview.")
+        )
 
     def _create_synchronization_section(self) -> None:
         self.synchronization_header = SectionHeader(self.tr("Synchronization"))
@@ -475,6 +482,7 @@ class ConfigView(QScrollArea):
         self.main_layout.addWidget(self.language_combobox)
         # self.main_layout.addWidget(self.notify_on_app_update_checkbox)
         self.main_layout.addWidget(self.auto_download_game_data_checkbox)
+        self.main_layout.addWidget(self.auto_update_mod_preview_checkbox)
         self.main_layout.addWidget(self.include_mod_relative_path_checkbox)
 
         # Synchronization section
@@ -510,6 +518,9 @@ class ConfigView(QScrollArea):
         self.auto_download_game_data_checkbox.stateChanged.connect(
             self.autoDownloadGameDataChanged.emit
         )
+        self.auto_update_mod_preview_checkbox.stateChanged.connect(
+            self.autoUpdateModPreviewChanged.emit
+        )
         # self.notify_on_app_update_checkbox.stateChanged.connect(
         #     self.notifyAppUpdateChanged.emit
         # )
@@ -537,10 +548,9 @@ class ConfigView(QScrollArea):
         self.set_include_mod_relative_path(
             config.get("include_mod_relative_path", False))
 
-        # self.set_notify_on_app_update(
-        #     config.get("notify_on_app_update", True))
         self.set_auto_download_game_data(
             config.get("auto_download_game_data", True))
+        self.set_auto_update_mod_preview(config.get("auto_update_mod_preview", True))
 
     @Slot(str)
     def set_game_directory(self, path: str) -> None:
@@ -584,6 +594,12 @@ class ConfigView(QScrollArea):
         self.include_mod_relative_path_checkbox.setChecked(value)
         self.include_mod_relative_path_checkbox.blockSignals(False)
     
+    @Slot(bool)
+    def set_auto_update_mod_preview(self, value: bool) -> None:
+        self.auto_update_mod_preview_checkbox.blockSignals(True)
+        self.auto_update_mod_preview_checkbox.setChecked(value)
+        self.auto_update_mod_preview_checkbox.blockSignals(False)
+        
     # @Slot(bool)
     # def set_notify_on_app_update(self, value: bool) -> None:
     #     """Sets the state of the app update notification checkbox."""
@@ -621,15 +637,15 @@ class ConfigView(QScrollArea):
             self.tr("Search Mods Recursively"))
         self.include_mod_relative_path_checkbox.setText(
             self.tr("Show full mod folder paths"))
-        
-        # self.notify_on_app_update_checkbox.setText(
-        #     self.tr("Notify when a new app version is available"))
-        # self.notify_on_app_update_checkbox.setToolTip(
-        #     self.tr("Shows a notification when there's a new app update to download."))
+
         self.auto_download_game_data_checkbox.setText(
             self.tr("Automatically download new game data"))
         self.auto_download_game_data_checkbox.setToolTip(
             self.tr("Keeps content like characters, authors, and NPCs up-to-date."))
+        
+        self.auto_update_mod_preview_checkbox.setText(
+            self.tr("Automatically Update BD2ModPreview")
+        )
 
         self.find_authors_button.setText(self.tr("Find Authors"))
         self.migrate_to_profiles_button.setText(self.tr("Migrate to Profiles"))

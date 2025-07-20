@@ -30,6 +30,7 @@ class ConfigController(QObject):
         
         self.view.notifyAppUpdateChanged.connect(self._on_notify_app_update_changed)
         self.view.autoDownloadGameDataChanged.connect(self._on_auto_download_game_data_changed)
+        self.view.autoUpdateModPreviewChanged.connect(self._on_auto_update_mod_preview_changed)
         
         # View actions
         self.view.findAuthorsClicked.connect(self.findAuthorsClicked.emit)
@@ -38,13 +39,11 @@ class ConfigController(QObject):
         # Model Signals
         self.model.gameDirectoryChanged.connect(self.view.set_game_directory)
         self.model.modsDirectoryChanged.connect(self.view.set_mods_directory)
-        self.model.searchModsRecursivelyChanged.connect(
-            self.view.set_search_mods_recursively)
+        self.model.searchModsRecursivelyChanged.connect(self.view.set_search_mods_recursively)
         self.model.languageChanged.connect(self.view.set_language)
         self.model.themeChanged.connect(self.view.set_theme)
         self.model.syncMethodChanged.connect(self.view.set_sync_method)
-        self.model.includeModRelativePathChanged.connect(
-            self.view.set_include_mod_relative_path)
+        self.model.includeModRelativePathChanged.connect(self.view.set_include_mod_relative_path)
         self.update_config()
 
     # --- Slots
@@ -79,6 +78,9 @@ class ConfigController(QObject):
     
     def _on_auto_download_game_data_changed(self, value: bool) -> None:
         self.model.set_auto_download_game_data(value)
+    
+    def _on_auto_update_mod_preview_changed(self, value: bool) -> None:
+        self.model.set_auto_update_mod_preview(value)
 
     # --- Methods
     def update_config(self) -> None:

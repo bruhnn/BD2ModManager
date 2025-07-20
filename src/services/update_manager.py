@@ -2,7 +2,6 @@ import hashlib
 import json
 import logging
 import shutil
-import subprocess
 import tempfile
 from pathlib import Path
 from typing import Any, Dict
@@ -11,26 +10,12 @@ from PySide6.QtCore import QObject, QUrl, Signal, Slot
 from PySide6.QtNetwork import QNetworkAccessManager, QNetworkReply, QNetworkRequest
 from packaging import version
 
+from src.services.mod_preview import BD2ModPreview
 from src.utils.files import get_file_hash
 from src.utils.paths import app_paths
 from src.version import __version__
 
 logger = logging.getLogger(__name__)
-
-# def get_bd2modpreview_version(exe_path: str | Path) -> str | None:
-#     try:
-#         result = subprocess.run(
-#             [str(exe_path), "--version"],
-#             capture_output=True,
-#             text=True,
-#             timeout=3
-#         )
-#         version = result.stdout.strip()
-#         return version if version else None
-#     except (subprocess.SubprocessError, FileNotFoundError, OSError) as e:
-#         print(f"Error checking mod preview version: {e}")
-#         return None
-
 
 class UpdateManager(QObject):
     appUpdateAvailable = Signal(str)
@@ -44,8 +29,8 @@ class UpdateManager(QObject):
     assetUpdated = Signal(str)  # key of the asset
     
     # Signals for tools
-    # toolUpdateAvailable = Signal(str)
-    # toolUpdated = Signal(str)
+    toolUpdateAvailable = Signal(str)
+    toolUpdated = Signal(str)
 
     updateCheckFinished = Signal()
     allDownloadsFinished = Signal()
@@ -55,6 +40,7 @@ class UpdateManager(QObject):
         self, 
         manifest_url: str, 
         releases_url: str,
+        modpreview_releases_url: str,
         parent: QObject | None = None
     ) -> None:
         super().__init__(parent)
@@ -65,6 +51,7 @@ class UpdateManager(QObject):
 
         self._remote_manifest_data: Dict[str, Any] = {}
         self._local_manifest_data = self._load_local_manifest()
+        self._modpreview_releases_url = modpreview_releases_url
         
         self._active_downloads = 0
 
@@ -232,8 +219,16 @@ class UpdateManager(QObject):
         else:
             try:
                 data = json.loads(reply.readAll().data())
-                if data and isinstance(data, list) and "tag_name" in data[0]:
-                    latest_version = data[0]["tag_name"].lstrip("v")
+                # finds the latest version that is not pre-release
+                if data and isinstance(data, list):
+                    latest_version = None
+                    for release in data:
+                        if not release["prerelease"]:
+                            latest_version = release["tag_name"].lstrip("v")
+                     
+                    if not latest_version:
+                        return logger.critical("Latest version not found.")
+                        
                     logger.info(
                         "Current version: %s, Latest version: %s",
                         __version__,
@@ -374,6 +369,8 @@ class UpdateManager(QObject):
             data = reply.readAll().data()
             logger.info("Download for data '%s' completed successfully.", key)
 
+            
+            # file != content
             # expected_hash = self._remote_manifest_data.get("data", {}).get(key, {}).get("hash")
             # if expected_hash and hashlib.sha256(data).hexdigest() != expected_hash:
             #     logger.error("Hash mismatch for '%s'. Download may be corrupted.", key)
@@ -477,3 +474,91 @@ class UpdateManager(QObject):
             logger.info("All downloads finished.")
             self._save_local_manifest()
             self.allDownloadsFinished.emit()
+
+    def check_bd2modpreview_version(self) -> None:
+        logger.info("Checking for a new version of BD2ModPreview from %s", self._releases_url)
+        request = QNetworkRequest(QUrl(self._modpreview_releases_url))
+        reply = self._network_manager.get(request)
+        reply.finished.connect(self._on_bd2modpreview_version_received)
+    
+    @Slot()
+    def _on_bd2modpreview_version_received(self):
+        reply: QNetworkReply = self.sender()
+        
+        if reply.error() != QNetworkReply.NetworkError.NoError:
+            logger.error("BD2ModPreview version check failed: %s", reply.errorString())
+            self.errorOccurred.emit(f"BD2ModPreview version check failed: {reply.errorString()}")
+            reply.deleteLater()
+            return
+
+        try:
+            data = json.loads(reply.readAll().data())
+
+            if data and isinstance(data, list) and "tag_name" in data[0]:
+                releases = list(filter(lambda release: not release["prerelease"], data))
+                if len(releases) > 0:
+                    latest_version = releases[0]["tag_name"].lstrip("v")
+                else:
+                    return logger.critical("No releases was found.")
+
+                tool = BD2ModPreview()
+                current_version = tool.get_version()
+
+                logger.info("BD2ModPreview: Current: %s, Latest: %s", current_version, latest_version)
+
+                if current_version is None or version.parse(current_version) < version.parse(latest_version):
+                    self.toolUpdateAvailable.emit("BD2ModPreview")
+                    for asset in data[0].get("assets", []):
+                        if asset["name"] == "BD2ModPreview.exe":
+                            url = asset["browser_download_url"]
+                            self._download_bd2modpreview(url)
+                            break
+                        
+        except Exception as e:
+            logger.error("Failed to parse BD2ModPreview version info: %s", e)
+            self.errorOccurred.emit(f"BD2ModPreview version parsing failed: {e}")
+        finally:
+            reply.deleteLater()
+    
+    def _download_bd2modpreview(self, url: str):
+        request = QNetworkRequest(QUrl(url))
+        reply = self._network_manager.get(request)
+        reply.finished.connect(self._on_bd2modpreview_downloaded)
+
+    @Slot()
+    def _on_bd2modpreview_downloaded(self):
+        reply: QNetworkReply = self.sender()
+        
+        if reply.error() != QNetworkReply.NetworkError.NoError:
+            logger.error("Failed to download BD2ModPreview: %s", reply.errorString())
+            self.errorOccurred.emit(f"Failed to download BD2ModPreview: {reply.errorString()}")
+            reply.deleteLater()
+            return
+
+        try:
+            data = reply.readAll().data()
+
+            app_paths.user_tools_path.mkdir(parents=True, exist_ok=True)
+
+            with tempfile.NamedTemporaryFile(
+                mode="wb",
+                dir=app_paths.user_cache_path,
+                delete=False,
+                suffix=".exe"
+            ) as temp_file:
+                temp_file.write(data)
+                temp_path = Path(temp_file.name)
+
+            final_path = app_paths.user_tools_path / "BD2ModPreview.exe"
+            
+            shutil.move(temp_path, final_path)
+
+            logger.info("BD2ModPreview.exe updated successfully.")
+            self.toolUpdated.emit("BD2ModPreview")
+
+        except Exception as error:
+            logger.error("Error updating BD2ModPreview: %s", error)
+            self.errorOccurred.emit(f"Error updating BD2ModPreview: {error}")
+        finally:
+            reply.deleteLater()
+                

@@ -14,6 +14,7 @@ class ConfigModel(QObject):
     spineViewerEnabledChanged = Signal(bool)
     notifyAppUpdateChanged = Signal(bool)
     autoDownloadGameDataChanged = Signal(bool)
+    autoUpdateModPreview = Signal(bool)
 
     DEFAULT_VALUES = {
         "language": "en-US",
@@ -24,6 +25,7 @@ class ConfigModel(QObject):
         "spine_viewer_enabled": True,
         "notify_on_app_update": True,
         "auto_download_game_data": True,
+        "auto_update_mod_preview": True,
         "manifest_url": "https://raw.githubusercontent.com/bruhnn/BD2ModManager/refs/heads/main/src/manifest.json",
         "releases_url": "https://api.github.com/repos/bruhnn/BD2ModManager/releases"
     }
@@ -146,6 +148,16 @@ class ConfigModel(QObject):
         """Set whether to automatically download new game data."""
         self._settings.setValue("Update/auto_download_game_data", value)
         self.autoDownloadGameDataChanged.emit(value)
+    
+    @property
+    def auto_update_mod_preview(self) -> bool:
+        """"""
+        return self._settings.value("Update/auto_update_mod_preview", defaultValue=self.DEFAULT_VALUES.get("auto_update_mod_preview"), type=bool)
+
+    def set_auto_update_mod_preview(self, value: bool) -> None:
+        """"""
+        self._settings.setValue("Update/auto_update_mod_preview", value)
+        self.autoUpdateModPreview.emit(value)
 
     @property
     def manifest_url(self) -> str:
@@ -171,6 +183,7 @@ class ConfigModel(QObject):
 
     def as_dict(self) -> dict:
         """Return configuration as a dictionary."""
+        
         return {
             "game_directory": self.game_directory,
             "mods_directory": self.mods_directory,
@@ -182,4 +195,5 @@ class ConfigModel(QObject):
             "spine_viewer_enabled": self.spine_viewer_enabled,
             "notify_on_app_update": self.notify_on_app_update,
             "auto_download_game_data": self.auto_download_game_data,
+            "auto_update_mod_preview": self.auto_update_mod_preview
         }

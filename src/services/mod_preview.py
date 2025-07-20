@@ -13,9 +13,13 @@ class BD2ModPreview(QObject):
     
     def __init__(self) -> None:
         super().__init__()
+        self.refresh_path()
         
+    def refresh_path(self):
+        # if it has a updated version in user's path
         self._tool_path = app_paths.user_tools_path / "BD2ModPreview.exe"
         
+        # fallback: to bundled mod preview
         if not self._tool_path.is_file():
             self._tool_path = app_paths.tools_path / "BD2ModPreview.exe"
     
