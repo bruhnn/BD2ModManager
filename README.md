@@ -20,7 +20,7 @@ If you have suggestions or run into any problems with the app, feel free to open
   - ✨ Load original character Spine animations directly from GitHub assets
   - ✨ Added Spine folder history feature
   - ✨ Added option to download missing skeleton files from the mod folder (requested by [@CalbeeDaLock](https://github.com/CalbeeDaLock))
-- 🐛 Fixed Spine animations not working for Korean characters (reported by [@Love-156](https://github.com/Love-156))
+- 🐛 Fixed Spine animations not working because of Korean characters in atlas (reported by [@Love-156](https://github.com/Love-156))
 - :sparkles: BD2ModPreview now automatically updates when a new version is available
 - :sparkles: Replaced the app update notification with a modal window that includes the changelog
 - 🐞 Collaboration characters now display as **"Unavailable"** on the characters page (requested by [@CalbeeDaLock](https://github.com/CalbeeDaLock))
@@ -34,7 +34,7 @@ If you have suggestions or run into any problems with the app, feel free to open
 - **Multi-Language Support:** Available in Portuguese (pt-BR), Japanese (ja-JP), and Korean (ko-KR) (auto-translated, so might not be perfect).
 - Search mods by name, character, author, or type.
 - Filter mods by status directly on the characters page.
-- One-click install (symlink or copy).
+- One-click install to game folder (symlink or copy).
 - Drag-and-drop to install new mods.
 - Enable/disable mods with a single click.
 - Easily view which characters have each mod type enabled on the characters page.
@@ -54,7 +54,7 @@ If you have suggestions or run into any problems with the app, feel free to open
 
 4. **Enable or disable mods**.
 5. **Sync your mods** to apply changes:
-   - This will create a folder named `BD2ModManager` inside the `BrownDustX` mods folder with all your enabled mods.
+   - This will create a folder named `BD2MM` inside the `BrownDustX` mods folder with all your enabled mods.
 
 > ⚠️ After making any changes (enable, disable, delete, rename), you **must sync** your mods to update the game folder.
 
@@ -94,8 +94,7 @@ Creates shortcuts instead of copying files.
 ![Characters Page](./screenshots/characters_page_v31.png)
 
 ### Mod Preview (BD2ModPreview v0.3.0)
-![Mod Preview](./screenshots/bd2modpreview.png) ---
----
+![Mod Preview](./screenshots/bd2modpreview.png)
 
 ---
 ## 🧰 Other Tools
