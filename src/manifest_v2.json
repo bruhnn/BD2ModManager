@@ -2,7 +2,7 @@
     "manifest_version": "1.0.0",
     "data": {
         "authors.csv": {
-            "version": "0.1.0",
+            "version": "0.2.0",
             "hash": "72719499936df20af8621e2575285ce759049d133b99d373b3ec4b326df52fa8",
             "url": "https://raw.githubusercontent.com/bruhnn/BD2ModManager/refs/heads/feature/manifest-version-based/src/data/authors.csv"
         },
