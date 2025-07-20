@@ -148,8 +148,7 @@ class UpdateManager(QObject):
                      
                     if not latest_release:
                         return logger.critical("Latest release not found.")
-                    
-                    print(latest_release)
+    
                     
                     latest_version = latest_release["tag_name"].lstrip("v")
                     
@@ -438,7 +437,7 @@ class UpdateManager(QObject):
             self.allDownloadsFinished.emit()
 
     def check_bd2modpreview_version(self) -> None:
-        logger.info("Checking for a new version of BD2ModPreview from %s", self._releases_url)
+        logger.info("Checking for a new version of BD2ModPreview from %s", self._modpreview_releases_url)
         request = QNetworkRequest(QUrl(self._modpreview_releases_url))
         reply = self._network_manager.get(request)
         reply.finished.connect(self._on_bd2modpreview_version_received)
