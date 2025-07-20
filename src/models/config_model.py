@@ -18,7 +18,7 @@ class ConfigModel(QObject):
 
     DEFAULT_VALUES = {
         "language": "en-US",
-        "theme": "dark",
+        "theme": "Dark",
         "sync_method": "copy",
         "search_mods_recursively": False,
         "include_mod_relative_path": False,
