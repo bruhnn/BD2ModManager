@@ -59,7 +59,8 @@ class UpdateManager(QObject):
 
     def _load_local_manifest(self) -> Dict[str, Any]:
         """Loads the local manifest file. If it doesn't exist or is corrupted, returns a default manifest."""
-        default_manifest = {"data": {}, "assets": {}}
+        
+        default_manifest = {"manifest_version": "0.0.0", "data": {}, "assets": {}}
 
         if not app_paths.manifest_v2_json.exists():
             logger.warning(
@@ -186,6 +187,55 @@ class UpdateManager(QObject):
 
         reply = self._network_manager.get(request)
         reply.finished.connect(self._on_remote_manifest_received)
+            
+    def _compare_manifest_version(self) -> bool:
+        """Compare and update manifest version if needed. Returns True if manifest was updated."""
+        remote_manifest_version = self._remote_manifest_data.get("manifest_version", "0.0.0")
+        local_manifest_version = self._local_manifest_data.get("manifest_version", "0.0.0")
+        
+        try:
+            remote_version = version.parse(remote_manifest_version)
+            local_version = version.parse(local_manifest_version)
+            
+            logger.debug("Manifest version check - Local: %s, Remote: %s", local_version, remote_version)
+            
+            if remote_version > local_version:
+                logger.info("Manifest update detected: %s -> %s", local_version, remote_version)
+                logger.info("This will trigger download of all data files to ensure synchronization")
+                
+                # Update the manifest version
+                self._local_manifest_data["manifest_version"] = remote_manifest_version
+                
+                # Initialize missing data entries with default versions
+                remote_data = self._remote_manifest_data.get("data", {})
+                if "data" not in self._local_manifest_data:
+                    self._local_manifest_data["data"] = {}
+                local_data = self._local_manifest_data["data"]
+                
+                for file_key in remote_data:
+                    if file_key not in local_data:
+                        logger.info("Adding new data file entry to manifest: %s", file_key)
+                        local_data[file_key] = {"version": "0.0.0"}
+                    else:
+                        # Reset version to force re-download
+                        logger.info("Resetting version for %s to force re-download", file_key)
+                        local_data[file_key]["version"] = "0.0.0"
+                
+                # Update assets structure if needed
+                remote_assets = self._remote_manifest_data.get("assets", {})
+                if remote_assets and "assets" not in self._local_manifest_data:
+                    logger.info("Initializing assets section in manifest")
+                    self._local_manifest_data["assets"] = {"version": "0.0.0", "characters": {}}
+                
+                logger.info("Manifest updated to version %s", remote_manifest_version)
+                return True
+                
+            return False
+                
+        except Exception as e:
+            logger.error("Error comparing manifest versions: %s", e)
+            self.errorOccurred.emit(f"Error comparing manifest versions: {e}")
+            return False
 
     @Slot()
     def _on_remote_manifest_received(self) -> None:
@@ -210,7 +260,11 @@ class UpdateManager(QObject):
         finally:
             reply.deleteLater()
 
-        self._compare_data_files()
+        # Check manifest version first and get update status
+        manifest_was_updated = self._compare_manifest_version()
+        
+        # Pass manifest update status to data comparison
+        self._compare_data_files(force_update=manifest_was_updated)
         self._compare_character_assets()
 
         logger.info("Update check finished.")
@@ -220,7 +274,42 @@ class UpdateManager(QObject):
             logger.info("No downloads required.")
             self.allDownloadsFinished.emit()
 
-    def _compare_data_files(self) -> None:
+    # Optional: Add a method to force manifest update
+    def force_manifest_update(self) -> None:
+        """Force update the manifest to the remote version and download all data"""
+        if not self._remote_manifest_data:
+            logger.warning("No remote manifest data available for force update")
+            return
+            
+        remote_manifest_version = self._remote_manifest_data.get("manifest_version", "0.0.0")
+        local_manifest_version = self._local_manifest_data.get("manifest_version", "0.0.0")
+        
+        logger.info("Force updating manifest from %s to %s", local_manifest_version, remote_manifest_version)
+        
+        # Update manifest version
+        self._local_manifest_data["manifest_version"] = remote_manifest_version
+        
+        # Reset all data file versions to force re-download
+        remote_data = self._remote_manifest_data.get("data", {})
+        if "data" not in self._local_manifest_data:
+            self._local_manifest_data["data"] = {}
+            
+        for file_key, file_info in remote_data.items():
+            logger.info("Resetting version for %s to force download", file_key)
+            self._local_manifest_data["data"][file_key] = {"version": "0.0.0"}
+        
+        # Update assets structure
+        remote_assets = self._remote_manifest_data.get("assets", {})
+        if remote_assets:
+            self._local_manifest_data["assets"] = remote_assets.copy()
+        
+        self._compare_data_files(force_update=True)
+        self._compare_character_assets()
+                
+        if self._active_downloads == 0:
+            self._save_local_manifest()
+            self.allDownloadsFinished.emit()
+    def _compare_data_files(self, force_update: bool = False) -> None:
         remote_data = self._remote_manifest_data.get("data", {})
         local_data_manifest = self._local_manifest_data.get("data", {})
 
@@ -232,7 +321,7 @@ class UpdateManager(QObject):
             
             logger.debug("Manifest [%s] => Local %s, Remote %s", key, local_version, remote_version)
             
-            if local_version < remote_version:
+            if local_version < remote_version or force_update:
                 logger.info("Update available for data file: '%s'", key)
                 self.dataUpdateAvailable.emit(key)
                 self._download_file(key, remote_info, self._on_download_data_finished)
