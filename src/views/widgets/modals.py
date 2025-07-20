@@ -1,4 +1,5 @@
-from PySide6.QtCore import Qt, Signal
+import logging
+from PySide6.QtCore import Qt, Signal, QSize
 from PySide6.QtGui import QKeyEvent
 from PySide6.QtWidgets import (
     QDialog,
@@ -19,11 +20,21 @@ from PySide6.QtWidgets import (
     QStackedWidget,
     QSpacerItem,
     QSizePolicy,
+    QScrollArea,
+    QTextBrowser,
+    QCheckBox,
+    QGridLayout,
+    QToolButton
 )
 
 from typing import Optional
 import json
 
+from src.themes import ThemeManager
+import webbrowser
+
+logger = logging.getLogger(__name__)
+logger.addHandler(logging.NullHandler())
 
 
 class ProgressModal(QDialog):
@@ -249,3 +260,122 @@ class DropFilesWidget(QWidget):
         # THIS WILL SHOW A LIST OF ALL THE MODS AND A BUTTON TO ADD, add all, etc.
 
         self.setLayout(layout)
+
+class UpdateModal(QDialog):
+    # dontShowAgainChecked = Signal(bool, str) # dont show again, version 
+
+    def __init__(self, parent, current_version: str, new_version: str, changelog: str, releases_url: str):
+        super().__init__(parent)
+        self.setWindowFlags(Qt.WindowType.FramelessWindowHint | Qt.WindowType.Dialog)
+        self.setModal(True)
+        self.setObjectName("UpdateModal")
+        self.setFixedSize(650, 550)
+        
+        self.current_version = current_version
+        self.new_version = new_version
+        self.changelog = changelog
+        self.releases_url = releases_url
+        
+        main_layout = QVBoxLayout(self)
+        main_layout.setContentsMargins(30, 30, 30, 30)
+        main_layout.setSpacing(20)
+        
+        header_widget = QWidget()
+        header_layout = QGridLayout(header_widget)
+        header_layout.setContentsMargins(0, 0, 0, 0)
+        header_layout.setSpacing(0)
+        
+        close_button = QToolButton()
+        close_button.setObjectName("updateModalCloseButton")
+        close_button.setCursor(Qt.CursorShape.PointingHandCursor)
+        close_button.setContentsMargins(0, 0, 0, 0)
+        close_button.setIconSize(QSize(32, 32))
+        close_button.setIcon(ThemeManager.icon("close"))
+        close_button.clicked.connect(self._handle_close_modal)
+        close_button.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
+
+        title_label = QLabel("Update Available!")
+        title_label.setObjectName("updateModalTitle")
+        title_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        
+        version_info_label = QLabel(f"Version {new_version} is available. Current: {current_version}")
+        version_info_label.setObjectName("updateModalVersionInfo")
+        version_info_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        header_layout.setColumnStretch(0, 1)
+        header_layout.setColumnStretch(1, 1)
+        header_layout.setColumnStretch(2, 0)
+
+        header_layout.addWidget(title_label, 0, 0, 1, 3)
+
+        header_layout.addWidget(version_info_label, 1, 0, 1, 3)
+
+        header_layout.addWidget(close_button, 0, 2)
+        
+        changelog_section_widget = QWidget()
+        changelog_section_layout = QVBoxLayout(changelog_section_widget)
+        changelog_section_layout.setContentsMargins(0, 0, 0, 0)
+        changelog_section_layout.setSpacing(10)
+
+        changelog_header = QLabel("What's New:")
+        changelog_header.setObjectName("updateModalChangelogHeader")
+        
+        scroll_area = QScrollArea()
+        scroll_area.setObjectName("updateModalChangelogScroll")
+        scroll_area.setWidgetResizable(True)
+        scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        
+        changelog_content = QTextBrowser()
+        changelog_content.setObjectName("updateModalChangelogContent")
+        changelog_content.setMarkdown(changelog)
+        changelog_content.setOpenExternalLinks(True)
+        
+        scroll_area.setWidget(changelog_content)
+
+        changelog_section_layout.addWidget(changelog_header)
+        changelog_section_layout.addWidget(scroll_area)
+
+        footer_widget = QWidget()
+        footer_layout = QHBoxLayout(footer_widget)
+        footer_layout.setContentsMargins(0, 0, 0, 0)
+        footer_layout.setSpacing(15)
+
+        self.dont_show_again_checkbox = QCheckBox("Don't show again")
+        self.dont_show_again_checkbox.setObjectName("updateModalDontShowAgainCheckbox")
+        
+        later_button = QPushButton("Later")
+        later_button.setCursor(Qt.CursorShape.PointingHandCursor)
+        later_button.setObjectName("updateModalLaterButton")
+        later_button.clicked.connect(self._handle_close_modal) 
+        
+        download_button = QPushButton("Go to Releases")
+        download_button.setCursor(Qt.CursorShape.PointingHandCursor)
+        download_button.setObjectName("updateModalDownloadButton")
+        download_button.clicked.connect(self._handle_download_click)
+        download_button.setDefault(True)
+        
+        footer_layout.addWidget(self.dont_show_again_checkbox)
+        footer_layout.addStretch()
+        footer_layout.addWidget(later_button)
+        footer_layout.addWidget(download_button)
+        
+        main_layout.addWidget(header_widget, alignment=Qt.AlignmentFlag.AlignTop)
+        main_layout.addWidget(changelog_section_widget, 1)
+        # main_layout.addStretch()
+        main_layout.addWidget(footer_widget)
+
+    def _handle_close_modal(self):
+        # self.dontShowAgainChecked.emit(self.dont_show_again_checkbox.isChecked(), self.new_version)
+        self.reject()
+
+    def _handle_download_click(self):
+        # self.dontShowAgainChecked.emit(self.dont_show_again_checkbox.isChecked(), self.new_version)
+        try:
+            webbrowser.open(self.releases_url)
+        except Exception as error:
+            logger.error("Failed to open github releases", exc_info=error)
+            
+        self.accept()
+
+    def get_dont_show_again_state(self) -> tuple[bool, str]:
+        return self.dont_show_again_checkbox.isChecked(), self.new_version

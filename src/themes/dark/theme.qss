@@ -1154,3 +1154,149 @@ QDialog::title {
 #line {
     background-color: #4b5563;
 }
+
+/* ---- UPDATE MODAL ---- */
+
+#UpdateModal {
+    background-color: #111827;
+    border: 1px solid #4b5563;
+    border-radius: 12px;
+}
+
+#updateModalTitle {
+    font-size: 24px;
+    font-weight: bold;
+    color: #10b981;
+    padding: 15px 20px;
+}
+
+#updateModalVersionInfo {
+    font-size: 14px; 
+    color: #9ca3af;
+    text-align: center;
+}
+
+#updateModalCloseButton {
+    padding: 0px;
+    margin: 0px;
+    border: none;
+    background: transparent;
+}
+
+#updateModalChangelogHeader {
+    font-size: 16px;
+    font-weight: bold;
+    color: #d1d5db;
+}
+
+#updateModalChangelogScroll {
+    background-color: #1f2937;
+    border: 1px solid #4b5563;
+    border-radius: 8px;
+    padding: 2px;
+}
+
+#updateModalChangelogContent {
+    background-color: transparent; 
+    color: #d1d5db;
+    border: none;
+    padding: 15px; 
+    font-size: 14px; 
+    line-height: 1.5;
+}
+
+#updateModalDontShowAgainCheckbox {
+    font-size: 14px;
+    color: #9ca3af;
+    spacing: 8px;
+}
+
+#updateModalDontShowAgainCheckbox::indicator {
+    image: url(:/icons/material/dark/checkbox.svg);
+}
+
+#updateModalDontShowAgainCheckbox::indicator:checked {
+    image: url(:/icons/material/dark/checkbox_checked_fill.svg);
+}
+
+#updateModalDontShowAgainCheckbox::indicator:hover {
+    border-color: #9ca3af; /* Lighter border on hover */
+}
+
+#updateModalLaterButton {
+    background-color: #374151;
+    color: #d1d5db; 
+    border: none;
+    border-radius: 6px;
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: 600;
+    min-width: 100px;
+}
+
+#updateModalLaterButton:hover {
+    background-color: #4b5563; 
+}
+
+#updateModalLaterButton:pressed {
+    background-color: #6b7280;
+}
+
+#updateModalDownloadButton {
+    background-color: #059669;
+    color: #ffffff;
+    border: none;
+    border-radius: 6px;
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: 600;
+    min-width: 140px;
+}
+
+#updateModalDownloadButton:hover {
+    background-color: #047857;
+}
+
+#updateModalDownloadButton:pressed {
+    background-color: #065f46;
+}
+
+#updateModalChangelogScroll QScrollBar:vertical {
+    border: none;
+    background-color: #1f2937; 
+    width: 14px; 
+    margin: 15px 0 15px 0; 
+    border-radius: 0px;
+}
+
+#updateModalChangelogScroll QScrollBar::handle:vertical {
+    background-color: #4b5563; 
+    min-height: 30px;
+    border-radius: 7px;
+}
+
+#updateModalChangelogScroll QScrollBar::handle:vertical:hover {
+    background-color: #6b7280; 
+}
+
+#updateModalChangelogScroll QScrollBar::handle:vertical:pressed {
+    background-color: #9ca3af;
+}
+
+#updateModalChangelogScroll QScrollBar::add-line:vertical,
+#updateModalChangelogScroll QScrollBar::sub-line:vertical {
+    border: none;
+    background: none;
+    height: 15px;
+    subcontrol-origin: margin;
+}
+
+#updateModalChangelogScroll QScrollBar::up-arrow:vertical,
+#updateModalChangelogScroll QScrollBar::down-arrow:vertical {
+    background: none;
+}
+
+#updateModalChangelogScroll QScrollBar::add-page:vertical,
+#updateModalChangelogScroll QScrollBar::sub-page:vertical {
+    background: none;
+}
