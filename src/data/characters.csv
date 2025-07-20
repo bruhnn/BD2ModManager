@@ -10,7 +10,7 @@ id,character,costume,is_collab
 000203,Justia,Blood Glutton,false
 000204,Justia,Kendo Club,false
 000206,Justia,Pool Party,false
-000296,Justia,Hot Summer Dream,true
+000296,Justia,Hot Summer Dream,false
 000301,Scheherazade,The Lapis Witch,false
 000303,Scheherazade,The Magic School Professor,false
 000304,Scheherazade,Code Name S,false
@@ -153,3 +153,4 @@ id,character,costume,is_collab
 103701,Arines,Priest of Vitality,false
 003601,Olivier,White Witch,false
 003603,Olivier,Fallen Wings,false
+003602,Kelian,Apostle,false
