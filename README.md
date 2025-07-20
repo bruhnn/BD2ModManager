@@ -22,7 +22,7 @@ If you have suggestions or run into any problems with the app, feel free to open
   - ✨ Added option to download missing skeleton files from the mod folder (requested by [@CalbeeDaLock](https://github.com/CalbeeDaLock))
 - 🐛 Fixed Spine animations not working because of Korean characters in atlas (reported by [@Love-156](https://github.com/Love-156))
 - :sparkles: BD2ModPreview now automatically updates when a new version is available
-- :sparkles: Replaced the app update notification with a modal window that includes the changelog
+- ✨ App update notifications now appear in a pop-up
 - 🐞 Collaboration characters now display as **"Unavailable"** on the characters page (requested by [@CalbeeDaLock](https://github.com/CalbeeDaLock))
 
 ## ✨ Features
