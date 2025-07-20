@@ -26,7 +26,7 @@ class ConfigModel(QObject):
         "notify_on_app_update": True,
         "auto_download_game_data": True,
         "auto_update_mod_preview": True,
-        "manifest_url": "https://raw.githubusercontent.com/bruhnn/BD2ModManager/refs/heads/main/src/manifest.json",
+        "manifest_url": "https://raw.githubusercontent.com/bruhnn/BD2ModManager/refs/heads/main/src/manifest_v2.json",
         "releases_url": "https://api.github.com/repos/bruhnn/BD2ModManager/releases",
         "ignored_version": None
     }
