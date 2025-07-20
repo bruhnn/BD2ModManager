@@ -4,11 +4,9 @@ version = "3.0.0-dev"
 requires-python = ">=3.13"
 dependencies = [
     "packaging>=25.0",
-    "pefile>=2024.8.26",
     "pillow>=11.2.1",
     "py7zr>=1.0.0",
-    "pyinstaller>=6.10.0",
-    "pyqt6>=6.9.1",
+    "pyinstaller>=6.14.2",
     "pyside6>=6.9.1",
     "requests>=2.32.4",
 ]
