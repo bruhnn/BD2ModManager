@@ -131,32 +131,6 @@ class Application:
                     )
                     sys.exit(1)
 
-
-        tools = (
-            (app_paths.tools_path / "BD2ModPreview.exe", app_paths.user_tools_path / "BD2ModPreview.exe"),
-        )
-
-        for tool_src, user_tool_dst in tools:
-            logger.debug(f"Checking for tool: {user_tool_dst}")
-
-            try:
-                if not user_tool_dst.exists():
-                    if tool_src.exists():
-                        logger.info(
-                            "User tool not found. Copying from '%s' to '%s'",
-                            tool_src, user_tool_dst
-                        )
-                        shutil.copy2(tool_src, user_tool_dst)
-                    else:
-                        raise FileNotFoundError(
-                            f"Default tool not found at {tool_src}")
-            except (IOError, OSError, FileNotFoundError) as e:
-                logger.critical(
-                    "Could not initialize tool: %s. Error: %s",
-                    user_tool_dst, e,
-                    exc_info=True,
-                )
-
     def _create_ui(self) -> None:
         logger.info("Creating user interface...")
         self.main_view = MainView()
