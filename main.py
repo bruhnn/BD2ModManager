@@ -1,6 +1,4 @@
-import json
 
-from packaging import version
 from src.version import __version__
 from src.views import MainView
 from src.controllers import MainController
@@ -10,7 +8,6 @@ from argparse import ArgumentParser
 import logging
 import time
 import sys
-import shutil
 
 from PySide6.QtWidgets import QApplication, QMessageBox, QSplashScreen
 from PySide6.QtGui import QIcon, QFontDatabase, QPixmap
@@ -86,129 +83,15 @@ class Application:
 
 
     def _init_appdata(self) -> None:
+        from src.services.data_manager import DataManager
+        
         logger.info("Initializing application data...")
 
-        # Copy manifest.json
-        default_manifest = app_paths.default_manifest_v2_json
-        user_manifest = app_paths.manifest_v2_json
+        data_manager = DataManager()
         
-        overwrite_data = False
-
-        if not user_manifest.exists():
-            logger.info(f"User manifest not found, copying default to {user_manifest}")
-            
-            overwrite_data = True
-            
-            try:
-                user_manifest.parent.mkdir(parents=True, exist_ok=True)
-                shutil.copy2(default_manifest, user_manifest)
-            except (IOError, OSError) as e:
-                logger.critical(
-                    f"Failed to copy default manifest: {e}", exc_info=True)
-                QMessageBox.critical(
-                    None,
-                    "Fatal Initialization Error",
-                    f"Error details: {e}\n\n"
-                    "Please check folder permissions or try running as administrator. The application will now exit."
-                )
-                sys.exit(1)
-        
-        bundled_manifest_data = {}
-        user_manifest_data = {}
-        
-        try:
-            with default_manifest.open("r", encoding="UTF-8") as bd:
-                bundled_manifest_data = json.load(bd)
-        except Exception as error:
-            logger.critical("An error occurred when loading bundled manifest.", exc_info=error)
-            QMessageBox.critical(
-                None,
-                "Fatal Initialization Error",
-                f"Error details: {error}\n\n"
-                "Please check folder permissions or try running as administrator. The application will now exit."
-            )
+        if not data_manager.initialize_app_data():
+            # Show to the user data data initialize failed and so the update will not work
             sys.exit(1)
-        
-        try:
-            user_manifest_data = json.loads(user_manifest.read_text("UTF-8"))
-        except Exception as error:
-            user_manifest_data = bundled_manifest_data.copy()
-            
-            try:
-                with user_manifest.open("w", encoding="UTF-8") as f:
-                    json.dump(bundled_manifest_data, f, indent=4)
-            except Exception:
-                pass
-            
-            overwrite_data = True
-            logger.warning("User manifest corrupted, using bundled manifest as fallback.", exc_info=error)
-
-        # check manifest version
-        
-        data_files = (
-            (app_paths.default_characters_csv, app_paths.characters_csv),
-            (app_paths.default_authors_csv, app_paths.authors_csv),
-            (app_paths.default_datings_csv, app_paths.datings_csv),
-            (app_paths.default_npcs_csv, app_paths.npcs_csv)
-        )
-        
-        for default_file, user_file in data_files:
-            if not user_file.exists() or overwrite_data:
-                try:
-                    logger.info(f"User data '{default_file.name}' not found. Copying default.")
-                    shutil.copy2(default_file, user_file)
-                except (IOError, OSError) as error:
-                    logger.critical(f"Could not initialize {default_file.name}. Error: {error}", exc_info=True)
-                    QMessageBox.critical(
-                        None,
-                        "Fatal Error",
-                        f"A critical error occurred while initializing application data.\n\n"
-                        f"File: {default_file.name}\n"
-                        f"Error: {error}\n\n"
-                        "The application will now exit."
-                    )
-                    sys.exit(1)
-            
-            user_version_str = user_manifest_data.get("data", {}).get(default_file.name, {}).get("version", "0.0.0")
-            bundled_version_str = bundled_manifest_data.get("data", {}).get(default_file.name, {}).get("version", "0.0.0")
-            
-            user_version = version.parse(user_version_str)
-            bundled_version = version.parse(bundled_version_str)
-            
-            if user_version < bundled_version:
-                try:
-                    logger.info(f"User data '{default_file.name}' is outdated (v{user_version}). Updating with bundled data (v{bundled_version}).")
-                    shutil.copy2(default_file, user_file)
-                except (IOError, OSError) as error:
-                    logger.critical(f"Could not update {default_file.name}. Error: {error}", exc_info=True)
-                    QMessageBox.critical(
-                        None,
-                        "Fatal Error",
-                        f"File: {default_file.name}\n"
-                        f"Error: {error}\n\n"
-                        "The application will now exit."
-                    )
-                    sys.exit(1)
-                
-                if "data" not in user_manifest_data:
-                    user_manifest_data["data"] = {}
-                if default_file.name not in user_manifest_data["data"]:
-                    user_manifest_data["data"][default_file.name] = {}
-                user_manifest_data["data"][default_file.name]["version"] = str(bundled_version)
-        
-        if user_manifest_data:
-            try:
-                with user_manifest.open("w", encoding="UTF-8") as f:
-                    json.dump(user_manifest_data, f, indent=4)
-            except Exception as error:
-                logger.critical(f"An error occurred when writing to user manifest. Error: {error}", exc_info=True)
-                QMessageBox.critical(
-                    None,
-                    "Fatal Error",
-                    f"Error: {error}\n\n"
-                    "The application will now exit."
-                )
-                sys.exit(1)
 
     def _create_ui(self) -> None:
         logger.info("Creating user interface...")
