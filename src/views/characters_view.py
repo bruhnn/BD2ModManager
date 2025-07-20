@@ -260,6 +260,8 @@ class CostumeTreeDelegate(QStyledItemDelegate):
 
             if "dating" in costume and costume.get("dating") is not None:
                 statuses_to_draw.append((self.tr("Dating"), costume.get("dating")))
+            
+            
 
             font_status_title = QFont()
             font_status_title.setPointSize(10)
@@ -278,6 +280,7 @@ class CostumeTreeDelegate(QStyledItemDelegate):
                 status_text = self.tr(
                     "Not Installed"
                 )
+                
                 title_width = metrics_title.horizontalAdvance(title)
                 status_width = metrics_status.horizontalAdvance(status_text)
                 column_width = max(title_width, status_width)
@@ -294,6 +297,9 @@ class CostumeTreeDelegate(QStyledItemDelegate):
                 column_width = column_widths[i]
 
                 column_center_x = current_x + (column_width / 2)
+                
+                if costume['character'].is_collab:
+                    is_installed = None
 
                 self.draw_status(
                     painter,
@@ -327,8 +333,10 @@ class CostumeTreeDelegate(QStyledItemDelegate):
         metrics_status = QFontMetrics(font_status)
 
         status_text = self.tr("Installed") if is_installed else self.tr("Not Installed")
+        
         if is_installed is None:
-            status_text = "Not Available"
+            status_text = "Unavailable"
+            
         title_width = metrics_title.horizontalAdvance(title)
         status_text_width = metrics_status.horizontalAdvance(status_text)
 

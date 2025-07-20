@@ -27,7 +27,6 @@ class BD2GameData:
         self._load_characters()
         self._load_datings()
         self._load_npcs()
-        # self._load_scenes()
 
     def _load_characters(self) -> None:
         """Load characters from the CSV file."""
@@ -43,6 +42,7 @@ class BD2GameData:
                     "id": row["id"],
                     "character": row["character"],
                     "costume": row["costume"],
+                    "is_collab": row["is_collab"].lower() == "true" if row.get("is_collab") else False
                 }
                 for row in reader
             }
@@ -95,7 +95,7 @@ class BD2GameData:
         """
         return [
             Character(
-                id=char["id"], character=char["character"], costume=char["costume"]
+                id=char["id"], character=char["character"], costume=char["costume"], is_collab=char["is_collab"]
             )
             for char in self._characters.values()
         ]
@@ -117,7 +117,7 @@ class BD2GameData:
             return
 
         return Character(
-            id=char["id"], character=char["character"], costume=char["costume"]
+            id=char["id"], character=char["character"], costume=char["costume"], is_collab=char["is_collab"]
         )
 
     def get_character_by_dating_id(self, dating_id: str) -> Optional[Character]:
