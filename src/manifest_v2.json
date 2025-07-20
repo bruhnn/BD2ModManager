@@ -7,7 +7,7 @@
             "url": "https://raw.githubusercontent.com/bruhnn/BD2ModManager/refs/heads/feature/manifest-version-based/src/data/authors.csv"
         },
         "characters.csv": {
-            "version": "0.2.0",
+            "version": "1.1.0",
             "hash": "161f4e28468322f4f95ac42df96cae3f1a80385bb00c2f9605615250e3e42283",
             "url": "https://raw.githubusercontent.com/bruhnn/BD2ModManager/refs/heads/feature/manifest-version-based/src/data/characters.csv"
         },
