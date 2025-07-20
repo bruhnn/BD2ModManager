@@ -14,24 +14,31 @@
 If you have suggestions or run into any problems with the app, feel free to open an issue or contact me.
 
 ---
-## 🔥 What's New in v3.0.0
+## What's New in v3.2.0
 
-- New UI design (still a WIP, expect changes).
-- Mod Profiles to quickly switch between different setups.
-- Preview mods spine ani   mations.
-- Filter mods by status directly on the characters page.
-- Finds your game installation automatically.
-- New characters are added automatically, no more manual updates.
-- Language support (auto-translated, so might not be perfect).
+- **Updated BD2ModPreview to v0.3.0** [See Screenshot](#mod-preview-bd2modpreview-v030)
+  - ✨ Load original character Spine animations directly from GitHub assets
+  - ✨ Added Spine folder history feature
+  - ✨ Added option to download missing skeleton files from the mod folder (requested by [@CalbeeDaLock](https://github.com/CalbeeDaLock))
+- 🐛 Fixed Spine animations not working for Korean characters (reported by [@Love-156](https://github.com/Love-156))
+- :sparkles: BD2ModPreview now automatically updates when a new version is available
+- :sparkles: Replaced the app update notification with a modal window that includes the changelog
+- 🐞 Collaboration characters now display as **"Unavailable"** on the characters page (requested by [@CalbeeDaLock](https://github.com/CalbeeDaLock))
 
 ## ✨ Features
 
-- Search mods by name, character, author, or type
-- One-click install (symlink or copy)
-- Drag-and-drop to install new mods
-- Enable/disable mods with a single click
-- Easily view which characters have each mod type enabled on the characters page
-- Edit `.modfile` JSON data directly inside the app
+- **Mod Profiles:** Create and manage different mod setups and switch between them.
+- **Mod Previews:** Double-click any mod to preview its Spine animations directly within the app.
+- **Automatic Game Detection:** The manager automatically finds your Brown Dust 2 installation.
+- **Automatic Content Updates:** New characters and assets are added automatically, eliminating manual updates.
+- **Multi-Language Support:** Available in Portuguese (pt-BR), Japanese (ja-JP), and Korean (ko-KR) (auto-translated, so might not be perfect).
+- Search mods by name, character, author, or type.
+- Filter mods by status directly on the characters page.
+- One-click install (symlink or copy).
+- Drag-and-drop to install new mods.
+- Enable/disable mods with a single click.
+- Easily view which characters have each mod type enabled on the characters page.
+- Edit `.modfile` JSON data directly inside the app.
 
 ---
 
@@ -86,6 +93,8 @@ Creates shortcuts instead of copying files.
 ### Characters Page (v3.1.0)
 ![Characters Page](./screenshots/characters_page_v31.png)
 
+### Mod Preview (BD2ModPreview v0.3.0)
+![Mod Preview](./screenshots/bd2modpreview.png) ---
 ---
 
 ---
