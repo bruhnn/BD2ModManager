@@ -104,7 +104,7 @@ class Character:
 
     @classmethod
     def from_dict(cls, data: dict):
-        return cls(id=data["id"], character=data["character"], costume=data["costume"], is_collab=data["is_collab"])
+        return cls(id=data["id"], character=data["character"], costume=data["costume"], is_collab=data.get("is_collab", False))
 
     def full_name(self, separator: Optional[str] = None) -> str:
         return (

@@ -116,9 +116,7 @@ class BD2GameData:
         if not char:
             return
 
-        return Character(
-            id=char["id"], character=char["character"], costume=char["costume"], is_collab=char["is_collab"]
-        )
+        return Character.from_dict(char)
 
     def get_character_by_dating_id(self, dating_id: str) -> Optional[Character]:
         """
@@ -135,9 +133,7 @@ class BD2GameData:
         if not char:
             return
 
-        return Character(
-            id=char["id"], character=char["character"], costume=char["costume"]
-        )
+        return Character.from_dict(char)
 
     def get_scene_by_id(self, scene_id: str) -> Scene:
         return Scene("", "")
