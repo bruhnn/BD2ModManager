@@ -1,9 +1,13 @@
+import logging
 import subprocess
 
 from src.utils.paths import app_paths
 
 from PySide6.QtCore import QObject, Signal
 
+
+logger = logging.getLogger(__name__)
+logger.addHandler(logging.NullHandler())
 
 # this is the best way to handle spine animations
 # python does not have a spine runtime 
@@ -33,8 +37,8 @@ class BD2ModPreview(QObject):
             )
             version = result.stdout.strip()
             return version if version else None
-        except (subprocess.SubprocessError, FileNotFoundError, OSError) as e:
-            print(f"Error checking mod preview version: {e}")
+        except Exception as error:
+            logger.warning(f"Error checking Mod Preview version", exc_info=error)
             return None
     
     def launch_preview(self, path: str) -> None:
@@ -43,5 +47,6 @@ class BD2ModPreview(QObject):
         
         try:
             subprocess.Popen([self._tool_path.as_posix(), path])
-        except Exception as e:
-            self.errorOccurred.emit(f"An error occurred while launching BD2ModPreview: {e}")
+        except Exception as error:
+            logger.error(f"An error occurred while launching BD2ModPreview", exc_info=error)
+            self.errorOccurred.emit(f"An error occurred while launching BD2ModPreview: {error}")
