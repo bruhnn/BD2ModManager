@@ -27,7 +27,7 @@ from src.utils.errors import (
     ModInvalidError,
     UnsupportedArchiveFormatError,
 )
-from src.services.BD2_game_data import BD2GameData
+from src.services.game_data import BD2GameData
 from src.utils.files import (
     are_folders_identical,
     cleanup_empty_parent_dirs,

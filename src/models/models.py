@@ -100,10 +100,11 @@ class Character:
     id: str
     character: str
     costume: str
+    is_collab: bool
 
     @classmethod
     def from_dict(cls, data: dict):
-        return cls(id=data["id"], character=data["character"], costume=data["costume"])
+        return cls(id=data["id"], character=data["character"], costume=data["costume"], is_collab=data["is_collab"])
 
     def full_name(self, separator: Optional[str] = None) -> str:
         return (
