@@ -3,9 +3,7 @@ from src.views import MainView
 from src.controllers import MainController
 from src.utils.logger import setup_logging
 from src.utils.paths import app_paths
-from src.utils.files import get_file_hash
 from argparse import ArgumentParser
-import json
 import logging
 import time
 import sys
@@ -108,7 +106,6 @@ class Application:
                 )
                 sys.exit(1)
         
-        
         data_files = (
             (app_paths.default_characters_csv, app_paths.characters_csv),
             (app_paths.default_authors_csv, app_paths.authors_csv),
@@ -134,95 +131,6 @@ class Application:
                     )
                     sys.exit(1)
 
-        # manifest_data = {}
-        # try:
-        #     with user_manifest.open("r", encoding="UTF-8") as f:
-        #         manifest_data = json.load(f)
-        # except json.JSONDecodeError as e:
-        #     logger.error(
-        #         f"Failed to parse manifest.json: {e}. It might be corrupted.", exc_info=True)
-        # except Exception as e:
-        #     logger.error(f"Failed to read manifest.json: {e}", exc_info=True)
-        #     sys.exit(1)
-
-        # data_files = [
-        #     {
-        #         "key": "characters",
-        #         "default": app_paths.default_characters_csv,
-        #         "user": app_paths.characters_csv,
-        #         "overwrite": False
-        #     },
-        #     {
-        #         "key": "datings",
-        #         "default": app_paths.default_datings_csv,
-        #         "user": app_paths.datings_csv,
-        #         "overwrite": False
-        #     },
-        #     {
-        #         "key": "npcs",
-        #         "default": app_paths.default_npcs_csv,
-        #         "user": app_paths.npcs_csv,
-        #         "overwrite": False,
-        #     },
-        #     {
-        #         "key": "authors",
-        #         "default": app_paths.default_authors_csv,
-        #         "user": app_paths.authors_csv,
-        #         "overwrite": False
-        #     },
-        # ]
-
-        # for item in data_files:
-        #     if item["user"].exists():
-        #         user_hash = get_file_hash(item["user"])
-        #         manifest_hash = manifest_data.get(
-        #             "data", {}).get(item["key"], {}).get("hash")
-        #         if user_hash != manifest_hash:
-        #             logger.warning(
-        #                 f"Hash mismatch for {item['user'].name}. Flagging for overwrite.")
-        #             item["overwrite"] = True
-        #     else:
-        #         item["overwrite"] = False
-
-        # manifest_updated = False
-        # for item in data_files:
-        #     should_copy = not item["user"].exists() or item["overwrite"]
-        #     if should_copy:
-        #         try:
-        #             if item["overwrite"]:
-        #                 logger.info(
-        #                     f"Overwriting {item['user'].name} due to hash mismatch or update.")
-        #             else:
-        #                 logger.info(
-        #                     f"User data '{item['user'].name}' not found. Copying default.")
-
-        #             shutil.copy2(item["default"], item["user"])
-
-        #             new_hash = get_file_hash(item["user"])
-        #             manifest_data.setdefault("data", {}).setdefault(
-        #                 item["key"], {})["hash"] = new_hash
-        #             manifest_updated = True
-
-        #         except (IOError, OSError) as error:
-        #             logger.critical(
-        #                 f"Could not initialize {item['user'].name}. Error: {error}", exc_info=True)
-        #             QMessageBox.critical(
-        #                 None,
-        #                 "Fatal Error",
-        #                 f"A critical error occurred while initializing application data.\n\n"
-        #                 f"File: {item['user'].name}\n"
-        #                 f"Error: {error}\n\n"
-        #                 "The application will now exit."
-        #             )
-        #             sys.exit(1)
-
-        # if manifest_updated:
-        #     logger.info("Updating manifest.json with new file hashes.")
-        #     try:
-        #         with user_manifest.open("w", encoding="UTF-8") as f:
-        #             json.dump(manifest_data, f, indent=4)
-        #     except (IOError, OSError) as e:
-        #         logger.error(f"Could not write updated manifest file: {e}", exc_info=True)
 
         tools = (
             (app_paths.tools_path / "BD2ModPreview.exe", app_paths.user_tools_path / "BD2ModPreview.exe"),
