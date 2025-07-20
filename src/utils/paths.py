@@ -180,5 +180,14 @@ class ApplicationPaths:
         """Path to the user's manifest.json file."""
         return self.user_data_path / "manifest.json"
 
+    @property
+    def default_manifest_v2_json(self) -> Path:
+        return self.source_path / "manifest_v2.json"
+
+    @property
+    def manifest_v2_json(self) -> Path:
+        """Path to the user's manifest.json file."""
+        return self.user_data_path / "manifest_v2.json"
+
 
 app_paths = ApplicationPaths()

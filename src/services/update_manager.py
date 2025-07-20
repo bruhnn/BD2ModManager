@@ -18,7 +18,7 @@ from src.version import __version__
 logger = logging.getLogger(__name__)
 
 class UpdateManager(QObject):
-    appUpdateAvailable = Signal(str)
+    appUpdateAvailable = Signal(str, str, str)
 
     # Signals for data files
     dataUpdateAvailable = Signal(str)  # key of the data file
@@ -59,24 +59,25 @@ class UpdateManager(QObject):
 
     def _load_local_manifest(self) -> Dict[str, Any]:
         """Loads the local manifest file. If it doesn't exist or is corrupted, returns a default manifest."""
-        default_manifest = {"data": {}, "character_assets": {}}
+        default_manifest = {"data": {}, "assets": {}}
 
-        if not app_paths.manifest_json.exists():
+        if not app_paths.manifest_v2_json.exists():
             logger.warning(
                 "Local manifest not found at %s. A new one will be created.",
-                app_paths.manifest_json,
+                app_paths.manifest_v2_json,
             )
             return default_manifest
 
-        logger.debug("Loading local manifest from %s", app_paths.manifest_json)
+        logger.debug("Loading local manifest from %s", app_paths.manifest_v2_json)
+        
         try:
-            with open(app_paths.manifest_json, "r", encoding="utf-8") as f:
+            with open(app_paths.manifest_v2_json, "r", encoding="utf-8") as f:
                 data = json.load(f)
 
-            if "data" not in data or "character_assets" not in data:
+            if "data" not in data or "assets" not in data:
                 logger.error(
                     "Local manifest at %s is corrupted. A new one will be created.",
-                    app_paths.manifest_json,
+                    app_paths.manifest_v2_json,
                 )
                 self.errorOccurred.emit(
                     "Local manifest is corrupted. A new one will be created."
@@ -94,21 +95,21 @@ class UpdateManager(QObject):
         """Saves the local manifest to a file atomically."""
         temp_path = None
         try:
-            app_paths.manifest_json.parent.mkdir(parents=True, exist_ok=True)
+            app_paths.manifest_v2_json.parent.mkdir(parents=True, exist_ok=True)
 
-            logger.info("Saving local manifest to %s", app_paths.manifest_json)
+            logger.info("Saving local manifest to %s", app_paths.manifest_v2_json)
 
             with tempfile.NamedTemporaryFile(
                 "w",
                 encoding="utf-8",
                 delete=False,
-                dir=app_paths.manifest_json.parent,
+                dir=app_paths.manifest_v2_json.parent,
                 suffix=".tmp",
             ) as f:
                 json.dump(self._local_manifest_data, f, indent=4)
                 temp_path = Path(f.name)
 
-            shutil.move(temp_path, app_paths.manifest_json)
+            shutil.move(temp_path, app_paths.manifest_v2_json)
             logger.info("Local manifest saved successfully.")
         except (IOError, json.JSONDecodeError) as e:
             logger.error("Could not save local manifest: %s", e)
@@ -126,89 +127,6 @@ class UpdateManager(QObject):
         request = QNetworkRequest(QUrl(self._releases_url))
         reply = self._network_manager.get(request)
         reply.finished.connect(self._on_app_version_received)
-
-    # def check_bd2modpreview_updates(self) -> None:
-    #     """Checks for BD2ModPreview new version"""
-    #     logger.info("Checking for a new version of BD2ModPreview from %s", self._bd2modpreview_releases_url)
-    #     request = QNetworkRequest(QUrl(self._bd2modpreview_releases_url))
-    #     reply = self._network_manager.get(request)
-    #     reply.finished.connect(self._on_bd2modpreview_version_received)
-    
-    # def _on_bd2modpreview_version_received(self):
-    #     reply: QNetworkReply = self.sender()
-        
-    #     if reply.error() != QNetworkReply.NetworkError.NoError:
-    #         logger.error("BD2ModPreview version check failed: %s", reply.errorString())
-    #         self.errorOccurred.emit(f"BD2ModPreview version check failed: {reply.errorString()}")
-    #         return
-
-    #     bd2mod_preview = app_paths.user_tools_path / "BD2ModPreview.exe"
-        
-    #     current_version = get_bd2modpreview_version(bd2mod_preview)
-
-    #     try:
-    #         data = json.loads(reply.readAll().data())
-            
-    #         if data and isinstance(data, list) and "tag_name" in data[0]:
-    #             latest_version = data[0]["tag_name"].lstrip("v")
-    #             logger.info(
-    #                 "BD2ModPreview: Current version: %s, Latest version: %s",
-    #                 current_version,
-    #                 latest_version,
-    #             )
-    #             if current_version is None or version.parse(current_version) < version.parse(latest_version):
-    #                 logger.info(
-    #                     "New BD2ModPreview version available: %s", latest_version
-    #                 )
-    #                 url = data[0]["assets"][0]["browser_download_url"]
-    #                 self._download_bd2modpreview(url)
-                        
-    #     except (json.JSONDecodeError, IndexError, KeyError) as e:
-    #         logger.error("Failed to parse app version data: %s", e)
-    #         self.errorOccurred.emit(f"Failed to parse app version data: {e}")
-            
-    #     reply.deleteLater()
-    
-    # def _download_bd2modpreview(self, url: str):
-    #     request = QNetworkRequest(QUrl(url))
-    #     reply = self._network_manager.get(request)
-    #     reply.finished.connect(self._on_bd2modpreview_downloaded)
-    
-    # def _on_bd2modpreview_downloaded(self):
-    #     reply: QNetworkReply = self.sender()
-        
-    #     if reply.error() != QNetworkReply.NetworkError.NoError:
-    #         logger.error("Failed to download BD2ModPreview.exe: %s", reply.errorString())
-    #         self.errorOccurred.emit(f"Failed to download BD2ModPreview: {reply.errorString()}")
-    #         return
-        
-    #     try:
-    #         data = reply.readAll()
-            
-    #         # Ensure directory exists
-    #         app_paths.user_tools_path.mkdir(parents=True, exist_ok=True)
-            
-    #         with tempfile.NamedTemporaryFile(
-    #             mode="wb",
-    #             dir=app_paths.user_cache_path,
-    #             delete=False,
-    #             suffix=".exe"
-    #         ) as temp_file:
-    #             temp_file.write(data.data())
-    #             temp_path = Path(temp_file.name)
-            
-    #         # Atomic move to final location
-    #         final_path = app_paths.user_tools_path / "BD2ModPreview.exe"
-    #         shutil.move(temp_path, final_path)
-            
-    #         logger.info("BD2ModPreview.exe updated successfully")
-    #         self.toolUpdated.emit("BD2ModPreview")
-            
-    #     except Exception as error:
-    #         logger.error("Error updating BD2ModPreview: %s", error)
-    #         self.errorOccurred.emit(f"Error updating BD2ModPreview: {error}")
-    #     finally:
-    #         reply.deleteLater()
         
     @Slot()
     def _on_app_version_received(self) -> None:
@@ -219,26 +137,35 @@ class UpdateManager(QObject):
         else:
             try:
                 data = json.loads(reply.readAll().data())
+                
                 # finds the latest version that is not pre-release
                 if data and isinstance(data, list):
-                    latest_version = None
+                    latest_release = None
                     for release in data:
                         if not release["prerelease"]:
-                            latest_version = release["tag_name"].lstrip("v")
+                            latest_release = release
+                            break
                      
-                    if not latest_version:
-                        return logger.critical("Latest version not found.")
-                        
+                    if not latest_release:
+                        return logger.critical("Latest release not found.")
+                    
+                    print(latest_release)
+                    
+                    latest_version = latest_release["tag_name"].lstrip("v")
+                    
                     logger.info(
                         "Current version: %s, Latest version: %s",
                         __version__,
                         latest_version,
                     )
+                    
                     if version.parse(__version__) < version.parse(latest_version):
+                        body = latest_release["body"]
+                        url = latest_release["html_url"]
                         logger.info(
                             "New application version available: %s", latest_version
                         )
-                        self.appUpdateAvailable.emit(latest_version)
+                        self.appUpdateAvailable.emit(latest_version, body, url)
             except (json.JSONDecodeError, IndexError, KeyError) as e:
                 logger.error("Failed to parse app version data: %s", e)
                 self.errorOccurred.emit(f"Failed to parse app version data: {e}")
@@ -300,25 +227,54 @@ class UpdateManager(QObject):
 
         for key, remote_info in remote_data.items():
             local_info = local_data_manifest.get(key, {})
-            if local_info.get("hash") != remote_info.get("hash"):
+            
+            local_version = version.parse(local_info.get("version"))
+            remote_version = version.parse(remote_info.get("version"))
+            
+            logger.debug("Manifest [%s] => Local %s, Remote %s", key, local_version, remote_version)
+            
+            if local_version < remote_version:
                 logger.info("Update available for data file: '%s'", key)
                 self.dataUpdateAvailable.emit(key)
                 self._download_file(key, remote_info, self._on_download_data_finished)
 
     def _compare_character_assets(self) -> None:
-        remote_assets = self._remote_manifest_data.get("character_assets", {})
-        for char_id, asset_info in remote_assets.items():
+        remote_assets = self._remote_manifest_data.get("assets", {})
+        local_assets = self._local_manifest_data.get("assets", {})
+        
+        # check if we need to update the assets manifest
+        remote_version = version.parse(remote_assets.get("version", "0.0.0"))
+        local_version = version.parse(local_assets.get("version", "0.0.0"))
+        
+        if remote_version > local_version:
+            logger.info(f"Assets manifest updated from {local_version} to {remote_version}")
+            
+            remote_characters = remote_assets.get("characters", {})
+            local_characters = local_assets.get("characters", {})
+            
+            removed_from_tracking = set(local_characters.keys()) - set(remote_characters.keys())
+            if removed_from_tracking:
+                logger.info(f"Removing {len(removed_from_tracking)} assets from manifest tracking: {removed_from_tracking}")
+                logger.info("Note: Asset files remain in user directory, just no longer managed")
+            
+            self._local_manifest_data["assets"] = remote_assets.copy()
+
+        remote_characters = remote_assets.get("characters", {})
+        for char_id, asset_info in remote_characters.items():
             local_asset_path = app_paths.user_characters_assets / f"{char_id}.png"
 
             if not local_asset_path.exists():
                 logger.info("New asset available for character '%s'", char_id)
+                
                 self.assetUpdateAvailable.emit(char_id)
+                
                 self._download_file(
                     char_id,
                     asset_info,
                     self._on_download_char_asset_finished,
                     is_asset=True,
                 )
+                
             else:
                 local_asset_hash = get_file_hash(local_asset_path)
                 if local_asset_hash != asset_info.get("hash"):
@@ -369,13 +325,13 @@ class UpdateManager(QObject):
             data = reply.readAll().data()
             logger.info("Download for data '%s' completed successfully.", key)
 
-            
             # file != content
-            # expected_hash = self._remote_manifest_data.get("data", {}).get(key, {}).get("hash")
-            # if expected_hash and hashlib.sha256(data).hexdigest() != expected_hash:
-            #     logger.error("Hash mismatch for '%s'. Download may be corrupted.", key)
-            #     self.errorOccurred.emit(f"Hash mismatch for '{key}'. Download may be corrupted.")
-            #     return
+            expected_hash = self._remote_manifest_data.get("data", {}).get(key, {}).get("hash")
+            if expected_hash and hashlib.sha256(data).hexdigest() != expected_hash:
+                print(data)
+                logger.error("Hash mismatch for '%s'. Download may be corrupted.", key)
+                self.errorOccurred.emit(f"Hash mismatch for '{key}'. Download may be corrupted.")
+                return
 
             destination_path = self._get_destination_path(key)
             if not destination_path:
@@ -412,7 +368,8 @@ class UpdateManager(QObject):
             logger.info("Download for asset ID '%s' completed successfully.", char_id)
 
             expected_hash = (
-                self._remote_manifest_data.get("character_assets", {})
+                self._remote_manifest_data.get("assets", {})
+                .get("characters", {})
                 .get(char_id, {})
                 .get("hash")
             )
@@ -428,8 +385,13 @@ class UpdateManager(QObject):
             destination_path = app_paths.user_characters_assets / f"{char_id}.png"
             self._save_downloaded_file(data, destination_path)
 
-            self._local_manifest_data["character_assets"][char_id] = (
-                self._remote_manifest_data["character_assets"][char_id]
+            if "assets" not in self._local_manifest_data:
+                self._local_manifest_data["assets"] = {"version": "0.0.0", "characters": {}}
+            if "characters" not in self._local_manifest_data["assets"]:
+                self._local_manifest_data["assets"]["characters"] = {}
+                
+            self._local_manifest_data["assets"]["characters"][char_id] = (
+                self._remote_manifest_data["assets"]["characters"][char_id]
             )
             self.assetUpdated.emit(char_id)
         finally:
@@ -438,10 +400,10 @@ class UpdateManager(QObject):
 
     def _get_destination_path(self, key: str) -> Path | None:
         path_map = {
-            "characters": app_paths.characters_csv,
-            "authors": app_paths.authors_csv,
-            "datings": app_paths.datings_csv,
-            "npcs": app_paths.npcs_csv
+            "characters.csv": app_paths.characters_csv,
+            "authors.csv": app_paths.authors_csv,
+            "datings.csv": app_paths.datings_csv,
+            "npcs.csv": app_paths.npcs_csv
         }
         destination_path = path_map.get(key)
         if not destination_path:
