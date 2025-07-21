@@ -28,13 +28,13 @@ class DataManager:
                 return False
                 
             # load or create user manifest
-            self._load_or_create_user_manifest()
+            created_user_manifest = self._load_or_create_user_manifest()
             
             # check if manifest needs updating
             manifest_needs_update = self._check_manifest_update_needed()
             
             # handle data files
-            if not self._handle_data_files(manifest_needs_update):
+            if not self._handle_data_files((manifest_needs_update or created_user_manifest)):
                 return False
                 
             # save updated manifest
@@ -64,10 +64,12 @@ class DataManager:
             return False
     
     def _load_or_create_user_manifest(self):
+        created = False
         if not app_paths.manifest_v2_json.exists():
             logger.info("Creating new user manifest from bundled version")
             
             self.user_manifest = self.bundled_manifest.copy()
+            created = True
         else:
             logger.info("Loading user manifest from User's AppData")
 
@@ -77,11 +79,15 @@ class DataManager:
             except Exception as e:
                 logger.warning(f"Failed to load user manifest: {e}, recreating")
                 self.user_manifest = self._create_default_user_manifest()
+                created = True
                     
         # Validate
         if not self._validate_user_manifest():
             logger.warning("User manifest corrupted, recreating from bundled")
             self.user_manifest = self._create_default_user_manifest()
+            created = True
+        
+        return created
                 
     def _create_default_user_manifest(self) -> Dict[str, Any]:
         return {
