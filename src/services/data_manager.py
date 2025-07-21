@@ -1,5 +1,6 @@
 import json
 import shutil
+import subprocess
 import sys
 from pathlib import Path
 from typing import Dict, Any
@@ -23,6 +24,8 @@ class DataManager:
         
     def initialize_app_data(self) -> bool:
         try:
+            self.maybe_update_preview_tool()
+            
             # load and validate bundled manifest
             if not self._load_bundled_manifest():
                 return False
@@ -226,3 +229,22 @@ class DataManager:
             "The application will now exit."
         )
         sys.exit(1)
+
+    def maybe_update_preview_tool(self):
+        user_tool = app_paths.user_tools_path / "BD2ModPreview.exe"
+        bundled_tool = app_paths.tools_path / "BD2ModPreview.exe"
+
+        def get_tool_version(path: Path) -> str | None:
+            try:
+                result = subprocess.run([str(path), "--version"], capture_output=True, text=True, timeout=3)
+                return result.stdout.strip() or None
+            except Exception:
+                return None
+
+        user_ver = get_tool_version(user_tool)
+        bundled_ver = get_tool_version(bundled_tool)
+
+        if bundled_ver and (not user_ver or version.parse(bundled_ver) > version.parse(user_ver)):
+            user_tool.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(bundled_tool, user_tool)
+            logger.info(f"Updated BD2ModPreview in user path with bundled: {user_ver or 'none'} -> {bundled_ver}")
