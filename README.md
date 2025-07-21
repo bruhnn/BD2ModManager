@@ -27,7 +27,7 @@ If you have suggestions or run into any problems with the app, feel free to open
 ## ✨ Features
 
 - **Mod Profiles:** Create and manage different mod setups and switch between them.
-- **Mod Previews:** Double-click any mod to preview its Spine animations directly within the app.
+- **Mod Previews:** Double-click any mod to preview its Spine animations.
 - **Automatic Game Detection:** The manager automatically finds your Brown Dust 2 installation.
 - **Automatic Content Updates:** New characters and assets are added automatically, eliminating manual updates.
 - **Multi-Language Support:** Available in Portuguese (pt-BR), Japanese (ja-JP), and Korean (ko-KR) (auto-translated, so might not be perfect).
