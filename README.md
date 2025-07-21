@@ -1,20 +1,19 @@
-![GitHub License](https://img.shields.io/github/license/bruhnn/BD2ModManager)
-![GitHub Release](https://img.shields.io/github/v/release/bruhnn/BD2ModManager)
-![GitHub Downloads (all assets, latest release)](https://img.shields.io/github/downloads/bruhnn/BD2ModManager/latest/total)
-![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/bruhnn/BD2ModManager/total?label=Total%20downloads)
 
 # Brown Dust 2 Mod Manager
 
----
+[![GitHub License](https://img.shields.io/github/license/bruhnn/BD2ModManager)](https://github.com/bruhnn/BD2ModManager/blob/main/LICENSE)
+[![GitHub Release](https://img.shields.io/github/v/release/bruhnn/BD2ModManager)](https://github.com/bruhnn/BD2ModManager/releases)
+[![Total Downloads](https://img.shields.io/github/downloads/bruhnn/BD2ModManager/total)](https://github.com/bruhnn/BD2ModManager/releases)
 
-**Easily manage your Brown Dust 2 mods.**
 
+> 🛠 Easily manage, preview, and sync mods for Brown Dust 2.
+> 
 > 🎉 **Download the latest version:** [GitHub Releases](https://github.com/bruhnn/BD2ModManager/releases)
 
 If you have suggestions or run into any problems with the app, feel free to open an issue or contact me.
 
 ---
-## What's New in v3.2.0
+## 🔥 What's New in v3.2.0
 
 - **Updated BD2ModPreview to v0.3.0** [See Screenshot](#mod-preview-bd2modpreview-v030)
   - ✨ Load original character Spine animations directly from GitHub assets
@@ -101,9 +100,40 @@ Creates shortcuts instead of copying files.
 
 If you're looking for alternatives, check out this manager by [kxdekxde](https://codeberg.org/kxdekxde/browndust2-mod-manager)
 
+## ❓ FAQ
 
-## Credits
+### Where can I get mods?
+You can find mods on the BrownDustX Discord server: [https://discord.gg/B3Aqz6tDG2](https://discord.gg/B3Aqz6tDG2)
+
+### Why is the `.exe` flagged as a virus?
+This is a **false positive** caused by how PyInstaller packages apps. The program does **not** contain any malware.  
+If you're unsure, you can check the [source code](https://github.com/bruhnn/BD2ModManager) and build the `.exe` yourself.
+
+### Can I use the app on Linux or macOS?
+Currently, BD2ModManager is only tested and built for **Windows**. No official builds for Linux or macOS are available yet.
+
+### What's the difference between the `.exe` and the `*-Bundled.zip` version?
+- The `.exe` is a standalone, single-file version.
+- The `.zip` is **bundled** with all required files and less likely to trigger false positives. It's recommended if you run into issues with the single `.exe`.
+
+### How can I contribute to BD2ModManager's development?
+You can contribute by:
+
+- ⭐ Starring the project on GitHub to show your support.
+- 🐛 Reporting bugs and suggesting features via [GitHub Issues](https://github.com/bruhnn/BD2ModManager/issues).
+- 👩‍💻 If you're a developer, fork the repository and submit pull requests with improvements or bug fixes.
+
+## 🤝 Credits
 
 - Character assets by [myssal/Brown-Dust-2-Asset](https://github.com/myssal/Brown-Dust-2-Asset)
 - Thanks to **Synae** for *Brown Dust X*
 
+## Star History
+
+<a href="https://www.star-history.com/#bruhnn/BD2ModManager&Date">
+ <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=bruhnn/BD2ModManager&type=Date&theme=dark" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=bruhnn/BD2ModManager&type=Date" />
+   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=bruhnn/BD2ModManager&type=Date" />
+ </picture>
+</a>
