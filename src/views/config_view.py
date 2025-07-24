@@ -1,4 +1,3 @@
-from calendar import TUESDAY
 import os
 from typing import Dict, List, Any
 import logging
@@ -108,11 +107,7 @@ class DirectoryInput(QWidget):
         path = self.input_field.text()
         if path and path != self.tr(self.placeholder) and os.path.exists(path):
             try:
-                if os.name == 'nt':  # Windows
-                    os.startfile(path)
-                elif os.name == 'posix':  # macOS and Linux
-                    os.system(f'open "{path}"' if os.uname(
-                    ).sysname == 'Darwin' else f'xdg-open "{path}"')
+                os.startfile(path)
             except Exception as e:
                 logger.error(f"Failed to open directory: {e}")
                 QMessageBox.warning(
@@ -396,6 +391,7 @@ class ConfigView(QScrollArea):
                 {"label": "Português (BR)", "value": "pt-BR", "tooltip": "Portuguese (Brazil)"},
                 {"label": "日本語", "value": "ja-JP", "tooltip": "Japanese"},
                 {"label": "한국어", "value": "ko-KR", "tooltip": "Korean"},
+                {"label": "简体中文", "value": "zh-CN", "tooltip": "Chinese (Simplified)"},
             ],
         )
 
@@ -418,13 +414,13 @@ class ConfigView(QScrollArea):
         # )
         
         self.auto_download_game_data_checkbox = ConfigCheckBox(
-            self.tr("Automatically download new game data"),
-            self.tr("Keeps content like characters, authors, and NPCs up-to-date.")
+            self.tr("Automatically download new game data on startup"),
+            self.tr("Keeps content like characters, authors (find authors), and NPCs up-to-date.")
         )
         
         self.auto_update_mod_preview_checkbox = ConfigCheckBox(
-            self.tr("Automatically update BD2ModPreview"),
-            self.tr("Automatically update the mod preview.")
+            self.tr("Automatically update BD2ModPreview on startup"),
+            self.tr("Automatically update the mod preview on startup.")
         )
 
     def _create_synchronization_section(self) -> None:
@@ -450,19 +446,17 @@ class ConfigView(QScrollArea):
         self.experimental_header = SectionHeader(
             self.tr("Experimental Features"))
 
-        self.find_authors_button = QPushButton(self.tr("Find Authors"))
+        self.find_authors_button = QPushButton(self.tr("Find Mod Authors"))
         self.find_authors_button.setCursor(Qt.CursorShape.PointingHandCursor)
         self.find_authors_button.setObjectName("modsButton")
-        self.find_authors_button.setToolTip(
-            self.tr("Automatically detect mod authors"))
+        self.find_authors_button.setToolTip(self.tr("Automatically detect mod authors"))
 
         self.migrate_to_profiles_button = QPushButton(
             self.tr("Migrate to Profiles"))
         self.migrate_to_profiles_button.setCursor(
             Qt.CursorShape.PointingHandCursor)
         self.migrate_to_profiles_button.setObjectName("modsButton")
-        self.migrate_to_profiles_button.setToolTip(
-            self.tr("Convert existing setup to profile system"))
+        self.migrate_to_profiles_button.setToolTip(self.tr("Convert existing setup to profile system"))
 
     def _layout_sections(self) -> None:
         self.main_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
@@ -543,7 +537,7 @@ class ConfigView(QScrollArea):
         self.set_search_mods_recursively(
             config.get("search_mods_recursively", False))
         self.set_language(config.get("language", "en_US"))
-        self.set_theme(config.get("theme", "System"))
+        self.set_theme(config.get("theme", "Dark"))
         self.set_sync_method(config.get("sync_method", "Copy"))
         self.set_include_mod_relative_path(
             config.get("include_mod_relative_path", False))
@@ -599,13 +593,6 @@ class ConfigView(QScrollArea):
         self.auto_update_mod_preview_checkbox.blockSignals(True)
         self.auto_update_mod_preview_checkbox.setChecked(value)
         self.auto_update_mod_preview_checkbox.blockSignals(False)
-        
-    # @Slot(bool)
-    # def set_notify_on_app_update(self, value: bool) -> None:
-    #     """Sets the state of the app update notification checkbox."""
-    #     self.notify_on_app_update_checkbox.blockSignals(True)
-    #     self.notify_on_app_update_checkbox.setChecked(value)
-    #     self.notify_on_app_update_checkbox.blockSignals(False)
 
     @Slot(bool)
     def set_auto_download_game_data(self, value: bool) -> None:
@@ -639,12 +626,12 @@ class ConfigView(QScrollArea):
             self.tr("Show full mod folder paths"))
 
         self.auto_download_game_data_checkbox.setText(
-            self.tr("Automatically download new game data"))
+            self.tr("Automatically download new game data on startup"))
         self.auto_download_game_data_checkbox.setToolTip(
             self.tr("Keeps content like characters, authors, and NPCs up-to-date."))
         
         self.auto_update_mod_preview_checkbox.setText(
-            self.tr("Automatically Update BD2ModPreview")
+            self.tr("Automatically Update BD2ModPreview on startup")
         )
 
         self.find_authors_button.setText(self.tr("Find Authors"))

@@ -40,7 +40,7 @@ class MainView(QMainWindow):
         super().__init__()
         start_time = time.perf_counter()  # Start timing
         logger.info("Initializing MainView")
-        self.setWindowTitle(f"BD2 Mod Manager - v{__version__}")
+        self.setWindowTitle(f"BD2ModManager - v{__version__}")
         self.setObjectName("mainWindow")
         self.setGeometry(600, 250, 800, 600)
 
@@ -187,8 +187,7 @@ class MainView(QMainWindow):
             time.perf_counter() - start_time
         )
 
-        logger.info(
-            f"MainView initialized successfully in {load_time:.4f} seconds")
+        logger.info(f"MainView initialized successfully in {load_time:.4f} seconds")
 
     # --- Events
     def closeEvent(self, event: QCloseEvent) -> None:
@@ -224,10 +223,9 @@ class MainView(QMainWindow):
     # --- APP Methods
 
     def retranslateUI(self) -> None:
-        self.setWindowTitle(
-            self.tr("BD2 Mod Manager - v{version}").format(version=__version__)
-        )
-
+        # self.setWindowTitle(
+        #     self.tr("BD2 Mod Manager - v{version}").format(version=__version__)
+        # )
         self.update_label.setText(
             self.tr("New version v{version} available!").format(
                 version=__version__)

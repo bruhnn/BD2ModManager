@@ -30,6 +30,11 @@ class MainController(QObject):
         view: MainView,
     ) -> None:
         super().__init__()
+        
+        # to no trigger an retranslateUI if the UI is already in english
+        self.first_time = True 
+        
+        self.translator = None
 
         self.view = view
         
@@ -461,16 +466,30 @@ class MainController(QObject):
             )
 
     def apply_language(self, language: str) -> None:
+        app = QApplication.instance()
+        
+        if not app:
+            logger.error("Application instance not found.")
+            return
+        
         language_path = (
                 app_paths.source_path
                 / "translations"
                 / (language + ".qm")
         )
         
+        if self.translator:
+            app.removeTranslator(self.translator)
+            self.translator = None
+        
         if language == "en-US":
-            QApplication.instance().removeTranslator(QTranslator())
+            if self.first_time:
+                return logger.info("The UI is already in english. Skipping.")
+        
             self.view.retranslateUI()
+            
             logger.info("Switched to default language (English).")
+            
             return
         
         if not language_path.exists():
@@ -479,11 +498,18 @@ class MainController(QObject):
         logger.info(f"Applying language '{language}' from: {language_path}")
         
         translator = QTranslator()
+        
         if translator.load(language_path.as_posix()):
-            QApplication.instance().installTranslator(translator)
+            app.installTranslator(translator)
+            
+            self.translator = translator
+            
             self.view.retranslateUI()
+            
             logger.info(f"Successfully applied language: {language}")
         else:
             logger.warning(
                 f"Failed to load translation for '{language}' from path: {language_path}"
             )
+        
+        self.first_time = False
