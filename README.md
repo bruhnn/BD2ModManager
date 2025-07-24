@@ -8,7 +8,7 @@
 
 > 🛠 Easily manage, preview, and sync mods for Brown Dust 2.
 > 
-> 🎉 **Download the latest version:** [GitHub Releases](https://github.com/bruhnn/BD2ModManager/releases)
+> 🎉 **Download the latest version:** [GitHub Releases](https://github.com/bruhnn/BD2ModManager/releases/latest)
 
 If you have suggestions or run into any problems with the app, feel free to open an issue or contact me.
 
@@ -75,11 +75,11 @@ Creates shortcuts instead of copying files.
 - ❌ Requires admin rights
 
 
-### Example Comparison with 200 mods
+### Example Comparison with 359 mods
 
 | Copy | Symlink |
 |--------|-------|
-| ![](./screenshots/sync_copy.gif) | ![](./screenshots/sync_symlink.gif) |
+| ![](./screenshots/sync_copy_v322.gif) | ![](./screenshots/sync_symlink_v322.gif) |
 
 
 ---
