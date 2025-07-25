@@ -43,7 +43,7 @@ class DirectoryInput(QWidget):
         layout = QGridLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(8)
-        
+
         self._text_label = label
 
         self.label = QLabel(text=label)
@@ -137,10 +137,12 @@ class DirectoryInput(QWidget):
         path = self.get_directory_path()
         return bool(path and os.path.exists(path))
 
-    def retranslateUI(self) -> None:
+    def retranslate_ui(self) -> None:
         self.label.setText(self.tr(self._text_label))
-        self.input_field.setText(self.tr(self.placeholder if not self.get_directory_path() else self.get_directory_path()))
-        self.input_field.setToolTip(self.tr("Selected directory path") if self.get_directory_path() else "")
+        self.input_field.setText(self.tr(
+            self.placeholder if not self.get_directory_path() else self.get_directory_path()))
+        self.input_field.setToolTip(
+            self.tr("Selected directory path") if self.get_directory_path() else "")
         self.browse_button.setText(self.tr("Browse"))
         self.browse_button.setToolTip(self.tr("Browse for directory"))
         self.open_button.setText(self.tr("Open"))
@@ -186,8 +188,10 @@ class ConfigComboBox(QWidget):
         layout.setColumnStretch(1, 4)
 
     def _populate_combo(self) -> None:
+        self.combo.clear()
+
         for index, option in enumerate(self.options):
-            self.combo.addItem(option["label"], option["value"])
+            self.combo.addItem(self.tr(option["label"]), option["value"])
 
             if option.get("disabled", False):
                 item = self.combo.model().item(index)
@@ -210,6 +214,10 @@ class ConfigComboBox(QWidget):
 
     def set_label_text(self, text: str) -> None:
         self.label.setText(text)
+
+    def set_options(self, options: list):
+        self.options = options
+        self._populate_combo()
 
 
 class SectionHeader(QWidget):
@@ -317,7 +325,7 @@ class ConfigView(QScrollArea):
     syncMethodChanged = Signal(str)
     searchModsRecursivelyChanged = Signal(bool)
     includeModRelativePathChanged = Signal(bool)
-    
+
     autoDownloadGameDataChanged = Signal(bool)
     autoUpdateModPreviewChanged = Signal(bool)
     notifyAppUpdateChanged = Signal(bool)
@@ -377,7 +385,7 @@ class ConfigView(QScrollArea):
         )
 
         self.recursive_search_checkbox = ConfigCheckBox(
-            self.tr("Search Mods Recursively"),
+            self.tr("Search for mods in subfolders"),
             self.tr("Search for mods in subdirectories")
         )
 
@@ -387,11 +395,14 @@ class ConfigView(QScrollArea):
         self.language_combobox = ConfigComboBox(
             label=self.tr("Language:"),
             options=[
-                {"label": "English", "value": "en-US", "tooltip": "English (United States)"},
-                {"label": "Português (BR)", "value": "pt-BR", "tooltip": "Portuguese (Brazil)"},
+                {"label": "English", "value": "en-US",
+                    "tooltip": "English (United States)"},
+                {"label": "Português (BR)", "value": "pt-BR",
+                 "tooltip": "Portuguese (Brazil)"},
                 {"label": "日本語", "value": "ja-JP", "tooltip": "Japanese"},
                 {"label": "한국어", "value": "ko-KR", "tooltip": "Korean"},
-                {"label": "简体中文", "value": "zh-CN", "tooltip": "Chinese (Simplified)"},
+                {"label": "简体中文", "value": "zh-CN",
+                    "tooltip": "Chinese (Simplified)"},
             ],
         )
 
@@ -407,17 +418,18 @@ class ConfigView(QScrollArea):
             self.tr("Show full mod folder paths"),
             self.tr("Display complete folder paths in mod list")
         )
-        
+
         # self.notify_on_app_update_checkbox = ConfigCheckBox(
         #     self.tr("Notify when a new app version is available"),
-        #     self.tr("Shows a notification when there's a new app update to download.") 
+        #     self.tr("Shows a notification when there's a new app update to download.")
         # )
-        
+
         self.auto_download_game_data_checkbox = ConfigCheckBox(
             self.tr("Automatically download new game data on startup"),
-            self.tr("Keeps content like characters, authors (find authors), and NPCs up-to-date.")
+            self.tr(
+                "Keeps content like characters, authors (find authors), and NPCs up-to-date.")
         )
-        
+
         self.auto_update_mod_preview_checkbox = ConfigCheckBox(
             self.tr("Automatically update BD2ModPreview on startup"),
             self.tr("Automatically update the mod preview on startup.")
@@ -449,14 +461,16 @@ class ConfigView(QScrollArea):
         self.find_authors_button = QPushButton(self.tr("Find Mod Authors"))
         self.find_authors_button.setCursor(Qt.CursorShape.PointingHandCursor)
         self.find_authors_button.setObjectName("modsButton")
-        self.find_authors_button.setToolTip(self.tr("Automatically detect mod authors"))
+        self.find_authors_button.setToolTip(
+            self.tr("Automatically detect mod authors"))
 
         self.migrate_to_profiles_button = QPushButton(
             self.tr("Migrate to Profiles"))
         self.migrate_to_profiles_button.setCursor(
             Qt.CursorShape.PointingHandCursor)
         self.migrate_to_profiles_button.setObjectName("modsButton")
-        self.migrate_to_profiles_button.setToolTip(self.tr("Convert existing setup to profile system"))
+        self.migrate_to_profiles_button.setToolTip(
+            self.tr("Convert existing setup to profile system"))
 
     def _layout_sections(self) -> None:
         self.main_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
@@ -544,7 +558,8 @@ class ConfigView(QScrollArea):
 
         self.set_auto_download_game_data(
             config.get("auto_download_game_data", True))
-        self.set_auto_update_mod_preview(config.get("auto_update_mod_preview", True))
+        self.set_auto_update_mod_preview(
+            config.get("auto_update_mod_preview", True))
 
     @Slot(str)
     def set_game_directory(self, path: str) -> None:
@@ -587,7 +602,7 @@ class ConfigView(QScrollArea):
         self.include_mod_relative_path_checkbox.blockSignals(True)
         self.include_mod_relative_path_checkbox.setChecked(value)
         self.include_mod_relative_path_checkbox.blockSignals(False)
-    
+
     @Slot(bool)
     def set_auto_update_mod_preview(self, value: bool) -> None:
         self.auto_update_mod_preview_checkbox.blockSignals(True)
@@ -596,12 +611,11 @@ class ConfigView(QScrollArea):
 
     @Slot(bool)
     def set_auto_download_game_data(self, value: bool) -> None:
-        """Sets the state of the auto download game data checkbox."""
         self.auto_download_game_data_checkbox.blockSignals(True)
         self.auto_download_game_data_checkbox.setChecked(value)
         self.auto_download_game_data_checkbox.blockSignals(False)
 
-    def retranslateUI(self) -> None:
+    def retranslate_ui(self) -> None:
         self.title.setText(self.tr("Settings"))
 
         # Update section headers
@@ -611,8 +625,8 @@ class ConfigView(QScrollArea):
         self.experimental_header.set_title(self.tr("Experimental Features"))
 
         # Update input widgets
-        self.game_directory_input.retranslateUI()
-        self.mods_directory_input.retranslateUI()
+        self.game_directory_input.retranslate_ui()
+        self.mods_directory_input.retranslate_ui()
         self.game_directory_input.set_label_text(self.tr("Game Directory"))
         self.mods_directory_input.set_label_text(self.tr("Mods Directory"))
 
@@ -621,7 +635,7 @@ class ConfigView(QScrollArea):
         self.sync_method_combobox.set_label_text(self.tr("Sync Method:"))
 
         self.recursive_search_checkbox.setText(
-            self.tr("Search Mods Recursively"))
+            self.tr("Search for mods in subfolders"))
         self.include_mod_relative_path_checkbox.setText(
             self.tr("Show full mod folder paths"))
 
@@ -629,10 +643,22 @@ class ConfigView(QScrollArea):
             self.tr("Automatically download new game data on startup"))
         self.auto_download_game_data_checkbox.setToolTip(
             self.tr("Keeps content like characters, authors, and NPCs up-to-date."))
-        
+
         self.auto_update_mod_preview_checkbox.setText(
             self.tr("Automatically Update BD2ModPreview on startup")
         )
-
-        self.find_authors_button.setText(self.tr("Find Authors"))
+        self.find_authors_button.setText(self.tr("Find Mod Authors"))
         self.migrate_to_profiles_button.setText(self.tr("Migrate to Profiles"))
+
+        self.sync_method_combobox.set_options([
+            {
+                "label": self.tr("Copy (Default)"),
+                "value": "copy",
+                "tooltip": self.tr("Copy files (slower but safer)")
+            },
+            {
+                "label": self.tr("Symlink (Administrator)"),
+                "value": "symlink",
+                "tooltip": self.tr("Create symbolic links (requires administrator privileges)")
+            },
+        ])

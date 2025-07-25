@@ -1,7 +1,26 @@
+from os import system
 from typing import Union, Optional, Any
 from pathlib import Path
-from PySide6.QtCore import QObject, Signal, QSettings
+from PySide6.QtCore import QObject, Signal, QSettings, QLocale
 
+def get_system_language() -> Optional[str]:
+    try:
+        system_locale = QLocale.system()
+        system_lang_code = system_locale.name() # en_US ja_JP
+        
+        language = system_lang_code.split('_')[0].lower()
+        
+        language_mapping = {
+            'en': 'en-US',
+            'ja': 'ja-JP', 
+            'ko': 'ko-KR', 
+            'pt': 'pt-BR', 
+            'zh': 'zh-CN', 
+        }
+        
+        return language_mapping.get(language, None)
+    except Exception:
+        return None
 
 class ConfigModel(QObject):
     languageChanged = Signal(str)
@@ -67,9 +86,18 @@ class ConfigModel(QObject):
     @property
     def language(self) -> str:
         """Returns the user-defined app language."""
-        return self._settings.value(
-            "Interface/language", defaultValue=self.DEFAULT_VALUES.get("language"), type=str
+        stored_language = self._settings.value(
+            "Interface/language", defaultValue="", type=str
         )
+        
+        if not stored_language:
+            system_language = get_system_language()
+            stored_language = self.DEFAULT_VALUES["language"]
+        
+            if system_language:
+                stored_language = system_language
+        
+        return str(stored_language)
 
     def set_language(self, value: str) -> None:
         """Set the app language."""
@@ -81,7 +109,7 @@ class ConfigModel(QObject):
     @property
     def theme(self) -> str:
         """Returns the app theme."""
-        return self._settings.value("Interface/theme", defaultValue=self.DEFAULT_VALUES.get("theme"), type=str)
+        return str(self._settings.value("Interface/theme", defaultValue=self.DEFAULT_VALUES.get("theme"), type=str))
 
     def set_theme(self, value: str) -> None:
         """Set the app theme."""

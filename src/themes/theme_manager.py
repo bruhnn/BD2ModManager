@@ -14,7 +14,7 @@ logger.addHandler(logging.NullHandler())
 
 
 class ThemeManager:
-    current_theme = "dark"
+    current_theme = "Dark"
     DEFAULT_COLOR = "#FF00FF" 
     
     themes = {}

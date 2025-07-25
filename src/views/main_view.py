@@ -35,6 +35,8 @@ class MainView(QMainWindow):
     newProfile = Signal(str)
 
     showProfilePageRequested = Signal()
+    
+
 
     def __init__(self) -> None:
         super().__init__()
@@ -180,12 +182,17 @@ class MainView(QMainWindow):
 
         # needs to be after stylesheet is applied
         self.notifications = NotificationsManager(self)
-        
+
         self._restore_geometry()
 
         load_time = (
             time.perf_counter() - start_time
         )
+        
+        # hack to make add navigation button find translation
+        self.tr("Mods")
+        self.tr("Characters") 
+        self.tr("Settings")
 
         logger.info(f"MainView initialized successfully in {load_time:.4f} seconds")
 
@@ -222,7 +229,7 @@ class MainView(QMainWindow):
                 widget.set_active(is_active)
     # --- APP Methods
 
-    def retranslateUI(self) -> None:
+    def retranslate_ui(self) -> None:
         # self.setWindowTitle(
         #     self.tr("BD2 Mod Manager - v{version}").format(version=__version__)
         # )
@@ -236,21 +243,23 @@ class MainView(QMainWindow):
         self.start_game_button.setToolTip(self.tr("Launch Brown Dust 2"))
 
         for button in self.navigation_bar.findChildren(NavigationButton):
-            text = button.property("text")
+            text = button.property("sourceText")
             if text:
                 button.setText(self.tr(text))
 
         for i in range(self.navigation_view.count()):
             widget = self.navigation_view.widget(i)
-            if hasattr(widget, "retranslateUI"):
-                widget.retranslateUI()
-        
+            if hasattr(widget, "retranslate_ui"):
+                widget.retranslate_ui()
 
         if self.profile_dropdown.itemData(self.profile_dropdown.count()-1) == "manage_profiles":
             self.profile_dropdown.removeItem(self.profile_dropdown.count()-1)
             self.profile_dropdown.addItem(
-            ThemeManager.icon("build"), self.tr("Manage Profiles"), "manage_profiles"
+            ThemeManager.icon("build"), self.tr(
+                "Manage Profiles"), "manage_profiles"
         )
+            
+        self.select_game_dir_page.retranslate_ui()
 
     def updateIcons(self) -> None:
         for btn in self.navigation_bar.findChildren(NavigationButton):
@@ -277,16 +286,16 @@ class MainView(QMainWindow):
 
     def add_navigation_button(self, page: str, text: str, icon: str, index: int = -1) -> None:
         logger.info(f"Adding navigation button for page: {page} with text: {text}")
-        
-        button = NavigationButton(text)
+
+        button = NavigationButton(self.tr(text))
         button.setObjectName("navigationButton")
-        button.setProperty("text", text)
+        button.setProperty("sourceText", text)
         button.setProperty("index", self.navigation_view.count())
         button.setProperty("page", page)
         button.setProperty("iconName", icon)
         button.setIconSpacing(12)
         button.clicked.connect(lambda: self.change_navigation_page(page))
-        
+
         if index == -1:
             self.navigation_bar_layout.addWidget(button)
         else:
@@ -391,4 +400,4 @@ class MainView(QMainWindow):
         logger.info(
             f"Profile changed to: {self.profile_dropdown.itemText(index)} (ID: {profile_id})"
         )
-        self.profileChanged.emit(profile_id)
+        self.profileChanged.emit(profile_id)#

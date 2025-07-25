@@ -6,9 +6,6 @@ from PySide6.QtWidgets import (
     QLineEdit,
     QGridLayout,
     QSizePolicy,
-    QComboBox,
-    QLabel,
-    QVBoxLayout,
     QHBoxLayout,
 )
 from PySide6.QtCore import (
@@ -35,7 +32,7 @@ from src.themes.theme_manager import ThemeManager
 
 from typing import Any, Union
 
-from src.views.widgets import BaseButton
+from src.views.widgets import BaseButton, LabelComboBox
 from src.utils.paths import app_paths
 
 
@@ -152,7 +149,7 @@ class CostumeTreeDelegate(QStyledItemDelegate):
         img_margin = 0
         title_margin_left = 0
         title_margin_top = 12
-        status_margin_right = -16
+        status_margin_right = -32
 
         if option.state & QStyle.StateFlag.State_MouseOver:
             option.state &= ~QStyle.StateFlag.State_MouseOver
@@ -253,16 +250,16 @@ class CostumeTreeDelegate(QStyledItemDelegate):
             )
 
             statuses_to_draw = []
+            
             if "cutscene" in costume:
-                statuses_to_draw.append((self.tr("Cutscene"), costume.get("cutscene")))
+                statuses_to_draw.append(("Cutscene", costume.get("cutscene")))
+                
             if "idle" in costume:
-                statuses_to_draw.append((self.tr("Idle"), costume.get("idle")))
+                statuses_to_draw.append(("Idle", costume.get("idle")))
 
             if "dating" in costume and costume.get("dating") is not None:
-                statuses_to_draw.append((self.tr("Dating"), costume.get("dating")))
+                statuses_to_draw.append(("Dating", costume.get("dating")))
             
-            
-
             font_status_title = QFont()
             font_status_title.setPointSize(10)
             font_status_title.setBold(True)
@@ -272,7 +269,7 @@ class CostumeTreeDelegate(QStyledItemDelegate):
 
             metrics_title = QFontMetrics(font_status_title)
             metrics_status = QFontMetrics(font_status)
-            spacing = 64
+            spacing = 48
 
             total_width = 0
             column_widths = []
@@ -335,7 +332,7 @@ class CostumeTreeDelegate(QStyledItemDelegate):
         status_text = self.tr("Installed") if is_installed else self.tr("Not Installed")
         
         if is_installed is None:
-            status_text = "Unavailable"
+            status_text = self.tr("Unavailable")
             
         title_width = metrics_title.horizontalAdvance(title)
         status_text_width = metrics_status.horizontalAdvance(status_text)
@@ -434,9 +431,9 @@ class CharacterFilterProxyModel(QSortFilterProxyModel):
             text_matched = text_to_search in node_name
 
         filter_values = {
-            "Any": (True, False, None),
-            "Installed": (True,),
-            "Not Installed": (False,),
+            "all": (True, False, None),
+            "installed": (True,),
+            "not_installed": (False,),
         }
 
         cutscene_matched = True
@@ -468,35 +465,13 @@ class CharacterFilterProxyModel(QSortFilterProxyModel):
     def set_filtering(self, data: dict):
         self.filtering = data
 
-
-class CComboBox(QWidget):
-    def __init__(self, label: str):
-        super().__init__()
-
-        self._label = QLabel(label)
-        self._combobox = QComboBox()
-
-        layout = QVBoxLayout(self)
-
-        layout.addWidget(self._label)
-        layout.addWidget(self._combobox)
-
-    @property
-    def label(self):
-        return self._label
-
-    @property
-    def combobox(self):
-        return self._combobox
-
-
 class CharactersView(QWidget):
     refreshCharactersRequested = Signal()
 
     def __init__(self):
         super().__init__()
 
-        self.search_input = QLineEdit(placeholderText=self.tr("Search Character"))
+        self.search_input = QLineEdit(placeholderText=self.tr("Search Character by name or ID..."))
         self.search_input.setSizePolicy(
             QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding
         )
@@ -528,17 +503,22 @@ class CharactersView(QWidget):
         self.filters_layout.setContentsMargins(*[0] * 4)
 
         self.filters = {
-            "cutscene": CComboBox(self.tr("Cutscene")),
-            "idle": CComboBox(self.tr("Idle")),
-            "dating": CComboBox(self.tr("Dating")),
+            "cutscene": LabelComboBox(self.tr("Cutscene")),
+            "idle": LabelComboBox(self.tr("Idle")),
+            "dating": LabelComboBox(self.tr("Dating")),
         }
         
-        self.combo_items = ["Any", "Installed", "Not Installed"]
+        combo_items = [
+            ("All", "all"), 
+            ("Installed", "installed"), 
+            ("Not Installed", "not_installed")
+        ]
 
         for _, filter_widget in self.filters.items():
             filter_widget.label.setObjectName("customComboBoxLabel")
             filter_widget.combobox.setObjectName("customComboBox")
-            filter_widget.combobox.addItems(self.combo_items)
+            for label, key in combo_items:
+                filter_widget.combobox.addItem(self.tr(label), key)
             filter_widget.combobox.currentIndexChanged.connect(self._filter_char)
             self.filters_layout.addWidget(filter_widget)
 
@@ -557,9 +537,9 @@ class CharactersView(QWidget):
     def _filter_char(self):
         self.proxy_model.set_filtering(
             {
-                "cutscene": self.filters["cutscene"].combobox.currentText(),
-                "idle": self.filters["idle"].combobox.currentText(),
-                "dating": self.filters["dating"].combobox.currentText(),
+                "cutscene": self.filters["cutscene"].combobox.currentData(),
+                "idle": self.filters["idle"].combobox.currentData(),
+                "dating": self.filters["dating"].combobox.currentData(),
             }
         )
         self.proxy_model.invalidateFilter()
@@ -570,15 +550,23 @@ class CharactersView(QWidget):
         self.proxy_model.invalidateFilter()
         self.view.expandAll()
 
-    def retranslateUI(self):
-        self.search_input.setPlaceholderText(self.tr("Search Character"))
+    def retranslate_ui(self):
+        self.search_input.setPlaceholderText(self.tr("Search Character by name or ID..."))
 
         self.refresh_button.setText(self.tr("Refresh"))
 
-        self.filters["cutscene"].label.setText(self.tr("Cutscene"))
-        self.filters["idle"].label.setText(self.tr("Idle"))
-        self.filters["dating"].label.setText(self.tr("Dating"))
+        combo_items_translated = [
+            (self.tr("All"), "all"), 
+            (self.tr("Installed"), "installed"), 
+            (self.tr("Not Installed"), "not_installed")
+        ]
 
+        for _, filter_widget in self.filters.items():
+            filter_widget.combobox.blockSignals(True) 
+            filter_widget.combobox.clear()
+            for label, key in combo_items_translated:
+                filter_widget.combobox.addItem(label, key)
+            filter_widget.combobox.blockSignals(False) 
 
     def updateIcons(self):
         self.refresh_button.setIcon(

@@ -1,5 +1,5 @@
 from typing import Optional
-from PySide6.QtWidgets import QLabel, QWidget, QHBoxLayout, QSizePolicy
+from PySide6.QtWidgets import QLabel, QWidget, QHBoxLayout, QSizePolicy, QVBoxLayout, QComboBox
 from PySide6.QtCore import QTimer, Qt
 from PySide6.QtGui import QColor, QPalette, QIcon
 
@@ -93,3 +93,23 @@ class LabelIcon(QWidget):
             self.icon_label.setHidden(False)
 
         self.text_label.setText(text)
+
+class LabelComboBox(QWidget):
+    def __init__(self, label: str):
+        super().__init__()
+
+        self._label = QLabel(label)
+        self._combobox = QComboBox()
+
+        layout = QVBoxLayout(self)
+
+        layout.addWidget(self._label)
+        layout.addWidget(self._combobox)
+
+    @property
+    def label(self):
+        return self._label
+
+    @property
+    def combobox(self):
+        return self._combobox

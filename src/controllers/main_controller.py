@@ -1,6 +1,6 @@
 
 from PySide6.QtWidgets import QApplication
-from PySide6.QtCore import QObject, Slot, QTranslator, QTimer
+from PySide6.QtCore import QObject, Slot, QTranslator, QTimer, QLibraryInfo
 from PySide6.QtGui import QCloseEvent
 
 import logging
@@ -30,14 +30,15 @@ class MainController(QObject):
         view: MainView,
     ) -> None:
         super().__init__()
-        
-        # to no trigger an retranslateUI if the UI is already in english
-        self.first_time = True 
-        
+
+        # to no trigger an retranslate_ui if the UI is already in english
+        self.first_time = True
+
         self.translator = None
+        self.qt_translator = None
 
         self.view = view
-        
+
         self.mod_preview = BD2ModPreview()
         self.mod_preview.errorOccurred.connect(self._on_mod_preview_error)
 
@@ -58,9 +59,10 @@ class MainController(QObject):
         # Apply initial theme and language
         self._on_apply_stylesheet(self.config_model.theme)
         self._on_apply_language(self.config_model.language)
-        
+
         # to show the update dialog only after the app is loaded
         QTimer.singleShot(300, self._check_for_updates)
+        # QTimer.singleShot(500, lambda: self._on_app_new_version_available("3.2.3", "Hello, World!", "https://google.com"))
 
     # --- Setups
     def _setup_models(self) -> None:
@@ -82,7 +84,8 @@ class MainController(QObject):
         if staging_mods_dir is None:
             staging_mods_dir = app_paths.app_path / "mods"
 
-            self.config_model.set_mods_directory(str(staging_mods_dir.resolve()))
+            self.config_model.set_mods_directory(
+                str(staging_mods_dir.resolve()))
 
         self.mod_manager_model = ModManagerModel(
             game_data=self.game_data_model,
@@ -147,7 +150,7 @@ class MainController(QObject):
         # Profile Signals
         self.profile_manager_model.profilesChanged.connect(
             self._refresh_profiles_dropdown
-        )        
+        )
         # preview
         self.mod_manager_controller.modPreviewRequested.connect(
             self._on_mod_preview_requested
@@ -160,11 +163,10 @@ class MainController(QObject):
         self.view.add_page("settings", self.config_view)
         self.view.add_page("profiles", self.manage_profiles_view)
 
-        self.view.add_navigation_button("mods", self.tr("Mods"), "extension")
+        self.view.add_navigation_button("mods", "Mods", "extension")
         self.view.add_navigation_button(
-            "characters", self.tr("Characters"), "book4_fill")
-        self.view.add_navigation_button(
-            "settings", self.tr("Settings"), "settings")
+            "characters", "Characters", "book4_fill")
+        self.view.add_navigation_button("settings", "Settings", "settings")
 
     def _setup_update_manager(self) -> None:
         self.update_manager = UpdateManager(
@@ -176,7 +178,7 @@ class MainController(QObject):
         self.update_manager.appUpdateAvailable.connect(
             self._on_app_new_version_available
         )
-            
+
         self.update_manager.dataUpdateAvailable.connect(
             self._on_update_started)
         self.update_manager.assetUpdateAvailable.connect(
@@ -184,26 +186,28 @@ class MainController(QObject):
         )
         self.update_manager.allDownloadsFinished.connect(
             self._on_all_updates_finished)
-        
+
         self.update_manager.errorOccurred.connect(self._on_update_error)
-        
-        self.update_manager.toolUpdateAvailable.connect(self._on_tool_update_available)
+
+        self.update_manager.toolUpdateAvailable.connect(
+            self._on_tool_update_available)
         self.update_manager.toolUpdated.connect(self._on_tool_updated)
 
     def _check_for_updates(self):
         if self.config_model.auto_download_game_data:
             self.update_manager.start_update_process()
-        
+
         if self.config_model.auto_update_mod_preview:
             self.update_manager.check_bd2modpreview_version()
-        
+
         self.update_manager.check_app_version()
-    
+
     @Slot(str)
     def _on_tool_update_available(self, tool_name: str):
         self.view.show_notification(
             title=self.tr("Tool Update Available"),
-            text=self.tr(f"A new version of {tool_name} is available. Updating now..."),
+            text=self.tr(
+                f"A new version of {tool_name} is available. Updating now..."),
             duration=3000,
         )
 
@@ -211,7 +215,7 @@ class MainController(QObject):
     def _on_tool_updated(self, tool_name: str):
         if tool_name == "BD2ModPreview":
             self.mod_preview.refresh_path()
-            
+
         self.view.show_notification(
             title=self.tr("Tool Updated"),
             text=self.tr(f"{tool_name} was successfully updated."),
@@ -222,8 +226,8 @@ class MainController(QObject):
     @Slot(str)
     def _on_app_new_version_available(self, version: str, changelog: str, release_url: str) -> None:
         if version == self.config_model.ignored_version:
-            return 
-        
+            return
+
         update_dialog = UpdateModal(
             self.view,
             __version__,
@@ -232,9 +236,10 @@ class MainController(QObject):
             release_url
         )
         update_dialog.exec()
-        
-        dont_show_again, ignore_version = (update_dialog.get_dont_show_again_state())
-        
+
+        dont_show_again, ignore_version = (
+            update_dialog.get_dont_show_again_state())
+
         if dont_show_again:
             self.config_model.set_ignored_version(ignore_version)
 
@@ -256,11 +261,11 @@ class MainController(QObject):
                 duration=2000,
             )
             self.mod_manager_model.refresh_game_data()
-            
+
             # if new characters was added
             self.characters_controller.update_chars()
 
-        self._is_currently_updating = False 
+        self._is_currently_updating = False
 
     @Slot(str)
     def _on_update_error(self, error_message: str):
@@ -346,20 +351,22 @@ class MainController(QObject):
         try:
             if self.mod_manager_model.experimental_migrate_to_profiles():
                 self.view.show_notification(
-                    "Success", 
-                    "All mod states were successfully migrated to the Default profile."
+                    self.tr("Success"),
+                    self.tr(
+                        "All mod states were successfully migrated to the Default profile.")
                 )
             else:
                 self.view.show_notification(
-                    "Migration Skipped",
-                    "Migration was not needed or the data file was not found.",
+                    self.tr("Migration Skipped"),
+                    self.tr(
+                        "Migration was not needed or the data file was not found."),
                     "info"
                 )
         except Exception as error:
-            print(f"Migration Error: {error}") 
+            print(f"Migration Error: {error}")
             self.view.show_notification(
-                "Error", 
-                "An unexpected error occurred during migration.", 
+                self.tr("Error"),
+                self.tr("An unexpected error occurred during migration."),
                 "error"
             )
 
@@ -368,7 +375,8 @@ class MainController(QObject):
         if not self.mod_manager_model.check_game_directory(path):
             self.view.show_notification(
                 self.tr("Game Not Detected"),
-                self.tr("'BrownDust II.exe' is missing from the selected folder. Make sure you've picked the correct installation path."),
+                self.tr(
+                    "'BrownDust II.exe' is missing from the selected folder. Make sure you've picked the correct installation path."),
                 "error",
                 5000,
             )
@@ -382,13 +390,19 @@ class MainController(QObject):
         mod = self.mod_manager_model.get_mod_by_name(mod_name)
 
         if not mod:
-            return self.view.show_notification("Mod Not Found", f"Mod with the name '{mod_name}' was not found.", "error")
-    
+            return self.view.show_notification(
+                self.tr("Mod Not Found"),
+                self.tr("Mod with the name '{mod_name}' was not found.").format(
+                    mod_name=mod_name),
+                "error"
+            )
+
         self.mod_preview.launch_preview(mod.path)
-    
+
     @Slot(str)
     def _on_mod_preview_error(self, message: str):
-        self.view.show_notification("Mod Preview Error", message, "error")
+        self.view.show_notification(
+            self.tr("Mod Preview Error"), message, "error")
 
         # if not hasattr(self, "spine_web"):
         #     return
@@ -435,15 +449,15 @@ class MainController(QObject):
                 except IndexError:
                     pass
             return
-        
+
         theme_path = current_theme.get("style_path")
-        
+
         if not theme_path:
             return logger.error(f"Path of theme '{theme}' was not found.")
-        
-        
-        logger.info(f"Applying stylesheet for theme '{theme}' from: {theme_path}")
-        
+
+        logger.info(
+            f"Applying stylesheet for theme '{theme}' from: {theme_path}")
+
         try:
             with open(theme_path, "r", encoding="utf-8") as f:
                 stylesheet = f.read()
@@ -451,7 +465,7 @@ class MainController(QObject):
                 ThemeManager.set_theme(theme)
             self.view.updateIcons()
             logger.info(f"Successfully applied stylesheet for theme: {theme}")
-            
+
             # TODO: quick hack
             if self.config_model.theme != theme:
                 self.config_model.set_theme(theme)
@@ -460,56 +474,70 @@ class MainController(QObject):
                 f"Failed to apply stylesheet from {path}: {e}", exc_info=True)
             self.view.show_notification(
                 title=self.tr("Theme Error"),
-                text=self.tr(f"Failed to apply the '{theme}' theme. Please check the logs."),
+                text=self.tr(
+                    f"Failed to apply the '{theme}' theme. Please check the logs."),
                 type="error",
                 duration=5000  # 5 seconds
             )
 
     def apply_language(self, language: str) -> None:
         app = QApplication.instance()
-        
+
         if not app:
             logger.error("Application instance not found.")
             return
-        
+
         language_path = (
-                app_paths.source_path
-                / "translations"
-                / (language + ".qm")
+            app_paths.source_path
+            / "translations"
+            / (language + ".qm")
         )
-        
+
         if self.translator:
             app.removeTranslator(self.translator)
             self.translator = None
-        
+            if self.qt_translator:
+                app.removeTranslator(self.qt_translator)
+                self.qt_translator = None
+
         if language == "en-US":
             if self.first_time:
                 return logger.info("The UI is already in english. Skipping.")
-        
-            self.view.retranslateUI()
-            
+
+            self.view.retranslate_ui()
+
             logger.info("Switched to default language (English).")
-            
+
             return
-        
+
         if not language_path.exists():
             return logger.error(f"Path of language '{language}' not found.")
-        
+
         logger.info(f"Applying language '{language}' from: {language_path}")
-        
+
+        qt_translator = QTranslator()
+        qtbase_path = QLibraryInfo.path(QLibraryInfo.TranslationsPath)
+        if qt_translator.load(f"qtbase_{language.replace('-', '_')}", qtbase_path):
+            app.installTranslator(qt_translator)
+            self.qt_translator = qt_translator
+            logger.info(f"Loaded QtBase translations for: {language}")
+        else:
+            logger.warning(f"Could not load QtBase translations for: {language}")
+
         translator = QTranslator()
-        
+
         if translator.load(language_path.as_posix()):
             app.installTranslator(translator)
-            
+
             self.translator = translator
-            
-            self.view.retranslateUI()
-            
+
+            self.view.retranslate_ui()
+
             logger.info(f"Successfully applied language: {language}")
+
         else:
             logger.warning(
                 f"Failed to load translation for '{language}' from path: {language_path}"
             )
-        
+
         self.first_time = False

@@ -54,7 +54,7 @@ class ProfileDialog(QDialog):
         name_label = QLabel(self.tr("Profile Name (Required)"))
         self.name_input = QLineEdit()
         self.name_input.setObjectName("profileInput")
-        self.name_input.setPlaceholderText(self.tr("e.g., 'Nimloth's mods'"))
+        self.name_input.setPlaceholderText(self.tr("e.g., 'Synae's mods'"))
         self.name_input.textChanged.connect(self._update_button_state)
         layout.addWidget(name_label)
         layout.addWidget(self.name_input)
@@ -63,18 +63,19 @@ class ProfileDialog(QDialog):
         description_label = QLabel(self.tr("Description (Optional)"))
         self.description_input = QTextEdit()
         self.description_input.setObjectName("profileInput")
-        self.description_input.setPlaceholderText("Description of the profile.")
+        self.description_input.setPlaceholderText(
+            "Description of the profile...")
         self.description_input.setMinimumHeight(60)
         layout.addWidget(description_label)
         layout.addWidget(self.description_input)
 
         button_box = QDialogButtonBox()
         self.ok_button = button_box.addButton(
-            "Create", QDialogButtonBox.ButtonRole.AcceptRole
+            self.tr("Save") if self.profile_name else self.tr("Create"), QDialogButtonBox.ButtonRole.AcceptRole
         )
         self.ok_button.setObjectName("profileButton")
         self.cancel_button = button_box.addButton(
-            "Cancel", QDialogButtonBox.ButtonRole.RejectRole
+            self.tr("Cancel"), QDialogButtonBox.ButtonRole.RejectRole
         )
         self.cancel_button.setObjectName("profileButton")
 
@@ -191,9 +192,9 @@ class ManageProfilesView(QWidget):
         main_layout.setSpacing(15)
 
         header_layout = QHBoxLayout()
-        title = QLabel("Manage Profiles")
-        title.setObjectName("profilesPageTitle")
-        header_layout.addWidget(title)
+        self.title_label = QLabel(self.tr("Manage Profiles"))
+        self.title_label.setObjectName("profilesPageTitle")
+        header_layout.addWidget(self.title_label)
         header_layout.addStretch()
         main_layout.addLayout(header_layout)
 
@@ -210,23 +211,29 @@ class ManageProfilesView(QWidget):
         button_layout = QHBoxLayout()
         button_layout.addStretch()
 
-        self.edit_button = QPushButton("Edit Selected")
+        self.edit_button = QPushButton(self.tr("Edit Selected"))
         self.edit_button.setObjectName("profilesPageButton")
         self.edit_button.clicked.connect(self.edit_profile)
         button_layout.addWidget(self.edit_button)
 
-        self.delete_button = QPushButton("Delete Selected")
+        self.delete_button = QPushButton(self.tr("Delete Selected"))
         self.delete_button.setObjectName("profilesPageButton")
         self.delete_button.clicked.connect(self.delete_profile)
         button_layout.addWidget(self.delete_button)
 
-        self.create_button = QPushButton("Create New Profile")
+        self.create_button = QPushButton(self.tr("Create New Profile"))
         self.create_button.setObjectName("profilesPageButton")
         self.create_button.clicked.connect(self.create_profile)
         button_layout.addWidget(self.create_button)
         main_layout.addLayout(button_layout)
 
         self._update_button_states()
+    
+    def retranslate_ui(self) -> None:
+        self.title_label.setText(self.tr("Manage Profiles"))
+        self.edit_button.setText(self.tr("Edit Selected"))
+        self.delete_button.setText(self.tr("Delete Selected"))
+        self.create_button.setText(self.tr("Create New Profile"))
 
     def refresh_profiles_list(self, profiles: list[Profile]) -> None:
         self.profile_list_widget.clear()
@@ -256,8 +263,8 @@ class ManageProfilesView(QWidget):
             if not name.strip():
                 QMessageBox.warning(
                     self,
-                    "Invalid Profile Name",
-                    "Profile name cannot be empty.",
+                    self.tr("Invalid Profile Name"),
+                    self.tr("Profile name cannot be empty."),
                 )
                 return
             self.addProfile.emit(name, desc)
@@ -270,10 +277,11 @@ class ManageProfilesView(QWidget):
         item = selected_items[0]
         profile = item.data(Qt.ItemDataRole.UserRole)
 
-        dialog = ProfileDialog(self, name=profile.name, description=profile.description)
+        dialog = ProfileDialog(self, name=profile.name,
+                               description=profile.description)
         if dialog.exec() == QDialog.DialogCode.Accepted:
             new_name, new_desc = dialog.get_data()
-            
+
             if new_name == profile.name and new_desc == profile.description:
                 return
 
@@ -281,7 +289,7 @@ class ManageProfilesView(QWidget):
 
     def delete_profile(self) -> None:
         selected_items = self.profile_list_widget.selectedItems()
-        
+
         if not selected_items:
             return
 
@@ -290,8 +298,9 @@ class ManageProfilesView(QWidget):
 
         reply = QMessageBox.question(
             self,
-            "Confirm Delete",
-            f"Are you sure you want to delete the profile '{profile.name}'?",
+            self.tr("Confirm Delete"),
+            self.tr("Are you sure you want to delete the profile '{name}'?").format(
+                name=profile.name),
             QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
             QMessageBox.StandardButton.No,
         )

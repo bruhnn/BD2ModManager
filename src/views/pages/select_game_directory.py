@@ -23,21 +23,19 @@ class SelectGameDirectory(QWidget):
         layout.setContentsMargins(*[64] * 4)
         layout.setSpacing(32)
 
-        self.title = QLabel(
-            text="Select <span style='color: #57886C'>Brown Dust 2</span> Directory"
-        )
+        self.title = QLabel()
         self.title.setObjectName("selectTitle")
 
         self.selection_widget = QWidget()
         self.selection_widget_layout = QHBoxLayout(self.selection_widget)
         self.selection_widget_layout.setContentsMargins(0, 0, 0, 0)
 
-        self.game_folder_label = QLineEdit(text=self.tr("Select BrownDust II.exe"))
+        self.game_folder_label = QLineEdit()
         self.game_folder_label.setReadOnly(True)
         self.game_folder_label.setFocusPolicy(Qt.FocusPolicy.ClickFocus)
         self.game_folder_label.setObjectName("selectInput")
 
-        self.browse_game_button = QPushButton(self.tr("Browse"))
+        self.browse_game_button = QPushButton()
         self.browse_game_button.setCursor(Qt.CursorShape.PointingHandCursor)
         self.browse_game_button.setFocusPolicy(Qt.FocusPolicy.NoFocus)
         self.browse_game_button.setObjectName("selectBrowseButton")
@@ -50,13 +48,12 @@ class SelectGameDirectory(QWidget):
         self.selection_widget_layout.addWidget(self.browse_game_button)
 
         self.path_list = QListWidget()
-        self.path_list.setSelectionMode(QListWidget.SelectionMode.SingleSelection)
+        self.path_list.setSelectionMode(
+            QListWidget.SelectionMode.SingleSelection)
         self.path_list.setObjectName("selectPathList")
         self.path_list.itemClicked.connect(self._path_clicked)
 
-        self.info_text = QLabel(
-            self.tr("Please locate and select the BrownDust II.exe executable")
-        )
+        self.info_text = QLabel()
         self.info_text.setObjectName("selectInfoText")
 
         layout.addWidget(self.title, 0, Qt.AlignmentFlag.AlignHCenter)
@@ -68,6 +65,22 @@ class SelectGameDirectory(QWidget):
             Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignVCenter,
         )
 
+        # Initialize UI text
+        self.retranslate_ui()
+
+    def retranslate_ui(self) -> None:
+        self.title.setText(
+            self.tr("Select {game} Directory").format(
+                game="<span style='color: #57886C'>Brown Dust 2</span>")
+        )
+        self.game_folder_label.setPlaceholderText(
+            self.tr("Select BrownDust II.exe")
+        )
+        self.browse_game_button.setText(self.tr("Browse"))
+        self.info_text.setText(
+            self.tr("Please locate and select the BrownDust II.exe executable")
+        )
+
     def _path_clicked(self, item) -> None:
         self.path_list.clearSelection()
         self.onGameFolderSelected.emit(item.text())
@@ -76,7 +89,7 @@ class SelectGameDirectory(QWidget):
         current_path = Path(self.game_folder_label.text())
         file_path, _ = QFileDialog.getOpenFileName(
             self,
-            "Select BrownDust II.exe",
+            self.tr("Select BrownDust II.exe"),
             str(current_path.resolve())
             if current_path.exists()
             else "",  # Start Browse in the last known directory
@@ -95,7 +108,7 @@ class SelectGameDirectory(QWidget):
             else:
                 self.game_folder_label.setText(str(path.parent))
 
-        return self.info_text.setText("Please select 'BrownDust II.exe'")
+        return self.info_text.setText(self.tr("Please select 'BrownDust II.exe'"))
 
     def set_folder_text(self, text: str) -> None:
         self.game_folder_label.setText(text)

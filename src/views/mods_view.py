@@ -350,7 +350,7 @@ class ModsView(QWidget):
             ThemeManager.icon(self.unsync_button.property("iconName"))
         )
 
-    def retranslateUI(self) -> None:
+    def retranslate_ui(self) -> None:
         self.search_field.setPlaceholderText(self.tr("Search Mods"))
         self.refresh_button.setText(self.tr("Refresh Mods"))
         self.open_mods_folder_button.setText(self.tr("Open Mods Folder"))
@@ -367,6 +367,7 @@ class ModsView(QWidget):
         self.search_type.clear()
         for label, data in [(self.tr("Mod"), "mod"), (self.tr("Character"), "character"), (self.tr("Author"), "author")]:
             self.search_type.addItem(label, data)
+        self._update_mods_count_label()
 
     # --- Events
     def paintEvent(self, _) -> None:
@@ -487,11 +488,11 @@ class ModsView(QWidget):
         else:
             if current_item.checkState(0) == Qt.CheckState.Checked:
                 menu.addAction(
-                    "Disable Mod", lambda: self._set_items_states(selected_items, False)
+                    self.tr("Disable Mod"), lambda: self._set_items_states(selected_items, False)
                 )
             else:
                 menu.addAction(
-                    "Enable Mod", lambda: self._set_items_states(selected_items, True)
+                    self.tr("Enable Mod"), lambda: self._set_items_states(selected_items, True)
                 )
 
             menu.addAction(
@@ -508,7 +509,7 @@ class ModsView(QWidget):
                 self.tr("Delete Mod"), lambda: self._confirm_mod_deletion(current_item)
             )
             menu.addAction(
-                self.tr("Edit Modfile"), lambda: self._edit_modfile(current_item)
+                self.tr("Edit .modfile"), lambda: self._edit_modfile(current_item)
             )
             menu.addSeparator()
 
@@ -584,7 +585,7 @@ class ModsView(QWidget):
 
         self._show_confirmation_dialog(self.tr("Delete Mods"), msg, on_confirm)
 
-    def _show_author_input_dialog(self, item: ModTreeItem) -> None:
+    def _show_author_input_dialog(self, item: QTreeWidgetItem) -> None:
         mod_entry = item.data(0, Qt.ItemDataRole.UserRole)
         author, ok = QInputDialog.getText(
             self,

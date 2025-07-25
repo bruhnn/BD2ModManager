@@ -18,13 +18,16 @@ from src.models.profile_manager_model import ProfileManager
 from src.utils.errors import (
     GameDirectoryNotSetError,
     GameNotFoundError,
-    ModInstallError,
+    ModDirectoryNotEmptyError,
+    ModFileConflictError,
+    ModFileNotFoundError,
     ModNotFoundError,
     ModAlreadyExistsError,
     InvalidModNameError,
     BrownDustXNotInstalled,
     AdminRequiredError,
     ModInvalidError,
+    MultipleModFoldersError,
     UnsupportedArchiveFormatError,
 )
 from src.services.game_data import BD2GameData
@@ -133,10 +136,10 @@ class ModManagerModel(QObject):
 
     # --- Signals
     def _on_profile_switched(self) -> None:
-        self._refresh_mods_state()
+        self.refresh_mods_data()
         self.currentProfileChanged.emit()
 
-    def _refresh_mods_state(self) -> None:
+    def refresh_mods_data(self) -> None:
         profile = self._profile_manager.get_current_profile()
 
         for mod_name, mod_entry in self._mod_entries.items():
@@ -230,8 +233,7 @@ class ModManagerModel(QObject):
         
         mod_entry = self.get_mod_by_name(mod_name)
         if not mod_entry:
-            raise ModNotFoundError(
-                f"Cannot remove mod '{mod_name}' because it was not found.")
+            raise ModNotFoundError(f"Cannot remove mod '{mod_name}' because it was not found.")
 
         mod_path = Path(mod_entry.path)
 
@@ -964,14 +966,12 @@ class ModManagerModel(QObject):
         modfiles = list(search_path.rglob("*.modfile"))
 
         if not modfiles:
-            raise ModInvalidError(message=f"No .modfile found in: {source_path}")
+            raise ModFileNotFoundError(source_path)
 
         mod_folders = list(set(modfile.parent for modfile in modfiles))
 
         if len(mod_folders) > 1:
-            raise ModInvalidError(
-                message=f"Multiple mod folders found in {source_path}. Please install mods individually."
-            )
+            raise MultipleModFoldersError(source_path, len(mod_folders))
 
         return mod_folders[0]
 
@@ -994,7 +994,7 @@ class ModManagerModel(QObject):
                     if next(staging_mod_path.rglob("*.modfile"), None):
                         raise ModAlreadyExistsError(mod_name)
                     
-                    raise ModInstallError(
+                    raise ModDirectoryNotEmptyError(
                         mod_name=mod_name,
                         message=f"Mod '{mod_name}' cannot be installed because a non-empty directory "
                         f"already exists. Please remove it first."
@@ -1004,7 +1004,7 @@ class ModManagerModel(QObject):
                     logger.info(f"Removing existing empty directory at {staging_mod_path}")
                     os.rmdir(staging_mod_path)
             else:
-                raise ModInstallError(
+                raise ModFileConflictError(
                     mod_name=mod_name,
                     message=f"A file exists at mods folder, which prevents the mod "
                     f"'{mod_name}' from being installed. Please remove or rename this file."
