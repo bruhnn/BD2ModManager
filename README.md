@@ -25,7 +25,7 @@ If you have suggestions or run into any problems with the app, feel free to open
 
 <details>
   <summary>
-      🔥 What's New in v3.2.0
+      🔥 What's New in v3.2.2
   </summary>
   
   - **Updated BD2ModPreview to v0.3.0** [See Screenshot](#mod-preview-bd2modpreview-v030)
