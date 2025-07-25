@@ -8,7 +8,7 @@
 
 > 🛠 Easily manage, preview, and sync mods for Brown Dust 2.
 > 
-> 🎉 **Download the latest version:** [GitHub Releases](https://github.com/bruhnn/BD2ModManager/releases/latest)
+> 🎉 **Download the latest version:** [GitHub Releases](https://github.com/bruhnn/BD2ModManager/releases)
 
 If you have suggestions or run into any problems with the app, feel free to open an issue or contact me.
 
