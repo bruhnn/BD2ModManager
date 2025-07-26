@@ -13,16 +13,31 @@
 If you have suggestions or run into any problems with the app, feel free to open an issue or contact me.
 
 ---
-## 🔥 What's New in v3.2.0
 
-- **Updated BD2ModPreview to v0.3.0** [See Screenshot](#mod-preview-bd2modpreview-v030)
-  - ✨ Load original character Spine animations directly from GitHub assets
-  - ✨ Added Spine folder history feature
-  - ✨ Added option to download missing skeleton files from the mod folder (requested by [@CalbeeDaLock](https://github.com/CalbeeDaLock))
-- 🐛 Fixed Spine animations not working because of Korean characters in atlas (reported by [@Love-156](https://github.com/Love-156))
-- :sparkles: BD2ModPreview now automatically updates when a new version is available
-- ✨ App update notifications now appear in a pop-up
-- 🐞 Collaboration characters now display as **"Unavailable"** on the characters page (requested by [@CalbeeDaLock](https://github.com/CalbeeDaLock))
+## 🔥 What's New in v3.2.3
+
+- ✨ Added full Chinese (zh-CN) translation (requested by [@moxue128](https://github.com/moxue128))
+- 🐞 Fixed missing UI text translations for:
+  - 🇧🇷 Portuguese (pt-BR)
+  - 🇯🇵 Japanese (ja-JP)
+  - 🇰🇷 Korean (ko-KR)
+  - 🇨🇳 Chinese (zh-CN)
+
+<details>
+  <summary>
+      🔥 What's New in v3.2.2
+  </summary>
+  
+  - **Updated BD2ModPreview to v0.3.0** [See Screenshot](#mod-preview-bd2modpreview-v030)
+    - ✨ Load original character Spine animations directly from GitHub assets
+    - ✨ Added Spine folder history feature
+    - ✨ Added option to download missing skeleton files from the mod folder (requested by [@CalbeeDaLock](https://github.com/CalbeeDaLock))
+  - 🐛 Fixed Spine animations not working because of Korean characters in atlas (reported by [@Love-156](https://github.com/Love-156))
+  - :sparkles: BD2ModPreview now automatically updates when a new version is available
+  - ✨ App update notifications now appear in a pop-up
+  - 🐞 Collaboration characters now display as **"Unavailable"** on the characters page (requested by [@CalbeeDaLock](https://github.com/CalbeeDaLock))
+</details>
+
 
 ## ✨ Features
 
@@ -112,9 +127,9 @@ If you're unsure, you can check the [source code](https://github.com/bruhnn/BD2M
 ### Can I use the app on Linux or macOS?
 Currently, BD2ModManager is only tested and built for **Windows**. No official builds for Linux or macOS are available yet.
 
-### What's the difference between the `.exe` and the `*-Bundled.zip` version?
+### What's the difference between the `.exe` and the `*-Full.zip` version?
 - The `.exe` is a standalone, single-file version.
-- The `.zip` is **bundled** with all required files and less likely to trigger false positives. It's recommended if you run into issues with the single `.exe`.
+- The `*-Full.zip` is the **full version**, containing all required files and less likely to trigger false positives. It's recommended if you run into issues with the single `.exe`.
 
 ### How can I contribute to BD2ModManager's development?
 You can contribute by:
