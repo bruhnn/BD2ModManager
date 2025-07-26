@@ -162,6 +162,7 @@ class ConfigComboBox(QWidget):
     def __init__(self, label: str, options: List[Dict[str, Any]]) -> None:
         super().__init__()
         self.options = options
+        self._current_value = None
         self._setup_ui(label)
 
     def _setup_ui(self, label: str) -> None:
@@ -188,8 +189,8 @@ class ConfigComboBox(QWidget):
         layout.setColumnStretch(1, 4)
 
     def _populate_combo(self) -> None:
+        self.combo.blockSignals(True)
         self.combo.clear()
-
         for index, option in enumerate(self.options):
             self.combo.addItem(self.tr(option["label"]), option["value"])
 
@@ -201,6 +202,10 @@ class ConfigComboBox(QWidget):
             if option.get("tooltip"):
                 self.combo.setItemData(
                     index, option["tooltip"], Qt.ItemDataRole.ToolTipRole)
+            
+            if option["value"] == self._current_value:
+                self.combo.setCurrentIndex(index)
+        self.combo.blockSignals(False)
 
     def get_current_value(self) -> str:
         return self.combo.currentData() or ""
@@ -208,6 +213,7 @@ class ConfigComboBox(QWidget):
     def set_current_value(self, value: str) -> None:
         index = self.combo.findData(value)
         if index != -1:
+            self._current_value = value
             self.combo.blockSignals(True)
             self.combo.setCurrentIndex(index)
             self.combo.blockSignals(False)
