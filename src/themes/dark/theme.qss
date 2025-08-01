@@ -300,15 +300,15 @@
 QScrollBar:vertical {
     border: none;
     background-color: #1f2937;
-    width: 14px;
-    margin: 15px 0 15px 0;
+    width: 8px;
+    margin: 0px;
     border-radius: 0px;
 }
 
 QScrollBar::handle:vertical {
     background-color: #4b5563;
-    min-height: 30px;
-    border-radius: 7px;
+    min-height: 20px;
+    border-radius: 4px; 
 }
 
 QScrollBar::handle:vertical:hover {
@@ -693,7 +693,7 @@ QProgressBar#progressModalProgressBar[error="true"]::chunk {
     font-size: 14px;
     font-weight: 600;
     border: none;
-    min-width: 80px; /* Give buttons a consistent width */
+    min-width: 80px;
 }
 
 #progressModalButton:hover, #progressModalCancelButton:hover {
@@ -706,7 +706,7 @@ QProgressBar#progressModalProgressBar[error="true"]::chunk {
 }
 
 #progressModalCancelButton:hover {
-    background-color: #991b1b; /* A darker red for hover */
+    background-color: #991b1b; 
 }
 
 #configView {
@@ -720,7 +720,7 @@ QProgressBar#progressModalProgressBar[error="true"]::chunk {
 /* ---- MESSAGE BOX / DIALOGS ---- */
 
 QMessageBox#errorDialog {
-    background-color: #1f2937; /* Same as profile dialog */
+    background-color: #1f2937;
     border: 1px solid #4b5563;
     border-radius: 8px;
 }
@@ -746,7 +746,7 @@ QMessageBox#errorDialog QPushButton:hover {
 }
 
 QMessageBox#errorDialog QTextEdit {
-    background-color: #111827; /* Darker background for contrast */
+    background-color: #111827;
     color: #9ca3af;
     border-radius: 4px;
     border: 1px solid #4b5563;
@@ -788,7 +788,6 @@ QMessageBox QPushButton:pressed {
     background-color: #9ca3af;
 }
 
-/* Style for the "Yes" button in dangerous operations */
 QMessageBox QPushButton[text="Yes"] {
     background-color: #dc2626;
     color: #ffffff;
@@ -1082,15 +1081,15 @@ QDialog::title {
 #editModfileDialog {
     background-color: #1f2937;
     border: 1px solid #4b5563;
-    min-width: 500px; /* Optional: give it a minimum width */
-    min-height: 400px; /* Optional: give it a minimum height */
+    min-width: 500px;
+    min-height: 400px;
 }
 
 #editModfileDialogTitle {
     font-size: 16px;
     font-weight: bold;
     color: #d1d5db;
-    padding-bottom: 5px; /* Add some space below the title */
+    padding-bottom: 5px;
 }
 
 #editModFileData {
@@ -1220,7 +1219,7 @@ QDialog::title {
 }
 
 #updateModalDontShowAgainCheckbox::indicator:hover {
-    border-color: #9ca3af; /* Lighter border on hover */
+    border-color: #9ca3af;
 }
 
 #updateModalLaterButton {
@@ -1299,4 +1298,43 @@ QDialog::title {
 #updateModalChangelogScroll QScrollBar::add-page:vertical,
 #updateModalChangelogScroll QScrollBar::sub-page:vertical {
     background: none;
+}
+
+/* ---- HORIZONTAL SCROLL BAR ---- */
+
+QScrollBar:horizontal {
+    border: none;
+    background-color: #1f2937;
+    height: 8px; 
+    margin: 0px;
+    border-radius: 0px;
+}
+
+QScrollBar::handle:horizontal {
+    background-color: #4b5563;
+    min-width: 20px;
+    border-radius: 4px;
+}
+
+QScrollBar::handle:horizontal:hover {
+    background-color: #6b7280;
+}
+
+QScrollBar::handle:horizontal:pressed {
+    background-color: #9ca3af;
+}
+
+QScrollBar::add-line:horizontal, QScrollBar::sub-line:horizontal {
+    border: none;
+    background: none;
+    width: 15px;
+    subcontrol-origin: margin;
+}
+
+QScrollBar::left-arrow:horizontal, QScrollBar::right-arrow:horizontal {
+     background: none;
+}
+
+QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
+     background: none;
 }
