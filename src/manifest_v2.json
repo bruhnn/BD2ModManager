@@ -7,8 +7,8 @@
             "url": "https://raw.githubusercontent.com/bruhnn/BD2ModManager/refs/heads/main/src/data/authors.csv"
         },
         "characters.csv": {
-            "version": "0.0.1",
-            "hash": "9de9ea219839d69ad19823fa1f2750f812df73e16989a93cde458a91ca2a561a",
+            "version": "0.0.2",
+            "hash": "4dd1b937c03481847d0bdad46468c1fda1fd5c62ce73071a5336ece1ae27c2f8",
             "url": "https://raw.githubusercontent.com/bruhnn/BD2ModManager/refs/heads/main/src/data/characters.csv"
         },
         "datings.csv": {
@@ -24,6 +24,11 @@
     },
     "assets": {
         "version": "0.0.0",
-        "characters": {}
+        "characters": {
+            "003602": {
+                "hash": "a927c8a31043ddd779a719904f1b49fd7cb3c050e0ddeca5442ebf80f2bc2b4a",
+                "url": "https://raw.githubusercontent.com/bruhnn/BD2ModManager/refs/heads/main/src/resources/assets/characters/003602.png"
+            }
+        }
     }
 }

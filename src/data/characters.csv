@@ -3,7 +3,7 @@ id,character,costume,is_collab
 000102,Lathel,Lonely Survivor,false
 000103,Lathel,Homunculus,false
 000104,Lathel,Dark Knight,false
-000105,Lathel,Promise of Vengance,false
+000105,Lathel,Promise of Vengeance,false
 000106,Lathel,Pool Party,false
 000201,Justia,Knight of Blood,false
 000202,Justia,White Reaper,false
@@ -152,4 +152,5 @@ id,character,costume,is_collab
 103601,Maria,Archmage,false
 103701,Arines,Priest of Vitality,false
 003601,Olivier,White Witch,false
+003602,Olivier,Apostle,false
 003603,Olivier,Fallen Wings,false
