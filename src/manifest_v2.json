@@ -9,7 +9,7 @@
         "characters.csv": {
             "version": "0.0.2",
             "hash": "75e4ce67fd0fcb03079ee9ef23ad1ed33ad8546d51e7445b3374b21a45d0767f",
-            "url": "https://raw.githubusercontent.com/bruhnn/BD2ModManager/refs/heads/main/src/data/characters.csv"
+            "url": "https://raw.githubusercontent.com/bruhnn/BD2ModManager/refs/heads/testing/new-character/src/data/characters.csv"
         },
         "datings.csv": {
             "version": "0.0.1",
