@@ -107,8 +107,8 @@ Creates shortcuts instead of copying files.
 ### Characters Page (v3.1.0)
 ![Characters Page](./screenshots/characters_page_v31.png)
 
-### Mod Preview (BD2ModPreview v0.4.0)
-![Mod Preview](./screenshots/bd2modpreview_040.png)
+### Mod Preview (BD2ModPreview v0.3.0)
+![Mod Preview](./screenshots/bd2modpreview.png)
 
 ---
 ## 🧰 Other Tools
