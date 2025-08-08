@@ -13,6 +13,22 @@
 If you have suggestions or run into any problems with the app, feel free to open an issue or contact me.
 
 ---
+## ✨ New version of BD2ModPreview v0.4.0
+<img src="./screenshots/bd2modpreview_040.png" alt="BD2ModPreview Screenshot" width="500" />
+
+- Added Home Page with recent folders
+- Added sidebar controls (switch between floating and sidebar)
+- Character List improvements:
+  - Added sorting options (newest, oldest, A-Z, Z-A)
+  - Improved asset loading with CDN for better performance
+- Added language support:
+  - Chinese (cn)
+  - Japanese (ja)
+
+> The mod manager will automatically update BD2ModPreview.  
+> If you see a notification that BD2ModPreview is updating, please **do not preview any mods** until the update completes.
+
+---
 
 ## 🔥 What's New in v3.2.3
 
