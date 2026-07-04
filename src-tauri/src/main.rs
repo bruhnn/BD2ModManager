@@ -203,6 +203,11 @@ pub fn main() {
                         file_name: Some("logs".to_string()),
                     }),
                 ])
+                .filter(|metadata| {
+                    !(cfg!(debug_assertions)
+                        && metadata.target() == "reqwest::connect"
+                        && metadata.level() <= log::Level::Debug)
+                })
                 .max_file_size(10_000_000) // 10mb
                 .level(log::LevelFilter::Debug)
                 .build(),
