@@ -79,14 +79,7 @@ export const useModsStore = defineStore('mods', () => {
     }
 
     async function previewMod(mod_name: string) {
-        const mod = getModByName(mod_name);
-
-        if (!mod) {
-            loggingStore.logError(`previewMod: Mod not found: ${mod_name}`);
-            return
-        }
-
-        return invoke("preview_mod", { path: mod.path })
+        return invoke("preview_mod", { modName: mod_name })
     }
 
     async function installModFromZip(path: string) {

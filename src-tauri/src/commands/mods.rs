@@ -50,6 +50,24 @@ pub fn disable_mods(
     mod_manager.disable_mods(&app_handle, mod_names);
 }
 
+#[derive(Serialize, Clone, Debug, thiserror::Error)]
+pub enum PreviewError {
+    #[error("mod not found: {0}")]
+    NotFound(String),
+    #[error("mod contains errors: {0}")]
+    ModHasErrors(String),
+    #[error("preview failed: {0}")]
+    Failed(String),
+    #[error("io error: {0}")]
+    Io(String),
+}
+
+impl From<std::io::Error> for PreviewError {
+    fn from(e: std::io::Error) -> Self {
+        PreviewError::Io(e.to_string())
+    }
+}
+
 // Check if the folder is a texture mod
 fn is_texture_mod(path: &PathBuf) -> bool {
     if !path.join("textures").is_dir() {
@@ -84,6 +102,7 @@ fn is_texture_mod(path: &PathBuf) -> bool {
 }
 
 fn preview_image(app_handle: AppHandle, path: &PathBuf) -> tauri::Result<()> {
+fn preview_image(app_handle: AppHandle, path: &PathBuf) -> Result<(), PreviewError> {
     let dir = path.join("textures");
     if !dir.exists() {
         return Ok(());
@@ -102,7 +121,10 @@ fn preview_image(app_handle: AppHandle, path: &PathBuf) -> tauri::Result<()> {
 
     if let Some(img) = img_path {
         let img_str = img.to_string_lossy().to_string();
-        app_handle.opener().open_path(img_str, None::<&str>).ok();
+        app_handle
+            .opener()
+            .open_path(img_str, None::<&str>)
+            .map_err(|e| PreviewError::Failed(e.to_string()))?;
     }
 
     Ok(())
@@ -110,8 +132,19 @@ fn preview_image(app_handle: AppHandle, path: &PathBuf) -> tauri::Result<()> {
 
 // Tauri command
 #[tauri::command]
-pub fn preview_mod(app_handle: AppHandle, path: String) -> tauri::Result<()> {
-    let path_buf = PathBuf::from(&path);
+pub fn preview_mod(app_handle: AppHandle, state: tauri::State<AppState>, mod_name: String) -> Result<(), PreviewError> {
+    let mod_manager = state.mod_manager.lock().unwrap();
+    let _mod = mod_manager.get_mod_by_name(&mod_name).ok_or_else(|| PreviewError::NotFound(mod_name.clone()))?;
+    
+    if !_mod.errors.is_empty() {
+        return Err(PreviewError::ModHasErrors(mod_name));
+    }
+
+    let path_buf = PathBuf::from(&_mod.path);
+
+    if !path_buf.exists() {
+        return Err(PreviewError::NotFound(mod_name));
+    }
 
     if is_texture_mod(&path_buf) {
         return preview_image(app_handle, &path_buf);
@@ -119,9 +152,9 @@ pub fn preview_mod(app_handle: AppHandle, path: String) -> tauri::Result<()> {
 
     if let Some(mod_preview_exe) = get_mod_preview_path(&app_handle) {
         std::process::Command::new(mod_preview_exe)
-            .arg(path)
+            .arg(&path_buf)
             .spawn()
-            .ok();
+            .map_err(|e| PreviewError::Failed(e.to_string()))?;
     }
 
     Ok(())
