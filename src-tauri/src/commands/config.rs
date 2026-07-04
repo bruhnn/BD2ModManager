@@ -1,4 +1,5 @@
 use bd2modmanager_lib::config::config::{AppConfig, PartialAppConfig};
+use log::debug;
 
 use crate::AppState;
 
@@ -11,6 +12,6 @@ pub fn get_settings(state: tauri::State<AppState>) -> AppConfig {
 #[tauri::command]
 pub fn set_settings(state: tauri::State<AppState>, value: PartialAppConfig) -> Result<(), String> {
     let mut config = state.config.lock().map_err(|_| "Lock poisoned")?;
-    println!("Updating config with: {:?}", value);
+    debug!("Updating config with: {:?}", value);
     config.update_config(value).map_err(|e| e.to_string())
 }
