@@ -82,7 +82,8 @@
             "characters": "Characters",
             "profiles": "Profiles",
             "browndustx": "BrownDustX",
-            "settings": "Settings"
+            "settings": "Settings",
+            "dating": "Dating"
         },
         "notifications": {
             "gameLaunched": {
@@ -874,5 +875,37 @@
         "shouldBeInFolder": "This mod should be inside a folder. Please create a folder with the same name as the mod and move the mod file inside it.",
         "missingAtlasFile": "This mod is missing the atlas file.",
         "noDescription": "No description provided."
+    },
+    "datingTab": {
+        "title": "Dating",
+        "subtitle": "{enabledModsCount} of {totalModsCount} dating mods enabled",
+        "charactersNotFound": "No characters with dating mods found.",
+        "filters": {
+            "title": "Filters",
+            "searchPlaceholder": "Search characters...",
+            "sortBy": {
+                "title": "Sort By",
+                "options": {
+                    "nameAsc": "Name (A-Z)",
+                    "nameDesc": "Name (Z-A)",
+                    "modsAsc": "Number of Mods (Fewest)",
+                    "modsDesc": "Number of Mods (Most)"
+                }
+            },
+            "modStatus": {
+                "title": "Mod Status",
+                "hasDating": "Has Dating Mod",
+                "options": {
+                    "any": "Any",
+                    "enabled": "Enabled",
+                    "disabled": "Disabled"
+                }
+            }
+        },
+        "affection": {
+            "title": "Affection",
+            "label": "Affection {label}",
+            "notInstalled": "Not installed"
+        }
     }
 }

@@ -83,6 +83,7 @@ function onProfileSelected(profile_id: string) {
             <NavigationSection :title="$t('sidebar.sections.navigation')">
                 <NavigationButton :icon="Component" :label="$t('sidebar.tabs.mods')" value="mods" />
                 <NavigationButton :icon="Users" :label="$t('sidebar.tabs.characters')" value="characters" />
+                <NavigationButton icon-src="/icons/dating.png" :label="$t('sidebar.tabs.dating')" value="dating" />
             </NavigationSection>
             <NavigationSection :title="$t('sidebar.sections.settings')">
                 <NavigationButton :icon="Bolt" :label="$t('sidebar.tabs.profiles')" value="profiles" />

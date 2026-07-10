@@ -1,5 +1,5 @@
 use std::{fs, path::PathBuf};
-use bd2modmanager_lib::{game::{game::{self, VersionResult}, installer::{self, is_bdx_archive, is_bepinex_archive, is_configmanager_archive}}, utils::path::get_characters_path};
+use bd2modmanager_lib::{game::{game::{self, VersionResult}, installer::{self, is_bdx_archive, is_bepinex_archive, is_configmanager_archive}}, utils::path::{get_characters_path, get_dating_path}};
 use winreg::{enums::HKEY_CURRENT_USER, RegKey};
 use log::{info, warn};
 
@@ -55,6 +55,15 @@ pub fn get_characters(app_handle: tauri::AppHandle) -> Result<serde_json::Value,
     let chars_path = get_characters_path(&app_handle).ok_or("failed to get characters path")?;
 
     let content = std::fs::read_to_string(&chars_path).map_err(|e| e.to_string())?;
+
+    serde_json::from_str(&content).map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+pub fn get_dating(app_handle: tauri::AppHandle) -> Result<serde_json::Value, String> {
+    let dating_path = get_dating_path(&app_handle).ok_or("failed to get dating path")?;
+
+    let content = std::fs::read_to_string(&dating_path).map_err(|e| e.to_string())?;
 
     serde_json::from_str(&content).map_err(|e| e.to_string())
 }

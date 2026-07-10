@@ -6,6 +6,7 @@ import ProfilesTab from './pages/profiles/ProfilesTab.vue'
 import BDXTab from './pages/browndustx/BDXTab.vue'
 import ScenesTab from './pages/scenes/ScenesTab.vue'
 import NpcsTab from './pages/npcs/NpcsTab.vue'
+import DatingTab from './pages/dating/DatingTab.vue'
 
 const routes = [
     {
@@ -31,6 +32,11 @@ const routes = [
         name: 'npcs',
         path: '/npcs',
         component: NpcsTab
+    },
+    {
+        name: 'dating',
+        path: '/dating',
+        component: DatingTab
     },
     {
         name: 'profiles',

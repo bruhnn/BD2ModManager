@@ -69,3 +69,11 @@ pub fn get_characters_path(app_handle: &AppHandle) -> Option<PathBuf> {
     .ok()
     .map(|dir| dir.join("characters.json"))
 }
+
+pub fn get_dating_path(app_handle: &AppHandle) -> Option<PathBuf> {
+    app_handle
+    .path()
+    .app_data_dir()
+    .ok()
+    .map(|dir| dir.join("dating.json"))
+}

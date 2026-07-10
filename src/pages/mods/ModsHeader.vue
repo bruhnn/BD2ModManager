@@ -19,14 +19,14 @@ interface Filters {
 }
 
 const filters = defineModel<Filters>("filters", {
-    default: {
+    default: () => ({
         searchQuery: '',
         modTypes: [],
         onlyEnabled: false,
         onlyDisabled: false,
         onlyConflicts: false,
         onlyErrors: false,
-    }
+    })
 })
 
 const modTypes = ["Cutscene", "Standing", "Scene", "Dating", "NPC", "Minigame"];

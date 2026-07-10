@@ -38,6 +38,7 @@ export function useAppInitializer() {
     await Promise.all([
       settingsStore.loadSettings(),
       useCharactersStore().loadCharacters(),
+      useCharactersStore().loadDating(),
       useProfilesStore().loadProfiles(),
     ]);
 

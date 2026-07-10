@@ -315,6 +315,7 @@ pub fn main() {
             game::uninstall_configmanager,
             game::determine_archive_type,
             game::get_characters,
+            game::get_dating,
             // updater
             updater::get_mod_preview_version,
             updater::check_for_app_update,

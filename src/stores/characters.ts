@@ -28,9 +28,30 @@ export interface Character {
     element: "dark" | "light" | "water" | "fire" | "wind"
 }
 
+/** A single labelled affection entry within a dating definition. */
+export interface AffectionEntry {
+    /** Label from dating.txt, e.g. "1", "2-1", "2-2". */
+    label: string;
+    /** Scene mod id (matches modType.id for a Scene-typed mod). */
+    id: string;
+}
+
+/** A dating character entry from dating.json. */
+export interface DatingDefinition {
+    dating_id: string;
+    costume_id: string;
+    character: string;
+    costume: string;
+    affection: AffectionEntry[];
+}
+
 interface CharactersJson {
     characters: Character[];
     dating: DatingMap;
+}
+
+interface DatingJson {
+    dating: DatingDefinition[];
 }
 
 type DatingMap = Record<string, string>;
@@ -50,6 +71,10 @@ export const useCharactersStore = defineStore("characters", () => {
     const datingMap = shallowRef<DatingMap>({});
     const charactersMap = shallowRef<Record<string, Character>>({});
     const datingToCharacterMap = shallowRef<Record<string, Character>>({});
+
+    // Dating affection data from dating.json
+    const datingDefinitions = shallowRef<DatingDefinition[]>([]);
+    const datingDefinitionsMap = shallowRef<Record<string, DatingDefinition>>({});
 
     const groupedCharacters = computed<Record<string, Character[]>>(() => {
         return characters.value.reduce((acc, c) => {
@@ -112,6 +137,29 @@ export const useCharactersStore = defineStore("characters", () => {
         }, `getCharacterByNpcId(${npcId})`, false);
     }
 
+    function updateDating(data: DatingJson) {
+        datingDefinitions.value = data.dating ?? [];
+        datingDefinitionsMap.value = Object.fromEntries(
+            (data.dating ?? []).map(d => [d.dating_id, d])
+        );
+    }
+
+    /** Returns the labelled affection list for a dating_id, or []. */
+    function getAffection(datingId: string): AffectionEntry[] {
+        return datingDefinitionsMap.value[datingId]?.affection ?? [];
+    }
+
+    async function loadDating() {
+        try {
+            const data = await invoke<DatingJson>("get_dating");
+            updateDating(data);
+            if (import.meta.env.DEV)
+                console.info("Dating definitions loaded:", datingDefinitions.value.length);
+        } catch (error) {
+            console.error("Failed to load dating definitions:", error);
+        }
+    }
+
     async function loadCharacters() {
         try {
             const data = await invoke<CharactersJson>("get_characters");
@@ -125,11 +173,14 @@ export const useCharactersStore = defineStore("characters", () => {
 
     return {
         characters: readonly(characters),
+        datingDefinitions: readonly(datingDefinitions),
         groupedCharacters: readonly(groupedCharacters),
         loadCharacters,
+        loadDating,
         getCharacterById,
         getCharacterByDatingId,
         getCharacterIdByDatingId,
-        getCharacterByNpcId
+        getCharacterByNpcId,
+        getAffection,
     };
 });

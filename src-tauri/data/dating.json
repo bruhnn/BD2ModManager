@@ -1,0 +1,191 @@
+{
+    "version": "0.0.1",
+    "dating": [
+        {
+            "dating_id": "1",
+            "costume_id": "003303",
+            "character": "Nebris",
+            "costume": "New Hire",
+            "affection": [
+                { "label": "1", "id": "28" },
+                { "label": "2-1", "id": "29" },
+                { "label": "2-2", "id": "30" },
+                { "label": "2-3", "id": "40" },
+                { "label": "3", "id": "31" },
+                { "label": "4", "id": "124" }
+            ]
+        },
+        {
+            "dating_id": "2",
+            "costume_id": "003402",
+            "character": "Morpeah",
+            "costume": "Daydream Bunny",
+            "affection": [
+                { "label": "1", "id": "33" },
+                { "label": "2", "id": "34" },
+                { "label": "3", "id": "35" },
+                { "label": "4", "id": "128" }
+            ]
+        },
+        {
+            "dating_id": "3",
+            "costume_id": "003203",
+            "character": "Loen",
+            "costume": "Celebrity Bunny",
+            "affection": [
+                { "label": "1", "id": "47" },
+                { "label": "2", "id": "48" }
+            ]
+        },
+        {
+            "dating_id": "4",
+            "costume_id": "001106",
+            "character": "Teresse",
+            "costume": "Medical Club",
+            "affection": [
+                { "label": "1", "id": "54" },
+                { "label": "2", "id": "56" },
+                { "label": "3", "id": "149" }
+            ]
+        },
+        {
+            "dating_id": "5",
+            "costume_id": "060802",
+            "character": "Elise",
+            "costume": "Code Name O",
+            "affection": [
+                { "label": "1", "id": "57" },
+                { "label": "2", "id": "58" },
+                { "label": "3", "id": "160" }
+            ]
+        },
+        {
+            "dating_id": "6",
+            "costume_id": "067603",
+            "character": "Wilhelmina",
+            "costume": "Water Park Queen",
+            "affection": [
+                { "label": "1", "id": "70" },
+                { "label": "2", "id": "71" },
+                { "label": "3", "id": "72" },
+                { "label": "4", "id": "206" }
+            ]
+        },
+        {
+            "dating_id": "7",
+            "costume_id": "000296",
+            "character": "Justia",
+            "costume": "Hot Summer Dream",
+            "affection": []
+        },
+        {
+            "dating_id": "8",
+            "costume_id": "001006",
+            "character": "Sylvia",
+            "costume": "Bikini Agent",
+            "affection": [
+                { "label": "1", "id": "91" },
+                { "label": "2", "id": "92" },
+                { "label": "3", "id": "93" }
+            ]
+        },
+        {
+            "dating_id": "9",
+            "costume_id": "001197",
+            "character": "Teresse",
+            "costume": "Milky Bikini",
+            "affection": []
+        },
+        {
+            "dating_id": "10",
+            "costume_id": "066403",
+            "character": "Angelica",
+            "costume": "Neon Savior",
+            "affection": [
+                { "label": "1", "id": "104" },
+                { "label": "2", "id": "106" }
+            ]
+        },
+        {
+            "dating_id": "11",
+            "costume_id": "000706",
+            "character": "Eclipse",
+            "costume": "Nightmare Bunny",
+            "affection": [
+                { "label": "1", "id": "112" },
+                { "label": "2", "id": "113" }
+            ]
+        },
+        {
+            "dating_id": "12",
+            "costume_id": "061492",
+            "character": "Zenith",
+            "costume": "Stranger Bunny",
+            "affection": []
+        },
+        {
+            "dating_id": "13",
+            "costume_id": "004102",
+            "character": "Tyr",
+            "costume": "Innocent Bunny",
+            "affection": [
+                { "label": "1", "id": "125" },
+                { "label": "2", "id": "126" }
+            ]
+        },
+        {
+            "dating_id": "14",
+            "costume_id": "003892",
+            "character": "Liberta",
+            "costume": "Hedonist",
+            "affection": []
+        },
+        {
+            "dating_id": "15",
+            "costume_id": "067004",
+            "character": "Ventana",
+            "costume": "Onsen Practitioner",
+            "affection": [
+                { "label": "1", "id": "136" },
+                { "label": "2", "id": "137" }
+            ]
+        },
+        {
+            "dating_id": "16",
+            "costume_id": "003604",
+            "character": "Olivier",
+            "costume": "Retired Legend",
+            "affection": [
+                { "label": "1", "id": "151" },
+                { "label": "2", "id": "152" }
+            ]
+        },
+        {
+            "dating_id": "17",
+            "costume_id": "004202",
+            "character": "Palette",
+            "costume": "Miracle Violet",
+            "affection": [
+                { "label": "1", "id": "182" },
+                { "label": "2", "id": "183" }
+            ]
+        },
+        {
+            "dating_id": "18",
+            "costume_id": "000396",
+            "character": "Scheherazade",
+            "costume": "Deliberate Ace",
+            "affection": []
+        },
+        {
+            "dating_id": "19",
+            "costume_id": "067104",
+            "character": "Granhildr",
+            "costume": "Combat Medic",
+            "affection": [
+                { "label": "1", "id": "223" },
+                { "label": "2", "id": "224" }
+            ]
+        }
+    ]
+}
