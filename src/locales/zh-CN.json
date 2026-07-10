@@ -131,7 +131,8 @@
                     "onlyEnabledMods": "仅显示已启用模组",
                     "onlyDisabledMods": "仅显示已禁用模组",
                     "onlyConflictsMods": "仅显示有冲突的模组",
-                    "onlyErrorsMods": "仅显示有错误的模组"
+                    "onlyErrorsMods": "仅显示有错误的模组",
+                "hideErrorsMods": "隐藏错误模组"
                 }
             }
         },
