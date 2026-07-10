@@ -131,7 +131,8 @@
                     "onlyEnabledMods": "활성화된 모드만 표시",
                     "onlyDisabledMods": "비활성화된 모드만 표시",
                     "onlyConflictsMods": "충돌 모드만 표시",
-                    "onlyErrorsMods": "오류 모드만 표시"
+                    "onlyErrorsMods": "오류 모드만 표시",
+                "onlyOneModType": "한 가지 모드 유형만 선택"
                 }
             }
         },

@@ -131,7 +131,8 @@
                     "onlyEnabledMods": "有効なMODのみ表示",
                     "onlyDisabledMods": "無効なMODのみ表示",
                     "onlyConflictsMods": "競合するMODのみ表示",
-                    "onlyErrorsMods": "エラーのあるMODのみ表示"
+                    "onlyErrorsMods": "エラーのあるMODのみ表示",
+                "onlyOneModType": "MODタイプを1つだけ選択"
                 }
             }
         },

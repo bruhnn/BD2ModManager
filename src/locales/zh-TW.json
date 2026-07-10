@@ -131,7 +131,8 @@
                     "onlyEnabledMods": "僅顯示已啟用模組",
                     "onlyDisabledMods": "僅顯示已停用模組",
                     "onlyConflictsMods": "僅顯示衝突模組",
-                    "onlyErrorsMods": "僅顯示錯誤模組"
+                    "onlyErrorsMods": "僅顯示錯誤模組",
+                "onlyOneModType": "只選擇一種模組類型"
                 }
             }
         },

@@ -87,6 +87,7 @@ let filters = reactive({
   onlyDisabled: false,
   onlyConflicts: false,
   onlyErrors: false,
+  onlyOneModType: false,
 });
 const totalModsCount = computed(() => modsStore.mods.length)
 const enabledModsCount = computed(() => modsStore.mods.filter(mod => mod.enabled && !mod.errors.length).length)
