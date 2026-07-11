@@ -160,8 +160,8 @@
                 "deleteSelectedMods": "선택한 모드 삭제",
                 "openModFolder": "모드 폴더 열기",
                 "previewMod": "모드 미리보기",
-            "doubleClickToPreviewTip": "팁: 행을 더블클릭하면 모드를 미리볼 수 있습니다."
-        }
+                "previewModShortcut": "더블클릭"
+            }
         },
         "confirmations": {
             "syncMods": {

@@ -160,8 +160,8 @@
                 "deleteSelectedMods": "選択したMODを削除",
                 "openModFolder": "MODフォルダを開く",
                 "previewMod": "MODをプレビュー",
-            "doubleClickToPreviewTip": "ヒント：行をダブルクリックするとMODをプレビューできます。"
-        }
+                "previewModShortcut": "ダブルクリック"
+            }
         },
         "confirmations": {
             "syncMods": {

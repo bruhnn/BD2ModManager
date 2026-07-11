@@ -460,16 +460,8 @@ const contextMenuItems = computed<ContextMenuItem[]>(() => {
         {
             label: t('modsTab.modlist.contextMenu.previewMod'),
             key: 'preview',
+            shortcut: t('modsTab.modlist.contextMenu.previewModShortcut'),
             show: isSingleSelection
-        } as ContextMenuItem,
-        {
-            type: 'divider' as const,
-            key: 'd-tip'
-        } as ContextMenuItem,
-        {
-            type: 'tip' as const,
-            label: t('modsTab.modlist.contextMenu.doubleClickToPreviewTip'),
-            key: 'tip-double-click'
         } as ContextMenuItem,
     ].filter(item => item.show !== false)
 })
