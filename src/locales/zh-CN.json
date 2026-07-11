@@ -257,7 +257,8 @@
                 "hideMenCharacters": "隐藏男性角色",
                 "hideWomenCharacters": "隐藏女性角色",
                 "onlyCharactersWithMods": "仅显示有模组的角色",
-                "onlyCharactersWithoutMods": "仅显示无模组的角色"
+                "onlyCharactersWithoutMods": "仅显示无模组的角色",
+            "onlyCollabCharacters": "仅显示联动角色"
             },
             "releasePeriod": {
                 "title": "发布时间段",

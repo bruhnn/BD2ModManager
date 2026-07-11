@@ -40,6 +40,7 @@ const userFilters = reactive({
     standing: 'any',
     dating: 'any',
     hideCollabCharacters: false,
+    onlyCollabCharacters: false,
     hideMenCharacters: false,
     hideWomenCharacters: false,
     releasePeriod: 'all',
@@ -190,6 +191,8 @@ const filteredCharacters = computed(() => {
 
         if (userFilters.hideMenCharacters && char?.gender === 'male') return false;
         if (userFilters.hideWomenCharacters && char?.gender === 'female') return false;
+
+        if (userFilters.onlyCollabCharacters && !char.is_collab) return false;
 
         if (userFilters.onlyCharactersWithMods && getInstalledModsCount(char.id) === 0) return false;
         if (userFilters.onlyCharactersWithoutMods && getInstalledModsCount(char.id) > 0) return false;
@@ -438,6 +441,8 @@ watch(() => route.query.characterId, (newCharacterId) => {
                             :label="t('charactersTab.filters.extraFilters.onlyCharactersWithMods')" />
                         <Checkbox v-model="userFilters.onlyCharactersWithoutMods"
                             :label="t('charactersTab.filters.extraFilters.onlyCharactersWithoutMods')" />
+                        <Checkbox v-model="userFilters.onlyCollabCharacters"
+                            :label="t('charactersTab.filters.extraFilters.onlyCollabCharacters')" />
                     </div>
                 </div>
 

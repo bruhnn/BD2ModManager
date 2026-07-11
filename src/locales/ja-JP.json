@@ -257,7 +257,8 @@
                 "hideMenCharacters": "男性キャラクターを非表示",
                 "hideWomenCharacters": "女性キャラクターを非表示",
                 "onlyCharactersWithMods": "MODがあるキャラクターのみ表示",
-                "onlyCharactersWithoutMods": "MODがないキャラクターのみ表示"
+                "onlyCharactersWithoutMods": "MODがないキャラクターのみ表示",
+            "onlyCollabCharacters": "コラボキャラクターのみ表示"
             },
             "releasePeriod": {
                 "title": "リリース期間",

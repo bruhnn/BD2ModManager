@@ -257,7 +257,8 @@
                 "hideMenCharacters": "남성 캐릭터 숨기기",
                 "hideWomenCharacters": "여성 캐릭터 숨기기",
                 "onlyCharactersWithMods": "모드가 있는 캐릭터만 표시",
-                "onlyCharactersWithoutMods": "모드가 없는 캐릭터만 표시"
+                "onlyCharactersWithoutMods": "모드가 없는 캐릭터만 표시",
+            "onlyCollabCharacters": "콜라보 캐릭터만 표시"
             },
             "releasePeriod": {
                 "title": "출시 기간",

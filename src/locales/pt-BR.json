@@ -257,7 +257,8 @@
                 "hideMenCharacters": "Ocultar Personagens Masculinos",
                 "hideWomenCharacters": "Ocultar Personagens Femininos",
                 "onlyCharactersWithMods": "Apenas Personagens com Mods",
-                "onlyCharactersWithoutMods": "Apenas Personagens sem Mods"
+                "onlyCharactersWithoutMods": "Apenas Personagens sem Mods",
+            "onlyCollabCharacters": "Apenas Personagens de Colaboração"
             },
             "releasePeriod": {
                 "title": "Período de Lançamento",
