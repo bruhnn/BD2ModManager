@@ -71,8 +71,6 @@ pub fn get_bepinex_version(app_handle: &AppHandle, game_path: &PathBuf) -> Optio
     let manifest = read_manifest(app_handle, "BepInEx").unwrap_or_default();
     let manifest_version = manifest.get("version").and_then(|v| v.as_str());
 
-    println!("{:?} {:?}", bepinex_version, manifest_version);
-
     let can_remove: CanRemove = {
         if matches!(
             (&bepinex_version, manifest_version),
