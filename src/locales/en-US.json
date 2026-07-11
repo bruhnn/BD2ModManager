@@ -137,7 +137,8 @@
                     "onlyEnabledMods": "Only Enabled Mods",
                     "onlyDisabledMods": "Only Disabled Mods",
                     "onlyConflictsMods": "Only Conflicts Mods",
-                    "onlyErrorsMods": "Only Errors Mods"
+                    "onlyErrorsMods": "Only Errors Mods",
+                "hideErrorsMods": "Hide Error Mods"
                 }
             }
         },

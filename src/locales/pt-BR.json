@@ -131,7 +131,8 @@
                     "onlyEnabledMods": "Apenas Mods Ativados",
                     "onlyDisabledMods": "Apenas Mods Desativados",
                     "onlyConflictsMods": "Apenas Mods com Conflitos",
-                    "onlyErrorsMods": "Apenas Mods com Erros"
+                    "onlyErrorsMods": "Apenas Mods com Erros",
+                "hideErrorsMods": "Ocultar Mods com Erros"
                 }
             }
         },
