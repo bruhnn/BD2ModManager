@@ -16,17 +16,19 @@ interface Filters {
     onlyDisabled: boolean
     onlyConflicts: boolean
     onlyErrors: boolean
+    hideErrors: boolean
 }
 
 const filters = defineModel<Filters>("filters", {
-    default: {
+    default: () => ({
         searchQuery: '',
         modTypes: [],
         onlyEnabled: false,
         onlyDisabled: false,
         onlyConflicts: false,
         onlyErrors: false,
-    }
+        hideErrors: false,
+    })
 })
 
 const modTypes = ["Cutscene", "Standing", "Scene", "Dating", "NPC", "Minigame"];
@@ -93,6 +95,8 @@ function getModTypeClass(modType: string) {
                                     :label="$t('modsTab.header.advancedFilters.actions.onlyConflictsMods')" />
                                 <Checkbox v-model="filters.onlyErrors"
                                     :label="$t('modsTab.header.advancedFilters.actions.onlyErrorsMods')" />
+                                <Checkbox v-model="filters.hideErrors"
+                                    :label="$t('modsTab.header.advancedFilters.actions.hideErrorsMods')" />
                             </div>
                         </div>
                     </template>
