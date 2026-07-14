@@ -138,7 +138,7 @@ watch(() => props.show, (val) => {
                     class="flex cursor-pointer items-center justify-between gap-4 px-3 py-1.5 text-sm hover:bg-state-hover transition-colors"
                     @click="handleSelect(item.key)">
                     <span>{{ item.label }}</span>
-                    <span v-if="item.shortcut" class="text-xs text-text-secondary">{{ item.shortcut }}</span>
+                    <span class="min-w-16 text-right text-xs text-text-secondary">{{ item.shortcut }}</span>
                 </div>
             </template>
         </div>
