@@ -16,6 +16,7 @@ interface Filters {
     onlyDisabled: boolean
     onlyConflicts: boolean
     onlyErrors: boolean
+    hideErrors: boolean
 }
 
 const filters = defineModel<Filters>("filters", {
@@ -26,6 +27,7 @@ const filters = defineModel<Filters>("filters", {
         onlyDisabled: false,
         onlyConflicts: false,
         onlyErrors: false,
+        hideErrors: false,
     })
 })
 
@@ -93,6 +95,8 @@ function getModTypeClass(modType: string) {
                                     :label="$t('modsTab.header.advancedFilters.actions.onlyConflictsMods')" />
                                 <Checkbox v-model="filters.onlyErrors"
                                     :label="$t('modsTab.header.advancedFilters.actions.onlyErrorsMods')" />
+                                <Checkbox v-model="filters.hideErrors"
+                                    :label="$t('modsTab.header.advancedFilters.actions.hideErrorsMods')" />
                             </div>
                         </div>
                     </template>

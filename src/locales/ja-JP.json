@@ -131,7 +131,8 @@
                     "onlyEnabledMods": "有効なMODのみ表示",
                     "onlyDisabledMods": "無効なMODのみ表示",
                     "onlyConflictsMods": "競合するMODのみ表示",
-                    "onlyErrorsMods": "エラーのあるMODのみ表示"
+                    "onlyErrorsMods": "エラーのあるMODのみ表示",
+                "hideErrorsMods": "エラーMODを非表示"
                 }
             }
         },
@@ -257,7 +258,8 @@
                 "hideMenCharacters": "男性キャラクターを非表示",
                 "hideWomenCharacters": "女性キャラクターを非表示",
                 "onlyCharactersWithMods": "MODがあるキャラクターのみ表示",
-                "onlyCharactersWithoutMods": "MODがないキャラクターのみ表示"
+                "onlyCharactersWithoutMods": "MODがないキャラクターのみ表示",
+            "onlyCollabCharacters": "コラボキャラクターのみ表示"
             },
             "releasePeriod": {
                 "title": "リリース期間",

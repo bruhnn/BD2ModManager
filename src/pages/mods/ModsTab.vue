@@ -87,6 +87,7 @@ let filters = reactive({
   onlyDisabled: false,
   onlyConflicts: false,
   onlyErrors: false,
+  hideErrors: false,
 });
 const totalModsCount = computed(() => modsStore.mods.length)
 const enabledModsCount = computed(() => modsStore.mods.filter(mod => mod.enabled && !mod.errors.length).length)
@@ -140,6 +141,7 @@ const filteredMods = computed(() => {
     if (filters.onlyEnabled && !mod.enabled) return false
     if (filters.onlyDisabled && mod.enabled) return false
     if (filters.onlyErrors && mod.errors.length === 0) return false
+    if (filters.hideErrors && mod.errors.length > 0) return false
     // mods with conflicts, a conflict is when the mod has at least one mod in its conflictsWith array that is also enabled
     // if (filters.onlyConflicts && mod.conflictsWith.length === 0) return false
     if (filters.onlyConflicts && mod.conflictingMods.length === 0) return false

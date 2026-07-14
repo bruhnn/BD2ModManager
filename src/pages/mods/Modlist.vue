@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { h, ref, computed, onActivated, onDeactivated, nextTick } from 'vue'
+import { h, ref, computed, onActivated, onDeactivated, nextTick, watch } from 'vue'
 import { useVirtualizer } from '@tanstack/vue-virtual'
 import { BD2ModExtended } from '../../stores/mods'
 import {
@@ -131,6 +131,13 @@ const columns = [
             ])
         },
         header: () => h('span', { class: 'flex text-text-primary items-center' }, t('modsTab.modlist.header.modName')),
+        sortingFn: (rowA, rowB) => {
+            const useDisplayName = preferencesStore.modNameDisplay === "short"
+            const nameA = useDisplayName ? rowA.original.displayName : rowA.original.name
+            const nameB = useDisplayName ? rowB.original.displayName : rowB.original.name
+            return nameA.localeCompare(nameB, undefined, { sensitivity: 'base' })
+        },
+        sortDescFirst: false,
         size: 300
     }),
     columnHelper.accessor('modType', {
@@ -339,6 +346,15 @@ const table = useVueTable({
 })
 
 const rows = computed(() => table.getRowModel().rows)
+
+// Re-apply current sorting when mod-name display preference changes so
+// the list re-orders to match what the column shows.
+watch(() => preferencesStore.modNameDisplay, () => {
+    if (sorting.value.some(sort => sort.id === 'name')) {
+        table.setSorting([...sorting.value])
+    }
+})
+
 
 const selectedMods = computed(() => {
     return rows.value

@@ -137,7 +137,8 @@
                     "onlyEnabledMods": "Only Enabled Mods",
                     "onlyDisabledMods": "Only Disabled Mods",
                     "onlyConflictsMods": "Only Conflicts Mods",
-                    "onlyErrorsMods": "Only Errors Mods"
+                    "onlyErrorsMods": "Only Errors Mods",
+                "hideErrorsMods": "Hide Error Mods"
                 }
             }
         },
@@ -263,7 +264,8 @@
                 "hideMenCharacters": "Hide Men Characters",
                 "hideWomenCharacters": "Hide Women Characters",
                 "onlyCharactersWithMods": "Only Characters with Mods",
-                "onlyCharactersWithoutMods": "Only Characters without Mods"
+                "onlyCharactersWithoutMods": "Only Characters without Mods",
+            "onlyCollabCharacters": "Only Collab Characters"
             },
             "releasePeriod": {
                 "title": "Release Period",
