@@ -160,7 +160,8 @@
                 "deleteMod": "删除模组",
                 "deleteSelectedMods": "删除所选模组",
                 "openModFolder": "打开模组文件夹",
-                "previewMod": "预览模组"
+                "previewMod": "预览模组",
+                "previewModShortcut": "双击"
             }
         },
         "confirmations": {

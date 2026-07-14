@@ -166,7 +166,8 @@
                 "deleteMod": "Delete Mod",
                 "deleteSelectedMods": "Delete Selected Mods",
                 "openModFolder": "Open Mod Folder",
-                "previewMod": "Preview Mod"
+                "previewMod": "Preview Mod",
+                "previewModShortcut": "Double-Click"
             }
         },
         "confirmations": {

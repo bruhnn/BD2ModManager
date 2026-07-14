@@ -160,7 +160,8 @@
                 "deleteMod": "MODを削除",
                 "deleteSelectedMods": "選択したMODを削除",
                 "openModFolder": "MODフォルダを開く",
-                "previewMod": "MODをプレビュー"
+                "previewMod": "MODをプレビュー",
+                "previewModShortcut": "ダブルクリック"
             }
         },
         "confirmations": {

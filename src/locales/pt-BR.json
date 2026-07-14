@@ -160,7 +160,8 @@
                 "deleteMod": "Excluir Mod",
                 "deleteSelectedMods": "Excluir Mods Selecionados",
                 "openModFolder": "Abrir Pasta do Mod",
-                "previewMod": "Visualizar Mod"
+                "previewMod": "Visualizar Mod",
+                "previewModShortcut": "Duplo Clique"
             }
         },
         "confirmations": {

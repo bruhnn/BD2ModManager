@@ -160,7 +160,8 @@
                 "deleteMod": "刪除模組",
                 "deleteSelectedMods": "刪除所選模組",
                 "openModFolder": "開啟模組資料夾",
-                "previewMod": "預覽模組"
+                "previewMod": "預覽模組",
+                "previewModShortcut": "雙擊"
             }
         },
         "confirmations": {
