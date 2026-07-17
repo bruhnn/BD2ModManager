@@ -1,5 +1,5 @@
 {
-    "version": "0.0.22",
+    "version": "0.0.24",
     "characters": [
         {
             "id": "000708",
@@ -7072,6 +7072,43 @@
             "assets": {
                 "head_image": "icon_char003392_215.png",
                 "character_image": "illust_inven_char003392_212.png",
+                "skill_image": null
+            }
+        },
+        {
+            "id": "061306",
+            "character": "Dalvi",
+            "costume": "Tricky Lover",
+            "is_collab": false,
+            "cutscene": false,
+            "standing": false,
+            "dating_id": null,
+            "character_image": "illust_inven_char061306_208.png",
+            "skill_preview_image": null,
+            "release_date": "2026-07-16",
+            "gender": "female",
+            "costume_id": "061306",
+            "character_id": 613,
+            "character_name": {
+                "en": "Dalvi",
+                "cn": "达非",
+                "jp": "キュウビ",
+                "tw": "達非",
+                "kr": "달비"
+            },
+            "costume_name": {
+                "en": "Tricky Lover",
+                "cn": "机智恋人",
+                "jp": "トリッキー・ラヴァー",
+                "tw": "詭計戀人",
+                "kr": "트릭키 러버"
+            },
+            "skin_type": "normal",
+            "grade": 5,
+            "element": "wind",
+            "assets": {
+                "head_image": "icon_char061306_211.png",
+                "character_image": "illust_inven_char061306_208.png",
                 "skill_image": null
             }
         }
