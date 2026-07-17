@@ -17,6 +17,9 @@
             "dating": "約會",
             "npc": "NPC",
             "minigame": "小遊戲"
+        },
+        "messages": {
+            "selectEmptyState": "這裡什麼都沒有..."
         }
     },
     "app": {
@@ -97,7 +100,8 @@
             }
         },
         "actions": {
-            "launchGame": "啟動遊戲"
+            "launchGame": "啟動遊戲",
+            "launchGameWithoutMods": "啟動（原版）"
         }
     },
     "modsTab": {
@@ -109,7 +113,9 @@
             "installFromFolder": "從資料夾安裝",
             "openModsFolder": "開啟模組資料夾",
             "syncMods": "同步模組",
-            "unsyncMods": "取消同步模組"
+            "unsyncMods": "取消同步模組",
+            "openGameFolder": "開啟遊戲資料夾",
+            "openGameModsFolder": "開啟遊戲 Mod 資料夾"
         },
         "browndustx": {
             "status": {
@@ -132,7 +138,7 @@
                     "onlyDisabledMods": "僅顯示已停用模組",
                     "onlyConflictsMods": "僅顯示衝突模組",
                     "onlyErrorsMods": "僅顯示錯誤模組",
-                "hideErrorsMods": "隱藏錯誤模組"
+                    "hideErrorsMods": "隱藏錯誤模組"
                 }
             }
         },
@@ -259,7 +265,7 @@
                 "hideWomenCharacters": "隱藏女性角色",
                 "onlyCharactersWithMods": "僅顯示有模組的角色",
                 "onlyCharactersWithoutMods": "僅顯示沒有模組的角色",
-            "onlyCollabCharacters": "僅顯示聯名角色"
+                "onlyCollabCharacters": "僅顯示聯名角色"
             },
             "releasePeriod": {
                 "title": "發布時間",
@@ -339,6 +345,22 @@
             "profileDeleted": {
                 "title": "設定檔已刪除",
                 "description": "設定檔「{profileName}」已成功刪除。"
+            },
+            "profileCreateFailed": {
+                "title": "建立設定檔失敗",
+                "description": "建立設定檔「{profileName}」時發生錯誤。"
+            },
+            "profileUpdateFailed": {
+                "title": "更新設定檔失敗",
+                "description": "更新設定檔「{profileName}」時發生錯誤。"
+            },
+            "profileDeleteFailed": {
+                "title": "刪除設定檔失敗",
+                "description": "刪除設定檔「{profileName}」時發生錯誤。"
+            },
+            "profileSwitchFailed": {
+                "title": "切換設定檔失敗",
+                "description": "切換至設定檔「{profileName}」時發生錯誤。"
             }
         },
         "confirmations": {
@@ -434,14 +456,23 @@
                 "title": "移除 BepInEx？",
                 "message": "確定要移除 BepInEx 嗎？此操作將從遊戲目錄中移除所有 BepInEx 檔案，且無法復原。",
                 "actions": {
-                    "removeBepInEx": "移除 BepInEx"
+                    "removeBepInEx": "移除 BepInEx",
+                    "confirm": "移除 BepInEx"
                 }
             },
             "removeBrownDustX": {
                 "title": "移除 BrownDustX？",
                 "message": "確定要移除 BrownDustX 嗎？此操作將從遊戲目錄中移除所有 BrownDustX 檔案，包含您的所有模組，且無法復原。",
                 "actions": {
-                    "removeBrownDustX": "移除 BrownDustX"
+                    "removeBrownDustX": "移除 BrownDustX",
+                    "confirm": "移除 BrownDustX"
+                }
+            },
+            "removeConfigManager": {
+                "title": "要移除 Configuration Manager 嗎？",
+                "message": "確定要移除 Configuration Manager 嗎？此操作將刪除遊戲目錄中所有 Configuration Manager 檔案，且無法復原。",
+                "actions": {
+                    "confirm": "移除 Configuration Manager"
                 }
             }
         },
@@ -461,7 +492,63 @@
                     "install": "安裝",
                     "retry": "重試"
                 }
+            },
+            "installFromGithub": {
+                "title": "從 GitHub 安裝",
+                "description": "從 GitHub 上可用的發行版本中選擇要安裝的版本。",
+                "loading": "正在從 GitHub 載入發行版本...",
+                "failedToLoadVersions": "載入版本失敗",
+                "bepinexTitle": "安裝 BepInEx",
+                "configManagerTitle": "安裝 Configuration Manager",
+                "badges": {
+                    "recommended": "推薦"
+                },
+                "options": {
+                    "enableOtherVersions": "我接受風險，想安裝其他版本"
+                },
+                "enableOtherVersionsWarning": "其他版本可能會與 BrownDustX 產生相容性問題。若遇到問題，請在回報前先切換回推薦版本。",
+                "actions": {
+                    "viewOnGithub": "在 GitHub 上檢視",
+                    "install": "安裝",
+                    "retry": "重試"
+                }
             }
+        },
+        "errors": {
+            "gamePathNotSet": "尚未設定遊戲路徑。",
+            "bepinexNotInstalled": "尚未安裝 BepInEx，請先安裝 BepInEx。",
+            "invalidArchive": "無效的壓縮檔。",
+            "alreadyInstalled": "已安裝。",
+            "archiveNotFound": "找不到壓縮檔：{error}",
+            "extractionFailed": "解壓縮失敗：{error}",
+            "downloadFailed": "下載失敗：{error}",
+            "unknown": "發生未知錯誤：{error}。"
+        },
+        "logs": {
+            "versionInstalled": "{scope} 版本 {version} 已安裝。",
+            "notInstalled": "{scope} 尚未安裝。",
+            "fetchError": "取得 {scope} 狀態時發生錯誤：{error}。",
+            "installingFromArchive": "開始從壓縮檔安裝 {scope}：{path}",
+            "installingFromUrl": "開始從 URL 安裝 {scope}：{url}",
+            "installedSuccess": "{scope} 安裝成功。",
+            "installError": "安裝 {scope} 時發生錯誤：{error}",
+            "gameDirectorySet": "遊戲目錄已設定為 {path}。正在重新檢查安裝狀態...",
+            "gameDirectoryUnset": "尚未設定遊戲目錄。請設定遊戲目錄以管理安裝項目。",
+            "unsupportedFile": "拖曳了不支援的檔案類型：{path}",
+            "unknownArchiveType": "無法判斷此檔案的壓縮檔類型：{path}。請將檔案重新命名，使其包含「BepInEx」、「BrownDustX」或「ConfigManager」字樣。",
+            "uninstalling": "正在解除安裝 {scope}...",
+            "uninstalledSuccess": "{scope} 解除安裝成功。"
+        },
+        "fileDialog": {
+            "archiveFilter": "壓縮檔",
+            "bepinexTitle": "選擇 BepInEx 壓縮檔",
+            "browndustxTitle": "選擇 BrownDustX 壓縮檔",
+            "configManagerTitle": "選擇 Configuration Manager 壓縮檔"
+        },
+        "canRemoveReasons": {
+            "VersionMismatch": "在 BD2ModManager 之外安裝",
+            "PluginsInstalled": "請先移除其他外掛",
+            "NotInstalled": "尚未安裝。"
         }
     },
     "settingsTab": {
@@ -479,6 +566,10 @@
                     "language": {
                         "label": "語言",
                         "placeholder": "選取語言"
+                    },
+                    "forceEnglishNames": {
+                        "label": "使用英文角色名稱",
+                        "description": "無論選擇何種語言，一律以英文顯示角色名稱。"
                     }
                 },
                 "directories": {
@@ -599,7 +690,8 @@
                     },
                     "actions": {
                         "importProfiles": "匯入設定檔",
-                        "importModAuthors": "匯入模組作者"
+                        "importModAuthors": "匯入模組作者",
+                        "searchProfiles": "搜尋設定檔"
                     },
                     "confirmations": {
                         "importModAuthors": {
@@ -631,7 +723,25 @@
                         "noProfilesToImport": {
                             "title": "沒有可匯入的設定檔",
                             "description": "在舊版本中未找到可匯入的設定檔。"
+                        },
+                        "noProfilesSelected": {
+                            "title": "未選擇任何設定檔",
+                            "description": "請至少選擇一個要匯入的設定檔。"
+                        },
+                        "noModAuthorsToImport": {
+                            "title": "沒有可匯入的 Mod 作者",
+                            "description": "在舊版本中找不到可匯入的 Mod 作者。"
                         }
+                    },
+                    "errors": {
+                        "IoError": "I/O 錯誤：{message}",
+                        "ProfileImportError": "匯入設定檔失敗：{message}",
+                        "ProfileDeleteError": "刪除舊版設定檔失敗：{message}",
+                        "ModsImportError": "讀取舊版 Mod 失敗：{message}",
+                        "ModsParseError": "解析舊版 Mod 失敗：{message}",
+                        "ModsDeleteError": "刪除舊版 Mod 檔案失敗：{message}",
+                        "ModsRefreshError": "匯入後重新整理 Mod 失敗：{message}",
+                        "Unknown": "發生非預期錯誤：{message}"
                     }
                 }
             }
@@ -743,6 +853,9 @@
                 "later": "稍後",
                 "goToReleases": "前往發布頁"
             }
+        },
+        "confirmation": {
+            "rememberChoice": "不再顯示"
         }
     },
     "errors": {

@@ -17,6 +17,9 @@
             "dating": "デート",
             "npc": "NPC",
             "minigame": "ミニゲーム"
+        },
+        "messages": {
+            "selectEmptyState": "見つかりませんでした..."
         }
     },
     "app": {
@@ -97,7 +100,8 @@
             }
         },
         "actions": {
-            "launchGame": "ゲームを起動"
+            "launchGame": "ゲームを起動",
+            "launchGameWithoutMods": "起動（バニラ）"
         }
     },
     "modsTab": {
@@ -109,7 +113,9 @@
             "installFromFolder": "フォルダからインストール",
             "openModsFolder": "MODフォルダを開く",
             "syncMods": "MODを同期",
-            "unsyncMods": "MODの同期を解除"
+            "unsyncMods": "MODの同期を解除",
+            "openGameFolder": "ゲームフォルダを開く",
+            "openGameModsFolder": "ゲームの Mod フォルダを開く"
         },
         "browndustx": {
             "status": {
@@ -132,7 +138,7 @@
                     "onlyDisabledMods": "無効なMODのみ表示",
                     "onlyConflictsMods": "競合するMODのみ表示",
                     "onlyErrorsMods": "エラーのあるMODのみ表示",
-                "hideErrorsMods": "エラーMODを非表示"
+                    "hideErrorsMods": "エラーMODを非表示"
                 }
             }
         },
@@ -259,7 +265,7 @@
                 "hideWomenCharacters": "女性キャラクターを非表示",
                 "onlyCharactersWithMods": "MODがあるキャラクターのみ表示",
                 "onlyCharactersWithoutMods": "MODがないキャラクターのみ表示",
-            "onlyCollabCharacters": "コラボキャラクターのみ表示"
+                "onlyCollabCharacters": "コラボキャラクターのみ表示"
             },
             "releasePeriod": {
                 "title": "リリース期間",
@@ -339,6 +345,22 @@
             "profileDeleted": {
                 "title": "プロファイルを削除しました",
                 "description": "プロファイル「{profileName}」が正常に削除されました。"
+            },
+            "profileCreateFailed": {
+                "title": "プロファイルの作成に失敗しました",
+                "description": "プロファイル「{profileName}」の作成中にエラーが発生しました。"
+            },
+            "profileUpdateFailed": {
+                "title": "プロファイルの更新に失敗しました",
+                "description": "プロファイル「{profileName}」の更新中にエラーが発生しました。"
+            },
+            "profileDeleteFailed": {
+                "title": "プロファイルの削除に失敗しました",
+                "description": "プロファイル「{profileName}」の削除中にエラーが発生しました。"
+            },
+            "profileSwitchFailed": {
+                "title": "プロファイルの切り替えに失敗しました",
+                "description": "プロファイル「{profileName}」への切り替え中にエラーが発生しました。"
             }
         },
         "confirmations": {
@@ -434,14 +456,23 @@
                 "title": "BepInExを削除しますか？",
                 "message": "BepInExを削除してもよろしいですか？この操作はゲームディレクトリからすべてのBepInExファイルを削除します。この操作は元に戻せません。",
                 "actions": {
-                    "removeBepInEx": "BepInExを削除"
+                    "removeBepInEx": "BepInExを削除",
+                    "confirm": "BepInEx を削除"
                 }
             },
             "removeBrownDustX": {
                 "title": "BrownDustXを削除しますか？",
                 "message": "BrownDustXを削除してもよろしいですか？この操作はゲームディレクトリからすべてのBrownDustXファイルとMODを削除します。この操作は元に戻せません。",
                 "actions": {
-                    "removeBrownDustX": "BrownDustXを削除"
+                    "removeBrownDustX": "BrownDustXを削除",
+                    "confirm": "BrownDustX を削除"
+                }
+            },
+            "removeConfigManager": {
+                "title": "Configuration Manager を削除しますか？",
+                "message": "Configuration Manager を削除してもよろしいですか？ゲームディレクトリ内のすべての Configuration Manager ファイルが削除されます。この操作は取り消せません。",
+                "actions": {
+                    "confirm": "Configuration Manager を削除"
                 }
             }
         },
@@ -461,7 +492,63 @@
                     "install": "インストール",
                     "retry": "再試行"
                 }
+            },
+            "installFromGithub": {
+                "title": "GitHub からインストール",
+                "description": "GitHub で公開されているリリースからインストールするバージョンを選択してください。",
+                "loading": "GitHub からリリースを読み込み中...",
+                "failedToLoadVersions": "バージョンの読み込みに失敗しました",
+                "bepinexTitle": "BepInEx をインストール",
+                "configManagerTitle": "Configuration Manager をインストール",
+                "badges": {
+                    "recommended": "推奨"
+                },
+                "options": {
+                    "enableOtherVersions": "リスクを理解した上で、他のバージョンをインストールする"
+                },
+                "enableOtherVersionsWarning": "他のバージョンは BrownDustX との互換性に問題が生じる場合があります。問題が発生した場合は、報告前に推奨バージョンに戻してください。",
+                "actions": {
+                    "viewOnGithub": "GitHub で見る",
+                    "install": "インストール",
+                    "retry": "再試行"
+                }
             }
+        },
+        "errors": {
+            "gamePathNotSet": "ゲームパスが設定されていません。",
+            "bepinexNotInstalled": "BepInEx がインストールされていません。先に BepInEx をインストールしてください。",
+            "invalidArchive": "無効なアーカイブファイルです。",
+            "alreadyInstalled": "すでにインストールされています。",
+            "archiveNotFound": "アーカイブが見つかりません：{error}",
+            "extractionFailed": "展開に失敗しました：{error}",
+            "downloadFailed": "ダウンロードに失敗しました：{error}",
+            "unknown": "不明なエラーが発生しました：{error}。"
+        },
+        "logs": {
+            "versionInstalled": "{scope} のバージョン {version} がインストールされています。",
+            "notInstalled": "{scope} はインストールされていません。",
+            "fetchError": "{scope} の状態取得中にエラーが発生しました：{error}。",
+            "installingFromArchive": "アーカイブから {scope} のインストールを開始します：{path}",
+            "installingFromUrl": "URL から {scope} のインストールを開始します：{url}",
+            "installedSuccess": "{scope} のインストールが完了しました。",
+            "installError": "{scope} のインストール中にエラーが発生しました：{error}",
+            "gameDirectorySet": "ゲームディレクトリを {path} に設定しました。インストール状況を再確認しています...",
+            "gameDirectoryUnset": "ゲームディレクトリが設定されていません。インストールを管理するにはゲームディレクトリを設定してください。",
+            "unsupportedFile": "サポートされていないファイル形式がドロップされました：{path}",
+            "unknownArchiveType": "アーカイブの種類を判別できませんでした：{path}。ファイル名に「BepInEx」「BrownDustX」「ConfigManager」のいずれかを含めてリネームしてください。",
+            "uninstalling": "{scope} をアンインストール中...",
+            "uninstalledSuccess": "{scope} のアンインストールが完了しました。"
+        },
+        "fileDialog": {
+            "archiveFilter": "アーカイブファイル",
+            "bepinexTitle": "BepInEx アーカイブファイルを選択",
+            "browndustxTitle": "BrownDustX アーカイブファイルを選択",
+            "configManagerTitle": "Configuration Manager アーカイブファイルを選択"
+        },
+        "canRemoveReasons": {
+            "VersionMismatch": "BD2ModManager 以外でインストールされています",
+            "PluginsInstalled": "先に他のプラグインを削除してください",
+            "NotInstalled": "インストールされていません。"
         }
     },
     "settingsTab": {
@@ -479,6 +566,10 @@
                     "language": {
                         "label": "言語",
                         "placeholder": "言語を選択"
+                    },
+                    "forceEnglishNames": {
+                        "label": "キャラクター名を英語表示にする",
+                        "description": "選択している言語に関わらず、キャラクター名を常に英語で表示します。"
                     }
                 },
                 "directories": {
@@ -599,7 +690,8 @@
                     },
                     "actions": {
                         "importProfiles": "プロフィールをインポート",
-                        "importModAuthors": "Mod作者をインポート"
+                        "importModAuthors": "Mod作者をインポート",
+                        "searchProfiles": "プロファイルを検索"
                     },
                     "confirmations": {
                         "importModAuthors": {
@@ -631,7 +723,25 @@
                         "noProfilesToImport": {
                             "title": "インポートするプロフィールがありません",
                             "description": "旧バージョンにインポートできるプロフィールが見つかりませんでした。"
+                        },
+                        "noProfilesSelected": {
+                            "title": "プロファイルが選択されていません",
+                            "description": "インポートするプロファイルを1つ以上選択してください。"
+                        },
+                        "noModAuthorsToImport": {
+                            "title": "インポートできる Mod 作者がありません",
+                            "description": "旧バージョンにインポート可能な Mod 作者が見つかりませんでした。"
                         }
+                    },
+                    "errors": {
+                        "IoError": "I/O エラー：{message}",
+                        "ProfileImportError": "プロファイルのインポートに失敗しました：{message}",
+                        "ProfileDeleteError": "旧プロファイルの削除に失敗しました：{message}",
+                        "ModsImportError": "旧バージョンの Mod の読み込みに失敗しました：{message}",
+                        "ModsParseError": "旧バージョンの Mod の解析に失敗しました：{message}",
+                        "ModsDeleteError": "旧バージョンの Mod ファイルの削除に失敗しました：{message}",
+                        "ModsRefreshError": "インポート後の Mod の再読み込みに失敗しました：{message}",
+                        "Unknown": "予期しないエラーが発生しました：{message}"
                     }
                 }
             }
@@ -743,6 +853,9 @@
                 "later": "後で",
                 "goToReleases": "リリースページへ"
             }
+        },
+        "confirmation": {
+            "rememberChoice": "今後表示しない"
         }
     },
     "errors": {
