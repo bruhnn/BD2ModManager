@@ -1,7 +1,7 @@
 {
   "name": "bd2modmanager",
   "private": true,
-  "version": "4.2.0-beta",
+  "version": "4.2.0",
   "type": "module",
   "scripts": {
     "dev": "vite",

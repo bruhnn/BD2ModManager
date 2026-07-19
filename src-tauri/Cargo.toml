@@ -1,6 +1,6 @@
 [package]
 name = "BD2ModManager"
-version = "4.2.0-beta"
+version = "4.2.0"
 description = "Brown Dust 2 Mod Manager"
 authors = ["bruhnn"]
 edition = "2021"

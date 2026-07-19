@@ -6,6 +6,7 @@ import { ChevronRight } from 'lucide-vue-next'
 export interface ContextMenuItem {
     label?: string
     key: string
+    shortcut?: string
     type?: 'divider'
     children?: ContextMenuItem[]
     show?: boolean
@@ -134,9 +135,10 @@ watch(() => props.show, (val) => {
                 </div>
 
                 <div v-else
-                    class="cursor-pointer px-3 py-1.5 text-sm hover:bg-state-hover transition-colors"
+                    class="flex cursor-pointer items-center justify-between gap-4 px-3 py-1.5 text-sm hover:bg-state-hover transition-colors"
                     @click="handleSelect(item.key)">
-                    {{ item.label }}
+                    <span>{{ item.label }}</span>
+                    <span class="min-w-16 text-right text-xs text-text-secondary">{{ item.shortcut }}</span>
                 </div>
             </template>
         </div>

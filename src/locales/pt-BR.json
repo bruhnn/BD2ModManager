@@ -17,6 +17,9 @@
             "dating": "Date",
             "npc": "NPC",
             "minigame": "Minijogo"
+        },
+        "messages": {
+            "selectEmptyState": "Nada encontrado aqui..."
         }
     },
     "app": {
@@ -97,7 +100,8 @@
             }
         },
         "actions": {
-            "launchGame": "Iniciar Jogo"
+            "launchGame": "Iniciar Jogo",
+            "launchGameWithoutMods": "Iniciar (Vanilla)"
         }
     },
     "modsTab": {
@@ -109,7 +113,9 @@
             "installFromFolder": "Instalar da Pasta",
             "openModsFolder": "Abrir Pasta de Mods",
             "syncMods": "Sincronizar Mods",
-            "unsyncMods": "Dessincronizar Mods"
+            "unsyncMods": "Dessincronizar Mods",
+            "openGameFolder": "Abrir Pasta do Jogo",
+            "openGameModsFolder": "Abrir Pasta de Mods do Jogo"
         },
         "browndustx": {
             "status": {
@@ -132,7 +138,7 @@
                     "onlyDisabledMods": "Apenas Mods Desativados",
                     "onlyConflictsMods": "Apenas Mods com Conflitos",
                     "onlyErrorsMods": "Apenas Mods com Erros",
-                "hideErrorsMods": "Ocultar Mods com Erros"
+                    "hideErrorsMods": "Ocultar Mods com Erros"
                 }
             }
         },
@@ -160,7 +166,8 @@
                 "deleteMod": "Excluir Mod",
                 "deleteSelectedMods": "Excluir Mods Selecionados",
                 "openModFolder": "Abrir Pasta do Mod",
-                "previewMod": "Visualizar Mod"
+                "previewMod": "Visualizar Mod",
+                "previewModShortcut": "Duplo Clique"
             }
         },
         "confirmations": {
@@ -257,7 +264,8 @@
                 "hideMenCharacters": "Ocultar Personagens Masculinos",
                 "hideWomenCharacters": "Ocultar Personagens Femininos",
                 "onlyCharactersWithMods": "Apenas Personagens com Mods",
-                "onlyCharactersWithoutMods": "Apenas Personagens sem Mods"
+                "onlyCharactersWithoutMods": "Apenas Personagens sem Mods",
+                "onlyCollabCharacters": "Apenas Personagens de Colaboração"
             },
             "releasePeriod": {
                 "title": "Período de Lançamento",
@@ -337,6 +345,22 @@
             "profileDeleted": {
                 "title": "Perfil Excluído",
                 "description": "O perfil \"{profileName}\" foi excluído com sucesso."
+            },
+            "profileCreateFailed": {
+                "title": "Falha ao Criar Perfil",
+                "description": "Ocorreu um erro ao criar o perfil \"{profileName}\"."
+            },
+            "profileUpdateFailed": {
+                "title": "Falha ao Atualizar Perfil",
+                "description": "Ocorreu um erro ao atualizar o perfil \"{profileName}\"."
+            },
+            "profileDeleteFailed": {
+                "title": "Falha ao Excluir Perfil",
+                "description": "Ocorreu um erro ao excluir o perfil \"{profileName}\"."
+            },
+            "profileSwitchFailed": {
+                "title": "Falha ao Trocar de Perfil",
+                "description": "Ocorreu um erro ao trocar para o perfil \"{profileName}\"."
             }
         },
         "confirmations": {
@@ -432,14 +456,23 @@
                 "title": "Remover BepInEx?",
                 "message": "Tem certeza que deseja remover o BepInEx? Isso irá remover todos os arquivos do BepInEx do seu diretório do jogo. Esta ação não pode ser desfeita.",
                 "actions": {
-                    "removeBepInEx": "Remover BepInEx"
+                    "removeBepInEx": "Remover BepInEx",
+                    "confirm": "Remover BepInEx"
                 }
             },
             "removeBrownDustX": {
                 "title": "Remover BrownDustX?",
                 "message": "Tem certeza que deseja remover o BrownDustX? Isso irá remover todos os arquivos do BrownDustX do seu diretório do jogo, incluindo todos os seus mods. Esta ação não pode ser desfeita.",
                 "actions": {
-                    "removeBrownDustX": "Remover BrownDustX"
+                    "removeBrownDustX": "Remover BrownDustX",
+                    "confirm": "Remover BrownDustX"
+                }
+            },
+            "removeConfigManager": {
+                "title": "Remover Configuration Manager?",
+                "message": "Tem certeza de que deseja remover o Configuration Manager? Isso removerá todos os arquivos do Configuration Manager do diretório do jogo. Esta ação não pode ser desfeita.",
+                "actions": {
+                    "confirm": "Remover Configuration Manager"
                 }
             }
         },
@@ -459,7 +492,63 @@
                     "install": "Instalar",
                     "retry": "Tentar Novamente"
                 }
+            },
+            "installFromGithub": {
+                "title": "Instalar do GitHub",
+                "description": "Selecione uma versão para instalar a partir dos releases disponíveis no GitHub.",
+                "loading": "Carregando releases do GitHub...",
+                "failedToLoadVersions": "Falha ao carregar versões",
+                "bepinexTitle": "Instalar BepInEx",
+                "configManagerTitle": "Instalar Configuration Manager",
+                "badges": {
+                    "recommended": "Recomendado"
+                },
+                "options": {
+                    "enableOtherVersions": "Aceito os riscos e quero instalar outras versões"
+                },
+                "enableOtherVersionsWarning": "Outras versões podem causar problemas de compatibilidade com o BrownDustX. Se encontrar problemas, volte para a versão recomendada antes de reportar.",
+                "actions": {
+                    "viewOnGithub": "Ver no GitHub",
+                    "install": "Instalar",
+                    "retry": "Tentar Novamente"
+                }
             }
+        },
+        "errors": {
+            "gamePathNotSet": "O caminho do jogo não está definido.",
+            "bepinexNotInstalled": "O BepInEx não está instalado. Instale o BepInEx primeiro.",
+            "invalidArchive": "Arquivo compactado inválido.",
+            "alreadyInstalled": "Já instalado.",
+            "archiveNotFound": "Arquivo compactado não encontrado: {error}",
+            "extractionFailed": "Falha na extração: {error}",
+            "downloadFailed": "Falha no download: {error}",
+            "unknown": "Ocorreu um erro desconhecido: {error}."
+        },
+        "logs": {
+            "versionInstalled": "{scope} versão {version} está instalado.",
+            "notInstalled": "{scope} não está instalado.",
+            "fetchError": "Erro ao obter status de {scope}: {error}.",
+            "installingFromArchive": "Iniciando instalação de {scope} a partir do arquivo: {path}",
+            "installingFromUrl": "Iniciando instalação de {scope} a partir da URL: {url}",
+            "installedSuccess": "{scope} instalado com sucesso.",
+            "installError": "Erro ao instalar {scope}: {error}",
+            "gameDirectorySet": "Diretório do jogo definido como {path}. Reverificando instalações...",
+            "gameDirectoryUnset": "Diretório do jogo não definido. Defina o diretório do jogo para gerenciar as instalações.",
+            "unsupportedFile": "Tipo de arquivo não suportado foi solto: {path}",
+            "unknownArchiveType": "Não foi possível determinar o tipo de arquivo compactado para: {path}. Renomeie o arquivo para incluir 'BepInEx', 'BrownDustX' ou 'ConfigManager' no nome.",
+            "uninstalling": "Desinstalando {scope}...",
+            "uninstalledSuccess": "{scope} desinstalado com sucesso."
+        },
+        "fileDialog": {
+            "archiveFilter": "Arquivos Compactados",
+            "bepinexTitle": "Selecionar Arquivo Compactado do BepInEx",
+            "browndustxTitle": "Selecionar Arquivo Compactado do BrownDustX",
+            "configManagerTitle": "Selecionar Arquivo Compactado do Configuration Manager"
+        },
+        "canRemoveReasons": {
+            "VersionMismatch": "Instalado fora do BD2ModManager",
+            "PluginsInstalled": "Remova outros plugins primeiro",
+            "NotInstalled": "Não instalado."
         }
     },
     "settingsTab": {
@@ -477,6 +566,10 @@
                     "language": {
                         "label": "Idioma",
                         "placeholder": "Selecione um idioma"
+                    },
+                    "forceEnglishNames": {
+                        "label": "Usar nomes de personagens em inglês",
+                        "description": "Sempre exibir os nomes dos personagens em inglês, independentemente do idioma selecionado."
                     }
                 },
                 "directories": {
@@ -597,7 +690,8 @@
                     },
                     "actions": {
                         "importProfiles": "Importar Perfis",
-                        "importModAuthors": "Importar Autores de Mods"
+                        "importModAuthors": "Importar Autores de Mods",
+                        "searchProfiles": "Buscar Perfis"
                     },
                     "confirmations": {
                         "importModAuthors": {
@@ -629,7 +723,25 @@
                         "noProfilesToImport": {
                             "title": "Nenhum Perfil para Importar",
                             "description": "Nenhum perfil foi encontrado na versão legada para importar."
+                        },
+                        "noProfilesSelected": {
+                            "title": "Nenhum Perfil Selecionado",
+                            "description": "Selecione pelo menos um perfil para importar."
+                        },
+                        "noModAuthorsToImport": {
+                            "title": "Nenhum Autor de Mod para Importar",
+                            "description": "Nenhum autor de mod foi encontrado na versão legada para importar."
                         }
+                    },
+                    "errors": {
+                        "IoError": "Erro de E/S: {message}",
+                        "ProfileImportError": "Falha ao importar perfil: {message}",
+                        "ProfileDeleteError": "Falha ao excluir perfil legado: {message}",
+                        "ModsImportError": "Falha ao ler mods legados: {message}",
+                        "ModsParseError": "Falha ao analisar mods legados: {message}",
+                        "ModsDeleteError": "Falha ao excluir arquivo de mods legado: {message}",
+                        "ModsRefreshError": "Falha ao atualizar mods após a importação: {message}",
+                        "Unknown": "Erro inesperado: {message}"
                     }
                 }
             }
@@ -741,6 +853,9 @@
                 "later": "Depois",
                 "goToReleases": "Ver Releases"
             }
+        },
+        "confirmation": {
+            "rememberChoice": "Não mostrar novamente"
         }
     },
     "errors": {

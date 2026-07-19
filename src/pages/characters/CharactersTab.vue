@@ -21,6 +21,7 @@ import Select from '../../components/common/Select.vue';
 import Checkbox from '../../components/common/Checkbox.vue';
 import { useModInstall } from '../../composables/useModInstall';
 import Popover from '../../components/common/Popover.vue';
+import { Language } from '../../stores/settings.ts';
 
 const { t } = useI18n()
 const route = useRoute()
@@ -40,6 +41,7 @@ const userFilters = reactive({
     standing: 'any',
     dating: 'any',
     hideCollabCharacters: false,
+    onlyCollabCharacters: false,
     hideMenCharacters: false,
     hideWomenCharacters: false,
     releasePeriod: 'all',
@@ -167,11 +169,16 @@ const filteredCharacters = computed(() => {
     const search = userFilters.searchQuery.toLowerCase();
 
     return charactersStore.characters.filter((char) => {
-        if (
-            search &&
-            !char.character.toLowerCase().includes(search) &&
-            !char.costume.toLowerCase().includes(search)
-        ) return false;
+    if (search) {
+        const matchesSearch = Object.keys(char.character_name).some((locale) => {
+            const l = locale as Language;
+            return (
+                char.character_name[l].toLowerCase().includes(search) ||
+                char.costume_name[l].toLowerCase().includes(search)
+            );
+        });
+        if (!matchesSearch) return false;
+    }
 
         const cutsceneEnabled = hasCutsceneInstalled(char.id);
         const standingEnabled = hasStandingInstalled(char.id);
@@ -190,6 +197,8 @@ const filteredCharacters = computed(() => {
 
         if (userFilters.hideMenCharacters && char?.gender === 'male') return false;
         if (userFilters.hideWomenCharacters && char?.gender === 'female') return false;
+
+        if (userFilters.onlyCollabCharacters && !char.is_collab) return false;
 
         if (userFilters.onlyCharactersWithMods && getInstalledModsCount(char.id) === 0) return false;
         if (userFilters.onlyCharactersWithoutMods && getInstalledModsCount(char.id) > 0) return false;
@@ -438,6 +447,8 @@ watch(() => route.query.characterId, (newCharacterId) => {
                             :label="t('charactersTab.filters.extraFilters.onlyCharactersWithMods')" />
                         <Checkbox v-model="userFilters.onlyCharactersWithoutMods"
                             :label="t('charactersTab.filters.extraFilters.onlyCharactersWithoutMods')" />
+                        <Checkbox v-model="userFilters.onlyCollabCharacters"
+                            :label="t('charactersTab.filters.extraFilters.onlyCollabCharacters')" />
                     </div>
                 </div>
 

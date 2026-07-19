@@ -476,6 +476,7 @@ const contextMenuItems = computed<ContextMenuItem[]>(() => {
         {
             label: t('modsTab.modlist.contextMenu.previewMod'),
             key: 'preview',
+            shortcut: t('modsTab.modlist.contextMenu.previewModShortcut'),
             show: isSingleSelection
         } as ContextMenuItem,
     ].filter(item => item.show !== false)

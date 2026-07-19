@@ -138,7 +138,7 @@
                     "onlyDisabledMods": "Only Disabled Mods",
                     "onlyConflictsMods": "Only Conflicts Mods",
                     "onlyErrorsMods": "Only Errors Mods",
-                "hideErrorsMods": "Hide Error Mods"
+                    "hideErrorsMods": "Hide Error Mods"
                 }
             }
         },
@@ -166,7 +166,8 @@
                 "deleteMod": "Delete Mod",
                 "deleteSelectedMods": "Delete Selected Mods",
                 "openModFolder": "Open Mod Folder",
-                "previewMod": "Preview Mod"
+                "previewMod": "Preview Mod",
+                "previewModShortcut": "Double-Click"
             }
         },
         "confirmations": {
@@ -263,7 +264,8 @@
                 "hideMenCharacters": "Hide Men Characters",
                 "hideWomenCharacters": "Hide Women Characters",
                 "onlyCharactersWithMods": "Only Characters with Mods",
-                "onlyCharactersWithoutMods": "Only Characters without Mods"
+                "onlyCharactersWithoutMods": "Only Characters without Mods",
+                "onlyCollabCharacters": "Only Collab Characters"
             },
             "releasePeriod": {
                 "title": "Release Period",

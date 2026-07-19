@@ -17,6 +17,9 @@
             "dating": "约会",
             "npc": "NPC",
             "minigame": "小游戏"
+        },
+        "messages": {
+            "selectEmptyState": "这里什么都没有..."
         }
     },
     "app": {
@@ -97,7 +100,8 @@
             }
         },
         "actions": {
-            "launchGame": "启动游戏"
+            "launchGame": "启动游戏",
+            "launchGameWithoutMods": "启动（原版）"
         }
     },
     "modsTab": {
@@ -109,7 +113,9 @@
             "installFromFolder": "从文件夹安装",
             "openModsFolder": "打开模组文件夹",
             "syncMods": "同步模组",
-            "unsyncMods": "取消同步"
+            "unsyncMods": "取消同步",
+            "openGameFolder": "打开游戏文件夹",
+            "openGameModsFolder": "打开游戏 Mod 文件夹"
         },
         "browndustx": {
             "status": {
@@ -132,7 +138,7 @@
                     "onlyDisabledMods": "仅显示已禁用模组",
                     "onlyConflictsMods": "仅显示有冲突的模组",
                     "onlyErrorsMods": "仅显示有错误的模组",
-                "hideErrorsMods": "隐藏错误模组"
+                    "hideErrorsMods": "隐藏错误模组"
                 }
             }
         },
@@ -160,7 +166,8 @@
                 "deleteMod": "删除模组",
                 "deleteSelectedMods": "删除所选模组",
                 "openModFolder": "打开模组文件夹",
-                "previewMod": "预览模组"
+                "previewMod": "预览模组",
+                "previewModShortcut": "双击"
             }
         },
         "confirmations": {
@@ -257,7 +264,8 @@
                 "hideMenCharacters": "隐藏男性角色",
                 "hideWomenCharacters": "隐藏女性角色",
                 "onlyCharactersWithMods": "仅显示有模组的角色",
-                "onlyCharactersWithoutMods": "仅显示无模组的角色"
+                "onlyCharactersWithoutMods": "仅显示无模组的角色",
+                "onlyCollabCharacters": "仅显示联动角色"
             },
             "releasePeriod": {
                 "title": "发布时间段",
@@ -337,6 +345,22 @@
             "profileDeleted": {
                 "title": "配置文件已删除",
                 "description": "配置文件\"{profileName}\"已成功删除。"
+            },
+            "profileCreateFailed": {
+                "title": "创建配置文件失败",
+                "description": "创建配置文件“{profileName}”时发生错误。"
+            },
+            "profileUpdateFailed": {
+                "title": "更新配置文件失败",
+                "description": "更新配置文件“{profileName}”时发生错误。"
+            },
+            "profileDeleteFailed": {
+                "title": "删除配置文件失败",
+                "description": "删除配置文件“{profileName}”时发生错误。"
+            },
+            "profileSwitchFailed": {
+                "title": "切换配置文件失败",
+                "description": "切换到配置文件“{profileName}”时发生错误。"
             }
         },
         "confirmations": {
@@ -432,14 +456,23 @@
                 "title": "移除 BepInEx？",
                 "message": "确定要移除 BepInEx 吗？这将从您的游戏目录中删除所有 BepInEx 文件，且无法撤销。",
                 "actions": {
-                    "removeBepInEx": "移除 BepInEx"
+                    "removeBepInEx": "移除 BepInEx",
+                    "confirm": "移除 BepInEx"
                 }
             },
             "removeBrownDustX": {
                 "title": "移除 BrownDustX？",
                 "message": "确定要移除 BrownDustX 吗？这将从您的游戏目录中删除所有 BrownDustX 文件及全部模组，且无法撤销。",
                 "actions": {
-                    "removeBrownDustX": "移除 BrownDustX"
+                    "removeBrownDustX": "移除 BrownDustX",
+                    "confirm": "移除 BrownDustX"
+                }
+            },
+            "removeConfigManager": {
+                "title": "移除 Configuration Manager？",
+                "message": "确定要移除 Configuration Manager 吗？此操作将删除游戏目录中所有 Configuration Manager 文件，且无法撤销。",
+                "actions": {
+                    "confirm": "移除 Configuration Manager"
                 }
             }
         },
@@ -459,7 +492,63 @@
                     "install": "安装",
                     "retry": "重试"
                 }
+            },
+            "installFromGithub": {
+                "title": "从 GitHub 安装",
+                "description": "从 GitHub 上可用的发行版本中选择一个进行安装。",
+                "loading": "正在从 GitHub 加载发行版本...",
+                "failedToLoadVersions": "加载版本失败",
+                "bepinexTitle": "安装 BepInEx",
+                "configManagerTitle": "安装 Configuration Manager",
+                "badges": {
+                    "recommended": "推荐"
+                },
+                "options": {
+                    "enableOtherVersions": "我接受风险，想要安装其他版本"
+                },
+                "enableOtherVersionsWarning": "其他版本可能与 BrownDustX 产生兼容性问题。如遇到问题，请在反馈前切换回推荐版本。",
+                "actions": {
+                    "viewOnGithub": "在 GitHub 上查看",
+                    "install": "安装",
+                    "retry": "重试"
+                }
             }
+        },
+        "errors": {
+            "gamePathNotSet": "尚未设置游戏路径。",
+            "bepinexNotInstalled": "尚未安装 BepInEx，请先安装 BepInEx。",
+            "invalidArchive": "无效的压缩包文件。",
+            "alreadyInstalled": "已安装。",
+            "archiveNotFound": "未找到压缩包：{error}",
+            "extractionFailed": "解压失败：{error}",
+            "downloadFailed": "下载失败：{error}",
+            "unknown": "发生未知错误：{error}。"
+        },
+        "logs": {
+            "versionInstalled": "{scope} 版本 {version} 已安装。",
+            "notInstalled": "{scope} 尚未安装。",
+            "fetchError": "获取 {scope} 状态时出错：{error}。",
+            "installingFromArchive": "开始从压缩包安装 {scope}：{path}",
+            "installingFromUrl": "开始从 URL 安装 {scope}：{url}",
+            "installedSuccess": "{scope} 安装成功。",
+            "installError": "安装 {scope} 时出错：{error}",
+            "gameDirectorySet": "游戏目录已设置为 {path}。正在重新检查安装情况...",
+            "gameDirectoryUnset": "游戏目录未设置。请设置游戏目录以管理安装项。",
+            "unsupportedFile": "拖入了不支持的文件类型：{path}",
+            "unknownArchiveType": "无法确定该文件的压缩包类型：{path}。请将文件重命名，使其包含“BepInEx”、“BrownDustX”或“ConfigManager”字样。",
+            "uninstalling": "正在卸载 {scope}...",
+            "uninstalledSuccess": "{scope} 卸载成功。"
+        },
+        "fileDialog": {
+            "archiveFilter": "压缩包文件",
+            "bepinexTitle": "选择 BepInEx 压缩包文件",
+            "browndustxTitle": "选择 BrownDustX 压缩包文件",
+            "configManagerTitle": "选择 Configuration Manager 压缩包文件"
+        },
+        "canRemoveReasons": {
+            "VersionMismatch": "在 BD2ModManager 之外安装",
+            "PluginsInstalled": "请先移除其他插件",
+            "NotInstalled": "尚未安装。"
         }
     },
     "settingsTab": {
@@ -477,6 +566,10 @@
                     "language": {
                         "label": "语言",
                         "placeholder": "选择语言"
+                    },
+                    "forceEnglishNames": {
+                        "label": "使用英文角色名称",
+                        "description": "无论选择何种语言，始终以英文显示角色名称。"
                     }
                 },
                 "directories": {
@@ -597,7 +690,8 @@
                     },
                     "actions": {
                         "importProfiles": "导入配置文件",
-                        "importModAuthors": "导入模组作者"
+                        "importModAuthors": "导入模组作者",
+                        "searchProfiles": "搜索配置文件"
                     },
                     "confirmations": {
                         "importModAuthors": {
@@ -629,7 +723,25 @@
                         "noProfilesToImport": {
                             "title": "没有可导入的配置文件",
                             "description": "在旧版本中未找到可导入的配置文件。"
+                        },
+                        "noProfilesSelected": {
+                            "title": "未选择配置文件",
+                            "description": "请至少选择一个要导入的配置文件。"
+                        },
+                        "noModAuthorsToImport": {
+                            "title": "没有可导入的 Mod 作者",
+                            "description": "在旧版本中未找到可导入的 Mod 作者。"
                         }
+                    },
+                    "errors": {
+                        "IoError": "I/O 错误：{message}",
+                        "ProfileImportError": "导入配置文件失败：{message}",
+                        "ProfileDeleteError": "删除旧版配置文件失败：{message}",
+                        "ModsImportError": "读取旧版 Mod 失败：{message}",
+                        "ModsParseError": "解析旧版 Mod 失败：{message}",
+                        "ModsDeleteError": "删除旧版 Mod 文件失败：{message}",
+                        "ModsRefreshError": "导入后刷新 Mod 失败：{message}",
+                        "Unknown": "发生意外错误：{message}"
                     }
                 }
             }
@@ -741,6 +853,9 @@
                 "later": "稍后",
                 "goToReleases": "前往发布页"
             }
+        },
+        "confirmation": {
+            "rememberChoice": "不再显示"
         }
     },
     "errors": {
