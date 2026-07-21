@@ -2,7 +2,7 @@
 import { Folder, FolderMinus, FolderPlus, FolderSync, RefreshCcw } from "lucide-vue-next";
 
 import { computed, defineComponent, h, onActivated, onDeactivated, onMounted, reactive, ref, useTemplateRef, watch } from "vue";
-import { useDebounceFn, useLocalStorage, watchDebounced } from "@vueuse/core";
+import { useDebounceFn, useLocalStorage, watchDebounced, watchPausable } from "@vueuse/core";
 import { useNotificationStore } from '../../stores/notification';;
 import { useI18n } from "vue-i18n";
 
@@ -539,7 +539,20 @@ async function setupEventListeners() {
   unlistenFns = [unlistenDragDrop]
 }
 
+// Load persisted filter state from settings on first mount.
+// searchQuery is intentionally excluded — a stale search never hides mods.
+function loadFiltersFromSettings() {
+  const s = settingsStore.settings
+  filters.onlyEnabled   = s.modFilterOnlyEnabled   ?? false
+  filters.onlyDisabled  = s.modFilterOnlyDisabled  ?? false
+  filters.onlyConflicts = s.modFilterOnlyConflicts ?? false
+  filters.onlyErrors    = s.modFilterOnlyErrors    ?? false
+  filters.hideErrors    = s.modFilterHideErrors    ?? false
+  filters.modTypes      = [...(s.modFilterTypes    ?? [])] as typeof filters.modTypes
+}
+
 onMounted(async () => {
+  loadFiltersFromSettings()
   Promise.all([
     updateBDXVersion()
   ])
@@ -566,6 +579,53 @@ watchDebounced(
   },
   { debounce: 50 }
 );
+
+// Save filter state to settings whenever the user changes a toggle or mod-type pill.
+// searchQuery is excluded — it is session-only and never persisted.
+watchDebounced(
+  () => ({
+    onlyEnabled:   filters.onlyEnabled,
+    onlyDisabled:  filters.onlyDisabled,
+    onlyConflicts: filters.onlyConflicts,
+    onlyErrors:    filters.onlyErrors,
+    hideErrors:    filters.hideErrors,
+    modTypes:      [...filters.modTypes],
+  }),
+  (val) => {
+    settingsStore.saveSettings({
+      modFilterOnlyEnabled:   val.onlyEnabled,
+      modFilterOnlyDisabled:  val.onlyDisabled,
+      modFilterOnlyConflicts: val.onlyConflicts,
+      modFilterOnlyErrors:    val.onlyErrors,
+      modFilterHideErrors:    val.hideErrors,
+      modFilterTypes:         val.modTypes,
+    })
+  },
+  { debounce: 400, deep: true }
+)
+
+// Keep ModsTab filters in sync when the user changes them from Settings > General.
+watch(
+  () => ({
+    onlyEnabled:   settingsStore.settings.modFilterOnlyEnabled,
+    onlyDisabled:  settingsStore.settings.modFilterOnlyDisabled,
+    onlyConflicts: settingsStore.settings.modFilterOnlyConflicts,
+    onlyErrors:    settingsStore.settings.modFilterOnlyErrors,
+    hideErrors:    settingsStore.settings.modFilterHideErrors,
+    modTypes:      settingsStore.settings.modFilterTypes,
+  }),
+  (s) => {
+    if (s.onlyEnabled   !== filters.onlyEnabled)   filters.onlyEnabled   = s.onlyEnabled   ?? false
+    if (s.onlyDisabled  !== filters.onlyDisabled)  filters.onlyDisabled  = s.onlyDisabled  ?? false
+    if (s.onlyConflicts !== filters.onlyConflicts) filters.onlyConflicts = s.onlyConflicts ?? false
+    if (s.onlyErrors    !== filters.onlyErrors)    filters.onlyErrors    = s.onlyErrors    ?? false
+    if (s.hideErrors    !== filters.hideErrors)    filters.hideErrors    = s.hideErrors    ?? false
+    const incoming = (s.modTypes ?? []).join(',')
+    if (incoming !== filters.modTypes.join(','))
+      filters.modTypes = [...(s.modTypes ?? [])] as typeof filters.modTypes
+  },
+  { deep: true }
+)
 
 watch(() => settingsStore.settings.gameDirectory, (newDir, oldDir) => {
   // if (oldDir === null || oldDir === undefined) {

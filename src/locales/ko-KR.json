@@ -602,6 +602,30 @@
                         }
                     }
                 }
+            },
+            "modFilters": {
+                "title": "모드 필터",
+                "description": "앱 시작 시 적용되는 기본 필터 상태입니다. 모드 탭에서 변경한 내용은 여기에 자동으로 저장됩니다.",
+                "onlyEnabled": {
+                    "label": "활성화된 모드만 표시",
+                    "description": "현재 활성화된 모드만 표시합니다."
+                },
+                "onlyDisabled": {
+                    "label": "비활성화된 모드만 표시",
+                    "description": "현재 비활성화된 모드만 표시합니다."
+                },
+                "onlyConflicts": {
+                    "label": "충돌하는 모드만 표시",
+                    "description": "다른 활성화된 모드와 충돌하는 모드만 표시합니다."
+                },
+                "onlyErrors": {
+                    "label": "오류가 있는 모드만 표시",
+                    "description": "오류가 발생한 모드만 표시합니다."
+                },
+                "hideErrors": {
+                    "label": "오류가 있는 모드 숨기기",
+                    "description": "모드 목록에서 오류가 있는 모드를 모두 숨깁니다."
+                }
             }
         },
         "interface": {

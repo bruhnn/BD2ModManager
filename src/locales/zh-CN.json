@@ -602,6 +602,30 @@
                         }
                     }
                 }
+            },
+            "modFilters": {
+                "title": "模组筛选器",
+                "description": "应用启动时应用的默认筛选状态。在模组标签页中所做的更改将自动保存于此。",
+                "onlyEnabled": {
+                    "label": "仅显示已启用的模组",
+                    "description": "仅显示当前已启用的模组。"
+                },
+                "onlyDisabled": {
+                    "label": "仅显示已禁用的模组",
+                    "description": "仅显示当前已禁用的模组。"
+                },
+                "onlyConflicts": {
+                    "label": "仅显示冲突的模组",
+                    "description": "仅显示与其他已启用模组存在冲突的模组。"
+                },
+                "onlyErrors": {
+                    "label": "仅显示含错误的模组",
+                    "description": "仅显示存在错误的模组。"
+                },
+                "hideErrors": {
+                    "label": "隐藏含错误的模组",
+                    "description": "从模组列表中隐藏所有存在错误的模组。"
+                }
             }
         },
         "interface": {

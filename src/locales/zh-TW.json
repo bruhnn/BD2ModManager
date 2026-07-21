@@ -602,6 +602,30 @@
                         }
                     }
                 }
+            },
+            "modFilters": {
+                "title": "模組篩選器",
+                "description": "應用程式啟動時套用的預設篩選狀態。在模組分頁中所做的變更將自動儲存於此。",
+                "onlyEnabled": {
+                    "label": "僅顯示已啟用的模組",
+                    "description": "僅顯示目前已啟用的模組。"
+                },
+                "onlyDisabled": {
+                    "label": "僅顯示已停用的模組",
+                    "description": "僅顯示目前已停用的模組。"
+                },
+                "onlyConflicts": {
+                    "label": "僅顯示衝突的模組",
+                    "description": "僅顯示與其他已啟用模組存在衝突的模組。"
+                },
+                "onlyErrors": {
+                    "label": "僅顯示含錯誤的模組",
+                    "description": "僅顯示存在錯誤的模組。"
+                },
+                "hideErrors": {
+                    "label": "隱藏含錯誤的模組",
+                    "description": "從模組清單中隱藏所有存在錯誤的模組。"
+                }
             }
         },
         "interface": {
