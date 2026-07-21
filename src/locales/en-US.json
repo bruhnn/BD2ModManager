@@ -590,6 +590,30 @@
                         }
                     }
                 }
+            },
+            "modFilters": {
+                "title": "Mod Filters",
+                "description": "Default filter state applied when the application starts. Changes made in the Mods tab are saved here automatically.",
+                "onlyEnabled": {
+                    "label": "Only Enabled Mods",
+                    "description": "Show only mods that are currently enabled."
+                },
+                "onlyDisabled": {
+                    "label": "Only Disabled Mods",
+                    "description": "Show only mods that are currently disabled."
+                },
+                "onlyConflicts": {
+                    "label": "Only Conflicting Mods",
+                    "description": "Show only mods that have active conflicts with other enabled mods."
+                },
+                "onlyErrors": {
+                    "label": "Only Mods with Errors",
+                    "description": "Show only mods that have errors."
+                },
+                "hideErrors": {
+                    "label": "Hide Mods with Errors",
+                    "description": "Hide all mods that have errors from the mod list."
+                }
             }
         },
         "interface": {

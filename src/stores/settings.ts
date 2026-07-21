@@ -18,6 +18,13 @@ interface Settings {
     skipUpdateVersion?: string | null,
     autoSyncMods: boolean,
     isFirstLaunch: boolean,
+    // Persisted mod filter state
+    modFilterOnlyEnabled: boolean,
+    modFilterOnlyDisabled: boolean,
+    modFilterOnlyConflicts: boolean,
+    modFilterOnlyErrors: boolean,
+    modFilterHideErrors: boolean,
+    modFilterTypes: string[],
 }
 
 export const useSettingsStore = defineStore("settings", () => {

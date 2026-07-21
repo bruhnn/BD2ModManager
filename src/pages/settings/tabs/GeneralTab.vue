@@ -117,6 +117,11 @@ async function onAutoSyncModsChanged(value: boolean) {
     logInfo(`Auto sync mods changed to ${value}`)
 }
 
+async function onModFilterChanged(field: string, value: boolean | string[]) {
+    await settingsStore.saveSettings({ [field]: value })
+    logInfo(`Mod filter ${field} changed to ${JSON.stringify(value)}`)
+}
+
 async function onSyncMethodChanged(value: string) {
     if (!settingsStore) {
         logError('Settings store is not available. Cannot change syncMethod setting.')
@@ -278,6 +283,42 @@ async function handleGameDirectoryBrowse() {
                         </div>
                         <Select :model-value="settings.syncMethod" :options="availableSyncMethods"
                             @update:model-value="onSyncMethodChanged" class="col-span-2" />
+                    </div>
+                </div>
+            </Section>
+
+            <Section :title="$t('settingsTab.general.sections.modFilters.title')">
+                <p class="text-xs text-text-secondary mb-3">{{ $t('settingsTab.general.sections.modFilters.description') }}</p>
+                <div class="space-y-4">
+                    <div class="flex items-center gap-3">
+                        <Checkbox :model-value="settings.modFilterOnlyEnabled"
+                            :label="$t('settingsTab.general.sections.modFilters.onlyEnabled.label')"
+                            :description="$t('settingsTab.general.sections.modFilters.onlyEnabled.description')"
+                            @update:model-value="(v: boolean) => onModFilterChanged('modFilterOnlyEnabled', v)" />
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <Checkbox :model-value="settings.modFilterOnlyDisabled"
+                            :label="$t('settingsTab.general.sections.modFilters.onlyDisabled.label')"
+                            :description="$t('settingsTab.general.sections.modFilters.onlyDisabled.description')"
+                            @update:model-value="(v: boolean) => onModFilterChanged('modFilterOnlyDisabled', v)" />
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <Checkbox :model-value="settings.modFilterOnlyConflicts"
+                            :label="$t('settingsTab.general.sections.modFilters.onlyConflicts.label')"
+                            :description="$t('settingsTab.general.sections.modFilters.onlyConflicts.description')"
+                            @update:model-value="(v: boolean) => onModFilterChanged('modFilterOnlyConflicts', v)" />
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <Checkbox :model-value="settings.modFilterOnlyErrors"
+                            :label="$t('settingsTab.general.sections.modFilters.onlyErrors.label')"
+                            :description="$t('settingsTab.general.sections.modFilters.onlyErrors.description')"
+                            @update:model-value="(v: boolean) => onModFilterChanged('modFilterOnlyErrors', v)" />
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <Checkbox :model-value="settings.modFilterHideErrors"
+                            :label="$t('settingsTab.general.sections.modFilters.hideErrors.label')"
+                            :description="$t('settingsTab.general.sections.modFilters.hideErrors.description')"
+                            @update:model-value="(v: boolean) => onModFilterChanged('modFilterHideErrors', v)" />
                     </div>
                 </div>
             </Section>

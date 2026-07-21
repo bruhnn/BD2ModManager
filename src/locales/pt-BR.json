@@ -602,6 +602,30 @@
                         }
                     }
                 }
+            },
+            "modFilters": {
+                "title": "Filtros de Mods",
+                "description": "Estado padrão dos filtros aplicado ao iniciar o aplicativo. Alterações feitas na aba Mods são salvas aqui automaticamente.",
+                "onlyEnabled": {
+                    "label": "Apenas Mods Ativados",
+                    "description": "Exibe apenas os mods que estão atualmente ativados."
+                },
+                "onlyDisabled": {
+                    "label": "Apenas Mods Desativados",
+                    "description": "Exibe apenas os mods que estão atualmente desativados."
+                },
+                "onlyConflicts": {
+                    "label": "Apenas Mods em Conflito",
+                    "description": "Exibe apenas os mods que têm conflitos ativos com outros mods ativados."
+                },
+                "onlyErrors": {
+                    "label": "Apenas Mods com Erros",
+                    "description": "Exibe apenas os mods que possuem erros."
+                },
+                "hideErrors": {
+                    "label": "Ocultar Mods com Erros",
+                    "description": "Oculta da lista todos os mods que possuem erros."
+                }
             }
         },
         "interface": {

@@ -602,6 +602,30 @@
                         }
                     }
                 }
+            },
+            "modFilters": {
+                "title": "MODフィルター",
+                "description": "アプリ起動時に適用されるデフォルトのフィルター状態。MODタブで変更した内容は自動的にここに保存されます。",
+                "onlyEnabled": {
+                    "label": "有効なMODのみ表示",
+                    "description": "現在有効になっているMODのみを表示します。"
+                },
+                "onlyDisabled": {
+                    "label": "無効なMODのみ表示",
+                    "description": "現在無効になっているMODのみを表示します。"
+                },
+                "onlyConflicts": {
+                    "label": "競合しているMODのみ表示",
+                    "description": "他の有効なMODと競合しているMODのみを表示します。"
+                },
+                "onlyErrors": {
+                    "label": "エラーのあるMODのみ表示",
+                    "description": "エラーが発生しているMODのみを表示します。"
+                },
+                "hideErrors": {
+                    "label": "エラーのあるMODを非表示",
+                    "description": "MODリストからエラーのあるMODをすべて非表示にします。"
+                }
             }
         },
         "interface": {

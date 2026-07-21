@@ -22,6 +22,13 @@ pub struct AppConfig {
     pub releases_url: String,
     pub skip_update_version: Option<String>,
     pub is_first_launch: bool,
+    // Persisted mod filter state — restored every time the app starts
+    pub mod_filter_only_enabled: bool,
+    pub mod_filter_only_disabled: bool,
+    pub mod_filter_only_conflicts: bool,
+    pub mod_filter_only_errors: bool,
+    pub mod_filter_hide_errors: bool,
+    pub mod_filter_types: Vec<String>,
 }
 
 #[derive(Deserialize, Serialize, Debug, Clone)]
@@ -41,6 +48,12 @@ pub struct PartialAppConfig {
     pub skip_update_version: Option<String>,
     pub auto_sync_mods: Option<bool>,
     pub is_first_launch: Option<bool>,
+    pub mod_filter_only_enabled: Option<bool>,
+    pub mod_filter_only_disabled: Option<bool>,
+    pub mod_filter_only_conflicts: Option<bool>,
+    pub mod_filter_only_errors: Option<bool>,
+    pub mod_filter_hide_errors: Option<bool>,
+    pub mod_filter_types: Option<Vec<String>>,
 }
 
 impl AppConfig {
@@ -87,6 +100,24 @@ impl AppConfig {
         if let Some(is_first_launch) = partial.is_first_launch {
             self.is_first_launch = is_first_launch;
         }
+        if let Some(v) = partial.mod_filter_only_enabled {
+            self.mod_filter_only_enabled = v;
+        }
+        if let Some(v) = partial.mod_filter_only_disabled {
+            self.mod_filter_only_disabled = v;
+        }
+        if let Some(v) = partial.mod_filter_only_conflicts {
+            self.mod_filter_only_conflicts = v;
+        }
+        if let Some(v) = partial.mod_filter_only_errors {
+            self.mod_filter_only_errors = v;
+        }
+        if let Some(v) = partial.mod_filter_hide_errors {
+            self.mod_filter_hide_errors = v;
+        }
+        if let Some(v) = partial.mod_filter_types {
+            self.mod_filter_types = v;
+        }
     }
 }
 
@@ -107,6 +138,12 @@ impl Default for AppConfig {
             skip_update_version: None,
             auto_sync_mods: false,
             is_first_launch: true,
+            mod_filter_only_enabled: false,
+            mod_filter_only_disabled: false,
+            mod_filter_only_conflicts: false,
+            mod_filter_only_errors: false,
+            mod_filter_hide_errors: false,
+            mod_filter_types: vec![],
         }
     }
 }
@@ -128,6 +165,12 @@ impl Default for PartialAppConfig {
             skip_update_version: None,
             auto_sync_mods: None,
             is_first_launch: None,
+            mod_filter_only_enabled: None,
+            mod_filter_only_disabled: None,
+            mod_filter_only_conflicts: None,
+            mod_filter_only_errors: None,
+            mod_filter_hide_errors: None,
+            mod_filter_types: None,
         }
     }
 }
