@@ -287,4 +287,19 @@ impl ProfileManager {
             ))
         }
     }
+
+    pub fn remove_mod_from_profiles(&mut self, mod_name: &str) {
+        let mut changed_profiles = Vec::new();
+        for profile in self.profiles.values_mut() {
+            if profile.enabled_mods.iter().any(|m| m == mod_name) {
+                profile.enabled_mods.retain(|m| m != mod_name);
+                changed_profiles.push(profile.clone());
+            }
+        }
+        for profile in changed_profiles {
+            if let Err(e) = self.save_profile(&profile) {
+                error!("Failed to save profile '{}' after removing mod '{}': {}", profile.name, mod_name, e);
+            }
+    }
+}
 }

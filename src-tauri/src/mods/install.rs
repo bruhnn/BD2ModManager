@@ -5,14 +5,21 @@ use zip::ZipArchive;
 
 use crate::utils::files::ensure_dir_exists;
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(thiserror::Error, Debug, Serialize, Deserialize)]
 pub enum ModInstallError {
+    #[error("path not found: {path}")]
     PathNotFound { path: String },
+    #[error("invalid mod name")]
     InvalidName,
+    #[error("invalid archive format")]
     InvalidFormat,
+    #[error("mod already exists")]
     ModAlreadyExists,
+    #[error("invalid mod")]
     InvalidMod,
+    #[error("multiple mods found in archive")]
     MultipleModsFound,
+    #[error("unsupported archive format")]
     UnsupportedFormat,
 }
 

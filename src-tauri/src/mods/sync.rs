@@ -53,7 +53,7 @@ struct SyncProgressEvent {
     mod_name: String,
     current: usize,
     total: usize,
-    error: Option<SyncError>,
+    error: Option<ModSyncError>,
 }
 
 #[derive(Serialize, Clone)]
@@ -62,18 +62,25 @@ struct SyncEndEvent {
     success: bool,
     synced: usize,
     total: usize,
-    error: Option<SyncError>,
+    error: Option<ModSyncError>,
 }
 
-#[derive(Debug, Clone, serde::Serialize)]
+#[derive(thiserror::Error, Debug, Clone, serde::Serialize)]
 #[serde(tag = "type", content = "details")]
-pub enum SyncError {
+pub enum ModSyncError {
+    #[error("Symlink requires admin privileges.")]
     SymlinkAdminRequired,
+    #[error("Mod path not found: {0}")]
     ModPathNotFound(String),
+    #[error("Copy failed: {0}")]
     CopyFailed(String),
+    #[error("Symlink failed: {0}")]
     SymlinkFailed(String),
+    #[error("Hardlink failed: {0}")]
     HardlinkFailed(String),
+    #[error("Directory creation failed: {0}")]
     DirectoryCreationFailed(String),
+    #[error("Removal failed: {0}")]
     RemovalFailed(String),
 }
 
@@ -118,7 +125,7 @@ pub fn sync_mods(
     game_directory: &PathBuf,
     mods: Vec<&BD2Mod>,
     method: SyncMethod,
-) -> Result<(), SyncError> {
+) -> Result<(), ModSyncError> {
     app_handle
         .emit(
             "sync-start",
@@ -141,7 +148,7 @@ pub fn sync_mods(
                 SyncEndEvent {
                     r#type: SyncType::Sync,
                     success: false,
-                    error: Some(SyncError::DirectoryCreationFailed(
+                    error: Some(ModSyncError::DirectoryCreationFailed(
                         game_mods_path.to_string_lossy().to_string(),
                     )),
                     synced: 0,
@@ -150,7 +157,7 @@ pub fn sync_mods(
             )
             .ok();
         warn!("Cannot create game mods directory: {}", e);
-        return Err(SyncError::DirectoryCreationFailed(
+        return Err(ModSyncError::DirectoryCreationFailed(
             game_mods_path.to_string_lossy().to_string(),
         ));
     }
@@ -165,13 +172,13 @@ pub fn sync_mods(
                     SyncEndEvent {
                         r#type: SyncType::Sync,
                         success: false,
-                        error: Some(SyncError::SymlinkAdminRequired),
+                        error: Some(ModSyncError::SymlinkAdminRequired),
                         total: 0,
                         synced: 0,
                     },
                 )
                 .ok();
-            return Err(SyncError::SymlinkAdminRequired);
+            return Err(ModSyncError::SymlinkAdminRequired);
         }
     }
 
@@ -330,7 +337,7 @@ pub fn sync_mods(
             }
             Err(e) => (
                 SyncStatus::Failed,
-                Some(SyncError::RemovalFailed(e.to_string())),
+                Some(ModSyncError::RemovalFailed(e.to_string())),
             ),
         };
 
@@ -382,21 +389,21 @@ pub fn sync_mods(
                         }
                         (
                             SyncStatus::Removed,
-                            Some(SyncError::ModPathNotFound(
+                            Some(ModSyncError::ModPathNotFound(
                                 _mod.path.to_string_lossy().to_string(),
                             )),
                         )
                     }
                     Err(e) => (
                         SyncStatus::Failed,
-                        Some(SyncError::RemovalFailed(e.to_string())),
+                        Some(ModSyncError::RemovalFailed(e.to_string())),
                     ),
                 }
             } else {
                 // was not in game folder, just report missing
                 (
                     SyncStatus::Failed,
-                    Some(SyncError::ModPathNotFound(
+                    Some(ModSyncError::ModPathNotFound(
                         _mod.path.to_string_lossy().to_string(),
                     )),
                 )
@@ -437,7 +444,7 @@ pub fn sync_mods(
                                 mod_name: _mod.name.clone(),
                                 total: total_mods_count,
                                 status: SyncStatus::Failed,
-                                error: Some(SyncError::RemovalFailed(e.to_string())),
+                                error: Some(ModSyncError::RemovalFailed(e.to_string())),
                             },
                         )
                         .ok();
@@ -480,7 +487,7 @@ pub fn sync_mods(
         }
 
         let mut was_updated = false;
-        let mut sync_error: Option<SyncError> = None;
+        let mut sync_error: Option<ModSyncError> = None;
 
         match method {
             SyncMethod::Copy => match sync_dirs(&_mod.path, &dst_path) {
@@ -490,7 +497,7 @@ pub fn sync_mods(
                     }
                 }
                 Err(e) => {
-                    sync_error = Some(SyncError::CopyFailed(e.to_string()));
+                    sync_error = Some(ModSyncError::CopyFailed(e.to_string()));
                 }
             },
             SyncMethod::Symlink => {
@@ -506,7 +513,7 @@ pub fn sync_mods(
                     // Remove existing if it's not a symlink pointing to the right place
                     if dst_path.exists() || dst_path.is_symlink() {
                         if let Err(e) = remove_mod_path(&dst_path) {
-                            sync_error = Some(SyncError::RemovalFailed(e.to_string()));
+                            sync_error = Some(ModSyncError::RemovalFailed(e.to_string()));
                         }
                     }
 
@@ -515,7 +522,7 @@ pub fn sync_mods(
                         if let Some(parent) = dst_path.parent() {
                             if let Err(e) = fs::create_dir_all(parent) {
                                 sync_error =
-                                    Some(SyncError::DirectoryCreationFailed(e.to_string()));
+                                    Some(ModSyncError::DirectoryCreationFailed(e.to_string()));
                             }
                         }
                     }
@@ -525,7 +532,7 @@ pub fn sync_mods(
                         {
                             use std::os::unix::fs::symlink;
                             if let Err(e) = symlink(&_mod.path, &dst_path) {
-                                sync_error = Some(SyncError::SymlinkFailed(e.to_string()));
+                                sync_error = Some(ModSyncError::SymlinkFailed(e.to_string()));
                             } else {
                                 was_updated = true;
                             }
@@ -534,7 +541,7 @@ pub fn sync_mods(
                         {
                             use std::os::windows::fs::symlink_dir;
                             if let Err(e) = symlink_dir(&_mod.path, &dst_path) {
-                                sync_error = Some(SyncError::SymlinkFailed(e.to_string()));
+                                sync_error = Some(ModSyncError::SymlinkFailed(e.to_string()));
                             } else {
                                 was_updated = true;
                             }
@@ -545,19 +552,19 @@ pub fn sync_mods(
             SyncMethod::Hardlink => {
                 if dst_path.exists() {
                     if let Err(e) = fs::remove_dir_all(&dst_path) {
-                        sync_error = Some(SyncError::RemovalFailed(e.to_string()));
+                        sync_error = Some(ModSyncError::RemovalFailed(e.to_string()));
                     }
                 }
 
                 if sync_error.is_none() {
                     if let Err(e) = ensure_dir_exists(&dst_path) {
-                        sync_error = Some(SyncError::DirectoryCreationFailed(e.to_string()));
+                        sync_error = Some(ModSyncError::DirectoryCreationFailed(e.to_string()));
                     } else {
                         for entry in walkdir::WalkDir::new(&_mod.path) {
                             let entry = match entry {
                                 Ok(e) => e,
                                 Err(e) => {
-                                    sync_error = Some(SyncError::HardlinkFailed(e.to_string()));
+                                    sync_error = Some(ModSyncError::HardlinkFailed(e.to_string()));
                                     break;
                                 }
                             };
@@ -567,12 +574,12 @@ pub fn sync_mods(
                             if entry.file_type().is_dir() {
                                 if let Err(e) = fs::create_dir_all(&target) {
                                     sync_error =
-                                        Some(SyncError::DirectoryCreationFailed(e.to_string()));
+                                        Some(ModSyncError::DirectoryCreationFailed(e.to_string()));
                                     break;
                                 }
                             } else {
                                 if let Err(e) = fs::hard_link(entry.path(), &target) {
-                                    sync_error = Some(SyncError::HardlinkFailed(e.to_string()));
+                                    sync_error = Some(ModSyncError::HardlinkFailed(e.to_string()));
                                     break;
                                 }
                             }
@@ -649,7 +656,7 @@ pub fn sync_mods(
 pub fn unsync_mods(
     app_handle: &tauri::AppHandle,
     game_directory: &PathBuf,
-) -> Result<(), SyncError> {
+) -> Result<(), ModSyncError> {
     let manifest_path = game_directory.join(".bd2mm.json");
     let game_mods_path = game_directory.join("BepInEx/plugins/BrownDustX/mods/BD2MM");
 
@@ -682,7 +689,7 @@ pub fn unsync_mods(
                 Ok(_) => (SyncStatus::Removed, None),
                 Err(e) => (
                     SyncStatus::Failed,
-                    Some(SyncError::RemovalFailed(e.to_string())),
+                    Some(ModSyncError::RemovalFailed(e.to_string())),
                 ),
             };
 
