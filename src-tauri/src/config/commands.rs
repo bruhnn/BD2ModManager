@@ -1,7 +1,6 @@
-use bd2modmanager_lib::config::config::{AppConfig, PartialAppConfig};
 use log::debug;
 
-use crate::AppState;
+use crate::{AppState, config::{AppConfig, PartialAppConfig}};
 
 #[tauri::command]
 pub fn get_settings(state: tauri::State<AppState>) -> AppConfig {

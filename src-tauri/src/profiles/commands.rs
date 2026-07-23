@@ -1,4 +1,4 @@
-use bd2modmanager_lib::profiles::types::{Profile, ProfileError};
+use crate::profiles::types::{Profile, ProfileError};
 use serde::{Deserialize, Serialize};
 
 use crate::{AppState};

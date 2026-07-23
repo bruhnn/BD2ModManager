@@ -1,4 +1,4 @@
-use bd2modmanager_lib::utils::path::get_mod_preview_path;
+use crate::utils::path::get_mod_preview_path;
 use pelite::{FileMap, PeFile};
 use semver::Version;
 use serde::Deserialize;

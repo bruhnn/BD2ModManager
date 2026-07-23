@@ -1,5 +1,4 @@
-use crate::update;
-use bd2modmanager_lib::utils::path::get_mod_preview_path;
+use crate::{updater, utils::path::get_mod_preview_path};
 use log::{debug, info};
 use serde::{Deserialize, Serialize};
 use std::sync::Mutex;
@@ -115,14 +114,14 @@ pub fn get_app_version(app: &AppHandle) -> String {
 
 #[tauri::command]
 pub fn get_mod_preview_version(app_handle: AppHandle) -> Option<String> {
-    update::mod_preview::get_mod_preview_version(app_handle)
+    updater::mod_preview::get_mod_preview_version(app_handle)
 }
 
 #[tauri::command]
 pub async fn check_for_mod_preview_update(
     app_handle: AppHandle,
 ) -> Result<UpdateAvailablePayload, String> {
-    let (latest_version, _download_url) = update::mod_preview::check_for_update(app_handle).await?;
+    let (latest_version, _download_url) = updater::mod_preview::check_for_update(app_handle).await?;
 
     debug!(
         "Checked for mod preview update: latest version {}, download URL: {}",
@@ -149,7 +148,7 @@ pub async fn check_for_mod_preview_update(
 pub async fn update_mod_preview(app_handle: AppHandle) {
     app_handle.emit("update:modPreview:checking", ()).ok();
 
-    let result = update::mod_preview::check_for_update(app_handle.clone()).await;
+    let result = updater::mod_preview::check_for_update(app_handle.clone()).await;
 
     match result {
         Ok((Some(latest_version), Some(download_url))) => {
@@ -293,7 +292,7 @@ pub async fn update_mod_preview(app_handle: AppHandle) {
 
 #[tauri::command]
 pub async fn update_game_data(app_handle: AppHandle) -> Result<(), String> {
-    update::game_data::update_characters(app_handle).await
+    updater::game_data::update_characters(app_handle).await
 }
 
 #[cfg(feature = "portable")]

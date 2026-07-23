@@ -1,6 +1,8 @@
 use std::path::PathBuf;
+use log::debug;
 use pelite::pe32::Pe;
 use pelite::FileMap;
+use tauri::{AppHandle, Manager};
 #[cfg(target_os = "windows")]
 use windows_sys::Win32::Foundation::CloseHandle;
 #[cfg(target_os = "windows")]
@@ -122,3 +124,55 @@ pub fn compare_versions(first: &str, second: &str) -> std::cmp::Ordering {
 
     std::cmp::Ordering::Equal
 }
+
+pub fn get_game_asset(app_handle: &AppHandle, character_ids: &[&str], category: &str) -> Option<Vec<u8>> {
+    #[cfg(not(debug_assertions))]
+    {
+        use crate::state::BundledAssets;
+
+        let bundled_assets = app_handle.state::<BundledAssets>();
+    
+        for id in character_ids {
+            let path = format!("/characters/{}/{}.png", category, id);
+            // debug!("Trying bundled asset: {}", path);
+            if bundled_assets.0.contains(&path) {
+                // debug!("Found bundled asset: {}", path);
+                if let Some(asset) = app_handle.asset_resolver().get(path.clone()) {
+                    return Some(asset.bytes.to_vec());
+                }
+            }
+        }
+    
+        debug!("Assets for character id {:?} not found bundled", character_ids);
+    }
+
+    if let Ok(app_data) = app_handle.path().app_data_dir() {
+        for id in character_ids {
+            let appdata_asset_path = app_data.join("assets").join(category).join(format!("{}.png", id));
+            // debug!("Trying appdata path: {:?}", appdata_asset_path);
+            if let Ok(bytes) = std::fs::read(&appdata_asset_path) {
+                debug!("Found asset on appdata: {:?}", appdata_asset_path);
+                return Some(bytes);
+            }
+        }
+    }
+
+    #[cfg(debug_assertions)]
+    for id in character_ids {
+        let url = format!("http://localhost:1420/characters/{}/{}.png", category, id);
+        if let Ok(resp) = reqwest::blocking::get(&url) {
+            if resp.status().is_success() {
+                if let Ok(bytes) = resp.bytes() {
+                    // debug!("Found asset on dev server: {}", url);
+                    return Some(bytes.to_vec());
+                }
+            }
+        }
+    }
+
+    debug!("Assets not found for characters {:?}", character_ids);
+
+    None
+}
+
+
