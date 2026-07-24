@@ -104,6 +104,14 @@ const modTypeDisplayOptions = computed(() => [
                     </div>
                 </div>
             </Section>
+
+            <Section :title="$t('settingsTab.interface.sections.profiles.title')">
+                <div class="flex items-start gap-3">
+                    <Checkbox v-model="preferencesStore.showEditModsButton"
+                        :label="$t('settingsTab.interface.sections.profiles.showEditModsButton.label')"
+                        :description="$t('settingsTab.interface.sections.profiles.showEditModsButton.description')" />
+                </div>
+            </Section>
         </div>
     </TabPanel>
 </template>

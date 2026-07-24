@@ -64,9 +64,13 @@ function save() {
             class="flex-auto"
             :placeholder="$t('profilesTab.modals.editProfile.nameField.placeholder')"
             :model-value="profileSelected.name ?? ''"
+            :disabled="profileSelected.id === 'default'"
             @update:model-value="val => { if (profileSelected) profileSelected.name = val }"
           />
         </div>
+        <p v-if="profileSelected.id === 'default'" class="text-xs text-red-500">
+          {{ $t('profilesTab.modals.editProfile.nameField.defaultWarning') }}
+        </p>
       </div>
 
       <div class="flex flex-col gap-1">

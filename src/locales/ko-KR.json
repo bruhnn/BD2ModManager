@@ -329,6 +329,7 @@
         "actions": {
             "createProfile": "프로필 생성",
             "editProfile": "프로필 편집",
+            "editMods": "모드 목록 편집",
             "deleteProfile": "프로필 삭제",
             "setAsCurrent": "현재 프로필로 설정",
             "refreshProfiles": "프로필 새로고침"
@@ -341,6 +342,14 @@
             "profileUpdated": {
                 "title": "프로필 업데이트 완료",
                 "description": "프로필 \"{profileName}\"이(가) 성공적으로 업데이트되었습니다."
+            },
+            "modsUpdated": {
+                "title": "모드 목록 업데이트 완료",
+                "description": "\"{profileName}\"의 활성화된 모드가 저장되었습니다."
+            },
+            "modsUpdateFailed": {
+                "title": "모드 목록 업데이트 실패",
+                "description": "\"{profileName}\"의 모드 저장 중 오류가 발생했습니다."
             },
             "profileDeleted": {
                 "title": "프로필 삭제 완료",
@@ -396,7 +405,8 @@
                 "title": "프로필 편집",
                 "nameField": {
                     "label": "프로필 이름",
-                    "placeholder": "프로필 이름 입력"
+                    "placeholder": "프로필 이름 입력",
+                    "defaultWarning": "기본 프로필의 이름은 편집할 수 없습니다"
                 },
                 "descriptionField": {
                     "label": "프로필 설명 (선택)",
@@ -406,6 +416,20 @@
                     "saveChanges": "변경사항 저장"
                 },
                 "description": "프로필 이름과 설명을 편집합니다."
+            },
+            "editMods": {
+                "title": "모드 목록 편집",
+                "description": "이 프로필의 활성화된 모드 목록을 수동으로 편집합니다.",
+                "field": {
+                    "label": "활성화된 모드",
+                    "placeholder": "모드 이름 입력 (한 줄에 하나씩)"
+                },
+                "count": "{count} 개 모드 | {count} 개 모드",
+                "hint": "각 줄에는 하나의 모드 이름이 포함되어야 합니다. 중복은 제거되고 모드는 A-Z 순으로 정렬됩니다.",
+                "actions": {
+                    "clearAll": "모두 지우기",
+                    "save": "저장"
+                }
             }
         }
     },
@@ -648,6 +672,13 @@
                     "enableColors": {
                         "label": "모드 유형 색상 활성화",
                         "description": "모드 유형별로 색상을 적용합니다 (스탠딩, 컷씬, 데이트 등)."
+                    }
+                },
+                "profiles": {
+                    "title": "프로필",
+                    "showEditModsButton": {
+                        "label": "모드 목록 편집 버튼 표시",
+                        "description": "프로필 탭에서 모드 목록 편집 버튼을 표시합니다."
                     }
                 }
             }

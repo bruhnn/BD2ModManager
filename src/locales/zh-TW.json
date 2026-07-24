@@ -329,6 +329,7 @@
         "actions": {
             "createProfile": "建立設定檔",
             "editProfile": "編輯設定檔",
+            "editMods": "編輯模組列表",
             "deleteProfile": "刪除設定檔",
             "setAsCurrent": "設為目前設定檔",
             "refreshProfiles": "重新整理設定檔"
@@ -341,6 +342,14 @@
             "profileUpdated": {
                 "title": "設定檔已更新",
                 "description": "設定檔「{profileName}」已成功更新。"
+            },
+            "modsUpdated": {
+                "title": "模組列表已更新",
+                "description": "「{profileName}」的已啟用模組已儲存。"
+            },
+            "modsUpdateFailed": {
+                "title": "更新模組列表失敗",
+                "description": "儲存「{profileName}」的模組時發生錯誤。"
             },
             "profileDeleted": {
                 "title": "設定檔已刪除",
@@ -396,7 +405,8 @@
                 "title": "編輯設定檔",
                 "nameField": {
                     "label": "設定檔名稱",
-                    "placeholder": "輸入設定檔名稱"
+                    "placeholder": "輸入設定檔名稱",
+                    "defaultWarning": "預設設定檔不允許修改名稱"
                 },
                 "descriptionField": {
                     "label": "設定檔描述（選填）",
@@ -406,6 +416,20 @@
                     "saveChanges": "儲存變更"
                 },
                 "description": "編輯設定檔的名稱和描述。"
+            },
+            "editMods": {
+                "title": "編輯模組列表",
+                "description": "手動編輯此設定檔的已啟用模組列表。",
+                "field": {
+                    "label": "已啟用的模組",
+                    "placeholder": "輸入模組名稱（每行一個）"
+                },
+                "count": "{count} 個模組 | {count} 個模組",
+                "hint": "每行應包含一個模組名稱。重複項目將被移除，模組將按A-Z排序。",
+                "actions": {
+                    "clearAll": "全部清除",
+                    "save": "儲存"
+                }
             }
         }
     },
@@ -648,6 +672,13 @@
                     "enableColors": {
                         "label": "啟用模組類型顏色",
                         "description": "為每種模組類型套用不同顏色（立繪、過場動畫、約會等）。"
+                    }
+                },
+                "profiles": {
+                    "title": "設定檔",
+                    "showEditModsButton": {
+                        "label": "顯示編輯模組列表按鈕",
+                        "description": "在設定檔標籤頁中顯示編輯模組列表按鈕。"
                     }
                 }
             }

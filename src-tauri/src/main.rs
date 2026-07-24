@@ -150,11 +150,11 @@ pub fn main() {
     }
 
     tauri::Builder::default()
-        .plugin(tauri_plugin_single_instance::init(|app, _args, _cwd| {
-            let _ = app.get_webview_window("main")
-            .expect("no main window")
-            .set_focus();
-        }))
+        // .plugin(tauri_plugin_single_instance::init(|app, _args, _cwd| {
+        //     let _ = app.get_webview_window("main")
+        //     .expect("no main window")
+        //     .set_focus();
+        // }))
         .register_uri_scheme_protocol("bd2assets", |ctx, request| {
             // standing/065001,065002
             // standing/065001
@@ -280,6 +280,7 @@ pub fn main() {
             mods::discover_mods,
             mods::get_mods,
             mods::enable_mods,
+            mods::enable_mods_in_profile,
             mods::disable_mods,
             mods::delete_mods,
             mods::rename_mod,
@@ -290,6 +291,7 @@ pub fn main() {
             mods::unsync_mods,
             mods::is_sync_needed,
             mods::preview_mod,
+            mods::set_profile_enabled_mods,
             // profiles
             profiles::get_profiles,
             profiles::switch_profile,

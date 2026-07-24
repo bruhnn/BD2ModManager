@@ -60,6 +60,12 @@ export const useProfilesStore = defineStore("profiles", () => {
     function getProfileById(id: string): Profile | null {
         return profiles.value.find(p => p.id === id) || null;
     }
+
+    // Replace a profile's entire enabled-mods list.
+    async function setProfileEnabledMods(id: string, modNames: string[]) {
+        await invoke("set_profile_enabled_mods", { profileId: id, modNames });
+        await loadProfiles();
+    }
 
     return {
         activeProfile,
@@ -71,6 +77,7 @@ export const useProfilesStore = defineStore("profiles", () => {
         createProfile,
         deleteProfile,
         getProfileById,
-        editProfile
+        editProfile,
+        setProfileEnabledMods
     };
 });

@@ -50,6 +50,29 @@ pub fn disable_mods(
     mod_manager.disable_mods(&app_handle, mod_names);
 }
 
+#[tauri::command]
+pub fn enable_mods_in_profile(
+    app_handle: tauri::AppHandle,
+    state: tauri::State<AppState>,
+    profile_id: String,
+    mod_names: Vec<String>,
+) -> Result<(), bd2modmanager_lib::profiles::types::ProfileError> {
+    let mut mod_manager = state.mod_manager.lock().unwrap();
+    mod_manager.enable_mods_in_profile(&app_handle, &profile_id, mod_names)
+}
+
+/// Replace a profile's entire enabled-mods list.
+#[tauri::command]
+pub fn set_profile_enabled_mods(
+    app_handle: tauri::AppHandle,
+    state: tauri::State<AppState>,
+    profile_id: String,
+    mod_names: Vec<String>,
+) -> Result<(), bd2modmanager_lib::profiles::types::ProfileError> {
+    let mut mod_manager = state.mod_manager.lock().unwrap();
+    mod_manager.set_profile_enabled_mods(&app_handle, &profile_id, mod_names)
+}
+
 // Check if the folder is a texture mod
 fn is_texture_mod(path: &PathBuf) -> bool {
     if !path.join("textures").is_dir() {

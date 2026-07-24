@@ -287,4 +287,50 @@ impl ProfileManager {
             ))
         }
     }
+    pub fn enable_mods_in_profile(
+        &mut self,
+        profile_id: &str,
+        mod_names: &[String],
+    ) -> Result<bool, ProfileError> {
+        let profile = self
+            .profiles
+            .get_mut(profile_id)
+            .ok_or_else(|| ProfileError::NotFound(profile_id.to_string()))?;
+
+        for mod_name in mod_names {
+            profile.set_mod_state(mod_name, true);
+        }
+
+        let profile_to_save = profile.clone();
+        self.save_profile(&profile_to_save)?;
+
+        Ok(self.active_profile_id.as_deref() == Some(profile_id))
+    }
+
+    pub fn set_profile_enabled_mods(
+        &mut self,
+        profile_id: &str,
+        mod_names: Vec<String>,
+    ) -> Result<bool, ProfileError> {
+        let profile = self
+            .profiles
+            .get_mut(profile_id)
+            .ok_or_else(|| ProfileError::NotFound(profile_id.to_string()))?;
+
+        let mut seen = std::collections::HashSet::new();
+        let normalized: Vec<String> = mod_names
+            .into_iter()
+            .map(|m| m.replace('\\', "/").trim().to_string())
+            .filter(|m| !m.is_empty())
+            .filter(|m| seen.insert(m.clone()))
+            .collect();
+
+        profile.enabled_mods = normalized;
+
+        let profile_to_save = profile.clone();
+        self.save_profile(&profile_to_save)?;
+
+        Ok(self.active_profile_id.as_deref() == Some(profile_id))
+    }
+
 }

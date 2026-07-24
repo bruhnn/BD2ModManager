@@ -329,6 +329,7 @@
         "actions": {
             "createProfile": "创建配置文件",
             "editProfile": "编辑配置文件",
+            "editMods": "编辑模组列表",
             "deleteProfile": "删除配置文件",
             "setAsCurrent": "设为当前",
             "refreshProfiles": "刷新配置文件"
@@ -396,7 +397,8 @@
                 "title": "编辑配置文件",
                 "nameField": {
                     "label": "配置文件名称",
-                    "placeholder": "输入配置文件名称"
+                    "placeholder": "输入配置文件名称",
+                    "defaultWarning": "默认配置文件不允许修改名称"
                 },
                 "descriptionField": {
                     "label": "配置文件描述（可选）",
@@ -406,6 +408,20 @@
                     "saveChanges": "保存更改"
                 },
                 "description": "编辑配置文件的名称和描述。"
+            },
+            "editMods": {
+                "title": "编辑模组列表",
+                "description": "手动编辑此配置文件的已启用模组列表。",
+                "field": {
+                    "label": "已启用的模组",
+                    "placeholder": "输入模组名称（每行一个）"
+                },
+                "count": "{count} 个模组 | {count} 个模组",
+                "hint": "每行应包含一个模组名称。重复项将被删除，模组将按A-Z排序。",
+                "actions": {
+                    "clearAll": "全部清除",
+                    "save": "保存"
+                }
             }
         }
     },
@@ -648,6 +664,13 @@
                     "enableColors": {
                         "label": "为模组类型启用颜色",
                         "description": "为每种模组类型（立绘、过场动画、约会等）应用对应颜色。"
+                    }
+                },
+                "profiles": {
+                    "title": "配置文件",
+                    "showEditModsButton": {
+                        "label": "显示编辑模组列表按钮",
+                        "description": "在配置文件标签页中显示编辑模组列表按钮。"
                     }
                 }
             }

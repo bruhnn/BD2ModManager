@@ -4,6 +4,7 @@ import { defineStore } from 'pinia';
 import { computed, readonly, ref, shallowRef } from 'vue';
 import { Character, useCharactersStore } from './characters';
 import { useLoggingStore } from './logging';
+import { useProfilesStore } from './profiles';
 
 export type BD2ModType =
     | { type: 'Standing'; id: string }
@@ -72,6 +73,11 @@ export const useModsStore = defineStore('mods', () => {
 
     async function enableMods(mod_names: String[]) {
         return invoke("enable_mods", { modNames: mod_names })
+    }
+
+    // Enable mods in a specific profile (may differ from the active one).
+    async function enableModsInProfile(profileId: string, mod_names: string[]) {
+        return invoke("enable_mods_in_profile", { profileId, modNames: mod_names })
     }
 
     async function disableMods(mod_names: String[]) {
@@ -143,6 +149,12 @@ export const useModsStore = defineStore('mods', () => {
             modsCache.value.set(mod.name, mod);
         }
         );
+
+        try {
+            await useProfilesStore().loadProfiles();
+        } catch (error) {
+            loggingStore.logError("Failed to refresh profiles after mods change:", error);
+        }
     })
 
     return {
@@ -158,6 +170,7 @@ export const useModsStore = defineStore('mods', () => {
         setModAuthor,
         isSyncNeeded,
         deleteMods,
-        renameMod
+        renameMod,
+        enableModsInProfile
     }
 })

@@ -329,9 +329,13 @@
         "actions": {
             "createProfile": "Criar Perfil",
             "editProfile": "Editar Perfil",
+            "editMods": "Editar Lista de Mods",
             "deleteProfile": "Excluir Perfil",
             "setAsCurrent": "Definir como Atual",
             "refreshProfiles": "Atualizar Perfis"
+        },
+        "tooltips": {
+            "cannotDeleteDefault": "Não é possível excluir o perfil padrão"
         },
         "notifications": {
             "profileCreated": {
@@ -341,6 +345,14 @@
             "profileUpdated": {
                 "title": "Perfil Atualizado",
                 "description": "O perfil \"{profileName}\" foi atualizado com sucesso."
+            },
+            "modsUpdated": {
+                "title": "Lista de Mods Atualizada",
+                "description": "Os mods ativados para \"{profileName}\" foram salvos."
+            },
+            "modsUpdateFailed": {
+                "title": "Falha ao Atualizar Lista de Mods",
+                "description": "Ocorreu um erro ao salvar os mods para \"{profileName}\"."
             },
             "profileDeleted": {
                 "title": "Perfil Excluído",
@@ -396,7 +408,8 @@
                 "title": "Editar Perfil",
                 "nameField": {
                     "label": "Nome do Perfil",
-                    "placeholder": "Digite o nome do perfil"
+                    "placeholder": "Digite o nome do perfil",
+                    "defaultWarning": "O nome não pode ser editado para o perfil padrão"
                 },
                 "descriptionField": {
                     "label": "Descrição do Perfil (opcional)",
@@ -406,6 +419,20 @@
                     "saveChanges": "Salvar Alterações"
                 },
                 "description": "Edite o nome e a descrição do seu perfil."
+            },
+            "editMods": {
+                "title": "Editar Lista de Mods",
+                "description": "Edite manualmente a lista de mods ativados para este perfil.",
+                "field": {
+                    "label": "Mods Ativados",
+                    "placeholder": "Digite os nomes dos mods (um por linha)"
+                },
+                "count": "{count} Mod | {count} Mods",
+                "hint": "Cada linha deve conter um nome de mod. Duplicatas serão removidas e os mods serão ordenados de A-Z.",
+                "actions": {
+                    "clearAll": "Limpar Tudo",
+                    "save": "Salvar"
+                }
             }
         }
     },
@@ -648,6 +675,13 @@
                     "enableColors": {
                         "label": "Ativar Cores para Tipos de Mod",
                         "description": "Aplicar uma cor por tipo de mod (standing, cutscene, date, etc.)."
+                    }
+                },
+                "profiles": {
+                    "title": "Perfis",
+                    "showEditModsButton": {
+                        "label": "Mostrar Botão de Editar Lista de Mods",
+                        "description": "Exibir o botão de editar lista de mods na aba de perfis."
                     }
                 }
             }

@@ -329,6 +329,7 @@
         "actions": {
             "createProfile": "Create Profile",
             "editProfile": "Edit Profile",
+            "editMods": "Edit Mods List",
             "deleteProfile": "Delete Profile",
             "setAsCurrent": "Set as Current",
             "refreshProfiles": "Refresh Profiles"
@@ -349,6 +350,14 @@
             "profileUpdateFailed": {
                 "title": "Failed to Update Profile",
                 "description": "An error occurred while updating profile \"{profileName}\"."
+            },
+            "modsUpdated": {
+                "title": "Mods List Updated",
+                "description": "Enabled mods for \"{profileName}\" have been saved."
+            },
+            "modsUpdateFailed": {
+                "title": "Failed to Update Mods List",
+                "description": "An error occurred while saving mods for \"{profileName}\"."
             },
             "profileDeleted": {
                 "title": "Profile Deleted",
@@ -397,7 +406,8 @@
                 "description": "Edit the name and description of your profile.",
                 "nameField": {
                     "label": "Profile Name",
-                    "placeholder": "Enter profile name"
+                    "placeholder": "Enter profile name",
+                    "defaultWarning": "Name is not allowed to edit for Default profile"
                 },
                 "descriptionField": {
                     "label": "Profile Description (optional)",
@@ -405,6 +415,20 @@
                 },
                 "actions": {
                     "saveChanges": "Save Changes"
+                }
+            },
+            "editMods": {
+                "title": "Edit Mods List",
+                "description": "Manually edit the list of enabled mods for this profile.",
+                "field": {
+                    "label": "Enabled Mods",
+                    "placeholder": "Enter mod names (one per line)"
+                },
+                "count": "{count} mod | {count} mods",
+                "hint": "Each line should contain one mod name. Duplicates will be removed and mods will be sorted A-Z.",
+                "actions": {
+                    "clearAll": "Clear All",
+                    "save": "Save"
                 }
             }
         }
@@ -636,6 +660,13 @@
                     "enableColors": {
                         "label": "Enable Colors for Mod Types",
                         "description": "Apply a color per mod type (standing, cutscene, dating, etc.)."
+                    }
+                },
+                "profiles": {
+                    "title": "Profiles",
+                    "showEditModsButton": {
+                        "label": "Show Edit Mods List Button",
+                        "description": "Display the Edit Mods List button in the Profiles tab."
                     }
                 }
             }

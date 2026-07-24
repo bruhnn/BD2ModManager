@@ -101,6 +101,63 @@ impl BD2ModManager {
         app_handle.emit("mods-changed", all_mods).unwrap();
     }
 
+    /// Enable mods in a specific profile (may differ from active).
+    pub fn enable_mods_in_profile(
+        &mut self,
+        app_handle: &AppHandle,
+        profile_id: &str,
+        mod_names: Vec<String>,
+    ) -> Result<(), ProfileError> {
+        let mut mods_to_disable: Vec<String> = Vec::new();
+        for mod_name in mod_names.iter() {
+            if let Some(bd2mod) = self.cached_mods.get(mod_name) {
+                for conflict_name in bd2mod.conflicts_with.iter() {
+                    if !mod_names.contains(conflict_name) && !mods_to_disable.contains(conflict_name) {
+                        mods_to_disable.push(conflict_name.clone());
+                    }
+                }
+            }
+        }
+        let is_active = self.profile_manager.enable_mods_in_profile(profile_id, &mod_names)?;
+        if is_active && !mods_to_disable.is_empty() {
+            if let Some(active_profile) = self.profile_manager.get_active_profile() {
+                for mod_name in mods_to_disable.iter() {
+                    active_profile.set_mod_state(mod_name, false);
+                }
+            }
+            if let Err(e) = self.profile_manager.save_active_profile() {
+                warn!("Failed to save after disabling conflicts: {:?}", e);
+            }
+        }
+        if is_active {
+            for mod_name in mod_names.iter() {
+                if let Some(bd2mod) = self.cached_mods.get_mut(mod_name) { bd2mod.enabled = true; }
+            }
+            for mod_name in mods_to_disable.iter() {
+                if let Some(bd2mod) = self.cached_mods.get_mut(mod_name) { bd2mod.enabled = false; }
+            }
+            let all_mods: Vec<&BD2Mod> = self.cached_mods.values().collect();
+            app_handle.emit("mods-changed", all_mods).unwrap();
+        }
+        Ok(())
+    }
+
+    /// Replace a profile's enabled-mods list.
+    pub fn set_profile_enabled_mods(
+        &mut self,
+        app_handle: &AppHandle,
+        profile_id: &str,
+        mod_names: Vec<String>,
+    ) -> Result<(), ProfileError> {
+        let is_active = self.profile_manager.set_profile_enabled_mods(profile_id, mod_names)?;
+        if is_active {
+            self.sync_mods_with_profiles();
+            let all_mods: Vec<&BD2Mod> = self.cached_mods.values().collect();
+            app_handle.emit("mods-changed", all_mods).unwrap();
+        }
+        Ok(())
+    }
+
     pub fn disable_mods(&mut self, app_handle: &AppHandle, mod_names: Vec<String>) {
         for mod_name in mod_names.iter() {
             if let Some(bd2mod) = self.cached_mods.get_mut(mod_name) {

@@ -1,21 +1,25 @@
 <script setup lang="ts">
 import { computed, ref, useTemplateRef } from 'vue'
 import { useProfilesStore } from '../../stores/profiles'
-import { Edit, PlusCircle, RefreshCcw, Trash2, TriangleAlert } from 'lucide-vue-next'
+import { Edit, ListChecks, PlusCircle, RefreshCcw, Trash2, TriangleAlert } from 'lucide-vue-next'
 import { useHeader } from '../../composables/useHeader'
 import { useI18n } from 'vue-i18n'
 import EditProfile from './modals/EditProfile.vue'
+import EditProfileMods from './modals/EditProfileMods.vue'
 import CreateProfile from './modals/CreateProfile.vue'
 import Button from '../../components/common/Button.vue'
 import { useConfirm } from '../../plugins/ConfirmService'
 import { useNotificationStore } from '../../stores/notification.ts'
+import { usePreferencesStore } from '../../stores/preferences'
 
 const profilesStore = useProfilesStore()
 const notificationStore = useNotificationStore()
+const preferencesStore = usePreferencesStore()
 const confirm = useConfirm()
 const { t } = useI18n()
 
 const editProfileModal = useTemplateRef('editProfileModal')
+const editProfileModsModal = useTemplateRef('editProfileModsModal')
 const createProfileModal = useTemplateRef('createProfileModal')
 
 const profileSelectedId = ref<string | null>('default')
@@ -25,8 +29,15 @@ const selectedProfile = computed(() => {
   return profilesStore.getProfileById(profileSelectedId.value)
 })
 
+const sortedEnabledMods = computed(() => {
+  if (!selectedProfile.value?.enabledMods) return []
+  return [...selectedProfile.value.enabledMods].sort((a, b) => 
+    a.localeCompare(b, undefined, { sensitivity: 'base' })
+  )
+})
+
 function editSelected() {
-  if (!profileSelectedId.value || profileSelectedId.value === 'default') return
+  if (!profileSelectedId.value) return
 
   const profile = profilesStore.getProfileById(profileSelectedId.value)
 
@@ -100,6 +111,39 @@ async function onProfileEdit(id: string, name: string, description: string | nul
   }
 }
 
+
+function editModsSelected() {
+  if (!profileSelectedId.value) return
+
+  const profile = profilesStore.getProfileById(profileSelectedId.value)
+  if (!profile) return
+
+  editProfileModsModal.value?.show({
+    id: profile.id,
+    name: profile.name,
+    enabledMods: [...(profile.enabledMods || [])]
+  })
+}
+
+async function onProfileModsEdit(id: string, modNames: string[]) {
+  const profile = profilesStore.getProfileById(id)
+  try {
+    await profilesStore.setProfileEnabledMods(id, modNames)
+    notificationStore.add({
+      severity: 'success',
+      title: t('profilesTab.notifications.modsUpdated.title'),
+      message: t('profilesTab.notifications.modsUpdated.description', { profileName: profile?.name }),
+      duration: 3000
+    })
+  } catch {
+    notificationStore.add({
+      severity: 'error',
+      title: t('profilesTab.notifications.modsUpdateFailed.title'),
+      message: t('profilesTab.notifications.modsUpdateFailed.description', { profileName: profile?.name }),
+      duration: 3000
+    })
+  }
+}
 async function onProfileCreate(
   name: string,
   description: string | null,
@@ -163,6 +207,7 @@ useHeader({
   <div class="w-full h-full flex flex-col">
     <CreateProfile ref="createProfileModal" @on-profile-create="onProfileCreate" />
     <EditProfile ref="editProfileModal" @on-profile-edit="onProfileEdit" />
+    <EditProfileMods ref="editProfileModsModal" @on-profile-mods-edit="onProfileModsEdit" />
 
     <div class="flex flex-col p-4 py-2 w-full h-full">
       <div class="w-full flex-1 border border-border-default rounded-lg bg-surface-panel flex overflow-hidden">
@@ -224,8 +269,14 @@ useHeader({
                   variant="text"
                   :label="$t('profilesTab.actions.editProfile')"
                   :icon="Edit"
-                  :disabled="selectedProfile.id === 'default'"
                   @click="editSelected"
+                />
+                <Button
+                  v-if="preferencesStore.showEditModsButton"
+                  variant="text"
+                  :label="$t('profilesTab.actions.editMods')"
+                  :icon="ListChecks"
+                  @click="editModsSelected"
                 />
                 <Button
                   variant="text"
@@ -239,20 +290,20 @@ useHeader({
 
             <div class="flex flex-col gap-1 h-full flex-1 overflow-y-auto">
               <h4 class="font-semibold text-base text-text-primary">
-                {{ $t('profilesTab.enabledMods', { count: selectedProfile.enabledMods?.length || 0 }) }}
+                {{ $t('profilesTab.enabledMods', { count: sortedEnabledMods.length }) }}
               </h4>
 
-              <div class="flex flex-col gap-1 bg-surface-card rounded-md p-2 flex-1 h-full overflow-y-auto select-text">
+              <div class="flex flex-col gap-1 bg-surface-card rounded-md p-2 flex-1 h-full overflow-y-auto select-text scrollbar-hide">
                 <div
-                  v-for="mod in selectedProfile.enabledMods"
+                  v-for="mod in sortedEnabledMods"
                   :key="mod"
-                  class="text-sm text-text-secondary hover:bg-state-hover"
+                  class="text-sm text-text-secondary hover:bg-state-hover break-all"
                 >
                   {{ mod }}
                 </div>
 
                 <div
-                  v-if="!selectedProfile.enabledMods || selectedProfile.enabledMods.length === 0"
+                  v-if="sortedEnabledMods.length === 0"
                   class="text-sm text-text-secondary italic"
                 >
                   {{ $t('profilesTab.noModsEnabled') }}
