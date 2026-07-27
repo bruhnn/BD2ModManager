@@ -13,7 +13,7 @@ mod portable {
     use serde::{Deserialize, Serialize};
     use tauri::AppHandle;
 
-    use crate::commands::updater::get_app_version;
+    use crate::updater::commands::get_app_version;
 
     const RELEASES_URL: &str = "https://shy-waterfall-2797.bruhnn.workers.dev/";
 
