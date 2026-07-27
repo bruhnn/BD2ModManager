@@ -1,6 +1,6 @@
 use std::path::PathBuf;
 
-use crate::{ModError, mods::BD2Mod};
+use crate::{mods::BD2Mod};
 use log::{debug, error};
 use serde::Serialize;
 

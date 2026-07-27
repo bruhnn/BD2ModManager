@@ -2,6 +2,7 @@ pub mod conflict;
 pub mod discover;
 pub mod install;
 pub mod delete;
+pub mod rename;
 pub mod metadata;
 pub mod sync;
 pub mod types;

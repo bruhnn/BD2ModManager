@@ -1,7 +1,7 @@
 use std::{path::PathBuf};
 
 use crate::{
-    ModError, mods::{BD2Mod, install::ModInstallError, preview::{PreviewError, is_texture_mod, preview_image}, sync::SyncMethod, types::BD2ModError}, utils::path::{get_mod_preview_path, get_staging_dir},
+    errors::ModError, mods::{BD2Mod, install::ModInstallError, preview::{PreviewError, is_texture_mod, preview_image}, sync::SyncMethod, types::BD2ModError}, utils::path::{get_mod_preview_path, get_staging_dir},
 };
 use serde::Serialize;
 use tauri::{AppHandle, ipc::Channel};
