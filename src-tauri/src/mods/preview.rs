@@ -7,8 +7,8 @@ use tauri_plugin_opener::OpenerExt;
 
 #[derive(Serialize, Clone, Debug, thiserror::Error)]
 pub enum PreviewError {
-    #[error("mod not found: {0}")]
-    NotFound(String),
+    #[error("mod '{0}' was not found")]
+    ModNotFound(String),
     #[error("mod contains errors: {0}")]
     ModHasErrors(String),
     #[error("preview failed: {0}")]

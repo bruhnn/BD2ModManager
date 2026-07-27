@@ -12,7 +12,7 @@ use uuid::Uuid;
 #[serde(tag = "type", content = "message")]
 pub enum ProfileError {
     #[error("Profile not found: {0}")]
-    NotFound(String),
+    ProfileNotFound(String),
     #[error("Invalid profile name: {0}")]
     InvalidName(String),
     #[error("Profile with the same ID already exists: {0}")]

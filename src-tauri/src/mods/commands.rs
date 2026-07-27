@@ -1,7 +1,7 @@
 use std::{path::PathBuf};
 
 use crate::{
-    errors::ModError, mods::{BD2Mod, install::ModInstallError, preview::{PreviewError, is_texture_mod, preview_image}, sync::SyncMethod, types::BD2ModError}, utils::path::{get_mod_preview_path, get_staging_dir},
+    errors::ModError, mods::{BD2Mod, preview::{PreviewError, is_texture_mod, preview_image}, sync::SyncMethod, types::BD2ModError}, utils::path::{get_mod_preview_path, get_staging_dir},
 };
 use serde::Serialize;
 use tauri::{AppHandle, ipc::Channel};
@@ -41,17 +41,16 @@ pub fn get_mods(state: tauri::State<AppState>) -> Vec<BD2Mod> {
 
 #[tauri::command]
 pub fn enable_mods(
-    _app_handle: tauri::AppHandle,
     state: tauri::State<AppState>,
     mod_names: Vec<String>,
 ) -> Vec<BD2Mod> {
+    // returns the updated mods
     let mut mod_manager = state.mod_manager.lock().unwrap();
     mod_manager.enable_mods(mod_names)
 }
 
 #[tauri::command]
 pub fn disable_mods(
-    _app_handle: tauri::AppHandle,
     state: tauri::State<AppState>,
     mod_names: Vec<String>,
 ) -> Vec<BD2Mod> {
@@ -62,7 +61,7 @@ pub fn disable_mods(
 #[tauri::command]
 pub fn preview_mod(app_handle: AppHandle, state: tauri::State<AppState>, mod_name: String) -> Result<(), ModError> {
     let mod_manager = state.mod_manager.lock().unwrap();
-    let _mod: BD2Mod = mod_manager.get_mod_by_name(&mod_name).ok_or_else(|| PreviewError::NotFound(mod_name.clone()))?;
+    let _mod: BD2Mod = mod_manager.get_mod_by_name(&mod_name).ok_or_else(|| PreviewError::ModNotFound(mod_name.clone()))?;
     
     // check if the mod has errors, like it is a zip file that is not extracted, or a folder that is missing required files, but for example it is only missing modfile there is no problem
     // BD2ModError
@@ -73,7 +72,7 @@ pub fn preview_mod(app_handle: AppHandle, state: tauri::State<AppState>, mod_nam
     let path_buf = PathBuf::from(&_mod.path);
 
     if !path_buf.exists() {
-        return Err(PreviewError::NotFound(mod_name))?;
+        return Err(PreviewError::ModNotFound(mod_name))?;
     }
 
     if is_texture_mod(&path_buf) {
@@ -95,7 +94,7 @@ pub fn install_mod_from_zip(
     _app_handle: tauri::AppHandle,
     state: tauri::State<AppState>,
     path: String,
-) -> Result<BD2Mod, ModInstallError> {
+) -> Result<BD2Mod, ModError> {
     let config = state.config.lock().unwrap();
     let staging_dir = get_staging_dir(&config);
     let mut mod_manager = state.mod_manager.lock().unwrap();
@@ -152,7 +151,7 @@ pub async fn sync_mods(
     match result {
         Ok(r) => r,
         Err(e) => {
-            eprintln!("Sync task panicked: {:?}", e);
+            error!("Sync task panicked: {:?}", e);
             Err(ModError::Unknown(format!("{:?}", e)))
         }
     }
@@ -186,7 +185,7 @@ pub async fn unsync_mods(
     match result {
         Ok(r) => r,
         Err(e) => {
-            eprintln!("Unsync task panicked: {:?}", e);
+            error!("Unsync task panicked: {:?}", e);
             Err(ModError::Unknown(format!("{:?}", e)))
         }
     }

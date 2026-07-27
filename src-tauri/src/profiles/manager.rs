@@ -209,10 +209,10 @@ impl ProfileManager {
                     Err(error) => return Err(ProfileError::DeleteFailed(format!("Failed to delete profile json {:?}: {}", path, error))),
                 }
             } else {
-                return Err(ProfileError::NotFound(profile_id));
+                return Err(ProfileError::ProfileNotFound(profile_id));
             }
         } else {
-            return Err(ProfileError::NotFound(profile_id));
+            return Err(ProfileError::ProfileNotFound(profile_id));
         }
 
         if profile_deleted {
@@ -233,7 +233,7 @@ impl ProfileManager {
             profile.name = name;
             profile.description = description.unwrap_or_default();
         } else {
-            return Err(ProfileError::NotFound(profile_id));
+            return Err(ProfileError::ProfileNotFound(profile_id));
         }
 
         self.save_profile(self.profiles.get(&profile_id).unwrap())?;
@@ -252,7 +252,7 @@ impl ProfileManager {
 
     pub fn set_active_profile(&mut self, profile_id: String) -> Result<(), ProfileError> {
         if !self.profiles.contains_key(&profile_id) {
-            return Err(ProfileError::NotFound(profile_id));
+            return Err(ProfileError::ProfileNotFound(profile_id));
         }
 
         self.active_profile_id = Some(profile_id.clone());
@@ -282,7 +282,7 @@ impl ProfileManager {
             self.save_profile(&profile_to_save)?;
             Ok(())
         } else {
-            Err(ProfileError::NotFound(
+            Err(ProfileError::ProfileNotFound(
                 "No active profile to save.".to_string(),
             ))
         }

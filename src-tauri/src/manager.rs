@@ -64,18 +64,24 @@ impl BD2ModManager {
         }
     }
 
-    fn change_mods_state(&mut self, mod_names: Vec<String>, enabled: bool) {
+    fn change_mods_state(&mut self, mod_names: Vec<String>, enabled: bool) -> Vec<BD2Mod> {
+        let mut mods_changed: Vec<BD2Mod> = vec![];
+
         for mod_name in mod_names.iter() {
             if let Some(bd2mod) = self.cached_mods.get_mut(mod_name) {
                 bd2mod.enabled = enabled;
+                
                 debug!(
                     "{} mod: {}",
                     if enabled { "Enabled" } else { "Disabled" },
                     bd2mod.name
                 );
+
+                mods_changed.push(bd2mod.clone());
             } else {
                 warn!("Mod not found: {}", mod_name);
             }
+
         }
 
         if let Some(active_profile) = self.profile_manager.get_active_profile() {
@@ -90,6 +96,8 @@ impl BD2ModManager {
                 e
             );
         }
+
+        mods_changed
     }
 
     // mods Methods
@@ -104,13 +112,11 @@ impl BD2ModManager {
     }
 
     pub fn enable_mods(&mut self, mod_names: Vec<String>) -> Vec<BD2Mod> {
-        self.change_mods_state(mod_names, true);
-        self.get_mods()
+        self.change_mods_state(mod_names, true)
     }
 
     pub fn disable_mods(&mut self, mod_names: Vec<String>) -> Vec<BD2Mod> {
-        self.change_mods_state(mod_names, false);
-        self.get_mods()
+        self.change_mods_state(mod_names, false)
     }
 
     // profile
@@ -229,7 +235,7 @@ impl BD2ModManager {
     }
 
     pub fn delete_mod(&mut self, mod_name: String) -> Result<(), ModDeleteError> {
-        let mod_ = self.get_mod_by_name(&mod_name).ok_or_else(|| ModDeleteError::NotFound(mod_name))?;
+        let mod_ = self.get_mod_by_name(&mod_name).ok_or_else(|| ModDeleteError::ModNotFound(mod_name))?;
 
         mods::delete::delete_mod(&mod_).map_err(|e| {
             error!("Failed to delete mod: {:?}, error: {:?}", mod_, e);

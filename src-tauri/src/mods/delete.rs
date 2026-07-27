@@ -6,8 +6,8 @@ use serde::Serialize;
 
 #[derive(thiserror::Error,Serialize, Debug)]
 pub enum ModDeleteError {
-    #[error("Mod not found in cache: {0}")]
-    NotFound(String),
+    #[error("mod '{0}' was not found")]
+    ModNotFound(String),
     #[error("Mod path no longer exists on disk: {0}")]
     PathMissing(String),
     #[error("Failed to delete mod: {0}")]
@@ -27,7 +27,7 @@ pub fn delete_mod(mod_: &BD2Mod) -> Result<(), ModDeleteError> {
     .map(|p| p.to_path_buf()).filter(|p| p.exists())
     .ok_or_else(|| {
         error!("Could not determine staging directory for mod: {:?}", mod_);
-        ModDeleteError::NotFound(mod_.name.clone())
+        ModDeleteError::ModNotFound(mod_.name.clone())
     })?;
     debug!("Deleting mod: {:?}", mod_); 
 

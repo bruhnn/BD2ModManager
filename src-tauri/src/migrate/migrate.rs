@@ -1,4 +1,4 @@
-use std::{collections::HashMap, fmt, fs, path::PathBuf};
+use std::{collections::HashMap, fs, path::PathBuf};
 
 use serde::{Deserialize, Serialize};
 use tauri::Manager;
