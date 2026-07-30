@@ -1,5 +1,5 @@
 {
-    "version": "0.0.24",
+    "version": "0.0.25",
     "characters": [
         {
             "id": "000708",
@@ -7110,6 +7110,117 @@
                 "head_image": "icon_char061306_211.png",
                 "character_image": "illust_inven_char061306_208.png",
                 "skill_image": null
+            }
+        },
+        {
+            "id": "066907",
+            "character": "Glacia",
+            "costume": "Heavenly Guardian Successor",
+            "is_collab": false,
+            "cutscene": true,
+            "standing": true,
+            "dating_id": null,
+            "character_image": "illust_inven_char066907_209.png",
+            "skill_preview_image": "illust_skill_char066907_209.png",
+            "release_date": "2026-07-30",
+            "gender": "female",
+            "costume_id": "066907",
+            "character_id": 669,
+            "character_name": {
+                "en": "Glacia",
+                "cn": "克蕾西亚",
+                "jp": "グレイシア",
+                "tw": "克蕾西亞",
+                "kr": "글레이시아"
+            },
+            "costume_name": {
+                "en": "Heavenly Guardian Successor",
+                "cn": "天守传人",
+                "jp": "天守の継承者",
+                "tw": "天守繼承者",
+                "kr": "천수의 계승자"
+            },
+            "skin_type": "normal",
+            "grade": 5,
+            "element": "water",
+            "assets": {
+                "head_image": "icon_char066907_212.png",
+                "character_image": "illust_inven_char066907_209.png",
+                "skill_image": "illust_skill_char066907_209.png"
+            }
+        },
+        {
+            "id": "001092",
+            "character": "Sylvia",
+            "costume": "Crimson Lotus",
+            "is_collab": false,
+            "cutscene": true,
+            "standing": true,
+            "dating_id": null,
+            "character_image": "illust_inven_char001092_221.png",
+            "skill_preview_image": "illust_skill_char001092_221.png",
+            "release_date": "2026-07-30",
+            "gender": "female",
+            "costume_id": "001092",
+            "character_id": 10,
+            "character_name": {
+                "en": "Sylvia",
+                "cn": "席比雅",
+                "jp": "シルヴィア",
+                "tw": "席比雅",
+                "kr": "실비아"
+            },
+            "costume_name": {
+                "en": "Crimson Lotus",
+                "cn": "红莲",
+                "jp": "紅蓮",
+                "tw": "紅蓮",
+                "kr": "홍련"
+            },
+            "skin_type": "special",
+            "grade": 5,
+            "element": "water",
+            "assets": {
+                "head_image": "icon_char001092_224.png",
+                "character_image": "illust_inven_char001092_221.png",
+                "skill_image": "illust_skill_char001092_221.png"
+            }
+        },
+        {
+            "id": "065193",
+            "character": "Yuri",
+            "costume": "Forever Mascot",
+            "is_collab": false,
+            "cutscene": true,
+            "standing": true,
+            "dating_id": null,
+            "character_image": "illust_inven_char065193_224.png",
+            "skill_preview_image": "illust_skill_char065193_224.png",
+            "release_date": "2026-07-30",
+            "gender": "female",
+            "costume_id": "065193",
+            "character_id": 651,
+            "character_name": {
+                "en": "Yuri",
+                "cn": "尤里",
+                "jp": "ユリ",
+                "tw": "尤里",
+                "kr": "유리"
+            },
+            "costume_name": {
+                "en": "Forever Mascot",
+                "cn": "永远的吉祥物",
+                "jp": "永遠のマスコット",
+                "tw": "永遠的吉祥物",
+                "kr": "영원한 마스코트"
+            },
+            "skin_type": "prestige",
+            "grade": 5,
+            "element": "light",
+            "assets": {
+                "head_image": "icon_char065193_230.png",
+                "character_image": "illust_inven_char065193_224.png",
+                "skill_image": "illust_skill_char065193_224.png"
             }
         }
     ],
