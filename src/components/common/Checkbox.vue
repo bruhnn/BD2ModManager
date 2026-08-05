@@ -14,9 +14,9 @@ const emit = defineEmits<{
   (event: "update:modelValue", value: boolean): void
 }>()
 
-const toggle = () => {
+const onChange = (event: Event) => {
   if (props.disabled) return
-  emit("update:modelValue", !props.modelValue)
+  emit("update:modelValue", (event.target as HTMLInputElement).checked)
 }
 
 const classList = computed(() => [
@@ -30,27 +30,23 @@ const id = `checkbox-${Math.random().toString(36).substring(2, 9)}`
 </script>
 
 <template>
-  <div
+  <label
     class="flex items-center gap-2 select-none"
-    data-checkbox
     :class="{ 'cursor-not-allowed': disabled, 'cursor-pointer': !disabled }"
+    data-checkbox
+    :for="id"
   >
     <input
       type="checkbox"
       class="sr-only peer"
       :checked="modelValue"
       :disabled="disabled"
-      @change="toggle"
+      @change="onChange"
       :id="id"
     />
 
     <!-- // checkbox  -->
-    <div
-      :class="classList"
-      tabindex="0"
-      @click="toggle"
-      @keydown.space.prevent="toggle"
-    >
+    <div :class="classList">
       <Transition
         enter-active-class="transition transform duration-150 ease-out"
         enter-from-class="scale-50 opacity-0"
@@ -73,19 +69,11 @@ const id = `checkbox-${Math.random().toString(36).substring(2, 9)}`
       </Transition>
     </div>
 
-
-    <label
-      v-if="label"
-      :class="['text-text-primary text-sm font-normal']"
-      :for="id"
-    >
+    <span v-if="label" class="text-text-primary text-sm font-normal">
       {{ label }}
-      <p
-        v-if="description"
-        class="text-xs text-text-secondary mt-1 font-normal"
-      >
+      <p v-if="description" class="text-xs text-text-secondary mt-1 font-normal">
         {{ description }}
       </p>
+    </span>
   </label>
-  </div>
 </template>
