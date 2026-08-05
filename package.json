@@ -15,6 +15,7 @@
   "dependencies": {
     "@floating-ui/vue": "^1.1.10",
     "@headlessui/vue": "^1.7.23",
+    "@lucide/vue": "^1.28.0",
     "@tailwindcss/vite": "^4.2.1",
     "@tanstack/vue-table": "^8.21.3",
     "@tanstack/vue-virtual": "^3.13.19",
@@ -29,7 +30,6 @@
     "@tauri-apps/plugin-updater": "~2.10.0",
     "@tauri-apps/plugin-window-state": "^2.4.1",
     "@vueuse/core": "^14.2.1",
-    "lucide-vue-next": "^0.575.0",
     "pinia": "^3.0.4",
     "pnpm": "^10.34.4",
     "tailwindcss": "^4.2.1",
