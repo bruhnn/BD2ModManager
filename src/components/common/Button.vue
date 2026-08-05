@@ -1,10 +1,9 @@
 <script setup lang="ts">
-import { LucideIcon } from 'lucide-vue-next';
-import { computed, MaybeRef } from 'vue'
+import { Component, computed, MaybeRef } from 'vue'
 
 const props = defineProps<{
   label?: MaybeRef<string>
-  icon?: LucideIcon
+  icon?: Component
   labelClass?: string
   iconClass?: string | object | Array<string | object>
   disabled?: boolean

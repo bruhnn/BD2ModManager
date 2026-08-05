@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { TransitionRoot, TransitionChild, Dialog, DialogPanel } from '@headlessui/vue'
-import { XIcon } from 'lucide-vue-next';
+import { XIcon } from '@lucide/vue';
 
 defineOptions({ inheritAttrs: false });
 

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { X, Calendar, Eye, BadgeDollarSign, ExternalLink, Info, Tag } from 'lucide-vue-next';
+import { X, Calendar, Eye, BadgeDollarSign, ExternalLink, Info, Tag } from '@lucide/vue';
 import { Character } from '../../../stores/characters';
 import { BD2Mod, useModsStore } from '../../../stores/mods';
 import { computed, ref } from 'vue';

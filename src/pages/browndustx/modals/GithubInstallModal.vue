@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue';
-import { DownloadIcon, TriangleAlert } from 'lucide-vue-next';
+import { DownloadIcon, TriangleAlert } from '@lucide/vue';
 import Modal from '../../../components/common/Modal.vue';
 import Button from '../../../components/common/Button.vue';
 import Checkbox from '../../../components/common/Checkbox.vue';

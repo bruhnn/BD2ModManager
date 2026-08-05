@@ -3,7 +3,7 @@ import { computed, onMounted, ref, watch } from 'vue';
 
 import NavigationButton from './NavigationButton.vue';
 import NavigationSection from './NavigationSection.vue'
-import { Bolt, Component, Play, Puzzle, Settings, Users } from 'lucide-vue-next';
+import { Bolt, Component, Play, Puzzle, Settings, Users } from '@lucide/vue';
 import { useModsStore } from '../../stores/mods';
 import { invoke } from '@tauri-apps/api/core';
 import { useSettingsStore } from '../../stores/settings';

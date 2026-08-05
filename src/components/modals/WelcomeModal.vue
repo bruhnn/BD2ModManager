@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue';
 import { storeToRefs } from 'pinia';
-import { AlertOctagon, Check, RefreshCcw } from 'lucide-vue-next';
+import { AlertOctagon, Check, RefreshCcw } from '@lucide/vue';
 import { open } from '@tauri-apps/plugin-dialog';
 import { dirname } from '@tauri-apps/api/path';
 import { useLoggingStore } from '../../stores/logging';

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Grid3X3, List, RefreshCcw, FolderPlus } from 'lucide-vue-next';
+import { Grid3X3, List, RefreshCcw, FolderPlus } from '@lucide/vue';
 
 import { computed, defineComponent, h, nextTick, onActivated, onDeactivated, onMounted, reactive, ref, watch } from 'vue';
 import { useLocalStorage } from '@vueuse/core';

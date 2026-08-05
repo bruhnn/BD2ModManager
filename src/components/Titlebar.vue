@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Minus, Square, SquareStop, X, Check, AlertTriangle, RotateCw, ScrollText, Heart, Puzzle, Database, Sparkles } from 'lucide-vue-next';
+import { Minus, Square, SquareStop, X, Check, AlertTriangle, RotateCw, ScrollText, Heart, Puzzle, Database, Sparkles } from '@lucide/vue';
 
 import { computed, onMounted, ref, watch, onUnmounted } from 'vue';
 import { refThrottled } from '@vueuse/core';

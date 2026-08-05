@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { TransitionRoot } from '@headlessui/vue'
-import { X } from 'lucide-vue-next'
+import { X } from '@lucide/vue'
 import { useAttrs, computed } from 'vue'
 
 defineOptions({ inheritAttrs: false })

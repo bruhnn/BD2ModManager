@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Folder, FolderMinus, FolderPlus, FolderSync, RefreshCcw } from "lucide-vue-next";
+import { Folder, FolderMinus, FolderPlus, FolderSync, RefreshCcw } from "@lucide/vue";
 
 import { computed, defineComponent, h, onActivated, onDeactivated, onMounted, reactive, ref, useTemplateRef, watch } from "vue";
 import { useDebounceFn, useLocalStorage, watchDebounced } from "@vueuse/core";

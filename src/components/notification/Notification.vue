@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue'
 import type { Notification } from '../../stores/notification'
-import { AlertOctagon, AlertTriangle, Check, X } from 'lucide-vue-next'
+import { AlertOctagon, AlertTriangle, Check, X } from '@lucide/vue'
 
 const props = defineProps<{
     notification: Notification

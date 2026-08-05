@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import { Tab, TabGroup, TabList, TabPanels } from '@headlessui/vue';
-import { CircleArrowUp, FlaskConical, Monitor, Settings } from 'lucide-vue-next';
-import { computed } from 'vue';
+import { CircleArrowUp, FlaskConical, Monitor, Settings } from '@lucide/vue';
+import { computed, onMounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import GeneralTab from './tabs/GeneralTab.vue';
 import InterfaceTab from './tabs/InterfaceTab.vue';
 import UpdateTab from './tabs/UpdateTab.vue';
 import ExperimentalTab from './tabs/ExperimentalTab.vue';
+import { useDev } from '../../composables/useDev.ts';
 
 
 const { t } = useI18n()
@@ -29,6 +30,31 @@ const tabs = computed(() => [{
     icon: FlaskConical
 }
 ])
+
+const {
+    isDev,
+    setDevMode
+} = useDev()
+
+let pKey = ref('')
+
+onMounted(() => {
+    const keys = [
+        'i', 'a', 'm', 'b', 'r', 'u', 'h', 'n', 'n'
+    ]
+    
+    document.addEventListener('keydown', (event) => {
+        if (event.key === keys[pKey.value.length]) {
+            pKey.value += event.key
+            if (pKey.value === keys.join('')) {
+                setDevMode(!isDev.value)
+                pKey.value = ''
+            }
+        } else {
+            pKey.value = ''
+        }
+    })
+})
 </script>
 
 <template>

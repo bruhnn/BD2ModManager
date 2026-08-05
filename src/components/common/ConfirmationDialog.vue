@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { X } from 'lucide-vue-next';
+import { X } from '@lucide/vue';
 import { confirmState } from '../../plugins/ConfirmService';
 import { ref, watch } from 'vue';
 import { TransitionChild, TransitionRoot } from '@headlessui/vue';

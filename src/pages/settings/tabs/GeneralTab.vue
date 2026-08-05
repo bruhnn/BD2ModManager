@@ -3,7 +3,7 @@ import { TabPanel } from '@headlessui/vue';
 import Section from '../Section.vue';
 import { useI18n } from 'vue-i18n';
 import { computed } from 'vue';
-import { Folder, SquareArrowOutUpRight } from 'lucide-vue-next';
+import { Folder, SquareArrowOutUpRight } from '@lucide/vue';
 import { openPath } from '@tauri-apps/plugin-opener';
 import { open } from '@tauri-apps/plugin-dialog';
 import Select from '../../../components/common/Select.vue';

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, useTemplateRef } from 'vue'
 import { useProfilesStore } from '../../stores/profiles'
-import { Edit, PlusCircle, RefreshCcw, Trash2, TriangleAlert } from 'lucide-vue-next'
+import { Edit, PlusCircle, RefreshCcw, Trash2, TriangleAlert } from '@lucide/vue'
 import { useHeader } from '../../composables/useHeader'
 import { useI18n } from 'vue-i18n'
 import EditProfile from './modals/EditProfile.vue'

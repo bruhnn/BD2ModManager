@@ -13,7 +13,7 @@ import {
 } from '@tanstack/vue-table'
 import Checkbox from '../../components/common/Checkbox.vue'
 import { usePreferencesStore } from '../../stores/preferences'
-import { AlertTriangle, ArrowDownWideNarrow, ArrowUpNarrowWide, TriangleAlert } from 'lucide-vue-next'
+import { AlertTriangle, ArrowDownWideNarrow, ArrowUpNarrowWide, TriangleAlert } from '@lucide/vue'
 import ErrorTag from './ErrorTag.vue'
 import type { ContextMenuItem } from '../../components/common/ContextMenu.vue'
 import ContextMenu from '../../components/common/ContextMenu.vue'
