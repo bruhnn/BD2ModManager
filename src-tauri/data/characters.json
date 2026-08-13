@@ -1,5 +1,5 @@
 {
-    "version": "0.0.25",
+    "version": "0.0.26",
     "characters": [
         {
             "id": "000708",
@@ -2304,7 +2304,7 @@
             "is_collab": false,
             "cutscene": true,
             "standing": true,
-            "dating_id": null,
+            "dating_id": "20",
             "character_image": "illust_inven_char061302_104.png",
             "skill_preview_image": "illust_skill_char061302_104.png",
             "release_date": "2023-12-07",
@@ -7193,7 +7193,7 @@
             "is_collab": false,
             "cutscene": true,
             "standing": true,
-            "dating_id": null,
+            "dating_id": "21",
             "character_image": "illust_inven_char065193_224.png",
             "skill_preview_image": "illust_skill_char065193_224.png",
             "release_date": "2026-07-30",
@@ -7222,6 +7222,80 @@
                 "character_image": "illust_inven_char065193_224.png",
                 "skill_image": "illust_skill_char065193_224.png"
             }
+        },
+        {
+            "id": "061003",
+            "character": "Helena",
+            "costume": "Sunny Inn Hand",
+            "is_collab": false,
+            "cutscene": true,
+            "standing": true,
+            "dating_id": null,
+            "character_image": "illust_inven_char061003_210.png",
+            "skill_preview_image": "illust_skill_char061003_210.png",
+            "release_date": "2026-08-13",
+            "gender": "female",
+            "costume_id": "061003",
+            "character_id": 610,
+            "character_name": {
+                "en": "Helena",
+                "cn": "海伦娜",
+                "jp": "ヘレナ",
+                "tw": "海倫娜",
+                "kr": "헬레나"
+            },
+            "costume_name": {
+                "en": "Sunny Inn Hand",
+                "cn": "客栈晴晖",
+                "jp": "客桟の陽光",
+                "tw": "客棧的陽光",
+                "kr": "객잔의 햇살"
+            },
+            "skin_type": "normal",
+            "grade": 5,
+            "element": "light",
+            "assets": {
+                "head_image": "icon_char061003_213.png",
+                "character_image": "illust_inven_char061003_210.png",
+                "skill_image": "illust_skill_char061003_210.png"
+            }
+        },
+        {
+            "id": "061392",
+            "character": "Dalvi",
+            "costume": "Butterfly Dream",
+            "is_collab": false,
+            "cutscene": true,
+            "standing": true,
+            "dating_id": null,
+            "character_image": "illust_inven_char061392_220.png",
+            "skill_preview_image": "illust_skill_char061392_220.png",
+            "release_date": "2026-08-13",
+            "gender": "female",
+            "costume_id": "061392",
+            "character_id": 613,
+            "character_name": {
+                "en": "Dalvi",
+                "cn": "达非",
+                "jp": "キュウビ",
+                "tw": "達非",
+                "kr": "달비"
+            },
+            "costume_name": {
+                "en": "Butterfly Dream",
+                "cn": "蝶梦",
+                "jp": "胡蝶の夢",
+                "tw": "蝶夢",
+                "kr": "호접몽"
+            },
+            "skin_type": "special",
+            "grade": 5,
+            "element": "wind",
+            "assets": {
+                "head_image": "icon_char061392_223.png",
+                "character_image": "illust_inven_char061392_220.png",
+                "skill_image": "illust_skill_char061392_220.png"
+            }
         }
     ],
     "dating": {
@@ -7243,6 +7317,8 @@
         "16": "003604",
         "17": "004202",
         "18": "000396",
-        "19": "067104"
+        "19": "067104",
+        "20": "061302",
+        "21": "065193"
     }
 }
