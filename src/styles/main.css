@@ -132,4 +132,9 @@ body {
   background: transparent;
 }
 
+::-webkit-scrollbar-corner {
+  background: transparent;
+  display: none ;
+}
+
 
