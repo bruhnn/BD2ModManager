@@ -3,6 +3,9 @@ import { ref, onMounted, onUnmounted } from 'vue'
 import type { Notification } from '../../stores/notification'
 import { AlertOctagon, AlertTriangle, Check, X } from '@lucide/vue'
 
+// w-fit max-w-[calc(100vw-2rem)] sm:max-w-3xl
+// noti fixed? w-80 max-w-[calc(100vw-2rem)]
+
 const props = defineProps<{
     notification: Notification
 }>()
@@ -26,7 +29,12 @@ function close() {
     emit('close', props.notification.id)
 }
 
-let stopped = false
+function handleAction() {
+    props.notification.action?.onClick()
+    close()
+}
+
+let stopped = ref(false)
 
 function startProgress() {
     if (!props.notification.duration) return
@@ -34,8 +42,11 @@ function startProgress() {
     const duration = props.notification.duration
     const start = performance.now()
 
+    progress.value = 100
+    stopped.value = false
+
     function animate(time: number) {
-        if (stopped) return
+        if (stopped.value) return
 
         const percent = Math.min((time - start) / duration, 1)
         progress.value = 100 * (1 - percent)
@@ -52,13 +63,17 @@ function startProgress() {
 }
 
 function stopProgress() {
-    stopped = true
+    stopped.value = true
+    progress.value = 100
 }
 
 </script>
 
 <template>
-    <div class="w-80 rounded-md border border-border-default bg-surface-popover shadow-lg text-sm overflow-hidden">
+    <div :class="[
+        'w-fit max-w-[calc(100vw-2rem)] sm:max-w-3xl',
+        'rounded-md border border-border-default bg-surface-popover shadow-lg text-sm overflow-hidden'
+    ]" @mouseenter="stopProgress" @mouseleave="startProgress">
         <div class="flex items-start gap-3 p-3">
             <span v-if="notification.severity === 'success'" class="relative w-4 h-4 shrink-0 mt-0.5">
                 <Check class="absolute inset-0 text-text-secondary w-4 h-4" />
@@ -98,18 +113,24 @@ function stopProgress() {
                     :style="{ clipPath: `url(#clip-warn-${notification.id})` }" />
             </span>
 
-            <div class="flex-1 min-w-0">
-                <p class="font-medium text-text-primary">
+            <div class="grow min-w-0 overflow-hidden">
+                <p class="font-medium text-text-primary wrap-break-word">
                     {{ notification.title }}
                 </p>
 
-                <p v-if="notification.message" class="text-text-secondary text-xs mt-0.5">
+                <p v-if="notification.message" class="text-text-secondary text-xs mt-0.5 wrap-break-word">
                     {{ notification.message }}
                 </p>
+
+                <button v-if="notification.action" type="button"
+                    class="mt-2 max-w-full text-xs font-medium text-accent wrap-break-word hover:text-accent-hover hover:underline cursor-pointer"
+                    @click="handleAction">
+                    {{ notification.action.label }}
+                </button>
             </div>
 
             <button @click="close"
-                class="text-text-secondary hover:text-text-primary transition-colors shrink-0 cursor-pointer">
+                class="text-text-secondary self-center hover:text-text-primary transition-colors shrink-0 cursor-pointer">
                 <X class="w-4 h-4" />
             </button>
         </div>

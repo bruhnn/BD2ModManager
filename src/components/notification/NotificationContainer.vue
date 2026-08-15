@@ -28,42 +28,49 @@ const config = computed(() => {
         case 'top-left':
             return {
                 classes: 'top-4 left-4 items-start',
+                alignment: 'items-start',
                 transition: 'notification-left',
             }
 
         case 'top-right':
             return {
                 classes: 'top-4 right-4 items-end',
+                alignment: 'items-end',
                 transition: 'notification-right',
             }
 
         case 'bottom-left':
             return {
                 classes: 'bottom-4 left-4 items-start',
+                alignment: 'items-start',
                 transition: 'notification-left',
             }
 
         case 'bottom-right':
             return {
                 classes: 'bottom-4 right-4 items-end',
+                alignment: 'items-end',
                 transition: 'notification-right',
             }
 
         case 'top-center':
             return {
                 classes: 'top-4 left-1/2 -translate-x-1/2 items-center',
+                alignment: 'items-center',
                 transition: 'notification-top',
             }
 
         case 'bottom-center':
             return {
                 classes: 'bottom-4 left-1/2 -translate-x-1/2 items-center',
+                alignment: 'items-center',
                 transition: 'notification-bottom',
             }
 
         default:
             return {
                 classes: 'top-4 right-4 items-end',
+                alignment: 'items-end',
                 transition: 'notification-right',
             }
     }
@@ -84,7 +91,7 @@ function onLeave(el: Element) {
 
 <template>
     <div :class="`fixed z-50 ${config.classes}`">
-        <TransitionGroup :name="config.transition" tag="div" class="relative flex flex-col" @leave="onLeave">
+        <TransitionGroup :name="config.transition" tag="div" :class="['relative flex flex-col', config.alignment]" @leave="onLeave">
             <Notification v-for="notification in notifications" :key="notification.id" :notification="notification"
                 class="mt-3 first:mt-0" @close="notificationStore.remove" />
         </TransitionGroup>
