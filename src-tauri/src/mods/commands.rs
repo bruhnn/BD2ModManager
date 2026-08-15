@@ -219,11 +219,11 @@ pub struct DeleteModsProgress {
     pub mod_name: String,
 }
 
-#[derive(Clone, Serialize)]
+#[derive(Serialize)]
 pub struct DeleteModsResult {
     pub mods: Vec<BD2Mod>,
     pub deleted: Vec<String>,
-    pub failed: Vec<(String, String)>,
+    pub failed: HashMap<String, ModDeleteError>,
 }
 
 #[tauri::command]
@@ -238,7 +238,7 @@ pub async fn delete_mods(
 
         let total = mod_names.len();
         let mut deleted = Vec::new();
-        let mut failed = Vec::new();
+        let mut failed = HashMap::new();
 
         for (index, mod_name) in mod_names.iter().enumerate() {
             let _ = on_progress.send(DeleteModsProgress {
@@ -252,7 +252,7 @@ pub async fn delete_mods(
                     deleted.push(mod_name.clone());
                 }
                 Err(error) => {
-                    failed.push((mod_name.clone(), error.to_string()));
+                    failed.insert(mod_name.clone(), error);
                 }
             }
         }
