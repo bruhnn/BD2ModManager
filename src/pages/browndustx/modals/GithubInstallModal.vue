@@ -115,7 +115,7 @@ function handleVersionSelected(downloadUrl: string) {
 </script>
 
 <template>
-    <Modal v-model:show="showModal" @close="showModal = false" class="w-180 max-h-[60%]"
+    <Modal v-model:show="showModal" @close="showModal = false" size="lg"
         :title="$t('browndustxTab.modals.installFromGithub.title')">
         <template #footer>
             <div class="flex justify-end gap-2 p-2">

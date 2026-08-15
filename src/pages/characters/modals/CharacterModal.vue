@@ -143,7 +143,7 @@ const charName = computed(() => {
 </script>
 
 <template>
-    <Modal v-model:show="show" class="w-[50vw] max-h-[85vh]" @close="() => show = false">
+    <Modal v-model:show="show" size="lg" @close="() => show = false">
         <template #footer>
             <div class="flex p-3 justify-end items-center w-full border-t border-border-default">
                 <Button variant="default" :label="$t('common.actions.close')" @click="show = false" />
