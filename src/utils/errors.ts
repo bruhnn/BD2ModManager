@@ -1,30 +1,42 @@
-export function getErrorMessage(t: (key: string, params?: any, error?: any) => string, error: any): string {
-    if (!error) return t('errors.unknownError')
+export interface Error {
+  parent: string
+  type: string
+  details?: unknown
+  message: string
+}
 
-    if (error === 'GameDirectoryNotSet') return t('errors.gameDirectoryNotSet')
-    if (error === 'InvalidName')         return t('errors.invalidName')
-    if (error === 'InvalidFormat')       return t('errors.invalidFormat')
-    if (error === 'ModAlreadyExists')    return t('errors.modAlreadyExists')
-    if (error === 'InvalidMod')          return t('errors.invalidMod')
-    if (error === 'MultipleModsFound')   return t('errors.multipleModsFound')
-    if (error === 'UnsupportedFormat')   return t('errors.unsupportedFormat')
+function isError(value: unknown): value is Error {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    "parent" in value &&
+    "type" in value &&
+    "message" in value
+  )
+}
 
-    if (error === "SymlinkAdminRequired")       return t('errors.symlinkAdminRequired')
 
-    if (error?.SyncMethodInvalid)        return t('errors.syncMethodInvalid', { method: error.SyncMethodInvalid })
-    if (error?.PathNotFound)             return t('errors.pathNotFound', { path: error.PathNotFound.path })
-    if (error?.UnknownError)             return t('errors.unknownError', { error: error.UnknownError })
-
-    if (error?.SyncFailed) {
-        const sync = error.SyncFailed
-        if (sync?.type === 'SymlinkAdminRequired')       return t('errors.symlinkAdminRequired')
-        if (sync?.type === 'ModPathNotFound')             return t('errors.modPathNotFound', { path: sync.details })
-        if (sync?.type === 'CopyFailed')                 return t('errors.copyFailed', { error: sync.details })
-        if (sync?.type === 'SymlinkFailed')              return t('errors.symlinkFailed', { error: sync.details })
-        if (sync?.type === 'HardlinkFailed')             return t('errors.hardlinkFailed', { error: sync.details })
-        if (sync?.type === 'DirectoryCreationFailed')    return t('errors.directoryCreationFailed', { error: sync.details })
-        if (sync?.type === 'RemovalFailed')              return t('errors.removalFailed', { error: sync.details })
+export function getErrorMessage(t: (key: string, params?: unknown) => string, error: unknown): string {
+  if (typeof error === "string") {
+    try {
+      const data = JSON.parse(error)
+      if (isError(data)) error = data
+    } catch {
+      return String(error) || t("errors.AppError.Unknown")
     }
+  }
 
-    return t('errors.unknownError', { error: JSON.stringify(error) })
+  if (isError(error)) {
+    const params = error.details && typeof error.details === "object"
+      ? error.details
+      : { details: error.details }
+    if (error.type === "Io") {
+      const { kind } = error.details as { kind: string }
+      return t(`errors.Io.${kind}`)
+    }
+    return t(`errors.${error.parent}.${error.type}`, { ...params, defaultValue: error.message })
+  }
+
+  if (error instanceof Error) return error.message
+  return t("errors.AppError.Unknown")
 }

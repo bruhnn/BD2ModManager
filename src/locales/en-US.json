@@ -847,28 +847,85 @@
         }
     },
     "errors": {
-        "syncFailed": "Mod Sync Failed",
-        "unsyncFailed": "Failed to unsync mods",
-        "modAlreadyExists": "A mod with the same name already exists.",
-        "multipleModsFound": "Multiple mods found. Please ensure only one mod is present.",
-        "modPreviewContainsErrors": "This mod contains errors and cannot be previewed.",
-        "gameDirectoryNotSet": "Game directory is not set. Please set it in the settings.",
-        "stagingDirectoryNotSet": "Staging mods directory is not set. Please set it in the settings.",
-        "syncMethodInvalid": "Invalid sync method: {method}",
-        "symlinkAdminRequired": "Administrator privileges are required to create symbolic links.",
-        "modPathNotFound": "Mod path not found: {path}",
-        "copyFailed": "Failed to copy mod files: {error}",
-        "symlinkFailed": "Failed to create symbolic link: {error}",
-        "hardlinkFailed": "Failed to create hard link: {error}",
-        "directoryCreationFailed": "Failed to create directory: {error}",
-        "removalFailed": "Failed to remove file or directory: {error}",
-        "unknownError": "An unknown error occurred: {error}",
-        "modInstallFailed": {
-            "title": "Failed to install mod"
+        "AppError": {
+            "GameDirectoryNotSet": "Game directory is not set. Please set it in the settings.",
+            "StagingDirectoryNotSet": "Staging mods directory is not set. Please set it in the settings.",
+            "SyncMethodInvalid": "Invalid sync method: {method}",
+            "GameRunning": "The game is already running.",
+            "Unknown": "An unexpected error occurred. Check logs for more details."
         },
-        "invalidMod": "The selected file or folder is not a valid BrownDustX mod.",
-        "invalidFormat": "Unsupported mod format. Please select a valid mod file or folder.",
-        "unsupportedFormat": "Unsupported file format. Please select a valid mod file or folder."
+        "Io": {
+            "NotFound": "That file or folder doesn't exist.",
+            "PermissionDenied": "Permission denied. Try running as administrator.",
+            "AlreadyExists": "That file or folder already exists.",
+            "DirectoryNotEmpty": "The directory isn't empty.",
+            "NotADirectory": "Expected a folder, but found a file.",
+            "IsADirectory": "Expected a file, but found a folder.",
+            "InvalidInput": "Invalid input for that operation.",
+            "InvalidData": "The file contains invalid data.",
+            "TimedOut": "The operation timed out.",
+            "WriteZero": "Failed to write data to disk.",
+            "UnexpectedEof": "The file ended unexpectedly (it may be corrupted).",
+            "OutOfMemory": "Ran out of memory.",
+            "StorageFull": "Not enough disk space."
+        },
+        "ModInstallError": {
+            "ModAlreadyExists": "A mod with this name already exists.",
+            "PathNotFound": "The selected mod path was not found.",
+            "InvalidName": "The selected path does not have a valid mod name.",
+            "UnsupportedFormat": "Unsupported archive format. Only .zip, .rar, and .7z are supported.",
+            "InvalidArchive": "The archive is corrupted or unreadable.",
+            "MissingModFile": "This doesn't look like a valid mod (no .modfile found).",
+            "MultipleModsFound": "Multiple .modfile files were found. Please ensure only one mod is present.",
+            "NotAMod": "The selected file or folder is not a valid BrownDustX mod."
+        },
+        "ModDeleteError": {
+            "ModNotFound": "Mod was not found",
+            "PathNotFound": "Path is missing or has been deleted"
+        },
+        "ModRenameError": {
+            "ModNotFound": "Mod \"{mod_name}\" not found",
+            "PathNotFound": "Path is missing or has been deleted",
+            "InvalidName": "Invalid mod name \"{name}\" ({reason})",
+            "ModAlreadyExists": "A mod named \"{mod_name}\" already exists"
+        },
+        "ModSyncError": {
+            "SymlinkAdminRequired": "Administrator privileges are required to create symbolic links.",
+            "PathNotFound": "Path \"{path}\" was not found",
+            "CopyFailed": "Failed to copy mod \"{mod_name}\": {kind}",
+            "SymlinkFailed": "Failed to create symbolic link for mod \"{mod_name}\": {kind}",
+            "HardlinkFailed": "Failed to create hard link for mod \"{mod_name}\": {kind}",
+            "RemovalFailed": "Failed to remove \"{path}\": {kind}",
+            "DirectoryCreationFailed": "Failed to create directory: {kind}",
+            "GameModsDirectoryNotFound": "Could not find or create the game's mods directory"
+        },
+        "ProfileError": {
+            "ProfileNotFound": "Profile \"{profile_id}\" was not found",
+            "ProfileAlreadyExists": "A profile named \"{profile_name}\" already exists",
+            "InvalidName": "Invalid profile name \"{profile_name}\" ({reason})",
+            "AlreadyActive": "Profile \"{profile_name}\" is already active",
+            "CannotDeleteActive": "Profile \"{profile_name}\" cannot be deleted because it is active",
+            "CannotDeleteDefault": "The default profile cannot be deleted",
+            "NoActiveProfile": "No active profile is set",
+            "LoadFailed": "Failed to load profiles: {kind}",
+            "SaveFailed": "Failed to save profile \"{profile_name}\": {kind}",
+            "CreateFailed": "Failed to create profile \"{profile_name}\": {kind}",
+            "SerializeFailed": "Failed to serialize profile \"{profile_name}\"",
+            "UpdateFailed": "Failed to update profile \"{profile_name}\": {kind}",
+            "DeleteFailed": "Failed to delete profile \"{profile_name}\": {kind}",
+            "ProfilesDirectoryNotFound": "Profiles directory \"{path}\" was not found"
+        },
+        "MetadataError": {
+            "Load": "Failed to load mod metadata: {kind}",
+            "Save": "Failed to save mod metadata: {kind}",
+            "Serialize": "Failed to serialize mod metadata"
+        },
+        "PreviewError": {
+            "ModNotFound": "Mod \"{mod_name}\" not found",
+            "ModHasErrors": "Mod \"{mod_name}\" contains errors and cannot be previewed",
+            "ModPreviewNotFound": "Mod preview tool was not found. You can click 'Check for Updates' on settings to reinstall it again.",
+            "PreviewFailed": "Failed to preview mod: {reason}"
+        }
     },
     "modErrors": {
         "missingTextures": "You need to create a folder inside the mod folder named 'textures'.",
