@@ -1,25 +1,60 @@
 use std::fs::read_dir;
 use std::path::PathBuf;
 
-use serde::Serialize;
+use log::error;
 use tauri::AppHandle;
 use tauri_plugin_opener::OpenerExt;
 
-#[derive(Serialize, Clone, Debug, thiserror::Error)]
+#[derive(Debug, thiserror::Error)]
 pub enum PreviewError {
-    #[error("mod '{0}' was not found")]
-    ModNotFound(String),
-    #[error("mod contains errors: {0}")]
-    ModHasErrors(String),
-    #[error("preview failed: {0}")]
-    Failed(String),
-    #[error("io error: {0}")]
-    Io(String),
+    #[error("mod '{mod_name}' was not found")]
+    ModNotFound { mod_name: String },
+    #[error("mod '{mod_name}' contains errors")]
+    ModHasErrors { mod_name: String },
+    #[error("preview failed: {reason}")]
+    PreviewFailed { reason: String },
+    #[error("mod preview tool not found")]
+    ModPreviewNotFound,
+    #[error("I/O error: {0}")]
+    Io(#[from] std::io::Error),
 }
 
-impl From<std::io::Error> for PreviewError {
-    fn from(e: std::io::Error) -> Self {
-        PreviewError::Io(e.to_string())
+impl serde::Serialize for PreviewError {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        use serde::ser::SerializeStruct;
+        use serde_json::json;
+
+        let (type_, details): (&str, Option<serde_json::Value>) = match self {
+            PreviewError::ModNotFound { mod_name } => (
+                "ModNotFound",
+                Some(json!({ "mod_name": mod_name })),
+            ),
+            PreviewError::ModHasErrors { mod_name } => (
+                "ModHasErrors",
+                Some(json!({ "mod_name": mod_name })),
+            ),
+            PreviewError::PreviewFailed { reason } => (
+                "PreviewFailed",
+                Some(json!({ "reason": reason })),
+            ),
+            PreviewError::ModPreviewNotFound => (
+                "ModPreviewNotFound",
+                Some(json!({}))
+            ),
+            PreviewError::Io(error) => (
+                "Io",
+                Some(json!({ "kind": format!("{:?}", error.kind()) })),
+            ),
+        };
+
+        let mut s = serializer.serialize_struct("PreviewError", 3)?;
+        s.serialize_field("type", type_)?;
+        s.serialize_field("details", &details)?;
+        s.serialize_field("message", &self.to_string())?;
+        s.end()
     }
 }
 
@@ -67,8 +102,13 @@ pub fn preview_image(app_handle: AppHandle, path: &PathBuf) -> Result<(), Previe
         let img_str = img.to_string_lossy().to_string();
         app_handle
             .opener()
-            .open_path(img_str, None::<&str>)
-            .map_err(|e| PreviewError::Failed(e.to_string()))?;
+            .open_path(&img_str, None::<&str>)
+            .map_err(|e| {
+                error!("Failed to open preview image {:?}: {:?}", img_str, e);
+                PreviewError::PreviewFailed {
+                    reason: e.to_string(),
+                }
+            })?;
     }
 
     Ok(())

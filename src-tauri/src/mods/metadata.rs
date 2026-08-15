@@ -1,17 +1,55 @@
 use std::{collections::HashMap, fs, path::PathBuf};
 
-use log::{info, warn, error};
+use log::{error, info, warn};
 use serde::{Deserialize, Serialize};
 
-#[derive(thiserror::Error, Debug, Serialize)]
-#[serde(tag = "type", content = "message")]
+#[derive(thiserror::Error, Debug)]
 pub enum MetadataError {
-    #[error("failed to serialize mod metadata: {0}")]
-    Serialize(String),
-    #[error("failed to save mod metadata: {0}")]
-    Save(String),
-    #[error("failed to load mod metadata: {0}")]
-    Load(String),
+    #[error("failed to load metadata: {source}")]
+    Load {
+        #[source]
+        source: std::io::Error,
+    },
+
+    #[error("failed to save metadata: {source}")]
+    Save {
+        #[source]
+        source: std::io::Error,
+    },
+
+    #[error("failed to serialize metadata: {source}")]
+    Serialize {
+        #[source]
+        source: serde_json::Error,
+    },
+}
+
+impl serde::Serialize for MetadataError {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        use serde::ser::SerializeStruct;
+        use serde_json::json;
+
+        let (type_, details): (&str, Option<serde_json::Value>) = match self {
+            MetadataError::Load { source } => (
+                "Load",
+                Some(json!({ "kind": format!("{:?}", source.kind()) })),
+            ),
+            MetadataError::Save { source } => (
+                "Save",
+                Some(json!({ "kind": format!("{:?}", source.kind()) })),
+            ),
+            MetadataError::Serialize { .. } => ("Serialize", None),
+        };
+
+        let mut s = serializer.serialize_struct("MetadataError", 3)?;
+        s.serialize_field("type", type_)?;
+        s.serialize_field("details", &details)?;
+        s.serialize_field("message", &self.to_string())?;
+        s.end()
+    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
@@ -45,14 +83,14 @@ impl ModMetadataStore {
                         self.data = data;
                         info!("Loaded mod metadata from {:?}", self.path);
                     }
-                    Err(e) => {
-                        error!("Failed to parse mod metadata: {:?}", e);
-                        return Err(MetadataError::Load(e.to_string()));
+                    Err(source) => {
+                        error!("Failed to parse mod metadata: {:?}", source);
+                        return Err(MetadataError::Serialize { source });
                     }
                 },
-                Err(e) => {
-                    error!("Failed to read mod metadata file: {:?}", e);
-                    return Err(MetadataError::Load(e.to_string()));
+                Err(source) => {
+                    error!("Failed to read mod metadata file: {:?}", source);
+                    return Err(MetadataError::Load { source });
                 }
             }
         } else {
@@ -62,22 +100,21 @@ impl ModMetadataStore {
     }
 
     fn save(&self) -> Result<(), MetadataError> {
-        let json = serde_json::to_string_pretty(&self.data)
-            .map_err(|e| {
-                error!("Failed to serialize mod metadata: {:?}", e);
-                MetadataError::Serialize(e.to_string())
-            })?;
+        let json = serde_json::to_string_pretty(&self.data).map_err(|source| {
+            error!("Failed to serialize mod metadata: {:?}", source);
+            MetadataError::Serialize { source }
+        })?;
 
         let tmp_path = self.path.with_extension("metadata.tmp");
 
-        fs::write(&tmp_path, &json).map_err(|e| {
-            error!("Failed to write temp mod metadata file: {:?}", e);
-            MetadataError::Save(e.to_string())
+        fs::write(&tmp_path, &json).map_err(|source| {
+            error!("Failed to write temp mod metadata file: {:?}", source);
+            MetadataError::Save { source }
         })?;
 
-        fs::rename(&tmp_path, &self.path).map_err(|e| {
-            error!("Failed to rename temp mod metadata file: {:?}", e);
-            MetadataError::Save(e.to_string())
+        fs::rename(&tmp_path, &self.path).map_err(|source| {
+            error!("Failed to rename temp mod metadata file: {:?}", source);
+            MetadataError::Save { source }
         })?;
 
         Ok(())
@@ -87,14 +124,22 @@ impl ModMetadataStore {
         self.data.get(mod_name).and_then(|m| m.author.clone())
     }
 
-    pub fn set_author(&mut self, mod_name: String, author: Option<String>) -> Result<(), MetadataError> {
+    pub fn set_author(
+        &mut self,
+        mod_name: String,
+        author: Option<String>,
+    ) -> Result<(), MetadataError> {
         let entry = self.data.entry(mod_name).or_default();
         entry.author = author;
         self.save()?;
         Ok(())
     }
 
-    pub fn set_authors(&mut self, mod_names: &[String], author: Option<String>) -> Result<(), MetadataError> {
+    pub fn set_authors(
+        &mut self,
+        mod_names: &[String],
+        author: Option<String>,
+    ) -> Result<(), MetadataError> {
         for mod_name in mod_names {
             let entry = self.data.entry(mod_name.clone()).or_default();
             entry.author = author.clone();
@@ -132,14 +177,25 @@ impl ModMetadataStore {
         Ok(())
     }
 
-    pub fn import_from_legacy(&mut self, legacy_mods: &HashMap<String, HashMap<String, serde_json::Value>>) -> Result<(), MetadataError> {
+    pub fn import_from_legacy(
+        &mut self,
+        legacy_mods: &HashMap<String, HashMap<String, serde_json::Value>>,
+    ) -> Result<(), MetadataError> {
         for (mod_name, mod_info) in legacy_mods {
             if let Some(author) = mod_info.get("author").and_then(|a| a.as_str()) {
                 let entry = self.data.entry(mod_name.clone()).or_default();
                 if entry.author.is_some() {
-                    info!("Overwriting author for mod '{}' from legacy data: '{}' -> '{}'", mod_name, entry.author.as_ref().unwrap(), author);
+                    info!(
+                        "Overwriting author for mod '{}' from legacy data: '{}' -> '{}'",
+                        mod_name,
+                        entry.author.as_ref().unwrap(),
+                        author
+                    );
                 } else {
-                    info!("Setting author for mod '{}' from legacy data: '{}'", mod_name, author);
+                    info!(
+                        "Setting author for mod '{}' from legacy data: '{}'",
+                        mod_name, author
+                    );
                 }
                 entry.author = Some(author.to_string());
             }

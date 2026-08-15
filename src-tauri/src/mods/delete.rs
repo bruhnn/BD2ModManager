@@ -2,19 +2,47 @@ use std::path::PathBuf;
 
 use crate::{mods::BD2Mod};
 use log::{debug, error};
-use serde::Serialize;
 
-#[derive(thiserror::Error,Serialize, Debug)]
+#[derive(thiserror::Error, Debug)]
 pub enum ModDeleteError {
-    #[error("mod '{0}' was not found")]
-    ModNotFound(String),
-    #[error("Mod path no longer exists on disk: {0}")]
-    PathMissing(String),
-    #[error("Failed to delete mod: {0}")]
-    FailedToDelete(String),
+    #[error("Mod not found")]
+    ModNotFound { mod_name: String },
+    #[error("The path was not found")]
+    PathNotFound { path: String },
+    #[error("I/O error: {0}")]
+    Io(#[from] std::io::Error), // PermissionDenied, OS errors, etc
 }
 
-// Use ModDeleteError or ModError
+impl serde::Serialize for ModDeleteError {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        use serde::ser::SerializeStruct;
+        use serde_json::json;
+
+        let (type_, details): (&str, Option<serde_json::Value>) = match self {
+            ModDeleteError::ModNotFound { mod_name } => (
+                "ModNotFound",
+                Some(json!({ "mod_name": mod_name })),
+            ),
+            ModDeleteError::PathNotFound { path } => (
+                "PathNotFound",
+                Some(json!({ "path": path })),
+            ),
+            ModDeleteError::Io(error) => (
+                "Io",
+                Some(json!({ "kind": format!("{:?}", error.kind()) })),
+            ),
+        };
+
+        let mut s = serializer.serialize_struct("ModDeleteError", 3)?;
+        s.serialize_field("type", type_)?;
+        s.serialize_field("details", &details)?;
+        s.serialize_field("message", &self.to_string())?;
+        s.end()
+    }
+}
 
 pub fn delete_mod(mod_: &BD2Mod) -> Result<(), ModDeleteError> {
     let mod_path = mod_.path.clone();
@@ -27,25 +55,25 @@ pub fn delete_mod(mod_: &BD2Mod) -> Result<(), ModDeleteError> {
     .map(|p| p.to_path_buf()).filter(|p| p.exists())
     .ok_or_else(|| {
         error!("Could not determine staging directory for mod: {:?}", mod_);
-        ModDeleteError::ModNotFound(mod_.name.clone())
+        ModDeleteError::ModNotFound { mod_name: mod_.name.clone() }
     })?;
     debug!("Deleting mod: {:?}", mod_); 
 
     if !mod_path.exists() {
         error!("Mod path does not exist: {:?}", mod_path);
         // FailedToDelete or NotFound? because the mod is not found in the filesystem, but it is found in the mod manager
-        return Err(ModDeleteError::PathMissing(mod_.name.clone()))?;
+        return Err(ModDeleteError::PathNotFound { path: mod_.name.clone() })?;
     }
 
     if mod_path.is_dir() {
         std::fs::remove_dir_all(&mod_path).map_err(|e| {
             error!("Failed to delete mod directory: {:?}, error: {:?}", mod_path, e);
-            ModDeleteError::FailedToDelete(mod_.name.clone())
+            ModDeleteError::Io(e.into())
         })?;
     } else {
         std::fs::remove_file(&mod_path).map_err(|e| {
             error!("Failed to delete mod file: {:?}, error: {:?}", mod_path, e);
-            ModDeleteError::FailedToDelete(mod_.name.clone())
+            ModDeleteError::Io(e.into())
         })?;
     }
 
@@ -58,7 +86,7 @@ pub fn delete_mod(mod_: &BD2Mod) -> Result<(), ModDeleteError> {
         if path.read_dir().map(|mut i| i.next().is_none()).unwrap_or(false) {
             std::fs::remove_dir(path).map_err(|e| {
                 error!("Failed to delete empty directory: {:?}, error: {:?}", path, e);
-                ModDeleteError::FailedToDelete(mod_.name.clone())
+                ModDeleteError::Io(e.into())
             })?;
         } else {
             break;

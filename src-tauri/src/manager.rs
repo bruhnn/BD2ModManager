@@ -203,7 +203,9 @@ impl BD2ModManager {
             self.sync_mods_with_profiles();
             Ok(new_mod)
         } else {
-            Err(ModInstallError::InvalidMod)
+            Err(ModInstallError::NotAMod {
+                path: mod_path.to_string_lossy().to_string(),
+            })
         }
     }
 
@@ -235,12 +237,11 @@ impl BD2ModManager {
     }
 
     pub fn delete_mod(&mut self, mod_name: String) -> Result<(), ModDeleteError> {
-        let mod_ = self.get_mod_by_name(&mod_name).ok_or_else(|| ModDeleteError::ModNotFound(mod_name))?;
-
-        mods::delete::delete_mod(&mod_).map_err(|e| {
-            error!("Failed to delete mod: {:?}, error: {:?}", mod_, e);
-            ModDeleteError::FailedToDelete(mod_.name.clone())
+        let mod_ = self.get_mod_by_name(&mod_name).ok_or_else(|| ModDeleteError::ModNotFound {
+            mod_name
         })?;
+
+        mods::delete::delete_mod(&mod_)?;
 
         self.cached_mods.remove(&mod_.name);
 
@@ -257,7 +258,9 @@ impl BD2ModManager {
         mod_name: String,
         new_name: String,
     ) -> Result<BD2Mod, ModRenameError> {
-        let mod_: BD2Mod = self.get_mod_by_name(&mod_name).ok_or_else(|| ModRenameError::ModNotFound(mod_name.clone()))?;
+        let mod_: BD2Mod = self.get_mod_by_name(&mod_name).ok_or_else(|| ModRenameError::ModNotFound {
+            mod_name: mod_name.clone()
+        })?;
 
         let updated_mod = mods::rename::rename_mod(mod_, new_name.clone())?;
 
