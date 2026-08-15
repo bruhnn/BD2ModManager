@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
-import { SyncError, SyncProgressStatus, SyncType, useSyncEvents } from "../composables/useSyncEvents";
 import { reactive, readonly, ref } from "vue";
+import { SyncError, SyncProgressStatus, SyncType, useModSyncEvents } from "../composables/useModSyncEvents";
 
 export enum SyncStatus {
   IDLE = 'idle',
@@ -18,7 +18,7 @@ interface SyncedMod {
 }
 
 export const useSyncStateStore = defineStore("syncState", () => {
-  const syncEvents = useSyncEvents()
+  const syncEvents = useModSyncEvents()
   const status = ref<SyncStatus>(SyncStatus.IDLE);
   const progress = reactive({
     current: 0,
@@ -50,10 +50,10 @@ export const useSyncStateStore = defineStore("syncState", () => {
       console.log(event)
     })
     syncEvents.onProgress((event) => {
-        let syncedMod = {
-          status: event.status as SyncProgressStatus,
+        const syncedMod: SyncedMod = {
+          status: event.status,
           modName: event.modName,
-          error: event.error as SyncError,
+          error: event.error ?? undefined,
           index: event.current,
           timestamp: new Date().toISOString() // event.timestamp
         }

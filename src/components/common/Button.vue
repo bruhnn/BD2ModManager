@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { Component, computed, MaybeRef } from 'vue'
+import { computed, MaybeRef } from 'vue'
+import type { Component } from 'vue';
 
 const props = defineProps<{
   label?: MaybeRef<string>
