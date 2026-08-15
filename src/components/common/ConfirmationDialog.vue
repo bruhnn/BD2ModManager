@@ -35,26 +35,26 @@ const reject = () => {
           <div class="fixed inset-0 bg-black/25 backdrop-blur-xs" />
         </TransitionChild>
 
-        <div class="inset-0 fixed flex justify-center items-center">
+        <div class="inset-0 fixed flex justify-center items-center overflow-hidden p-4">
           <TransitionChild enter="ease-out duration-150" enter-from="opacity-0 scale-95"
             enter-to="opacity-100 scale-100" leave="ease-in duration-150" leave-from="opacity-100 scale-100"
             leave-to="opacity-0 scale-95" as="template">
-            <div class="bg-surface-dialog p-2.5 rounded-md border border-border-default shadow-lg min-w-80 max-w-120">
-              <div class="flex justify-between items-center" data-tauri-drag-region>
-                <div v-if="state.title" class="flex items-center gap-2">
-                  <component v-if="state.icon" :is="state.icon" class="inline-block w-[1.5em] h-[1.5em]" />
-                  <h1 class="font-medium text-lg">{{ state.title }}</h1>
+            <div class="bg-surface-dialog p-2.5 rounded-md border border-border-default shadow-lg flex min-h-0 w-[85vw] max-w-120 max-h-[85vh] flex-col overflow-hidden">
+              <div class="flex justify-between items-center gap-4 shrink-0" data-tauri-drag-region>
+                <div v-if="state.title" class="flex min-w-0 items-center gap-2">
+                  <component v-if="state.icon" :is="state.icon" class="inline-block w-[1.5em] h-[1.5em] shrink-0" />
+                  <h1 class="min-w-0 font-medium text-lg wrap-break-word [overflow-wrap:anywhere]">{{ state.title }}</h1>
                 </div>
                 <span v-else></span>
-                <span>
+                <span class="shrink-0">
                   <X @click="reject"
                     class="text-text-primary hover:text-accent-hover! w-[1.5em] h-[1.5em] transition-colors cursor-pointer" />
                 </span>
               </div>
 
-              <p class="py-4 text-base text-text-primary">{{ state.message }}</p>
+              <p class="min-h-0 overflow-auto overscroll-contain py-4 text-base text-text-primary whitespace-pre-wrap wrap-break-word [overflow-wrap:anywhere]">{{ state.message }}</p>
 
-              <div class="flex justify-between items-center">
+              <div class="flex justify-between items-center shrink-0">
                 <Checkbox v-if="state.showRememberChoice" v-model="rememberChoice" input-id="remember-choice"
                   :label="$t('modals.confirmation.rememberChoice')" />
 
@@ -63,7 +63,7 @@ const reject = () => {
                   <Button @click="reject" variant="text">
                     {{ state.rejectButton?.label }}
                   </Button>
-                  <Button @click="accept" variant="primary">
+                  <Button @click="accept" :variant="state.acceptButton?.variant ?? 'primary'">
                     {{ state.acceptButton?.label }}
                   </Button>
                 </div>

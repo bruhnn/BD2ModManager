@@ -8,6 +8,7 @@ interface ConfirmOptions {
   showRememberChoice?: boolean;
   acceptButton?: {
     label: string;
+    variant?: 'primary' | 'default' | 'text' | 'danger'
     icon?: string;
     onClick?: () => void;
     position?: 'left' | 'center' | 'right';

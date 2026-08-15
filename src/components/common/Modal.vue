@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { TransitionRoot, TransitionChild, Dialog, DialogPanel } from '@headlessui/vue'
 import { XIcon } from '@lucide/vue';
+import { computed } from 'vue';
 
 defineOptions({ inheritAttrs: false });
 
@@ -14,13 +15,22 @@ const props = withDefaults(
     title?: string,
     subtitle?: string,
     overlay?: boolean,
-    closeOnEscape?: boolean
+    closeOnEscape?: boolean,
+    size?: 'sm' | 'md' | 'lg' | 'xl'
   }>(),
   {
     overlay: true,
-    closeOnEscape: true
+    closeOnEscape: true,
+    size: 'md'
   }
 );
+
+const sizeClass = computed(() => ({
+  sm: 'max-w-120',
+  md: 'max-w-140',
+  lg: 'max-w-240',
+  xl: 'max-w-[1200px]',
+}[props.size]));
 
 defineEmits(["close"])
 </script>
@@ -40,16 +50,17 @@ defineEmits(["close"])
           enter-to="opacity-100 scale-100" leave="ease-in duration-200" leave-from="opacity-100 scale-100"
           leave-to="opacity-0 scale-95">
           <DialogPanel :class="[
-            'flex flex-col mx-4 rounded-xl overflow-hidden bg-surface-dialog border border-border-default max-h-[90vh]',
+            'flex w-[85vw] min-w-0 flex-col rounded-xl overflow-hidden bg-surface-dialog border border-border-default max-h-[85vh]',
+            sizeClass,
             $attrs.class
           ]">
             <div v-if="!$slots.header" class="flex flex-col p-4 gap-2 border-b border-border-default shrink-0">
-              <div class="flex items-center justify-between" data-tauri-drag-region>
-                <h2 v-if="title && !$slots.header" class="text-lg font-bold text-text-primary" data-tauri-drag-region>{{ title }}</h2>
+              <div class="flex min-w-0 items-start justify-between gap-4" data-tauri-drag-region>
+                <h2 v-if="title && !$slots.header" class="min-w-0 text-lg font-bold text-text-primary wrap-anywhere" data-tauri-drag-region>{{ title }}</h2>
                 <XIcon v-if="show" @click="$emit('close')"
-                  class="text-text-primary size-5 hover:text-accent! cursor-pointer" />
+                  class="text-text-primary size-5 shrink-0 hover:text-accent! cursor-pointer" />
               </div>
-              <p v-if="subtitle && !$slots.header" class="text-sm text-text-secondary">{{ subtitle }}</p>
+              <p v-if="subtitle && !$slots.header" class="min-w-0 text-sm text-text-secondary wrap-anywhere">{{ subtitle }}</p>
             </div>
 
             <div v-else class="shrink-0" data-tauri-drag-region>
