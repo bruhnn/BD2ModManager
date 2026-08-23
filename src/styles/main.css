@@ -18,7 +18,7 @@ body {
 body {
   background: var(--surface-base);
   color: var(--text-primary);
-  /* font-family: system-ui, sans-serif; */
+  font-family: var(--font-sans);
 }
 
 #app {
@@ -28,6 +28,7 @@ body {
 }
 
 @theme {
+  --font-sans: "Inter Variable", "Segoe UI", "Microsoft YaHei UI", "Yu Gothic UI", "Malgun Gothic", system-ui, sans-serif;
   --font-cinzel: "Cinzel", serif;
 
   --animate-sweep: sweep 5s ease-in-out infinite;

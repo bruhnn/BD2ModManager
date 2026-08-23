@@ -1,4 +1,6 @@
 import { createApp } from "vue";
+import "@fontsource/cinzel/700.css";
+import "@fontsource-variable/inter/wght.css";
 import App from "./App.vue";
 import router from "./router";
 import "./styles/main.css";
