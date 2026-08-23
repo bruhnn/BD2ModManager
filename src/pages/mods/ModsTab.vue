@@ -207,7 +207,7 @@ async function handleOpenModFolder(mod: BD2Mod) {
 
   if (!folderExists) {
     notificationStore.add({
-      severity: 'error',
+      type: 'error',
       closable: true,
       title: t('modsTab.errors.modFolderNotFound.title'),
       message: t('modsTab.errors.modFolderNotFound.message', { modName: mod.name }),
@@ -224,7 +224,7 @@ async function handleOpenModFolder(mod: BD2Mod) {
 
   if (!isFolder) {
     notificationStore.add({
-      severity: 'error',
+      type: 'error',
       closable: true,
       title: t('modsTab.errors.modNotDirectory.title'),
       message: t('modsTab.errors.modNotDirectory.message', { modName: mod.name }),
@@ -245,7 +245,7 @@ async function handleOpenStagingModsFolder() {
     loggingStore.logError("Staging directory is not set.");
 
     return notificationStore.add({
-      severity: "error",
+      type: "error",
       closable: true,
       title: t('modsTab.errors.stagingDirectoryNotSet.title'),
       message: t('modsTab.errors.stagingDirectoryNotSet.message'),
@@ -260,7 +260,7 @@ async function handleOpenStagingModsFolder() {
 
   if (!directoryExists) {
     return notificationStore.add({
-      severity: 'error',
+      type: 'error',
       closable: true,
       title: t('modsTab.errors.stagingDirectoryNotFound.title'),
       message: t('modsTab.errors.stagingDirectoryNotFound.message', { stagingDir }),
@@ -332,11 +332,11 @@ async function handleSyncMods() {
     loggingStore.logDebug(`Command mods sync called succesfully: ${result}.`);
 
     notificationStore.add({
+      type: 'error',
       closable: true,
       title: t('modsTab.notifications.syncSuccess.title'),
       message: t('modsTab.notifications.syncSuccess.description'),
       duration: 5000,
-      severity: 'success'
     })
     // if (result) {
     // }
@@ -392,11 +392,11 @@ async function handleUnsyncMods() {
     loggingStore.logDebug(`Command mods unsync called succesfully: ${result}.`);
 
     notificationStore.add({
+      type: 'error',
       closable: true,
       title: t('modsTab.notifications.unsyncSuccess.title'),
       message: t('modsTab.notifications.unsyncSuccess.description'),
       duration: 3000,
-      severity: 'success'
     });
   } catch (error: any) {
     loggingStore.logError("Error unsyncing mods:", error);
@@ -404,11 +404,11 @@ async function handleUnsyncMods() {
     let errorMessage = getErrorMessage(t, error)
 
     notificationStore.add({
+      type: 'error',
       closable: true,
       title: t('errors.unsyncFailed'),
       message: errorMessage,
       duration: 5000,
-      severity: 'error'
     });
 
     isUnsyncing.value = false

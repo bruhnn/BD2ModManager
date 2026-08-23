@@ -88,7 +88,7 @@ async function openPreviewMod(mod: BD2Mod) {
     }).catch((error) => {
         let errorMsg = getErrorMessage(t, error);
         notificationStore.add({
-            severity: "error",
+            type: "error",
             closable: true,
             title: t("modsTab.errors.modPreview.title"),
             message: errorMsg,

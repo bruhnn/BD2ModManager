@@ -35,7 +35,7 @@ function handleMigrateError(err: unknown) {
     const e = err as Partial<MigrateError>
     const key = `settingsTab.experimental.sections.migration.errors.${e.type ?? 'Unknown'}`
     const message = t(key, { message: e.message ?? String(err) })
-    notificationStore.add({ severity: 'error', title: t('common.error'), message, duration: 5000 })
+    notificationStore.add({ type: 'error', title: t('common.error'), message, duration: 5000 })
 }
 
 async function searchLegacyProfiles() {
@@ -43,7 +43,7 @@ async function searchLegacyProfiles() {
         const profiles = await invoke('get_legacy_profiles') as LegacyProfile[]
         legacyProfiles.value = profiles
         if (!profiles.length) {
-            notificationStore.add({ severity: 'info', title: t('settingsTab.experimental.sections.migration.notifications.noProfilesToImport.title'), message: t('settingsTab.experimental.sections.migration.notifications.noProfilesToImport.description'), duration: 3000 })
+            notificationStore.add({ type: 'info', title: t('settingsTab.experimental.sections.migration.notifications.noProfilesToImport.title'), message: t('settingsTab.experimental.sections.migration.notifications.noProfilesToImport.description'), duration: 3000 })
         }
     } catch (err) {
         loggingStore.logError("Error fetching legacy profiles:", err)
@@ -53,18 +53,18 @@ async function searchLegacyProfiles() {
 
 function importProfiles() {
     if (profilesIdChoose.value.length === 0) {
-        notificationStore.add({ severity: 'warn', title: t('settingsTab.experimental.sections.migration.notifications.noProfilesSelected.title'), message: t('settingsTab.experimental.sections.migration.notifications.noProfilesSelected.description'), duration: 3000 })
+        notificationStore.add({ type: 'warn', title: t('settingsTab.experimental.sections.migration.notifications.noProfilesSelected.title'), message: t('settingsTab.experimental.sections.migration.notifications.noProfilesSelected.description'), duration: 3000 })
         return
     }
 
     invoke<boolean>('import_legacy_profiles', { profileIds: profilesIdChoose.value })
         .then(async (success) => {
             if (!success) {
-                notificationStore.add({ severity: 'info', title: t('settingsTab.experimental.sections.migration.notifications.noProfilesToImport.title'), message: t('settingsTab.experimental.sections.migration.notifications.noProfilesToImport.description'), duration: 3000 })
+                notificationStore.add({ type: 'info', title: t('settingsTab.experimental.sections.migration.notifications.noProfilesToImport.title'), message: t('settingsTab.experimental.sections.migration.notifications.noProfilesToImport.description'), duration: 3000 })
                 return
             }
 
-            notificationStore.add({ severity: 'success', title: t('settingsTab.experimental.sections.migration.notifications.importProfilesSuccess.title'), message: t('settingsTab.experimental.sections.migration.notifications.importProfilesSuccess.description'), duration: 5000 })
+            notificationStore.add({ type: 'success', title: t('settingsTab.experimental.sections.migration.notifications.importProfilesSuccess.title'), message: t('settingsTab.experimental.sections.migration.notifications.importProfilesSuccess.description'), duration: 5000 })
             
             profilesIdChoose.value = []
             profilesStore.loadProfiles()
@@ -94,9 +94,9 @@ async function importModAuthors() {
     invoke<boolean>('import_legacy_mod_authors')
         .then((success) => {
             if (!success) {
-                return notificationStore.add({ severity: 'info', title: t('settingsTab.experimental.sections.migration.notifications.noModAuthorsToImport.title'), message: t('settingsTab.experimental.sections.migration.notifications.noModAuthorsToImport.description'), duration: 3000 })
+                return notificationStore.add({ type: 'info', title: t('settingsTab.experimental.sections.migration.notifications.noModAuthorsToImport.title'), message: t('settingsTab.experimental.sections.migration.notifications.noModAuthorsToImport.description'), duration: 3000 })
             }
-            notificationStore.add({ severity: 'success', title: t('settingsTab.experimental.sections.migration.notifications.importModAuthorsSuccess.title'), message: t('settingsTab.experimental.sections.migration.notifications.importModAuthorsSuccess.description'), duration: 5000 })
+            notificationStore.add({ type: 'success', title: t('settingsTab.experimental.sections.migration.notifications.importModAuthorsSuccess.title'), message: t('settingsTab.experimental.sections.migration.notifications.importModAuthorsSuccess.description'), duration: 5000 })
         })
         .catch((err) => {
             loggingStore.logError("Error importing mod authors:", err)

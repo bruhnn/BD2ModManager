@@ -27,7 +27,7 @@ export function useModInstall() {
         const modName = await modsStore.installModFromZip(file)
 
         notificationStore.add({
-          severity: 'success',
+          type: 'success',
           closable: true,
           title: t('modsTab.notifications.modInstallSuccess.title'),
           message: t('modsTab.notifications.modInstallSuccess.description', { modName }),
@@ -47,8 +47,7 @@ export function useModInstall() {
           closable: true,
           title: t('errors.modInstallFailed.title'),
           message: errorMsg,
-          duration: 5000,
-          severity: 'error'
+          type: 'error'
         })
       }
     }
@@ -67,7 +66,7 @@ export function useModInstall() {
         const modName = await modsStore.installModFromFolder(folder)
 
         notificationStore.add({
-          severity: 'success',
+          type: 'success',
           closable: true,
           title: t('modsTab.notifications.modInstallSuccess.title'),
           message: t('modsTab.notifications.modInstallSuccess.description', { modName }),
@@ -87,8 +86,7 @@ export function useModInstall() {
           closable: true,
           title: t('errors.modInstallFailed.title'),
           message: errorMsg,
-          duration: 5000,
-          severity: 'error'
+          type: 'error'
         })
       }
     }

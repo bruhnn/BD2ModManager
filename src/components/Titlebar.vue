@@ -70,7 +70,8 @@ async function handleAppUpdateClick() {
         await settingsStore.installAppUpdate()
     } catch (error) {
         loggingStore.logError("Failed to install app update", error)
-        notificationStore.add({ severity: 'error', title: 'Update Error', message: 'Failed to install update. Please try downloading it manually from GitHub.', duration: 5000 })
+        // [TODO] use i18n
+        notificationStore.add({ type: 'error', title: 'Update Error', message: 'Failed to install update. Please try downloading it manually from GitHub.', duration: 5000 })
     }
 }
 

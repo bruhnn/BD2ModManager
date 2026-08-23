@@ -3,7 +3,7 @@ import { readonly, ref } from "vue";
 
 export interface Notification {
     id: number,
-    severity: "info" | "success" | "error" | "warn" ,
+    type: "info" | "success" | "error" | "warn" ,
     title?: string,
     message?: string,
     duration?: number,
@@ -27,7 +27,7 @@ export const useNotificationStore = defineStore("notification", () => {
 
     function add(notification: Omit<Notification, "id">) {
         const id = Date.now()
-        const duration = notification.duration ?? DEFAULT_DURATION[notification.severity]
+        const duration = notification.duration ?? DEFAULT_DURATION[notification.type]
         notifications.value.push({ ...notification, id, duration })
     }
 

@@ -66,14 +66,14 @@ async function deleteSelected() {
     await profilesStore.deleteProfile(profileSelectedId.value)
     profileSelectedId.value = null
     notificationStore.add({
-      severity: 'success',
+      type: 'success',
       title: t('profilesTab.notifications.profileDeleted.title'),
       message: t('profilesTab.notifications.profileDeleted.description', { profileName: deletedName }),
       duration: 3000
     })
   } catch {
     notificationStore.add({
-      severity: 'error',
+      type: 'error',
       title: t('profilesTab.notifications.profileDeleteFailed.title'),
       message: t('profilesTab.notifications.profileDeleteFailed.description', { profileName: deletedName }),
       duration: 3000
@@ -85,14 +85,14 @@ async function onProfileEdit(id: string, name: string, description: string | nul
   try {
     await profilesStore.editProfile(id, name, description)
     notificationStore.add({
-      severity: 'success',
+      type: 'success',
       title: t('profilesTab.notifications.profileUpdated.title'),
       message: t('profilesTab.notifications.profileUpdated.description', { profileName: name }),
       duration: 3000
     })
   } catch {
     notificationStore.add({
-      severity: 'error',
+      type: 'error',
       title: t('profilesTab.notifications.profileUpdateFailed.title'),
       message: t('profilesTab.notifications.profileUpdateFailed.description', { profileName: name }),
       duration: 3000
@@ -108,14 +108,14 @@ async function onProfileCreate(
   try {
     await profilesStore.createProfile(name, description, profileTemplateId)
     notificationStore.add({
-      severity: 'success',
+      type: 'success',
       title: t('profilesTab.notifications.profileCreated.title'),
       message: t('profilesTab.notifications.profileCreated.description', { profileName: name }),
       duration: 3000
     })
   } catch {
     notificationStore.add({
-      severity: 'error',
+      type: 'error',
       title: t('profilesTab.notifications.profileCreateFailed.title'),
       message: t('profilesTab.notifications.profileCreateFailed.description', { profileName: name }),
       duration: 3000
@@ -129,7 +129,7 @@ async function onProfileSwitch(id: string) {
     await profilesStore.switchProfile(id)
   } catch {
     notificationStore.add({
-      severity: 'error',
+      type: 'error',
       title: t('profilesTab.notifications.profileSwitchFailed.title'),
       message: t('profilesTab.notifications.profileSwitchFailed.description', { profileName: profile?.name }),
       duration: 3000

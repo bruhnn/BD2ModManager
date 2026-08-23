@@ -153,7 +153,7 @@ async function handleStagingModsBrowse() {
         logInfo(`Staging mods directory changed to ${folder}`)
 
         notificationStore.add({
-            severity: 'success',
+            type: 'success',
             title: 'Staging Mods Directory Updated',
             message: `Staging mods directory has been updated to ${folder}.`,
             duration: 3000
@@ -174,7 +174,7 @@ async function handleGameDirectoryBrowse() {
         if (!isValid) {
             logWarning(`Selected game directory ${folder} is not valid.`)
             notificationStore.add({
-                severity: 'warn',
+                type: 'warn',
                 title: 'Invalid Game Directory',
                 message: `The selected game directory ${folder} is not valid.`,
                 duration: 5000
@@ -185,7 +185,7 @@ async function handleGameDirectoryBrowse() {
         await settingsStore.saveSettings({ gameDirectory: folder })
         logInfo(`Game directory changed to ${folder}`)
         notificationStore.add({
-            severity: 'success',
+            type: 'success',
             title: 'Game Directory Updated',
             message: `Game directory has been updated to ${folder}.`,
             duration: 3000

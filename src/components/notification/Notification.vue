@@ -106,7 +106,7 @@ function handleMouseLeave() {
         'rounded-md border border-border-default bg-surface-popover shadow-lg text-sm overflow-hidden'
     ]" @mouseenter="handleMouseEnter" @mouseleave="handleMouseLeave">
         <div class="flex items-start gap-3 p-3">
-            <span v-if="notification.severity === 'success'" class="relative w-4 h-4 shrink-0 mt-0.5">
+            <span v-if="notification.type === 'success'" class="relative w-4 h-4 shrink-0 mt-0.5">
                 <Check class="absolute inset-0 text-text-secondary w-4 h-4" />
                 <svg class="absolute inset-0 w-0 h-0 overflow-visible" aria-hidden="true">
                     <defs>
@@ -118,7 +118,7 @@ function handleMouseLeave() {
                 <Check class="absolute inset-0 text-success w-4 h-4"
                     :style="{ clipPath: `url(#clip-success-${notification.id})` }" />
             </span>
-            <span v-else-if="notification.severity === 'error'" class="relative w-4 h-4 shrink-0 mt-0.5">
+            <span v-else-if="notification.type === 'error'" class="relative w-4 h-4 shrink-0 mt-0.5">
                 <AlertOctagon class="absolute inset-0 text-text-secondary w-4 h-4" />
                 <svg class="absolute inset-0 w-0 h-0 overflow-visible" aria-hidden="true">
                     <defs>

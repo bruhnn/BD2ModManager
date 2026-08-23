@@ -42,10 +42,10 @@ async function launchGame(vanilla: boolean = false) {
     await invoke("launch_game", {
             vanilla
         }).then(() => {
-            notificationStore.add({ severity: 'success', title: t('sidebar.notifications.gameLaunched.title'), duration: 3000 })
+            notificationStore.add({ type: 'success', title: t('sidebar.notifications.gameLaunched.title'), duration: 3000 })
         }).catch((error) => {
             loggingStore.logError('Failed to launch game', error)
-            notificationStore.add({ severity: 'error', title: t('sidebar.notifications.gameLaunchError.title'), message: t('sidebar.notifications.gameLaunchError.description'), duration: 5000 })
+            notificationStore.add({ type: 'error', title: t('sidebar.notifications.gameLaunchError.title'), message: t('sidebar.notifications.gameLaunchError.description'), duration: 5000 })
         })
 }
 
