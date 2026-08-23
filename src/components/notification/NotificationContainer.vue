@@ -90,12 +90,14 @@ function onLeave(el: Element) {
 </script>
 
 <template>
-    <div :class="`fixed z-50 ${config.classes}`">
-        <TransitionGroup :name="config.transition" tag="div" :class="['relative flex flex-col', config.alignment]" @leave="onLeave">
-            <Notification v-for="notification in notifications" :key="notification.id" :notification="notification"
-                class="mt-3 first:mt-0" @close="notificationStore.remove" />
-        </TransitionGroup>
-    </div>
+    <Teleport to="body">
+        <div :class="`fixed z-[60] ${config.classes}`">
+            <TransitionGroup :name="config.transition" tag="div" :class="['relative flex flex-col', config.alignment]" @leave="onLeave">
+                <Notification v-for="notification in notifications" :key="notification.id" :notification="notification"
+                    class="mt-3 first:mt-0" @close="notificationStore.remove" />
+            </TransitionGroup>
+        </div>
+    </Teleport>
 </template>
 
 <style scoped>

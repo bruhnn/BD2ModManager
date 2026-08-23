@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted, watch } from 'vue'
 import type { Notification } from '../../stores/notification'
 import { AlertOctagon, AlertTriangle, Check, X } from '@lucide/vue'
 
@@ -15,17 +15,26 @@ const emit = defineEmits<{
 }>()
 
 const progress = ref(100)
+const isHovered = ref(false)
+
+let animationFrame: number | null = null
+let startedAt = 0
+let remaining = 0
 
 onMounted(() => {
-    startProgress()
+    resetProgress()
 })
 
 onUnmounted(() => {
-    stopProgress()
+    cancelProgress()
+})
+
+watch(() => props.notification.duration, () => {
+    resetProgress()
 })
 
 function close() {
-    stopProgress()
+    cancelProgress()
     emit('close', props.notification.id)
 }
 
@@ -34,37 +43,59 @@ function handleAction() {
     close()
 }
 
-let stopped = ref(false)
-
 function startProgress() {
-    if (!props.notification.duration) return
-
     const duration = props.notification.duration
-    const start = performance.now()
+    if (!duration || remaining <= 0 || animationFrame !== null) return
+    const totalDuration = duration
 
-    progress.value = 100
-    stopped.value = false
+    startedAt = performance.now()
 
     function animate(time: number) {
-        if (stopped.value) return
+        const currentRemaining = Math.max(remaining - (time - startedAt), 0)
+        progress.value = currentRemaining / totalDuration * 100
 
-        const percent = Math.min((time - start) / duration, 1)
-        progress.value = 100 * (1 - percent)
-
-        if (percent < 1) {
-            requestAnimationFrame(animate)
+        if (currentRemaining > 0) {
+            animationFrame = requestAnimationFrame(animate)
         } else {
+            remaining = 0
+            animationFrame = null
             progress.value = 0
             close()
         }
     }
 
-    requestAnimationFrame(animate)
+    animationFrame = requestAnimationFrame(animate)
 }
 
-function stopProgress() {
-    stopped.value = true
+function pauseProgress() {
+    if (animationFrame === null || !props.notification.duration) return
+
+    remaining = Math.max(remaining - (performance.now() - startedAt), 0)
+    progress.value = remaining / props.notification.duration * 100
+    cancelProgress()
+}
+
+function cancelProgress() {
+    if (animationFrame !== null) cancelAnimationFrame(animationFrame)
+    animationFrame = null
+}
+
+function resetProgress() {
+    cancelProgress()
+    remaining = props.notification.duration ?? 0
     progress.value = 100
+
+    if (!isHovered.value) startProgress()
+}
+
+function handleMouseEnter() {
+    isHovered.value = true
+    pauseProgress()
+}
+
+function handleMouseLeave() {
+    isHovered.value = false
+    startProgress()
 }
 
 </script>
@@ -73,7 +104,7 @@ function stopProgress() {
     <div :class="[
         'w-fit max-w-[calc(100vw-2rem)] sm:max-w-3xl',
         'rounded-md border border-border-default bg-surface-popover shadow-lg text-sm overflow-hidden'
-    ]" @mouseenter="stopProgress" @mouseleave="startProgress">
+    ]" @mouseenter="handleMouseEnter" @mouseleave="handleMouseLeave">
         <div class="flex items-start gap-3 p-3">
             <span v-if="notification.severity === 'success'" class="relative w-4 h-4 shrink-0 mt-0.5">
                 <Check class="absolute inset-0 text-text-secondary w-4 h-4" />
@@ -129,7 +160,7 @@ function stopProgress() {
                 </button>
             </div>
 
-            <button @click="close"
+            <button v-if="notification.closable !== false" @click="close"
                 class="text-text-secondary self-center hover:text-text-primary transition-colors shrink-0 cursor-pointer">
                 <X class="w-4 h-4" />
             </button>
