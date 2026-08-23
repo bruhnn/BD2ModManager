@@ -34,6 +34,15 @@
     --info: #3b82f6;
     --info-bg: rgba(59, 130, 246, 0.12);
 
+    --changelog-added: #4ade80;
+    --changelog-added-bg: rgba(74, 222, 128, 0.13);
+    --changelog-improved: #c4a7ff;
+    --changelog-improved-bg: rgba(196, 167, 255, 0.13);
+    --changelog-fixed: #60a5fa;
+    --changelog-fixed-bg: rgba(96, 165, 250, 0.13);
+    --changelog-removed: #f87171;
+    --changelog-removed-bg: rgba(248, 113, 113, 0.13);
+
     --mod-cutscene: #d3b8e3;
     --mod-cutscene-bg: rgba(75, 50, 104, 0.5);
     --mod-scene: #b8d9e3;

@@ -81,6 +81,15 @@ body {
   --color-info: var(--info);
   --color-info-bg: var(--info-bg);
 
+  --color-changelog-added: var(--changelog-added);
+  --color-changelog-added-bg: var(--changelog-added-bg);
+  --color-changelog-improved: var(--changelog-improved);
+  --color-changelog-improved-bg: var(--changelog-improved-bg);
+  --color-changelog-fixed: var(--changelog-fixed);
+  --color-changelog-fixed-bg: var(--changelog-fixed-bg);
+  --color-changelog-removed: var(--changelog-removed);
+  --color-changelog-removed-bg: var(--changelog-removed-bg);
+
   --color-mod-cutscene: var(--mod-cutscene);
   --color-mod-cutscene-bg: var(--mod-cutscene-bg);
   --color-mod-scene: var(--mod-scene);
