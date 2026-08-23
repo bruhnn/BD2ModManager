@@ -5,20 +5,14 @@ import { useI18n } from 'vue-i18n';
 import Select from '../common/Select.vue';
 import { computed, ref } from 'vue';
 import Button from '../common/Button.vue';
+import { globalModals } from '../../composables/useGlobalModals.ts';
 
 const { t } = useI18n()
 
-const props = defineProps({
-    visible: Boolean
-})
-
-const emit = defineEmits([
-    'close',
-]);
-
-function handleClose() {
-    emit('close')
-}
+const {
+    isOpen,
+    closeModal
+} = globalModals.logs
 
 const loggingStore = useLoggingStore()
 
@@ -41,7 +35,7 @@ const filteredLogs = computed(() => {
 </script>
 
 <template>
-    <Modal :show="visible" @close="handleClose" class="min-w-20 w-full max-w-200 max-h-[80vh] min-h-120" :title="t('modals.logs.title')">
+    <Modal :show="isOpen" size="lg" @close="closeModal" :title="t('modals.logs.title')">
         <div class="flex flex-col h-full min-h-0 p-4">
             <Select v-model="selectedLogLevel" :options="logLevels" class="w-40 mb-4 shrink-0" />
             <div class="flex-1 min-h-0 bg-surface-card overflow-y-auto p-4 rounded border border-border-default">
@@ -73,7 +67,7 @@ const filteredLogs = computed(() => {
                 </div>
             </div>
             <div class="mt-4 flex justify-end gap-2 shrink-0">
-                <Button @click="handleClose">{{ t('common.actions.close') }}</Button>
+                <Button @click="closeModal">{{ t('common.actions.close') }}</Button>
             </div>
         </div>
     </Modal>

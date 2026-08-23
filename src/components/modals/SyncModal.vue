@@ -16,22 +16,14 @@ import { SyncStatus, useSyncStateStore } from '../../stores/syncState'
 import { SyncError, SyncProgressStatus, SyncType } from '../../composables/useSyncEvents'
 import { useModsStore } from '../../stores/mods'
 import { useDev } from '../../composables/useDev'
+import { globalModals } from '../../composables/useGlobalModals.ts'
 
 const { t } = useI18n()
+const {
+  isOpen,
+  closeModal
+} = globalModals.sync
 const syncStateStore = useSyncStateStore()
-
-const emit = defineEmits([
-  'close',
-  'cancel',
-])
-
-const props = defineProps({
-  visible: Boolean
-})
-
-function handleClose() {
-  emit('close')
-}
 
 const getModStatusIcon = (status: SyncProgressStatus) => {
   switch (status) {
@@ -156,7 +148,7 @@ const {isDev} = useDev()
 </script>
 
 <template>
-  <Modal :show="visible" @close="handleClose" class="w-full min-w-xl max-w-2xl min-h-[80vh]">
+  <Modal :show="isOpen" size="lg" @close="closeModal">
     <template #header>
       <div class="flex items-center justify-between gap-3 min-w-0 p-4">
         <div class="min-w-0 flex-1" data-tauri-drag-region>
@@ -182,7 +174,7 @@ const {isDev} = useDev()
         </button>
         <button class="shrink-0 flex items-center justify-center p-1 rounded-full
                  text-text-secondary hover:text-text-primary hover:bg-state-hover transition-colors cursor-pointer"
-          @click="handleClose">
+          @click="closeModal">
           <X class="w-4 h-4" />
         </button>
       </div>
@@ -190,7 +182,7 @@ const {isDev} = useDev()
 
     <template #footer>
       <div class="flex justify-end shrink-0 p-2 px-4">
-        <Button :label="t('modals.sync.actions.close')" variant="default" @click="handleClose" />
+        <Button :label="t('modals.sync.actions.close')" variant="default" @click="closeModal" />
       </div>
     </template>
 

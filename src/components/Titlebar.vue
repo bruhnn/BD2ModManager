@@ -9,8 +9,6 @@ import { listen, UnlistenFn } from '@tauri-apps/api/event';
 import { openUrl } from '@tauri-apps/plugin-opener';
 import { SyncStatus, useSyncStateStore } from '../stores/syncState';
 import { SyncError, SyncType } from '../composables/useSyncEvents';
-import SyncModal from './modals/SyncModal.vue';
-import LogsModal from './modals/LogsModal.vue';
 import { getVersion } from '@tauri-apps/api/app';
 import { useI18n } from 'vue-i18n';
 import { useLoggingStore } from '../stores/logging';
@@ -83,6 +81,8 @@ const showSyncBar = ref(false)
 watch(() => syncStateStore.status, () => {
     if (!showSyncBar.value) showSyncBar.value = true
 })
+function handleSyncClick() { globalModals.sync.showModal() }
+function handleLogsClick() { globalModals.logs.showModal() }
 
 const rawSyncProgress = computed(() =>
     syncStateStore.progress.total > 0
@@ -91,12 +91,8 @@ const rawSyncProgress = computed(() =>
 )
 const syncProgress = refThrottled(rawSyncProgress, 50, false, true)
 
-async function handleSyncClick() { isSyncModalVisible.value = true }
 async function handleGithubClick() { await openUrl("https://github.com/bruhnn/BD2ModManager") }
-async function handleLogsClick() { isLogsModalVisible.value = true }
 
-const isSyncModalVisible = ref(false)
-const isLogsModalVisible = ref(false)
 const appVersion = ref('0.0.0')
 const { t } = useI18n()
 
@@ -459,11 +455,6 @@ watch(() => settingsStore.appUpdateStatus?.checking, (checking) => {
             </div>
         </div>
     </div>
-
-    <Teleport to="body">
-        <SyncModal :visible="isSyncModalVisible" @close="isSyncModalVisible = false" />
-        <LogsModal :visible="isLogsModalVisible" @close="isLogsModalVisible = false" />
-    </Teleport>
 </template>
 
 <style scoped>

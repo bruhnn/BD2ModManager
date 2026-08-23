@@ -19,6 +19,8 @@ import { useNotificationStore } from './stores/notification';
 import UpdateAvailableModal from "./components/modals/UpdateAvailableModal.vue"
 import { usePortable } from "./composables/usePortable"
 import NotificationContainer from "./components/notification/NotificationContainer.vue"
+import SyncModal from "./components/modals/SyncModal.vue"
+import LogsModal from "./components/modals/LogsModal.vue"
 
 const { t, locale } = useI18n()
 
@@ -169,6 +171,8 @@ onUnmounted(() => {
 
     <WelcomeModal :visible="currentModalVisible === 'welcomeModal'" @close="closeModal('welcomeModal')" />
     <UpdateAvailableModal :visible="currentModalVisible === 'updateAvailableModal'" @close="closeModal('updateAvailableModal')" />
+    <SyncModal />
+    <LogsModal />
   </main>
 </template>
 <style>
