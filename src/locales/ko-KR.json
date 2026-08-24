@@ -189,10 +189,8 @@
                 }
             },
             "deleteMod": {
-                "title": "모드를 삭제하시겠습니까?",
-                "multipleTitle": "선택한 모드를 삭제하시겠습니까?",
-                "message": "모드 \"{modName}\"을(를) 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.",
-                "multipleMessage": "선택한 {count}개의 모드를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.",
+                "title": "모드를 삭제하시겠습니까? | 선택한 모드를 삭제하시겠습니까?",
+                "description": "모드 \"{modName}\"을(를) 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다. | 선택한 {count}개의 모드를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.",
                 "actions": {
                     "delete": "삭제"
                 }
@@ -856,6 +854,13 @@
         },
         "confirmation": {
             "rememberChoice": "다시 표시하지 않기"
+        },
+        "modsDeleteFailed": {
+            "title": "일부 모드를 삭제하지 못했습니다",
+            "subtitle": "모드 {count}개를 삭제하지 못했습니다.",
+            "actions": {
+                "retry": "재시도"
+            }
         }
     },
     "errors": {

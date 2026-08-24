@@ -1,4 +1,4 @@
-import { invoke } from '@tauri-apps/api/core';
+import { Channel, invoke } from '@tauri-apps/api/core';
 import { listen } from '@tauri-apps/api/event';
 import { defineStore } from 'pinia';
 import { computed, readonly, ref, shallowRef } from 'vue';
@@ -27,6 +27,28 @@ export interface BD2Mod {
 export interface BD2ModExtended extends BD2Mod {
     character?: Character
     conflictingMods: readonly BD2Mod[]
+}
+
+export interface ModDeleteError {
+    type: "ModNotFound" | "PathNotFound" | "Io"
+    details: {
+        mod_name?: string
+        path?: string
+        kind?: string
+    } | null
+    message: string
+}
+
+export interface DeleteModsProgress {
+    current: number,
+    total: number,
+    modName: string,
+}
+
+export interface DeleteModsResult {
+    mods: BD2Mod[],
+    deleted: readonly string[],
+    failed: Record<string, ModDeleteError>,
 }
 export const useModsStore = defineStore('mods', () => {
     const charactersStore = useCharactersStore()
@@ -98,8 +120,17 @@ export const useModsStore = defineStore('mods', () => {
         return invoke("unsync_mods")
     }
 
-    async function deleteMods(mod_names: String[]) {
-        return invoke("delete_mods", { modNames: mod_names })
+    async function deleteMods(modNames: string[], onProgress?: (progress: DeleteModsProgress) => void): Promise<DeleteModsResult> {
+        const channel = new Channel<DeleteModsProgress>()
+        if (onProgress) channel.onmessage = onProgress
+        const result = await invoke<DeleteModsResult>("delete_mods", { modNames, onProgress: channel })
+        console.log("DeleteModsResult:", result)
+        if (result.deleted.length > 0) {
+            mods.value = result.mods
+            modsCache.value.clear()
+            result.mods.forEach(mod => modsCache.value.set(mod.name, mod))
+        }
+        return result
     }
 
     async function renameMod(oldName: string, newName: string) {

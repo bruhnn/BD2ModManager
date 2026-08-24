@@ -25,6 +25,7 @@ import Button from "../../components/common/Button.vue";
 import { getErrorMessage } from "../../utils/errors";
 import { invoke } from "@tauri-apps/api/core";
 import { useModInstall } from "../../composables/useModInstall";
+import { useModDelete } from "../../composables/useModDelete";
 import MultiButton from "../../components/common/MultiButton.vue";
 import Popover from "../../components/common/Popover.vue";
 
@@ -430,32 +431,6 @@ function handleChangeModAuthor(mods: BD2Mod[]) {
 //   // [TODO]
 // }
 
-async function handleDeleteMods(mods: BD2Mod[]) {
-  loggingStore.logDebug("Deleting mods:", JSON.stringify(mods.map(m => m.name)));
-
-  if (mods.length === 0) {
-    loggingStore.logDebug("No mods selected for deletion, skipping.");
-    return;
-  }
-
-  const result = await confirm.confirm({
-    title: mods.length === 1 ? t('modsTab.confirmations.deleteMod.title') : t('modsTab.confirmations.deleteMod.multipleTitle'),
-    message: mods.length === 1 ? t('modsTab.confirmations.deleteMod.message', { modName: mods[0].name }) : t('modsTab.confirmations.deleteMod.multipleMessage', { count: mods.length }),
-    acceptButton: {
-      label: t('modsTab.confirmations.deleteMod.actions.delete'),
-    },
-    rejectButton: {
-      label: t('common.actions.cancel'),
-    },
-  })
-
-  if (result.confirmed) {
-    modsStore.deleteMods(mods.map(m => m.name));
-
-    debouncedSync()
-  }
-}
-
 async function handleRefreshMods() {
   if (isRefreshing.value) {
     loggingStore.logDebug("Refresh already in progress, skipping.");
@@ -609,6 +584,7 @@ watch(() => settingsStore.settings.searchModsRecursively, (newValue, oldValue) =
 });
 
 const { installFromZip, installFromFolder } = useModInstall()
+const { deleteMods } = useModDelete()
 
 const addModMenuItems = computed(() => [
   { label: t('modsTab.actions.installFromZip'), clicked: installFromZip },
@@ -714,7 +690,7 @@ async function openGameModsFolder() {
 
     <div class="flex-1 overflow-hidden min-h-0 mb-2">
       <Modlist :mods="filteredMods" @refresh-mods="handleRefreshMods" @enable-mods="handleEnableMods"
-        @disable-mods="handleDisableMods" @change-mod-author="handleChangeModAuthor" @delete-mods="handleDeleteMods"
+        @disable-mods="handleDisableMods" @change-mod-author="handleChangeModAuthor" @delete-mods="deleteMods"
         @open-mod-folder="handleOpenModFolder" @preview-mod="handlePreviewMod" @rename-mod="handleRenameMod"
         @show-mod-conflicts="handleShowModConflicts" />
     </div>

@@ -189,10 +189,8 @@
                 }
             },
             "deleteMod": {
-                "title": "删除模组？",
-                "multipleTitle": "删除所选模组？",
-                "message": "确定要删除模组\"{modName}\"吗？此操作无法撤销。",
-                "multipleMessage": "确定要删除这 {count} 个模组吗？此操作无法撤销。",
+                "title": "删除模组？ | 删除所选模组？",
+                "description": "确定要删除模组\"{modName}\"吗？此操作无法撤销。 | 确定要删除这 {count} 个模组吗？此操作无法撤销。",
                 "actions": {
                     "delete": "删除"
                 }
@@ -856,6 +854,13 @@
         },
         "confirmation": {
             "rememberChoice": "不再显示"
+        },
+        "modsDeleteFailed": {
+            "title": "部分模组删除失败",
+            "subtitle": "有 {count} 个模组无法删除。",
+            "actions": {
+                "retry": "重试"
+            }
         }
     },
     "errors": {

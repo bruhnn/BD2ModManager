@@ -1,6 +1,7 @@
 import { readonly, ref } from 'vue'
 
 // import type { BD2ModExtended  } from '../stores/mods'
+import type { Error as StructuredError } from '../utils/errors'
 
 const activeModal = ref<symbol | null>(null)
 const closeHandlers = new Map<symbol, (openNext: boolean) => void>()
@@ -80,5 +81,9 @@ export const globalModals = {
   welcome: createModal(),
   logs: createModal(),
   sync: createModal(),
+  modsDeleteFailed: createModal<{
+    failed: Record<string, Omit<StructuredError, 'parent'>>
+    onRetry?: () => boolean | Promise<boolean>
+  }>(),
   // conflict: createModal<{ mod?: BD2ModExtended }>(),
 }

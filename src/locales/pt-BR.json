@@ -189,10 +189,8 @@
                 }
             },
             "deleteMod": {
-                "title": "Excluir Mod?",
-                "multipleTitle": "Excluir Mods Selecionados?",
-                "message": "Tem certeza que deseja excluir o mod \"{modName}\"? Esta ação não pode ser desfeita.",
-                "multipleMessage": "Tem certeza que deseja excluir esses {count} mods? Esta ação não pode ser desfeita.",
+                "title": "Excluir Mod? | Excluir Mods Selecionados?",
+                "description": "Tem certeza que deseja excluir o mod \"{modName}\"? Esta ação não pode ser desfeita. | Tem certeza que deseja excluir esses {count} mods? Esta ação não pode ser desfeita.",
                 "actions": {
                     "delete": "Excluir"
                 }
@@ -856,6 +854,13 @@
         },
         "confirmation": {
             "rememberChoice": "Não mostrar novamente"
+        },
+        "modsDeleteFailed": {
+            "title": "Alguns Mods Não Puderam Ser Excluídos",
+            "subtitle": "Não foi possível excluir {count} mod. | Não foi possível excluir {count} mods.",
+            "actions": {
+                "retry": "Tentar Novamente"
+            }
         }
     },
     "errors": {

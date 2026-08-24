@@ -189,10 +189,8 @@
                 }
             },
             "deleteMod": {
-                "title": "MODを削除しますか？",
-                "multipleTitle": "選択したMODを削除しますか？",
-                "message": "MOD「{modName}」を削除してもよろしいですか？この操作は元に戻せません。",
-                "multipleMessage": "これら {count} 個のMODを削除してもよろしいですか？この操作は元に戻せません。",
+                "title": "MODを削除しますか？ | 選択したMODを削除しますか？",
+                "description": "MOD「{modName}」を削除してもよろしいですか？この操作は元に戻せません。 | これら {count} 個のMODを削除してもよろしいですか？この操作は元に戻せません。",
                 "actions": {
                     "delete": "削除"
                 }
@@ -856,6 +854,13 @@
         },
         "confirmation": {
             "rememberChoice": "今後表示しない"
+        },
+        "modsDeleteFailed": {
+            "title": "一部のMODを削除できませんでした",
+            "subtitle": "{count}件のMODを削除できませんでした。",
+            "actions": {
+                "retry": "再試行"
+            }
         }
     },
     "errors": {

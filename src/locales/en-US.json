@@ -189,10 +189,8 @@
                 }
             },
             "deleteMod": {
-                "title": "Delete Mod?",
-                "multipleTitle": "Delete Selected Mods?",
-                "message": "Are you sure you want to delete mod \"{modName}\"? This action cannot be undone.",
-                "multipleMessage": "Are you sure you want to delete these {count} mods? This action cannot be undone.",
+                "title": "Delete Mod? | Delete {count} Mods?",
+                "description": "Are you sure you want to delete \"{modName}\"? This action cannot be undone. | Are you sure you want to delete {count} selected mods? This action cannot be undone.",
                 "actions": {
                     "delete": "Delete"
                 }
@@ -210,6 +208,21 @@
             "modInstallSuccess": {
                 "title": "Mod Installed",
                 "description": "Mod '{modName}' has been successfully installed."
+            },
+            "deleteMod": {
+                "progress": "Deleting {current} of {total}: {modName}",
+                "success": {
+                    "title": "Mod Deleted Successfully | Mods Deleted Successfully",
+                    "description": "Mod '{modName}' was deleted successfully. | {count} mods deleted successfully."
+                },
+                "error": {
+                    "title": "Failed to delete mod | Some mods could not be deleted",
+                    "description": "Could not delete \"{modName}\": {error} | {deletedCount} of {totalCount} mods deleted.",
+                    "unexpectedMessage": "An unexpected error occurred while deleting mods. Check the logs for more details.",
+                    "actions": {
+                        "viewDetails": "View Details"
+                    }
+                }
             }
         },
         "errors": {
@@ -843,6 +856,13 @@
                 "downloadUpdate": "Download Update",
                 "later": "Later",
                 "goToReleases": "Go to Releases"
+            }
+        },
+        "modsDeleteFailed": {
+            "title": "Some Mods Failed to Delete",
+            "subtitle": "{count} mod could not be deleted. | {count} mods could not be deleted.",
+            "actions": {
+                "retry": "Retry"
             }
         }
     },
