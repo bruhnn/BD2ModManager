@@ -45,7 +45,7 @@ const costumeIds = computed((): string[] => {
 
 const installedMods = computed(() => {
     if (!props.selectedCostume) return [];
-    return modsStore.mods.filter(mod => {
+    return modsStore.extendedMods.filter(mod => {
         if (!mod.modType) return false;
         const { type } = mod.modType;
         if (['Cutscene', 'Standing'].includes(type)) {
@@ -239,7 +239,7 @@ const charName = computed(() => {
                                         <label v-for="mod in mods" :key="mod.name"
                                             class="flex items-center gap-3 px-4 py-2.5 border-b border-border-default cursor-pointer hover:bg-state-hover transition-colors"
                                             :class="{ 'bg-surface-dialog': !mod.enabled }">
-                                            <Checkbox :model-value="mod.enabled" @update:model-value="toggleMod(mod)" class="shrink-0" />
+                                            <Checkbox :model-value="mod.enabled" @update:model-value="toggleMod(mod)" :disabled="modsStore.isSyncing" class="shrink-0" />
                                             <button @click.stop="openPreviewMod(mod)" :aria-label="$t('charactersTab.characterModal.previewMod')">
                                                 <Eye class="w-6 h-6 cursor-pointer hover:text-text-primary! transition-colors active:scale-95 text-text-secondary" />
                                             </button>

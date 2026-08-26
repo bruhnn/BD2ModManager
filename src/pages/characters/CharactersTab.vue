@@ -7,7 +7,7 @@ import { useRoute } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 
 import { Character, useCharactersStore } from '../../stores/characters';
-import { BD2Mod, useModsStore } from '../../stores/mods';
+import { useModsStore } from '../../stores/mods';
 
 import { useHeader } from '../../composables/useHeader';
 
@@ -19,18 +19,26 @@ import Input from '../../components/common/Input.vue';
 import CharacterModal from './modals/CharacterModal.vue';
 import Select from '../../components/common/Select.vue';
 import Checkbox from '../../components/common/Checkbox.vue';
-import { useModInstall } from '../../composables/useModInstall';
 import Popover from '../../components/common/Popover.vue';
 import { Language } from '../../stores/settings.ts';
+import { useModActions } from '../../composables/useModActions.ts';
+import { useModInstall } from '../../composables/useModInstall.ts';
 
 const { t } = useI18n()
 const route = useRoute()
 
 const charactersStore = useCharactersStore()
 const modsStore = useModsStore()
+const {
+    toggleMods
+} = useModActions()
+const {
+    installFromFolder,
+    installFromZip
+} = useModInstall()
 
-const totalModsCount = computed(() => modsStore.mods.length)
-const enabledModsCount = computed(() => modsStore.mods.filter(mod => mod.enabled && !mod.errors.length).length)
+const totalModsCount = computed(() => modsStore.extendedMods.length)
+const enabledModsCount = computed(() => modsStore.extendedMods.filter(mod => mod.enabled && !mod.errors.length).length)
 
 const viewMode = useLocalStorage('characters-view-mode', 'grid') // 'grid' or 'list'
 
@@ -49,7 +57,6 @@ const userFilters = reactive({
     onlyCharactersWithoutMods: false
 })
 
-const { installFromZip, installFromFolder } = useModInstall()
 
 const addModMenuItems = computed(() => [
     { label: t('charactersTab.actions.installFromZip'), clicked: installFromZip },
@@ -88,10 +95,10 @@ const scrollTop = ref(0);
 const scrollContainer = ref<HTMLElement | null>(null);
 
 const modIndex = computed(() => {
-    type Mod = typeof modsStore.mods[number];
+    type Mod = typeof modsStore.extendedMods[number];
     const index = new Map<string, { enabledTypes: Set<string>; mods: Mod[] }>();
 
-    for (const mod of modsStore.mods) {
+    for (const mod of modsStore.extendedMods) {
         if (!mod.modType || !('id' in mod.modType)) continue;
         if (!['Cutscene', 'Standing', 'Dating', 'NPC'].includes(mod.modType.type)) continue;
 
@@ -155,14 +162,6 @@ function getInstalledMods(id: string | readonly string[]) {
 function getInstalledModsCount(id: string | readonly string[]) {
     const ids = Array.isArray(id) ? id : [id];
     return ids.reduce((sum, i) => sum + (modIndex.value.get(i)?.mods.length ?? 0), 0);
-}
-
-function toggleMod(mod: BD2Mod) {
-    if (mod.enabled) {
-        modsStore.disableMods([mod.name])
-    } else {
-        modsStore.enableMods([mod.name])
-    }
 }
 
 const filteredCharacters = computed(() => {
@@ -461,7 +460,7 @@ watch(() => route.query.characterId, (newCharacterId) => {
         </div>
 
         <CharacterModal v-model:show="showCostumeModal" :selectedCostume="selectedCostume"
-            :getInstalledMods="getInstalledMods" :toggleMod="toggleMod" />
+            :getInstalledMods="getInstalledMods" :toggleMod="toggleMods" />
     </div>
 </template>
 

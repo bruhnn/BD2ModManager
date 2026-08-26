@@ -1,85 +1,77 @@
 <script setup lang="ts">
 import { Folder, FolderMinus, FolderPlus, FolderSync, RefreshCcw } from "@lucide/vue";
 
-import { computed, defineComponent, h, onActivated, onDeactivated, onMounted, reactive, ref, useTemplateRef, watch } from "vue";
-import { useDebounceFn, useLocalStorage, watchDebounced } from "@vueuse/core";
-import { useNotificationStore } from '../../stores/notification';;
+import { computed, defineComponent, h, onActivated, onDeactivated, reactive, ref, useTemplateRef, watch } from "vue";
+import { watchDebounced } from "@vueuse/core";
 import { useI18n } from "vue-i18n";
 
 import { listen } from "@tauri-apps/api/event";
+import { join } from "@tauri-apps/api/path";
 import { openPath } from "@tauri-apps/plugin-opener";
+import { invoke } from "@tauri-apps/api/core";
 
-import { useConfirm } from "../../plugins/ConfirmService";
-
-import { BD2Mod, useModsStore } from "../../stores/mods";
+import { useModsStore, BD2Mod } from "../../stores/mods";
 import { useSettingsStore } from "../../stores/settings";
 import { useLoggingStore } from "../../stores/logging";
+import { useNotificationStore } from '../../stores/notification';
 
 import { useHeader } from "../../composables/useHeader";
 
-import UpdateAuthorModal from "./modals/UpdateAuthorModal.vue";
-import RenameModModal from "./modals/RenameModModal.vue";
-import ModsHeader from "./ModsHeader.vue";
-import Modlist from "./Modlist.vue";
 import Button from "../../components/common/Button.vue";
-import { getErrorMessage } from "../../utils/errors";
-import { invoke } from "@tauri-apps/api/core";
-import { useModInstall } from "../../composables/useModInstall";
-import { useModDelete } from "../../composables/useModDelete";
 import MultiButton from "../../components/common/MultiButton.vue";
 import Popover from "../../components/common/Popover.vue";
 
+import UpdateAuthorModal from "./modals/UpdateAuthorModal.vue";
+import RenameModModal from "./modals/RenameModModal.vue";
+
+import ModsHeader from "./ModsHeader.vue";
+import Modlist from "./Modlist.vue";
+
+import { useGameStore } from "../../stores/game.ts";
+import { useModActions } from "../../composables/useModActions.ts";
+import { useModDelete } from "../../composables/useModDelete.ts";
+import { useModInstall } from "../../composables/useModInstall.ts";
+import { useModSync } from "../../composables/useModSync.ts";
 
 let unlistenFns: Array<() => void> = []
 
 const updateAuthorModal = useTemplateRef("updateAuthorModal")
 const renameModModal = useTemplateRef("renameModModal")
 
-const loggingStore = useLoggingStore()
-
-const notificationStore = useNotificationStore()
-const confirm = useConfirm()
-
 const { t } = useI18n();
-const modsStore = useModsStore();
-const settingsStore = useSettingsStore();
+const loggingStore = useLoggingStore()
+const notificationStore = useNotificationStore()
+const modsStore = useModsStore()
+const settingsStore = useSettingsStore()
+const gameStore = useGameStore()
 
-const isRefreshing = ref(false);
-const isSyncing = ref(false);
-const isUnsyncing = ref(false);
+const {
+  enableMods,
+  disableMods,
+  renameMod,
+  previewMod
+} = useModActions()
 
-const bdxVersion = ref<{
-  status: "Installed" | "InstalledButOutdated" | "NotInstalled" | null, // null = game path not set
-  version: string
-} | null>(null);
+const {
+  deleteMods
+} = useModDelete()
+
+const {
+  installMod,
+  installFromZip,
+  installFromFolder
+} = useModInstall()
+
+const {
+  syncMods,
+  unsyncMods
+} = useModSync()
+
+const isRefreshing = ref(false)
+// [TODO] reactive is sync needed
+const isSyncNeeded = ref(0)
 
 const debouncedSearchQuery = ref('');
-const skipSyncConfirmation = useLocalStorage('skipSyncModsConfirmation', false)
-const skipUnsyncConfirmation = useLocalStorage('skipUnsyncModsConfirmation', false)
-
-const debouncedSync = useDebounceFn(async () => {
-  if (!settingsStore.settings.autoSyncMods) return;
-  if (isSyncing.value) {
-    loggingStore.logDebug("Sync in progress, skipping auto-sync.");
-    return;
-  }
-
-  isSyncing.value = true;
-  try {
-    await modsStore.syncMods();
-  } catch (error) {
-    let errorMessage = getErrorMessage(t, error);
-    notificationStore.add({
-      closable: true,
-      title: t('modsTab.errors.syncFailed.title'),
-      message: errorMessage,
-      duration: 5000,
-      severity: 'error'
-    });
-  } finally {
-    isSyncing.value = false;
-  }
-}, 1500);
 
 let filters = reactive({
   searchQuery: '',
@@ -90,11 +82,12 @@ let filters = reactive({
   onlyErrors: false,
   hideErrors: false,
 });
-const totalModsCount = computed(() => modsStore.mods.length)
-const enabledModsCount = computed(() => modsStore.mods.filter(mod => mod.enabled && !mod.errors.length).length)
+
+const totalModsCount = computed(() => modsStore.extendedMods.length)
+const enabledModsCount = computed(() => modsStore.extendedMods.filter(mod => mod.enabled && !mod.errors.length).length)
 
 const filteredMods = computed(() => {
-  return modsStore.mods.filter((mod) => {
+  return modsStore.extendedMods.filter((mod) => {
     const conflictMatch = debouncedSearchQuery.value.match(/conflictsWith:"([^"]+)"/i)
     const conflictFilter = conflictMatch ? conflictMatch[1].toLowerCase() : null
 
@@ -118,8 +111,7 @@ const filteredMods = computed(() => {
         }
         return mod.name.toLowerCase().includes(value) ||
           (mod.author && mod.author.toLowerCase().includes(value)) ||
-          (mod.character &&
-            `${mod.character.character.toLowerCase()} - ${mod.character.costume.toLowerCase()}`.includes(value))
+          (mod.character && `${mod.character.character.toLowerCase()} - ${mod.character.costume.toLowerCase()}`.includes(value))
       })
 
       if (!matchesAnyQuery) return false
@@ -151,56 +143,54 @@ const filteredMods = computed(() => {
   })
 })
 
-function handleEnableMods(mods: BD2Mod[]) {
-  loggingStore.logDebug("Enabling mods:", JSON.stringify(mods.map(m => m.name)));
-  modsStore.enableMods(mods.map(m => m.name))
-    .then(() => debouncedSync())
-    .catch((error) => loggingStore.logError("Error enabling mods:", error))
-}
-
-function handleDisableMods(mods: BD2Mod[]) {
-  loggingStore.logDebug("Disabling mods:", JSON.stringify(mods.map(m => m.name)));
-  modsStore.disableMods(mods.map(m => m.name))
-    .then(() => debouncedSync())
-    .catch((error) => loggingStore.logError("Error disabling mods:", error))
-}
-
-function handlePreviewMod(mod: BD2Mod) {
-  loggingStore.logDebug("Previewing mod:", mod.name);
-
-  if (mod.errors.length > 0) {
-    notificationStore.add({
-      severity: "error",
-      closable: true,
-      title: t("modsTab.errors.modPreview.title"),
-      message: t("modsTab.errors.modPreview.modContainErrors", { modName: mod.name }),
-      duration: 3000
-    })
-    return
+async function handleRefreshMods() {
+  if (isRefreshing.value) {
+    loggingStore.logDebug("Refresh already in progress, skipping.");
+    return;
   }
 
-  modsStore.previewMod(mod.name).then(() => {
-    loggingStore.logDebug("Mod previewed successfully:", mod.name);
-  }).catch((error) => {
-    // errors that can happen: just some errors like no permission to open the file, or the file doesn't exist anymore, or the file is not a valid mod file
-    // no custom errors here
-    let errorMsg = getErrorMessage(t, error);
-    notificationStore.add({
-      severity: "error",
-      closable: true,
-      title: t("modsTab.errors.modPreview.title"),
-      message: errorMsg,
-      duration: 5000
-    })
+  isRefreshing.value = true
+  await modsStore.discoverMods()
+  isRefreshing.value = false
+}
 
-    loggingStore.logError("Error previewing mod:", error);
-  })
+function handleUpdateModAuthor(mods: BD2Mod[]) {
+  loggingStore.logDebug("Changing author for mods:", mods.map(m => m.name), "Current authors:", mods.map(m => m.author));
+  updateAuthorModal.value?.open({
+    mods: mods.map(m => ({ name: m.name, author: m.author || '' })),
+    onSave: (newAuthor: string) => {
+      loggingStore.logDebug(`Changing author for ${mods.length} mod(s) to "${newAuthor}"`);
+      modsStore.setModAuthor(mods.map(m => m.name), newAuthor);
+    }
+  });
+}
+
+function handleRenameMod(mod: BD2Mod) {
+  loggingStore.logDebug("Renaming mod:", mod.name);
+  renameModModal.value?.open({
+    modName: mod.name,
+    onSave: (newName: string) => {
+      if (newName === mod.name) {
+        return;
+      }
+      loggingStore.logDebug(`Change name  of mod "${mod.name}" to "${newName}" ${typeof newName}`);
+      renameMod(mod, newName);
+    }
+  });
+}
+
+function handleShowModConflicts(mod: BD2Mod) {
+  // filters.searchQuery = `"${mod.name}", "${mod.conflictsWith.join(', ')}"`;
+  // const names = [mod.name, ...mod.conflictsWith]
+  // filters.searchQuery = names.map(n => `"${n}"`).join(', ')
+  filters.searchQuery = `conflictsWith:"${mod.name}"`;
+  // searhc by id?
+  // show modal?
 }
 
 async function handleOpenModFolder(mod: BD2Mod) {
   loggingStore.logDebug("Opening mod folder:", mod.name);
 
-  // [TODO] adds checks if folder exists
   const folderExists = await invoke("path_exists", { path: mod.path }).catch((error) => {
     loggingStore.logError(`An error occurred while checking if mod folder exists for "${mod.name}":`, error);
     return false;
@@ -272,202 +262,113 @@ async function handleOpenStagingModsFolder() {
   await openPath(stagingDir);
 }
 
-async function handleSyncMods() {
-  try {
-    loggingStore.logDebug(`Syncing mods [confirmation skipped: ${skipSyncConfirmation.value}]`);
+async function openGameFolder() {
+  const { gameDirectory } = settingsStore.settings
 
-    const hasConflicts = modsStore.mods.some(mod => mod.conflictingMods.length > 0)
+  loggingStore.logDebug("Opening game folder:", gameDirectory);
 
-    if (hasConflicts) {
-      const { confirmed } = await confirm.confirm({
-        title: t('modsTab.confirmations.syncMods.titleWithConflicts'),
-        message: t('modsTab.confirmations.syncMods.messageWithConflicts'),
-        acceptButton: {
-          label: t('modsTab.confirmations.syncMods.actions.syncAnyway'),
-        },
-        rejectButton: {
-          label: t('common.actions.cancel'),
-        },
-      })
-
-      if (!confirmed) {
-        loggingStore.logDebug("User cancelled sync due to conflicts.");
-        return
-      }
-    }
-
-    if (!skipSyncConfirmation.value) {
-      const { confirmed, rememberChoice } = await confirm.confirm({
-        title: t('modsTab.confirmations.syncMods.title'),
-        message: t('modsTab.confirmations.syncMods.message'),
-        acceptButton: {
-          label: t('modsTab.confirmations.syncMods.actions.sync'),
-        },
-        rejectButton: {
-          label: t('common.actions.cancel'),
-        },
-        showRememberChoice: true
-      })
-
-      if (!confirmed) {
-        return
-      }
-
-      if (rememberChoice) {
-        skipSyncConfirmation.value = true
-      }
-    }
-
-    isSyncing.value = true
-
-    // [TODO] syncmods return error
-    let result = await modsStore.syncMods().then((res) => {
-      loggingStore.logDebug("Mods sync result:", res);
-
-      return res;
-    }).catch((error) => {
-      loggingStore.logError("Error during mods sync:", error);
-      throw error;
-    });
-
-    loggingStore.logDebug(`Command mods sync called succesfully: ${result}.`);
+  if (!gameDirectory) {
+    loggingStore.logError("Game directory is not set.");
 
     notificationStore.add({
       type: 'error',
       closable: true,
-      title: t('modsTab.notifications.syncSuccess.title'),
-      message: t('modsTab.notifications.syncSuccess.description'),
-      duration: 5000,
+      title: t('modsTab.errors.gameDirectoryNotSet.title'),
+      message: t('modsTab.errors.gameDirectoryNotSet.message'),
+      duration: 5000
     })
-    // if (result) {
-    // }
-  } catch (error: any) {
-    loggingStore.logError("Error syncing mods:", JSON.stringify(error));
-
-    console.log(typeof error, error instanceof Error, error.message);
-
-    let errorMessage = getErrorMessage(t, error)
-
-    notificationStore.add({
-      closable: true,
-      title: t('modsTab.errors.\.title'),
-      message: errorMessage,
-      duration: 5000,
-      severity: 'error'
-    });
-  } finally {
-    isSyncing.value = false
+    return
   }
-}
 
-async function handleUnsyncMods() {
-  try {
-    if (!skipUnsyncConfirmation.value) {
-      const { confirmed, rememberChoice } = await confirm.confirm({
-        title: t('modsTab.confirmations.unsyncMods.title'),
-        message: t('modsTab.confirmations.unsyncMods.message'),
-        acceptButton: {
-          label: t('modsTab.confirmations.unsyncMods.actions.unsync'),
-        },
-        rejectButton: {
-          label: t('common.actions.cancel'),
-        },
-        showRememberChoice: true
-      })
-
-      if (!confirmed) {
-        return
-      }
-
-      if (rememberChoice) {
-        skipUnsyncConfirmation.value = true
-      }
-    }
-
-    isUnsyncing.value = true
-
-    const result = await modsStore.unsyncMods();
-
-    isUnsyncing.value = false
-
-    loggingStore.logDebug(`Command mods unsync called succesfully: ${result}.`);
-
-    notificationStore.add({
-      type: 'error',
-      closable: true,
-      title: t('modsTab.notifications.unsyncSuccess.title'),
-      message: t('modsTab.notifications.unsyncSuccess.description'),
-      duration: 3000,
-    });
-  } catch (error: any) {
-    loggingStore.logError("Error unsyncing mods:", error);
-
-    let errorMessage = getErrorMessage(t, error)
-
-    notificationStore.add({
-      type: 'error',
-      closable: true,
-      title: t('errors.unsyncFailed'),
-      message: errorMessage,
-      duration: 5000,
-    });
-
-    isUnsyncing.value = false
-  }
-}
-
-function handleChangeModAuthor(mods: BD2Mod[]) {
-  loggingStore.logDebug("Changing author for mods:", mods.map(m => m.name), "Current authors:", mods.map(m => m.author));
-  updateAuthorModal.value?.open({
-    mods: mods.map(m => ({ name: m.name, author: m.author || '' })),
-    onSave: (newAuthor: string) => {
-      loggingStore.logDebug(`Changing author for ${mods.length} mod(s) to "${newAuthor}"`);
-      modsStore.setModAuthor(mods.map(m => m.name), newAuthor);
-    }
+  const directoryExists = await invoke<boolean>("path_exists", { path: gameDirectory }).catch((error) => {
+    loggingStore.logError("An error occurred while checking if game directory exists:", error);
+    return false;
   });
-}
 
-// function handleEditModfile(mod: BD2Mod) {
-//   // [TODO]
-// }
-
-async function handleRefreshMods() {
-  if (isRefreshing.value) {
-    loggingStore.logDebug("Refresh already in progress, skipping.");
-    return;
+  if (!directoryExists) {
+    notificationStore.add({
+      type: 'error',
+      closable: true,
+      title: t('modsTab.errors.gameDirectoryNotFound.title'),
+      message: t('modsTab.errors.gameDirectoryNotFound.message', { gameDirectory }),
+      duration: 5000
+    })
+    return
   }
 
-  isRefreshing.value = true
-  await modsStore.discoverMods()
-  isRefreshing.value = false
-}
+  const isFolder = await invoke<boolean>("is_folder", { path: gameDirectory }).catch((error) => {
+    loggingStore.logError("An error occurred while checking if game path is a folder:", error);
+    return false;
+  });
 
-async function updateBDXVersion() {
-  try {
-    const result = await settingsStore.getBrowndustxVersion();
-
-    loggingStore.logDebug("BDX version:", JSON.stringify(result));
-
-    if (result) {
-      bdxVersion.value = {
-        status: result.status,
-        version: result.version
-      };
-    } else {
-      bdxVersion.value = null;
-    }
-
-  } catch (error) {
-    loggingStore.logError("Error getting BDX version:", error);
+  if (!isFolder) {
+    notificationStore.add({
+      type: 'error',
+      closable: true,
+      title: t('modsTab.errors.gameDirectoryNotDirectory.title'),
+      message: t('modsTab.errors.gameDirectoryNotDirectory.message', { gameDirectory }),
+      duration: 5000
+    })
+    return
   }
+
+  await openPath(gameDirectory)
 }
 
-// "7z" | "tar" | "gz" | "bz2" | "" | "tgz"
-const SUPPORTED_FORMATS = [
-  "rar",
-  "zip",
-  "7z"
-]
+async function openGameModsFolder() {
+  const { gameDirectory } = settingsStore.settings
+
+  if (!gameDirectory) {
+    loggingStore.logError("Game directory is not set.");
+
+    notificationStore.add({
+      type: 'error',
+      closable: true,
+      title: t('modsTab.errors.gameDirectoryNotSet.title'),
+      message: t('modsTab.errors.gameDirectoryNotSet.message'),
+      duration: 5000
+    })
+    return
+  }
+
+  const gameModsDirectory = await join(gameDirectory, 'BepInEx', 'plugins', 'BrownDustX', 'mods')
+
+  loggingStore.logDebug("Opening game mods folder:", gameModsDirectory);
+
+  const directoryExists = await invoke<boolean>("path_exists", { path: gameModsDirectory }).catch((error) => {
+    loggingStore.logError("An error occurred while checking if game mods directory exists:", error);
+    return false;
+  });
+
+  if (!directoryExists) {
+    notificationStore.add({
+      type: 'error',
+      closable: true,
+      title: t('modsTab.errors.gameModsDirectoryNotFound.title'),
+      message: t('modsTab.errors.gameModsDirectoryNotFound.message', { gameModsDirectory }),
+      duration: 5000
+    })
+    return
+  }
+
+  const isFolder = await invoke<boolean>("is_folder", { path: gameModsDirectory }).catch((error) => {
+    loggingStore.logError("An error occurred while checking if game mods path is a folder:", error);
+    return false;
+  });
+
+  if (!isFolder) {
+    notificationStore.add({
+      type: 'error',
+      closable: true,
+      title: t('modsTab.errors.gameModsDirectoryNotDirectory.title'),
+      message: t('modsTab.errors.gameModsDirectoryNotDirectory.message', { gameModsDirectory }),
+      duration: 5000
+    })
+    return
+  }
+
+  await openPath(gameModsDirectory)
+}
 
 async function setupEventListeners() {
   // remove existing listeners if any
@@ -480,51 +381,16 @@ async function setupEventListeners() {
     const paths = event.payload?.paths as string[]
 
     for (const path of paths) {
-      try {
-        let modName = null
-        // [TODO] more support for others file types, .rar, 7z
-        if (SUPPORTED_FORMATS.includes(`.${path.split('.').pop()?.toLowerCase() || ''}`)) {
-          modName = await modsStore.installModFromZip(path)
-        } else {
-          modName = await modsStore.installModFromFolder(path)
-        }
-
-        notificationStore.add({
-          closable: true,
-          title: t('modsTab.notifications.modInstallSuccess.title'),
-          message: t('modsTab.notifications.modInstallSuccess.description', { modName }),
-          duration: 3000,
-          severity: 'success'
-        });
-
-      } catch (error: any) {
-        let errorMsg = getErrorMessage(t, error)
-
-        notificationStore.add({
-          closable: true,
-          title: t('errors.modInstallFailed.title'),
-          message: errorMsg,
-          duration: 5000,
-          severity: 'error'
-        });
-      }
+      await installMod(path)
     }
   })
 
   unlistenFns = [unlistenDragDrop]
 }
 
-onMounted(async () => {
-  Promise.all([
-    updateBDXVersion()
-  ])
-})
-
 onActivated(async () => {
   loggingStore.logDebug("Mounting ModsTab, setting up event listeners");
-  Promise.all([
-    setupEventListeners()
-  ])
+  await setupEventListeners()
 })
 
 onDeactivated(() => {
@@ -532,7 +398,6 @@ onDeactivated(() => {
   unlistenFns.forEach((unlisten) => unlisten())
   unlistenFns = []
 })
-
 
 watchDebounced(
   () => filters.searchQuery,
@@ -542,21 +407,8 @@ watchDebounced(
   { debounce: 50 }
 );
 
-watch(() => settingsStore.settings.gameDirectory, (newDir, oldDir) => {
-  // if (oldDir === null || oldDir === undefined) {
-  //   loggingStore.logDebug("Skipping initial game directory load");
-  //   return;
-  // }
 
-  // [info] It triggers when the game directory is set from config.json to settings store
-
-  loggingStore.logDebug(`Game directory changed from "${oldDir}" to "${newDir}"`);
-
-  if (newDir && newDir !== oldDir) {
-    updateBDXVersion();
-  }
-});
-
+// [TODO] should these watchers be in here?
 watch(() => settingsStore.settings.stagingDirectory, (newDir, oldDir) => {
   loggingStore.logDebug("Staging directory changed from", oldDir, "to", newDir);
 
@@ -583,8 +435,6 @@ watch(() => settingsStore.settings.searchModsRecursively, (newValue, oldValue) =
   }
 });
 
-const { installFromZip, installFromFolder } = useModInstall()
-const { deleteMods } = useModDelete()
 
 const addModMenuItems = computed(() => [
   { label: t('modsTab.actions.installFromZip'), clicked: installFromZip },
@@ -603,7 +453,7 @@ const AddModMenu = defineComponent({
             onClick: toggle
           }),
         default: ({ close }: any) =>
-          h('ul', {class: 'bg-surface-popover border-border-default border rounded-md'}, addModMenuItems.value.map(item =>
+          h('ul', { class: 'bg-surface-popover border-border-default border rounded-md' }, addModMenuItems.value.map(item =>
             h('li', { key: item.label },
               h('button', {
                 class: 'w-full cursor-pointer text-left px-4 py-2 hover:bg-state-hover text-sm font-medium',
@@ -629,55 +479,11 @@ useHeader({
       label: t('common.actions.refreshMods'),
       action: async () => {
         await handleRefreshMods()
-        await updateBDXVersion()
       }
     },
     { render: () => h(AddModMenu) }
   ]
 })
-
-function handleRenameMod(mod: BD2Mod) {
-  loggingStore.logDebug("Renaming mod:", mod.name);
-  renameModModal.value?.open({
-    modName: mod.name,
-    onSave: (newName: string) => {
-      if (newName === mod.name) {
-        return;
-      }
-      loggingStore.logDebug(`Change name  of mod "${mod.name}" to "${newName}" ${typeof newName}`);
-      modsStore.renameMod(mod.name, newName);
-    }
-  });
-}
-
-function handleShowModConflicts(mod: BD2Mod) {
-  // filters.searchQuery = `"${mod.name}", "${mod.conflictsWith.join(', ')}"`;
-  // const names = [mod.name, ...mod.conflictsWith]
-  // filters.searchQuery = names.map(n => `"${n}"`).join(', ')
-  filters.searchQuery = `conflictsWith:"${mod.name}"`;
-  // searhc by id?
-  // show modal?
-}
-
-
-// [TODO] reactive is sync needed
-const isSyncNeeded = ref(0)
-
-async function openGameFolder() {
-  let { gameDirectory } = settingsStore.settings
-
-  if (!gameDirectory) return
-
-  await openPath(gameDirectory)
-}
-async function openGameModsFolder() {
-  let { gameDirectory } = settingsStore.settings
-
-  if (!gameDirectory) return
-
-  // [TODO] find a better way to get this path
-  await openPath(gameDirectory + '/BepInEx/plugins/BrownDustX/mods')
-}
 </script>
 <template>
   <div class="flex flex-col h-full gap-0 select-none p-4 py-0 pb-2">
@@ -689,22 +495,21 @@ async function openGameModsFolder() {
     </div>
 
     <div class="flex-1 overflow-hidden min-h-0 mb-2">
-      <Modlist :mods="filteredMods" @refresh-mods="handleRefreshMods" @enable-mods="handleEnableMods"
-        @disable-mods="handleDisableMods" @change-mod-author="handleChangeModAuthor" @delete-mods="deleteMods"
-        @open-mod-folder="handleOpenModFolder" @preview-mod="handlePreviewMod" @rename-mod="handleRenameMod"
-        @show-mod-conflicts="handleShowModConflicts" />
+      <Modlist :mods="filteredMods" :isSyncing="modsStore.isSyncing" @refresh-mods="handleRefreshMods" @enable-mods="enableMods"
+        @disable-mods="disableMods" @change-mod-author="handleUpdateModAuthor" @delete-mods="deleteMods"
+        @open-mod-folder="handleOpenModFolder" @preview-mod="previewMod" @rename-mod="handleRenameMod" @show-mod-conflicts="handleShowModConflicts" />
     </div>
 
     <div class="flex justify-between items-center shrink-0">
       <div class="flex flex-col">
         <span class="font-semibold">
-          <template v-if="bdxVersion?.status == 'Installed'">
-            {{ $t("modsTab.browndustx.status.installed", { version: bdxVersion.version }) }}
+          <template v-if="gameStore.browndustxVersion?.status == 'Installed'">
+            {{ $t("modsTab.browndustx.status.installed", { version: gameStore.browndustxVersion.version }) }}
           </template>
-          <template v-else-if="bdxVersion?.status == 'InstalledButOutdated'">
-            {{ $t("modsTab.browndustx.status.installedButOutdated", { version: bdxVersion.version }) }}
+          <template v-else-if="gameStore.browndustxVersion?.status == 'InstalledButOutdated'">
+            {{ $t("modsTab.browndustx.status.installedButOutdated", { version: gameStore.browndustxVersion.version }) }}
           </template>
-          <template v-else-if="!bdxVersion">
+          <template v-else-if="!gameStore.browndustxVersion">
             {{ $t("modsTab.browndustx.status.gameNotFound") }}
           </template>
           <template v-else>
@@ -722,12 +527,8 @@ async function openGameModsFolder() {
             { label: t('modsTab.actions.openGameFolder'), clicked: openGameFolder },
             { label: t('modsTab.actions.openGameModsFolder'), clicked: openGameModsFolder }
           ]" />
-        <Button variant="default" :disabled="isSyncing || isUnsyncing" :label="$t('modsTab.actions.unsyncMods')"
-          :icon="FolderMinus" @click="handleUnsyncMods" />
-        <Button :variant="isSyncNeeded ? 'primary' : 'default'" :disabled="isSyncing || isUnsyncing"
-          :label="$t('modsTab.actions.syncMods')" :icon="FolderSync" @click="handleSyncMods" :class="{
-            'animate-pulse hover:animate-none': isSyncNeeded
-          }" />
+        <Button variant="default" :disabled="modsStore.isSyncing" :label="$t('modsTab.actions.unsyncMods')" :icon="FolderMinus" @click="unsyncMods" />
+        <Button :variant="isSyncNeeded ? 'primary' : 'default'" :disabled="modsStore.isSyncing" :label="$t('modsTab.actions.syncMods')" :icon="FolderSync" @click="syncMods" :class="{'animate-pulse hover:animate-none': isSyncNeeded}" />
       </div>
     </div>
   </div>

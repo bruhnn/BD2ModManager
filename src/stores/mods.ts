@@ -1,9 +1,14 @@
 import { Channel, invoke } from '@tauri-apps/api/core';
 import { listen } from '@tauri-apps/api/event';
 import { defineStore } from 'pinia';
-import { computed, readonly, ref, shallowRef } from 'vue';
+import { computed, readonly, ref } from 'vue';
 import { Character, useCharactersStore } from './characters';
 import { useLoggingStore } from './logging';
+import { useDebounceFn } from '@vueuse/core';
+import { useSettingsStore } from './settings';
+import { useNotificationStore } from './notification';
+import { getErrorMessage } from '../utils/errors';
+import { useI18n } from 'vue-i18n';
 
 export type BD2ModType =
     | { type: 'Standing'; id: string }
@@ -50,15 +55,50 @@ export interface DeleteModsResult {
     deleted: readonly string[],
     failed: Record<string, ModDeleteError>,
 }
+
 export const useModsStore = defineStore('mods', () => {
+    const { t } = useI18n()
+    const settingsStore = useSettingsStore()
     const charactersStore = useCharactersStore()
     const loggingStore = useLoggingStore()
+    const notificationStore = useNotificationStore()
 
-    const mods = shallowRef<BD2Mod[]>([]);
-    const modsCache = ref<Map<string, BD2Mod>>(new Map());
+    const modsCache = ref<Map<string, BD2Mod>>(new Map())
 
-    const extendedMods = computed(() => {
-        return mods.value.map((mod) => {
+    const autoSyncMs = 3000
+
+    // is syncing or unsycing too
+    const isSyncing = ref(false);
+
+    const debouncedSync = useDebounceFn(async () => {
+        if (!settingsStore.settings.autoSyncMods) return;
+
+        loggingStore.logDebug("Auto-syncing mods.");
+
+        if (isSyncing.value) {
+            loggingStore.logDebug("Sync in progress, skipping auto-sync.");
+            return;
+        }
+
+        try {
+            await syncMods();
+        } catch (error) {
+            loggingStore.logError(`An error occurred while auto-syncing mods: ${JSON.stringify(error)}`);
+
+            notificationStore.add({
+                type: "error",
+                title: t("modsTab.notifications.autoSync.title"),
+                message: getErrorMessage(t, error)
+            });
+        }
+    }, autoSyncMs)
+
+    const mods = computed<BD2Mod[]>(() => {
+        return getMods()
+    })
+
+    const extendedMods = computed<BD2ModExtended[]>(() => {
+        return getMods().map((mod) => {
             let character: Character | undefined = undefined;
 
             if (mod.modType && (mod.modType.type == "Cutscene" || mod.modType.type == "Standing")) {
@@ -84,40 +124,100 @@ export const useModsStore = defineStore('mods', () => {
         })
     })
 
+    function getMods(): BD2Mod[] {
+        return Array.from(modsCache.value.values());
+    }
+
+    function setMods(newMods: BD2Mod[]) {
+        modsCache.value = new Map(newMods.map(m => [m.name, m]))
+    }
+
+    function updateMods(mods: BD2Mod[]) {
+        mods.forEach((mod) => {
+            modsCache.value.set(mod.name, mod)
+        })
+    }
+
     function getModByName(name: string): BD2Mod | undefined {
         return modsCache.value.get(name);
     }
 
-    async function discoverMods() {
-        return invoke("discover_mods")
+    function setModsState(modNames: string[], state: boolean) {
+        for (let modName of modNames) {
+            let mod = getModByName(modName)
+            if (mod) {
+                mod.enabled = state
+            }
+        }
     }
 
-    async function enableMods(mod_names: String[]) {
-        return invoke("enable_mods", { modNames: mod_names })
+    async function discoverMods(): Promise<BD2Mod[]> {
+        const mods = await invoke<BD2Mod[]>("discover_mods")
+        setMods(mods)
+        return mods
     }
 
-    async function disableMods(mod_names: String[]) {
-        return invoke("disable_mods", { modNames: mod_names })
+    async function enableMods(modNames: string[]): Promise<BD2Mod[]> {
+        const previousStates = modNames.map(name => ({
+            name,
+            enabled: getModByName(name)?.enabled
+        }))
+
+        setModsState(modNames, true)
+
+        try {
+            const mods = await invoke<BD2Mod[]>("enable_mods", { modNames })
+            updateMods(mods)
+            debouncedSync()
+            return mods
+        } catch (error) {
+            for (const mod of previousStates) {
+                if (mod.enabled !== undefined) {
+                    setModsState([mod.name], mod.enabled)
+                }
+            }
+
+            throw error
+        }
     }
 
-    async function previewMod(mod_name: string) {
-        return invoke("preview_mod", { modName: mod_name })
+    async function disableMods(modNames: string[]): Promise<BD2Mod[]> {
+        const previousStates = modNames.map(name => ({
+            name,
+            enabled: getModByName(name)?.enabled
+        }))
+
+        setModsState(modNames, false)
+
+        try {
+            const mods = await invoke<BD2Mod[]>("disable_mods", { modNames })
+            updateMods(mods)
+            debouncedSync()
+            return mods
+        } catch (error) {
+            for (const mod of previousStates) {
+                if (mod.enabled !== undefined) {
+                    setModsState([mod.name], mod.enabled)
+                }
+            }
+
+            throw error
+        }
+    }
+    async function previewMod(modName: string): Promise<undefined> {
+        return invoke("preview_mod", { modName })
     }
 
-    async function installModFromZip(path: string) {
-        return invoke("install_mod_from_zip", { path })
+    async function installModFromZip(path: string): Promise<BD2Mod> {
+        const mod = await invoke<BD2Mod>("install_mod_from_zip", { path })
+        updateMods([mod])
+        return mod
     }
 
-    async function installModFromFolder(path: string) {
-        return await invoke("install_mod_from_folder", { path })
-    }
-
-    async function syncMods() {
-        return invoke("sync_mods")
-    }
-
-    async function unsyncMods() {
-        return invoke("unsync_mods")
+    async function installModFromFolder(path: string): Promise<BD2Mod> {
+        const mod = await invoke<BD2Mod>("install_mod_from_folder", { path })
+        updateMods([mod])
+        return mod
     }
 
     async function deleteMods(modNames: string[], onProgress?: (progress: DeleteModsProgress) => void): Promise<DeleteModsResult> {
@@ -126,51 +226,83 @@ export const useModsStore = defineStore('mods', () => {
         const result = await invoke<DeleteModsResult>("delete_mods", { modNames, onProgress: channel })
         console.log("DeleteModsResult:", result)
         if (result.deleted.length > 0) {
-            mods.value = result.mods
-            modsCache.value.clear()
-            result.mods.forEach(mod => modsCache.value.set(mod.name, mod))
+            // only updates the mods list if at least one mod was deleted, otherwise it will be the same as before
+            setMods(result.mods)
+            debouncedSync()
         }
         return result
     }
 
-    async function renameMod(oldName: string, newName: string) {
-        const mod = getModByName(oldName);
-        if (!mod) {
-            loggingStore.logError(`renameMod: Mod not found: ${oldName}`);
+    async function renameMod(modName: string, newName: string): Promise<BD2Mod> {
+        const mod = await invoke<BD2Mod>("rename_mod", { modName, newName })
+        if (mod) {
+            // add the new mod
+            updateMods([mod])
+            // remove the old mod
+            modsCache.value.delete(modName)
+        }
+        debouncedSync()
+        return mod
+    }
+
+    async function syncMods(): Promise<undefined> {
+        if (isSyncing.value) {
+            // add to queue or just log?
+            // raise an error?
+            // let the backend handle it? raise an error etc
+            loggingStore.logDebug("Sync in progress, skipping sync.");
+            return
+        }
+
+        isSyncing.value = true;
+        try {
+            return await invoke("sync_mods")
+        } finally {
+            isSyncing.value = false;
+        }
+    }
+
+    async function unsyncMods(): Promise<undefined> {
+        if (isSyncing.value) {
+            loggingStore.logDebug("Sync in progress, skipping unsync.");
             return;
         }
 
-        return invoke("rename_mod", { oldName, newName })
-    }
-
-    async function setModAuthor(modNames: string | string[], author: string | null) {
-        const names = Array.isArray(modNames) ? modNames : [modNames];
-        return invoke("set_mod_author", { modNames: names, author: author || null });
+        isSyncing.value = true;
+        try {
+            return await invoke("unsync_mods")
+        } finally {
+            isSyncing.value = false;
+        }
     }
 
     async function isSyncNeeded(): Promise<boolean> {
         // on rust backend it will compare the current modlist with the manifest inside game folder, if different then it needs to sync
-        return invoke("is_sync_needed")
+        return invoke<boolean>("is_sync_needed")
+    }
+
+    async function setModAuthor(modNames: string | string[], author: string | null): Promise<BD2Mod[]> {
+        const names = Array.isArray(modNames) ? modNames : [modNames]
+        const mods = await invoke<BD2Mod[]>("set_mod_author", { modNames: names, author })
+        updateMods(mods)
+        return mods
     }
 
     // events
-    listen("mods-changed", async (event) => {
-        // triggered on discover mods, enable/disable mods, profile switch
-        loggingStore.logInfo("Mods updated event received");
+    listen<BD2Mod[]>("mods-changed", async () => {
+        notificationStore.add({
+            type: "info",
+            title: "Backend is asking to refresh mods.",
+            duration: 15000
+        })
 
-        const modsList = event.payload as BD2Mod[];
-
-        mods.value = modsList;
-
-        modsCache.value.clear();
-        modsList.forEach((mod) => {
-            modsCache.value.set(mod.name, mod);
-        }
-        );
+        await discoverMods()
     })
 
     return {
-        mods: readonly(extendedMods),
+        mods: readonly(mods),
+        extendedMods: readonly(extendedMods),
+        isSyncing: readonly(isSyncing),
         discoverMods,
         enableMods,
         disableMods,

@@ -1,11 +1,11 @@
-// composables/useModInstaller.ts
 import { open } from '@tauri-apps/plugin-dialog'
 import { getErrorMessage } from '../utils/errors'
 import { useI18n } from 'vue-i18n'
 import { useLoggingStore } from '../stores/logging'
-import { useModsStore } from '../stores/mods'
+import { BD2Mod, useModsStore } from '../stores/mods'
 import { useNotificationStore } from '../stores/notification'
 
+const ARCHIVE_FORMATS = ['rar', 'zip', '7z']
 
 // composable because modstab and cahracters tab will both need to install mods, and we want to keep the logic in one place
 export function useModInstall() {
@@ -14,38 +14,49 @@ export function useModInstall() {
   const notificationStore = useNotificationStore()
   const { t } = useI18n()
 
-  async function installFromZip() {
-    const file = await open({
-      multiple: false,
-      filters: [{ name: 'Archive Files', extensions: ['zip', 'rar', '7z', 'tar', 'gz'] }]
-    })
+  async function installMod(path: string) {
+    if (ARCHIVE_FORMATS.includes(path.split('.').pop()?.toLowerCase() || '')) {
+      await installFromZip(path)
+    } else {
+      await installFromFolder(path)
+    }
+  }
 
-    loggingStore.logDebug("Selected file for mod installation from zip:", file)
+  async function installFromZip(path?: string): Promise<BD2Mod | undefined> {
+    let filePath: string | undefined | null = path
+    if (!filePath) {
+      filePath = await open({
+        multiple: false,
+        filters: [{ name: 'Archive Files', extensions: ARCHIVE_FORMATS }]
+      })
+    }
 
-    if (file && typeof file === 'string') {
+    loggingStore.logDebug("Selected file for mod installation from zip:", filePath)
+    const modName = filePath?.replace(/[\\/]+$/, '').split(/[\\/]/).pop() ?? 'UNKNOWN'
+
+    if (filePath && typeof filePath === 'string') {
       try {
-        const modName = await modsStore.installModFromZip(file)
+        const mod = await modsStore.installModFromZip(filePath)
 
         notificationStore.add({
           type: 'success',
           closable: true,
-          title: t('modsTab.notifications.modInstallSuccess.title'),
-          message: t('modsTab.notifications.modInstallSuccess.description', { modName }),
-          duration: 3000
+          title: t('modsTab.notifications.installMod.success.title'),
+          message: t('modsTab.notifications.installMod.success.description', { modName: mod.name })
         })
 
-        return modName
+        return mod
       } catch (error) {
-        loggingStore.logError("Error installing mod from zip:", error)
+        loggingStore.logError("Error installing mod from zip:", JSON.stringify(error))
 
         const errorMsg = getErrorMessage(
           t,
-          error instanceof Error ? error.message : String(error)
+          error
         )
 
         notificationStore.add({
           closable: true,
-          title: t('errors.modInstallFailed.title'),
+          title: t('modsTab.notifications.installMod.error.title', { modName }),
           message: errorMsg,
           type: 'error'
         })
@@ -53,38 +64,48 @@ export function useModInstall() {
     }
   }
 
-  async function installFromFolder() {
-    const folder = await open({
-      directory: true,
-      multiple: false
-    })
+  async function installFromFolder(path?: string): Promise<BD2Mod | undefined> {
+    let folderPath: string | undefined | null = path
 
-    loggingStore.logDebug("Selected folder for mod installation:", folder)
+    if (!folderPath) {
+      folderPath = await open({
+        directory: true,
+        multiple: false
+      })
+    }
 
-    if (folder && typeof folder === 'string') {
+    if (!folderPath) {
+      loggingStore.logWarning("Folder path is empty.")
+      return
+    }
+
+    loggingStore.logDebug("Selected folder for mod installation:", folderPath)
+
+    const modName = folderPath.replace(/[\\/]+$/, '').split(/[\\/]/).pop() ?? 'UNKNOWN'
+
+    if (folderPath && typeof folderPath === 'string') {
       try {
-        const modName = await modsStore.installModFromFolder(folder)
+        const mod = await modsStore.installModFromFolder(folderPath)
 
         notificationStore.add({
           type: 'success',
           closable: true,
-          title: t('modsTab.notifications.modInstallSuccess.title'),
-          message: t('modsTab.notifications.modInstallSuccess.description', { modName }),
-          duration: 3000
+          title: t('modsTab.notifications.installMod.success.title'),
+          message: t('modsTab.notifications.installMod.success.description', { modName: mod.name })
         })
 
-        return modName
+        return mod
       } catch (error) {
-        loggingStore.logError("Error installing mod from folder:", error)
+        loggingStore.logError("Error installing mod from folder:", JSON.stringify(error))
 
         const errorMsg = getErrorMessage(
           t,
-          error instanceof Error ? error.message : String(error)
+          error
         )
 
         notificationStore.add({
           closable: true,
-          title: t('errors.modInstallFailed.title'),
+          title: t('modsTab.notifications.installMod.error.title', { modName }),
           message: errorMsg,
           type: 'error'
         })
@@ -93,6 +114,7 @@ export function useModInstall() {
   }
 
   return {
+    installMod,
     installFromZip,
     installFromFolder
   }
