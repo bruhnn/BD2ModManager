@@ -13,7 +13,7 @@ import { refThrottled, useVirtualList } from '@vueuse/core'
 import Button from '../common/Button.vue'
 import Modal from '../common/Modal.vue'
 import { SyncStatus, useSyncStateStore } from '../../stores/syncState'
-import { SyncError, SyncProgressStatus, SyncType } from '../../composables/useSyncEvents'
+import { getSyncErrorMessage, SyncProgressStatus, SyncType } from '../../composables/useModSyncEvents'
 import { useModsStore } from '../../stores/mods'
 import { useDev } from '../../composables/useDev'
 import { globalModals } from '../../composables/useGlobalModals.ts'
@@ -23,6 +23,7 @@ const {
   isOpen,
   closeModal
 } = globalModals.sync
+
 const syncStateStore = useSyncStateStore()
 
 const getModStatusIcon = (status: SyncProgressStatus) => {
@@ -41,23 +42,6 @@ const getModStatusColor = (status: SyncProgressStatus) => {
     case SyncProgressStatus.Removed: return 'text-warning'
     case SyncProgressStatus.Failed: return 'text-error'
     default: return 'text-text-secondary'
-  }
-}
-
-function getErrorMessage(t: (key: string, params?: any) => string, error: SyncError | null | undefined): string {
-  if (!error) return t('errors.unknownError')
-
-  switch (error.type) {
-    case 'SymlinkAdminRequired': return t('errors.symlinkAdminRequired')
-    case 'PermissionDenied': return t('errors.permissionDenied')
-    case 'DiskFull': return t('errors.diskFull')
-    case 'ModPathNotFound': return t('errors.modPathNotFound', { path: error.details })
-    case 'CopyFailed': return t('errors.copyFailed', { error: error.details })
-    case 'SymlinkFailed': return t('errors.symlinkFailed', { error: error.details })
-    case 'HardlinkFailed': return t('errors.hardlinkFailed', { error: error.details })
-    case 'DirectoryCreationFailed': return t('errors.directoryCreationFailed', { error: error.details })
-    case 'RemovalFailed': return t('errors.removalFailed', { error: error.details })
-    default: return t('errors.unknownError', { error: JSON.stringify(error) })
   }
 }
 
@@ -92,7 +76,7 @@ const title = computed(() => {
 
 const errorMessage = computed(() => {
   if (syncStateStore?.status === SyncStatus.FAILED && syncStateStore.error) {
-    return getErrorMessage(t, syncStateStore.error)
+    return getSyncErrorMessage(t, syncStateStore.error)
   }
   return ''
 })
@@ -240,13 +224,13 @@ const {isDev} = useDev()
               </span>
 
               <div class="flex-1 min-w-0 gap-2 flex">
-                <span class="text-text-primary truncate block" :title="item.data.modName">
+                <span class="text-text-primary truncate block flex-1" :title="item.data.modName">
                   {{ item.data.modName }}
                 </span>
 
                 <span v-if="item.data.error" class="text-error text-xs mr-2"
-                  :title="'details' in item.data.error ? item.data.error.details : ''">
-                  {{ getErrorMessage(t, item.data.error) }}
+                  :title="item.data.error.message">
+                  {{ getSyncErrorMessage(t, item.data.error) }}
                 </span>
               </div>
             </div>
