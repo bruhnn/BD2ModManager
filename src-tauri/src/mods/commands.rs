@@ -59,39 +59,67 @@ pub fn disable_mods(
 }
 
 #[tauri::command]
-pub fn preview_mod(app_handle: AppHandle, state: tauri::State<AppState>, mod_name: String) -> Result<(), AppError> {
-    let mod_manager = state.mod_manager.lock().unwrap();
-    let _mod: BD2Mod = mod_manager.get_mod_by_name(&mod_name).ok_or_else(|| PreviewError::ModNotFound { mod_name: mod_name.clone() })?;
-    
-    // check if the mod has errors, like it is a zip file that is not extracted, or a folder that is missing required files, but for example it is only missing modfile there is no problem
-    // BD2ModError
-    if _mod.errors.iter().any(|e| !matches!(e, BD2ModError::MissingModfile | BD2ModError::HasConflict)) {
-        return Err(PreviewError::ModHasErrors {
-            mod_name: mod_name.clone()
-        })?;
-    }
+pub async fn preview_mod(
+    app_handle: AppHandle,
+    state: tauri::State<'_, AppState>,
+    mod_name: String,
+) -> Result<(), AppError> {
+    let mod_manager_handle = state.mod_manager.clone();
 
-    let path_buf = PathBuf::from(&_mod.path);
-
-    if !path_buf.exists() {
-        return Err(PreviewError::ModNotFound { mod_name: mod_name.clone() })?;
-    }
-
-    if is_texture_mod(&path_buf) {
-        return Ok(preview_image(app_handle, &path_buf)?);
-    }
-
-    if let Some(mod_preview_exe) = get_mod_preview_path(&app_handle) {
-        std::process::Command::new(mod_preview_exe)
-            .arg(&path_buf)
-            .spawn()
-            .map_err(|err| match err.kind() {
-                ErrorKind::NotFound => PreviewError::ModPreviewNotFound,
-                _ => PreviewError::PreviewFailed { reason: err.kind().to_string() }
+    let result = tauri::async_runtime::spawn_blocking(move || -> Result<(), AppError> {
+        let mod_manager = mod_manager_handle.lock().unwrap();
+        let _mod: BD2Mod = mod_manager
+            .get_mod_by_name(&mod_name)
+            .ok_or_else(|| PreviewError::ModNotFound {
+                mod_name: mod_name.clone(),
             })?;
-    }
+        drop(mod_manager);
 
-    Ok(())
+        // check if the mod has errors, like it is a zip file that is not extracted, or a folder that is missing required files, but for example it is only missing modfile there is no problem
+        // BD2ModError
+        if _mod.errors.iter().any(|e| {
+            !matches!(
+                e,
+                BD2ModError::MissingModfile | BD2ModError::HasConflict
+            )
+        }) {
+            return Err(PreviewError::ModHasErrors {
+                mod_name: mod_name.clone(),
+            })?;
+        }
+
+        let path_buf = PathBuf::from(&_mod.path);
+
+        if !path_buf.exists() {
+            return Err(PreviewError::ModNotFound {
+                mod_name: mod_name.clone(),
+            })?;
+        }
+
+        if is_texture_mod(&path_buf) {
+            return Ok(preview_image(app_handle, &path_buf)?);
+        }
+
+        if let Some(mod_preview_exe) = get_mod_preview_path(&app_handle) {
+            std::process::Command::new(mod_preview_exe)
+                .arg(&path_buf)
+                .spawn()
+                .map_err(|err| match err.kind() {
+                    ErrorKind::NotFound => PreviewError::ModPreviewNotFound,
+                    _ => PreviewError::PreviewFailed {
+                        reason: err.kind().to_string(),
+                    },
+                })?;
+        }
+
+        Ok(())
+    })
+    .await;
+
+    result.map_err(|error| {
+        error!("Preview mod task panicked: {:?}", error);
+        AppError::Unknown(format!("{:?}", error))
+    })?
 }
 
 #[tauri::command]
@@ -302,11 +330,23 @@ pub async fn rename_mod(
 /// [INFO] Metadata commnds
 
 #[tauri::command]
-pub fn set_mod_author(
-    state: tauri::State<AppState>,
+pub async fn set_mod_author(
+    state: tauri::State<'_, AppState>,
     mod_names: Vec<String>,
     author: Option<String>,
 ) -> Result<Vec<BD2Mod>, AppError> {
-    let mut mod_manager = state.mod_manager.lock().unwrap();
-    mod_manager.set_mod_author(mod_names, author).map_err(AppError::Metadata)
+    let mod_manager_handle = state.mod_manager.clone();
+
+    let result = tauri::async_runtime::spawn_blocking(move || {
+        let mut mod_manager = mod_manager_handle.lock().unwrap();
+        mod_manager.set_mod_author(mod_names, author)
+    })
+    .await;
+
+    result
+        .map_err(|error| {
+            error!("Set mod author task panicked: {:?}", error);
+            AppError::Unknown(format!("{:?}", error))
+        })?
+        .map_err(AppError::Metadata)
 }
