@@ -1,9 +1,15 @@
-use crate::{updater, utils::path::get_mod_preview_path};
+use crate::{
+    updater::{self, game_data::GameDataUpdateError, mod_preview::ModPreviewUpdateError},
+    utils::path::get_mod_preview_path,
+};
 use log::{debug, info};
 use serde::{Deserialize, Serialize};
 use std::sync::Mutex;
-use tauri::{AppHandle, Emitter, State};
-use tauri_plugin_updater::{Update};
+use tauri::ipc::Channel;
+use tauri::AppHandle;
+#[cfg(not(feature = "portable"))]
+use tauri::State;
+use tauri_plugin_updater::Update;
 use tokio::io::AsyncWriteExt;
 
 #[cfg(feature = "portable")]
@@ -62,41 +68,53 @@ mod portable {
     }
 }
 
-#[derive(Debug, Deserialize, Serialize, Clone)]
-#[serde(rename_all = "camelCase")]
-pub struct UpdateAvailablePayload {
-    latest_version: String,
-    download_url: String,
-}
-
-#[derive(Debug, Deserialize, Serialize, Clone)]
-struct ProgressPayload {
-    version: String,
-    progress: u8,
+#[derive(Clone, Serialize)]
+#[serde(tag = "event", content = "data", rename_all_fields = "camelCase")]
+pub enum DownloadEvent {
+    #[serde(rename_all = "camelCase")]
+    Started {
+        total_size: Option<u64>,
+    },
+    #[serde(rename_all = "camelCase")]
+    Progress {
+        chunk_length: usize,
+    },
+    Finished,
 }
 
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
-pub struct UpdateMetadata {
-    version: String,
+pub struct AppUpdateMetadata {
+    version_available: String,
     current_version: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     download_url: Option<String>,
     changelog: Option<Vec<String>>,
+    is_update_recommended: bool,
+}
+
+#[derive(Debug, Deserialize, Serialize, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct ModPreviewUpdateMetadata {
+    version_available: String,
+    current_version: String,
+    download_url: String,
 }
 
 #[derive(Debug, thiserror::Error)]
-pub enum UpdateError {
+pub enum AppUpdateError {
     #[error(transparent)]
     Updater(#[from] tauri_plugin_updater::Error),
     #[error("there is no pending update")]
     NoPendingUpdate,
+    #[error("update was not downloaded")]
+    UpdateNotDownloaded,
     #[cfg(feature = "portable")]
     #[error("update check failed: {0}")]
     CheckFailed(String),
 }
 
-impl Serialize for UpdateError {
+impl Serialize for AppUpdateError {
     fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
     where
         S: serde::Serializer,
@@ -105,8 +123,9 @@ impl Serialize for UpdateError {
     }
 }
 
-pub struct PendingUpdate(pub Mutex<Option<(Update, Vec<u8>)>>);
-pub type ResultUpdate<T> = std::result::Result<T, UpdateError>;
+// Update, Bytes
+pub struct PendingUpdate(pub Mutex<Option<(Update, Option<Vec<u8>>)>>);
+pub type AppUpdateResult<T> = std::result::Result<T, AppUpdateError>;
 
 pub fn get_app_version(app: &AppHandle) -> String {
     app.package_info().version.to_string()
@@ -120,202 +139,187 @@ pub fn get_mod_preview_version(app_handle: AppHandle) -> Option<String> {
 #[tauri::command]
 pub async fn check_for_mod_preview_update(
     app_handle: AppHandle,
-) -> Result<UpdateAvailablePayload, String> {
-    let (latest_version, _download_url) = updater::mod_preview::check_for_update(app_handle).await?;
+) -> Result<Option<ModPreviewUpdateMetadata>, ModPreviewUpdateError> {
 
-    debug!(
-        "Checked for mod preview update: latest version {}, download URL: {}",
-        latest_version.as_deref().unwrap_or_default(),
-        _download_url.as_deref().unwrap_or_default()
-    );
+    let update = updater::mod_preview::check_for_update(&app_handle).await?;
 
-    if let Some(download_url) = _download_url {
+    let current_version =
+        updater::mod_preview::get_mod_preview_version(app_handle).unwrap_or_default();
+
+    if let Some(update) = update {
+        debug!(
+            "Checked for mod preview update: latest version {}, download URL: {}",
+            update.version, update.download_url
+        );
         info!(
             "Mod preview update available: version {}, URL: {}",
-            latest_version.as_deref().unwrap_or_default(),
-            download_url
+            update.version, update.download_url
         );
-        Ok(UpdateAvailablePayload {
-            latest_version: latest_version.unwrap_or_default(),
-            download_url,
-        })
-    } else {
-        Err("No update available".to_string())
+
+        return Ok(Some(ModPreviewUpdateMetadata {
+            version_available: update.version,
+            current_version,
+            download_url: update.download_url,
+        }));
     }
+
+    Ok(None)
 }
 
 #[tauri::command]
-pub async fn update_mod_preview(app_handle: AppHandle) {
-    app_handle.emit("update:modPreview:checking", ()).ok();
+pub async fn download_mod_preview(
+    app_handle: AppHandle,
+    on_event: Channel<DownloadEvent>,
+) -> Result<bool, ModPreviewUpdateError> {
 
-    let result = updater::mod_preview::check_for_update(app_handle.clone()).await;
+
+    let result = updater::mod_preview::check_for_update(&app_handle).await;
 
     match result {
-        Ok((Some(latest_version), Some(download_url))) => {
-            app_handle
-                .emit(
-                    "update:modPreview:available",
-                    (latest_version.clone(), download_url.clone()),
-                )
-                .ok();
-
-            let dest_path = match get_mod_preview_path(&app_handle) {
-                Some(p) => p,
-                None => {
-                    app_handle
-                        .emit(
-                            "update:modPreview:error",
-                            "Failed to resolve mod preview path",
-                        )
-                        .ok();
-                    return;
-                }
-            };
+        Ok(Some(update)) => {
+            let dest_path = get_mod_preview_path(&app_handle)
+                .ok_or(ModPreviewUpdateError::InstallationPathNotFound)?;
 
             if let Some(parent) = dest_path.parent() {
-                if let Err(e) = tokio::fs::create_dir_all(parent).await {
-                    app_handle
-                        .emit(
-                            "update:modPreview:error",
-                            format!("Failed to create directory: {e}"),
-                        )
-                        .ok();
-                    return;
-                }
+                tokio::fs::create_dir_all(parent).await.map_err(|source| {
+                    ModPreviewUpdateError::SaveFailed {
+                        path: parent.to_string_lossy().into_owned(),
+                        source,
+                    }
+                })?;
             }
 
             let client = reqwest::Client::new();
-            let response = match client
-                .get(&download_url)
+            let response = client
+                .get(&update.download_url)
                 .header("User-Agent", "BD2ModManager")
                 .send()
                 .await
-            {
-                Ok(r) => r,
-                Err(e) => {
-                    app_handle
-                        .emit(
-                            "update:modPreview:error",
-                            format!("Download request failed: {e}"),
-                        )
-                        .ok();
-                    return;
-                }
-            };
+                .map_err(|e| ModPreviewUpdateError::DownloadFailed {
+                    reason: e.to_string(),
+                })?;
 
             if !response.status().is_success() {
-                app_handle
-                    .emit(
-                        "update:modPreview:error",
-                        format!("Download failed: HTTP {}", response.status()),
-                    )
-                    .ok();
-                return;
+                return Err(ModPreviewUpdateError::DownloadFailed {
+                    reason: format!("server returned HTTP {}", response.status()),
+                });
             }
 
-            let total_size = response.content_length().unwrap_or(0);
-            let mut downloaded: u64 = 0;
+            let total_size = response.content_length();
 
-            let mut file = match tokio::fs::File::create(&dest_path).await {
-                Ok(f) => f,
-                Err(e) => {
-                    app_handle
-                        .emit(
-                            "update:modPreview:error",
-                            format!("Failed to create file: {e}"),
-                        )
-                        .ok();
-                    return;
-                }
-            };
+            let _ = on_event.send(DownloadEvent::Started { total_size });
+
+            let mut file = tokio::fs::File::create(&dest_path)
+                .await
+                .map_err(|source| ModPreviewUpdateError::SaveFailed {
+                    path: dest_path.to_string_lossy().into_owned(),
+                    source,
+                })?;
 
             let mut stream = response.bytes_stream();
             use futures_util::StreamExt;
 
             while let Some(chunk) = stream.next().await {
-                let chunk = match chunk {
-                    Ok(c) => c,
-                    Err(e) => {
-                        app_handle
-                            .emit("update:modPreview:error", format!("Download error: {e}"))
-                            .ok();
-                        return;
+                let chunk = chunk.map_err(|e| ModPreviewUpdateError::DownloadFailed {
+                    reason: e.to_string(),
+                })?;
+
+                file.write_all(&chunk).await.map_err(|source| {
+                    ModPreviewUpdateError::SaveFailed {
+                        path: dest_path.to_string_lossy().into_owned(),
+                        source,
                     }
-                };
+                })?;
 
-                if let Err(e) = file.write_all(&chunk).await {
-                    app_handle
-                        .emit("update:modPreview:error", format!("Write error: {e}"))
-                        .ok();
-                    return;
-                }
-
-                downloaded += chunk.len() as u64;
-
-                let progress = if total_size > 0 {
-                    (downloaded as f64 / total_size as f64 * 100.0) as u8
-                } else {
-                    0
-                };
-
-                app_handle
-                    .emit(
-                        "update:modPreview:downloading",
-                        ProgressPayload {
-                            version: latest_version.clone(),
-                            progress,
-                        },
-                    )
-                    .ok();
+                let _ = on_event.send(DownloadEvent::Progress {
+                    chunk_length: chunk.len(),
+                });
             }
 
-            app_handle
-                .emit("update:modPreview:downloaded", latest_version.clone())
-                .ok();
+            file.flush()
+                .await
+                .map_err(|source| ModPreviewUpdateError::SaveFailed {
+                    path: dest_path.to_string_lossy().into_owned(),
+                    source,
+                })?;
+
+            let _ = on_event.send(DownloadEvent::Finished);
+            Ok(true)
         }
 
-        Ok((None, None)) => {
-            app_handle.emit("update:modPreview:uptodate", ()).ok();
-        }
+        Ok(None) => Ok(false),
 
-        Ok(_) => {
-            app_handle
-                .emit("update:modPreview:error", "Invalid update state")
-                .ok();
-        }
-
-        Err(err) => {
-            app_handle.emit("update:modPreview:error", err).ok();
-        }
+        Err(err) => Err(err),
     }
 }
 
+
+#[derive(Debug, Clone, Copy, Serialize)]
+#[serde(rename_all = "snake_case")]
+pub enum GameDataResource {
+    Characters,
+    CharacterAssets,
+}
+
+#[derive(Debug, Serialize, Clone)]
+pub struct GameDataDownloadProgress {
+    pub percentage: Option<u8>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub current: Option<u32>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub total: Option<u32>,
+}
+
+#[derive(Debug, Serialize)]
+#[serde(tag = "event", content = "data")]
+pub enum GameDataEvent {
+    Started,
+    Updating {
+        resource: String,
+        percentage: u8,
+        label: String,
+        #[serde(skip_serializing_if = "Option::is_none")]
+        download: Option<GameDataDownloadProgress>,
+    },
+    Updated {
+        resource: String,
+        label: String,
+    },
+    Finished,
+}
+
 #[tauri::command]
-pub async fn update_game_data(app_handle: AppHandle) -> Result<(), String> {
-    updater::game_data::update_characters(app_handle).await
+pub async fn update_game_data(app_handle: AppHandle, on_event: Channel<GameDataEvent>) -> Result<(), GameDataUpdateError> {
+    updater::game_data::update_characters(app_handle, on_event).await
 }
 
 #[cfg(feature = "portable")]
 #[tauri::command]
-pub async fn check_for_app_update(app_handle: AppHandle) -> ResultUpdate<Option<UpdateMetadata>> {
+pub async fn check_for_app_update(
+    app_handle: AppHandle,
+    dev_return_version: Option<String>,
+) -> AppUpdateResult<Option<AppUpdateMetadata>> {
+    let _ = dev_return_version;
+
     match portable::fetch_app_latest_version(&app_handle).await {
         Ok((latest_version, download_url, changelog)) => {
             let local_version = get_app_version(&app_handle);
             let local_ver = semver::Version::parse(&local_version)
-                .map_err(|e| UpdateError::CheckFailed(format!("Invalid local version: {e}")))?;
+                .map_err(|e| AppUpdateError::CheckFailed(format!("Invalid local version: {e}")))?;
 
             if latest_version <= local_ver {
                 return Ok(None);
             }
 
-            Ok(Some(UpdateMetadata {
-                version: latest_version.to_string(),
+            Ok(Some(AppUpdateMetadata {
+                version_available: latest_version.to_string(),
                 current_version: local_version,
                 download_url: Some(download_url),
                 changelog: Some(changelog),
+                is_update_recommended: false,
             }))
         }
-        Err(e) => Err(UpdateError::CheckFailed(e)),
+        Err(e) => Err(AppUpdateError::CheckFailed(e)),
     }
 }
 
@@ -324,7 +328,10 @@ pub async fn check_for_app_update(app_handle: AppHandle) -> ResultUpdate<Option<
 pub async fn check_for_app_update(
     app_handle: AppHandle,
     pending_update: State<'_, PendingUpdate>,
-) -> ResultUpdate<Option<UpdateMetadata>> {
+    dev_return_version: Option<String>,
+) -> AppUpdateResult<Option<AppUpdateMetadata>> {
+    let _ = dev_return_version;
+
     use reqwest::header::{HeaderMap, HeaderValue};
     use tauri_plugin_updater::UpdaterExt;
 
@@ -344,17 +351,93 @@ pub async fn check_for_app_update(
     match update {
         None => Ok(None),
         Some(update) => {
-            let metadata = UpdateMetadata {
-                version: update.version.clone(),
+            let metadata = AppUpdateMetadata {
+                version_available: update.version.clone(),
                 current_version: update.current_version.clone(),
                 download_url: None,
                 changelog: None,
+                is_update_recommended: false,
             };
 
-            let bytes = update.download(|_, _| {}, || {}).await?;
-            *pending_update.0.lock().unwrap() = Some((update, bytes));
+            // let bytes = update.download(|_, _| {}, || {}).await?;
+            // *pending_update.0.lock().unwrap() = Some((update, bytes));
+            *pending_update.0.lock().unwrap() = Some((update, None));
 
             Ok(Some(metadata))
+        }
+    }
+}
+
+#[cfg(not(feature = "portable"))]
+#[tauri::command]
+pub async fn download_app_update(
+    pending_update: State<'_, PendingUpdate>,
+    on_event: Channel<DownloadEvent>,
+) -> AppUpdateResult<()> {
+    #[cfg(debug_assertions)]
+    {
+        let _ = pending_update;
+
+        const TOTAL_BYTES: usize = 200 * 1024 * 1024;
+        const CHUNK_BYTES: usize = 512 * 1024;
+
+        let _ = on_event.send(DownloadEvent::Started {
+            total_size: Some(TOTAL_BYTES as u64),
+        });
+
+        let mut downloaded = 0;
+
+        while downloaded < TOTAL_BYTES {
+            let chunk_length = CHUNK_BYTES.min(TOTAL_BYTES - downloaded);
+
+            tokio::time::sleep(std::time::Duration::from_millis(75)).await;
+            let _ = on_event.send(DownloadEvent::Progress { chunk_length });
+
+            downloaded += chunk_length;
+        }
+
+        let _ = on_event.send(DownloadEvent::Finished);
+        Ok(())
+    }
+
+    #[cfg(not(debug_assertions))]
+    {
+        let Some((update, bytes)) = pending_update.0.lock().unwrap().take() else {
+            return Err(AppUpdateError::NoPendingUpdate);
+        };
+
+        if bytes.is_some() {
+            *pending_update.0.lock().unwrap() = Some((update, bytes));
+            return Ok(());
+        }
+
+        let mut started = false;
+
+        let result = update
+            .download(
+                |chunk_length, total_size| {
+                    if !started {
+                        let _ = on_event.send(DownloadEvent::Started { total_size });
+                        started = true;
+                    }
+
+                    let _ = on_event.send(DownloadEvent::Progress { chunk_length });
+                },
+                || {
+                    let _ = on_event.send(DownloadEvent::Finished);
+                },
+            )
+            .await;
+
+        match result {
+            Ok(bytes) => {
+                *pending_update.0.lock().unwrap() = Some((update, Some(bytes)));
+                Ok(())
+            }
+            Err(error) => {
+                *pending_update.0.lock().unwrap() = Some((update, None));
+                Err(error.into())
+            }
         }
     }
 }
@@ -364,11 +447,22 @@ pub async fn check_for_app_update(
 pub async fn install_app_update(
     app_handle: AppHandle,
     pending_update: State<'_, PendingUpdate>,
-) -> ResultUpdate<()> {
+) -> AppUpdateResult<()> {
     let Some((update, bytes)) = pending_update.0.lock().unwrap().take() else {
-        return Err(UpdateError::NoPendingUpdate);
+        return Err(AppUpdateError::NoPendingUpdate);
     };
 
-    update.install(bytes)?;
+    let Some(bytes) = bytes else {
+        *pending_update.0.lock().unwrap() = Some((update, None));
+        return Err(AppUpdateError::UpdateNotDownloaded);
+    };
+
+    // [TODO] add a way to check if the game is doing syncing to block the restart
+
+    if let Err(error) = update.install(&bytes) {
+        *pending_update.0.lock().unwrap() = Some((update, Some(bytes)));
+        return Err(error.into());
+    }
+
     app_handle.restart();
 }

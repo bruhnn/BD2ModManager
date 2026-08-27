@@ -1,7 +1,64 @@
 use crate::utils::path::get_mod_preview_path;
 use pelite::{FileMap, PeFile};
 use semver::Version;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
+
+#[derive(Debug, thiserror::Error)]
+pub enum ModPreviewUpdateError {
+    #[error("failed to check for Mod Preview updates: {reason}")]
+    CheckFailed { reason: String },
+    #[error("BD2ModPreview.exe was not found in the latest release")]
+    ReleaseFileNotFound,
+    #[error("the Mod Preview installation path could not be found")]
+    InstallationPathNotFound,
+    #[error("failed to download Mod Preview: {reason}")]
+    DownloadFailed { reason: String },
+    #[error("failed to save Mod Preview to '{path}': {source}")]
+    SaveFailed {
+        path: String,
+        #[source]
+        source: std::io::Error,
+    },
+}
+
+impl Serialize for ModPreviewUpdateError {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        use serde::ser::SerializeStruct;
+        use serde_json::json;
+
+        let (type_, details) = match self {
+            ModPreviewUpdateError::CheckFailed { reason } => {
+                ("CheckFailed", Some(json!({ "reason": reason })))
+            }
+            ModPreviewUpdateError::ReleaseFileNotFound => ("ReleaseFileNotFound", None),
+            ModPreviewUpdateError::InstallationPathNotFound => ("InstallationPathNotFound", None),
+            ModPreviewUpdateError::DownloadFailed { reason } => {
+                ("DownloadFailed", Some(json!({ "reason": reason })))
+            }
+            ModPreviewUpdateError::SaveFailed { path, source } => (
+                "SaveFailed",
+                Some(json!({
+                    "path": path,
+                    "kind": format!("{:?}", source.kind()),
+                })),
+            ),
+        };
+
+        let mut state = serializer.serialize_struct("ModPreviewUpdateError", 3)?;
+        state.serialize_field("type", type_)?;
+        state.serialize_field("details", &details)?;
+        state.serialize_field("message", &self.to_string())?;
+        state.end()
+    }
+}
+
+pub struct ModPreviewUpdate {
+    pub version: String,
+    pub download_url: String,
+}
 
 #[derive(Debug, Deserialize)]
 struct GitHubRelease {
@@ -39,11 +96,14 @@ pub fn get_mod_preview_version(app_handle: tauri::AppHandle) -> Option<String> {
         }
     }
 
-    log::warn!("Version not found in mod preview executable at {:?}", exe_path);
+    log::warn!(
+        "Version not found in mod preview executable at {:?}",
+        exe_path
+    );
     None
 }
 
-async fn get_latest_mod_preview_version() -> Result<(Version, String), String> {
+async fn get_latest_mod_preview_version() -> Result<(Version, String), ModPreviewUpdateError> {
     let client = reqwest::Client::new();
 
     let release: GitHubRelease = client
@@ -52,10 +112,14 @@ async fn get_latest_mod_preview_version() -> Result<(Version, String), String> {
         .timeout(std::time::Duration::from_secs(10))
         .send()
         .await
-        .map_err(|e| format!("Request failed: {e}"))?
+        .map_err(|e| ModPreviewUpdateError::CheckFailed {
+            reason: format!("request failed: {e}"),
+        })?
         .json()
         .await
-        .map_err(|e| format!("Invalid JSON: {e}"))?;
+        .map_err(|e| ModPreviewUpdateError::CheckFailed {
+            reason: format!("invalid response: {e}"),
+        })?;
 
     let latest_version = release.tag_name.trim_start_matches('v');
 
@@ -63,17 +127,19 @@ async fn get_latest_mod_preview_version() -> Result<(Version, String), String> {
         .assets
         .iter()
         .find(|a| a.name == "BD2ModPreview.exe")
-        .ok_or("BD2ModPreview.exe not found in release")?;
+        .ok_or(ModPreviewUpdateError::ReleaseFileNotFound)?;
 
     let version =
-        Version::parse(latest_version).map_err(|e| format!("Invalid remote version: {e}"))?;
+        Version::parse(latest_version).map_err(|e| ModPreviewUpdateError::CheckFailed {
+            reason: format!("invalid remote version: {e}"),
+        })?;
 
     Ok((version, asset.browser_download_url.clone()))
 }
 
 pub async fn check_for_update(
-    app_handle: tauri::AppHandle,
-) -> Result<(Option<String>, Option<String>), String> {
+    app_handle: &tauri::AppHandle,
+) -> Result<Option<ModPreviewUpdate>, ModPreviewUpdateError> {
     let local_version = get_mod_preview_version(app_handle.clone());
     let (latest_version, download_url) = get_latest_mod_preview_version().await?;
 
@@ -84,16 +150,20 @@ pub async fn check_for_update(
     );
 
     if let Some(local) = local_version {
-        let local_ver =
-            Version::parse(&local).map_err(|e| format!("Invalid local version: {e}"))?;
+        let local_ver = Version::parse(&local).map_err(|e| ModPreviewUpdateError::CheckFailed {
+            reason: format!("invalid local version: {e}"),
+        })?;
 
         if latest_version <= local_ver {
             log::info!("Mod preview is up to date");
-            return Ok((None, None));
+            return Ok(None);
         }
     }
 
     log::info!("Mod preview update available: {}", latest_version);
-    
-    Ok((Some(latest_version.to_string()), Some(download_url)))
+
+    Ok(Some(ModPreviewUpdate {
+        version: latest_version.to_string(),
+        download_url,
+    }))
 }

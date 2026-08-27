@@ -214,9 +214,11 @@ pub fn run() {
             updater::commands::get_mod_preview_version,
             updater::commands::check_for_app_update,
             #[cfg(not(feature = "portable"))]
+            updater::commands::download_app_update,
+            #[cfg(not(feature = "portable"))]
             updater::commands::install_app_update,
             updater::commands::check_for_mod_preview_update,
-            updater::commands::update_mod_preview,
+            updater::commands::download_mod_preview,
             updater::commands::update_game_data,
             // migration
             migrate::commands::get_legacy_profiles,
