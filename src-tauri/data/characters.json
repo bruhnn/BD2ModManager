@@ -1,5 +1,5 @@
 {
-    "version": "0.0.26",
+    "version": "0.0.27",
     "characters": [
         {
             "id": "000708",
@@ -7295,6 +7295,80 @@
                 "head_image": "icon_char061392_223.png",
                 "character_image": "illust_inven_char061392_220.png",
                 "skill_image": "illust_skill_char061392_220.png"
+            }
+        },
+        {
+            "id": "067901",
+            "character": "Aquila",
+            "costume": "Savage Warrior",
+            "is_collab": false,
+            "cutscene": true,
+            "standing": true,
+            "dating_id": null,
+            "character_image": "illust_inven_char067901_222.png",
+            "skill_preview_image": "illust_skill_char067901_222.png",
+            "release_date": "2026-08-27",
+            "gender": "female",
+            "costume_id": "067901",
+            "character_id": 679,
+            "character_name": {
+                "en": "Aquila",
+                "cn": "阿奇拉",
+                "jp": "アクィラ",
+                "tw": "阿奇拉",
+                "kr": "아킬라"
+            },
+            "costume_name": {
+                "en": "Savage Warrior",
+                "cn": "战场猛兽",
+                "jp": "戦場の野獣",
+                "tw": "戰場猛獸",
+                "kr": "전장의 야수"
+            },
+            "skin_type": "normal",
+            "grade": 5,
+            "element": "fire",
+            "assets": {
+                "head_image": "icon_char067901_226.png",
+                "character_image": "illust_inven_char067901_222.png",
+                "skill_image": "illust_skill_char067901_222.png"
+            }
+        },
+        {
+            "id": "003793",
+            "character": "Blade",
+            "costume": "Tender Dream",
+            "is_collab": false,
+            "cutscene": true,
+            "standing": true,
+            "dating_id": null,
+            "character_image": "illust_inven_char003793_223.png",
+            "skill_preview_image": "illust_skill_char003793_223.png",
+            "release_date": "2026-08-27",
+            "gender": "female",
+            "costume_id": "003793",
+            "character_id": 37,
+            "character_name": {
+                "en": "Blade",
+                "cn": "布莱德",
+                "jp": "ブレイド",
+                "tw": "布萊德",
+                "kr": "블레이드"
+            },
+            "costume_name": {
+                "en": "Tender Dream",
+                "cn": "薄梦阑珊",
+                "jp": "微睡みの夢心地",
+                "tw": "慵懶夢境",
+                "kr": "나른한 꿈결"
+            },
+            "skin_type": "special",
+            "grade": 5,
+            "element": "dark",
+            "assets": {
+                "head_image": "icon_char003793_227.png",
+                "character_image": "illust_inven_char003793_223.png",
+                "skill_image": "illust_skill_char003793_223.png"
             }
         }
     ],
