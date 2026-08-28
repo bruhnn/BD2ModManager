@@ -7006,11 +7006,11 @@
             "character": "Elise",
             "costume": "Naive Lady",
             "is_collab": false,
-            "cutscene": false,
-            "standing": false,
+            "cutscene": true,
+            "standing": true,
             "dating_id": null,
             "character_image": "illust_inven_char060804_207.png",
-            "skill_preview_image": null,
+            "skill_preview_image": "illust_skill_char060804_207.png",
             "release_date": "2026-07-02",
             "gender": "female",
             "costume_id": "060804",
@@ -7035,7 +7035,7 @@
             "assets": {
                 "head_image": "icon_char060804_210.png",
                 "character_image": "illust_inven_char060804_207.png",
-                "skill_image": null
+                "skill_image": "illust_skill_char060804_207.png"
             }
         },
         {
@@ -7043,11 +7043,11 @@
             "character": "Nebris",
             "costume": "Lucky Bikini",
             "is_collab": false,
-            "cutscene": false,
-            "standing": false,
+            "cutscene": true,
+            "standing": true,
             "dating_id": null,
             "character_image": "illust_inven_char003392_212.png",
-            "skill_preview_image": null,
+            "skill_preview_image": "illust_skill_char003392_212.png",
             "release_date": "2026-07-02",
             "gender": "female",
             "costume_id": "003392",
@@ -7072,7 +7072,7 @@
             "assets": {
                 "head_image": "icon_char003392_215.png",
                 "character_image": "illust_inven_char003392_212.png",
-                "skill_image": null
+                "skill_image": "illust_skill_char003392_212.png"
             }
         },
         {
@@ -7080,11 +7080,11 @@
             "character": "Dalvi",
             "costume": "Tricky Lover",
             "is_collab": false,
-            "cutscene": false,
-            "standing": false,
+            "cutscene": true,
+            "standing": true,
             "dating_id": null,
             "character_image": "illust_inven_char061306_208.png",
-            "skill_preview_image": null,
+            "skill_preview_image": "illust_skill_char061306_208.png",
             "release_date": "2026-07-16",
             "gender": "female",
             "costume_id": "061306",
@@ -7109,7 +7109,7 @@
             "assets": {
                 "head_image": "icon_char061306_211.png",
                 "character_image": "illust_inven_char061306_208.png",
-                "skill_image": null
+                "skill_image": "illust_skill_char061306_208.png"
             }
         },
         {
