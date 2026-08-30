@@ -80,6 +80,8 @@ body {
   --color-error-bg: var(--error-bg);
   --color-info: var(--info);
   --color-info-bg: var(--info-bg);
+  --color-debug: var(--debug);
+  --color-debug-bg: var(--debug-bg);
 
   --color-changelog-added: var(--changelog-added);
   --color-changelog-added-bg: var(--changelog-added-bg);

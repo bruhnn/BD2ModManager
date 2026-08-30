@@ -41,6 +41,8 @@
   --error-bg:   rgba(217, 107, 107, 0.12);
   --info:       #6aa3d9;
   --info-bg:    rgba(106, 163, 217, 0.12);
+  --debug:      #a98fc9;
+  --debug-bg:   rgba(169, 143, 201, 0.13);
 
   --changelog-added:       #69c589;
   --changelog-added-bg:    rgba(105, 197, 137, 0.13);

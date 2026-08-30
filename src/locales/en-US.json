@@ -36,6 +36,39 @@
             "brownDustXOutdated": {
                 "title": "BrownDustX Outdated",
                 "message": "BrownDustX is out of date. Mods will not work until it is updated."
+            },
+            "logs": {
+                "cleared": {
+                    "title": "Logs Cleared"
+                },
+                "copied": {
+                    "title": "Logs Copied to Clipboard"
+                }
+            },
+        "modals": {
+            "logs": {
+                "title": "Logs",
+                "noLogs": "No logs available.",
+                "levels": {
+                    "debug": "Debug",
+                    "success": "Success",
+                    "info": "Info",
+                    "warning": "Warn",
+                    "error": "Error"
+                },
+                "sources": {
+                    "frontend": "Frontend",
+                    "backend": "Backend"
+                },
+                "actions": {
+                    "clear": "Clear all logs",
+                    "goToFirst": "Jump to first log",
+                    "goToLast": "Jump to latest log",
+                    "copyAll": "Copy all logs to clipboard",
+                    "openFolder": "Open logs folder"
+                }
+            },
+            },
             }
         }
     },

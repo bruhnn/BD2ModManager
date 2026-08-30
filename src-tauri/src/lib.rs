@@ -92,6 +92,11 @@ pub fn run() {
                     tauri_plugin_log::Target::new(tauri_plugin_log::TargetKind::LogDir {
                         file_name: Some("logs".to_string()),
                     }),
+                    tauri_plugin_log::Target::new(tauri_plugin_log::TargetKind::Webview).format(
+                        |out, message, record| {
+                            out.finish(format_args!("[{}] {}", record.target(), message))
+                        },
+                    ),
                 ])
                 .filter(|metadata| {
                     !(cfg!(debug_assertions)
@@ -229,6 +234,7 @@ pub fn run() {
             utils::commands::path_exists,
             utils::commands::is_portable,
             utils::commands::get_user_locale,
+            utils::commands::get_logs_directory,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

@@ -1,5 +1,5 @@
-use log::info;
 use serde::{Deserialize, Serialize};
+use log::{error, info};
 use std::{fs::File, path::PathBuf};
 use zip::ZipArchive;
 

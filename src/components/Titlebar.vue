@@ -17,7 +17,6 @@ import { useNotificationStore } from '../stores/notification';
 import { usePortable } from '../composables/usePortable';
 import GithubIcon from './icons/GithubIcon.vue';
 import KofiIcon from './icons/KofiIcon.vue';
-import { useDev } from '../composables/useDev';
 import { invoke } from '@tauri-apps/api/core';
 import AfDianIcon from './icons/AfDianIcon.vue';
 
@@ -186,7 +185,6 @@ function handleKofiClick() {
     openUrl("https://ko-fi.com/bruhnn")
 }
 
-const { isDev } = useDev()
 
 const isCheckingForUpdates = ref(false)
 const isCheckingDisplay = ref(false)
@@ -417,6 +415,14 @@ watch(() => settingsStore.appUpdateStatus?.checking, (checking) => {
 
             <div class="flex items-center shrink-0 gap-1">
                 <button v-if="isChineseLanguage" class="flex items-center gap-1 md:gap-2 cursor-pointer hover:bg-accent-hover hover:text-text-on-accent rounded-sm px-2 py-1 transition-colors duration-200" @click="handleAfdianClick">
+                <button
+                    class="flex items-center gap-1 md:gap-2 cursor-pointer hover:bg-accent-hover hover:text-text-on-accent rounded-sm px-2.5 py-1 transition-colors duration-200"
+                    @click="handleLogsClick">
+                    <ScrollText class="w-[1.25em] h-[1.25em]" />
+                    <span class="hidden min-[1152px]:inline font-semibold text-sm">
+                        {{ $t('titlebar.actions.logs') }}
+                    </span>
+                </button>
                     <AfDianIcon class="w-[1.5em] h-[1.5em]" />
                     <span class="font-mono hidden lg:inline font-semibold text-sm">
                         {{ $t('titlebar.actions.afdian') }}
@@ -432,12 +438,6 @@ watch(() => settingsStore.appUpdateStatus?.checking, (checking) => {
                     <GithubIcon class="w-[1.25em] h-[1.25em]" />
                     <span class="font-mono hidden lg:inline font-semibold text-sm">
                         {{ $t('titlebar.actions.github') }}
-                    </span>
-                </button>
-                <button v-if="isDev" class="flex items-center gap-1 md:gap-2 cursor-pointer hover:bg-accent-hover hover:text-text-on-accent rounded-sm px-2.5 py-1 transition-colors duration-200" @click="handleLogsClick">
-                    <ScrollText class="w-[1.25em] h-[1.25em]" />
-                    <span class="font-mono hidden lg:inline font-semibold text-sm">
-                        {{ $t('titlebar.actions.logs') }}
                     </span>
                 </button>
             </div>
