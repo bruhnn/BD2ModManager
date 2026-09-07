@@ -91,10 +91,10 @@ function onLeave(el: Element) {
 
 <template>
     <Teleport to="body">
-        <div :class="`fixed z-[60] ${config.classes}`">
+        <div :class="`fixed pointer-events-none z-60 ${config.classes}`">
             <TransitionGroup :name="config.transition" tag="div" :class="['relative flex flex-col', config.alignment]" @leave="onLeave">
                 <Notification v-for="notification in notifications" :key="notification.id" :notification="notification"
-                    class="mt-3 first:mt-0" @close="notificationStore.remove" />
+                    class="mt-3 first:mt-0 pointer-events-auto" @close="notificationStore.remove" />
             </TransitionGroup>
         </div>
     </Teleport>

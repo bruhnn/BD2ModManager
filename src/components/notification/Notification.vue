@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, watch } from 'vue'
 import type { Notification } from '../../stores/notification'
-import { AlertOctagon, AlertTriangle, Check, X } from '@lucide/vue'
+import { AlertOctagon, AlertTriangle, Check, Info, X } from '@lucide/vue'
 
 // w-fit max-w-[calc(100vw-2rem)] sm:max-w-3xl
 // noti fixed? w-80 max-w-[calc(100vw-2rem)]
@@ -131,7 +131,7 @@ function handleMouseLeave() {
                     :style="{ clipPath: `url(#clip-error-${notification.id})` }" />
             </span>
 
-            <span v-else class="relative w-4 h-4 shrink-0 mt-0.5">
+            <span v-else-if="notification.type === 'warn'" class="relative w-4 h-4 shrink-0 mt-0.5">
                 <AlertTriangle class="absolute inset-0 text-text-secondary w-4 h-4" />
                 <svg class="absolute inset-0 w-0 h-0 overflow-visible" aria-hidden="true">
                     <defs>
@@ -142,6 +142,19 @@ function handleMouseLeave() {
                 </svg>
                 <AlertTriangle class="absolute inset-0 text-warning w-4 h-4"
                     :style="{ clipPath: `url(#clip-warn-${notification.id})` }" />
+            </span>
+
+            <span v-else-if="notification.type === 'info'" class="relative w-4 h-4 shrink-0 mt-0.5">
+                <Info class="absolute inset-0 text-text-secondary w-4 h-4" />
+                <svg class="absolute inset-0 w-0 h-0 overflow-visible" aria-hidden="true">
+                    <defs>
+                        <clipPath :id="`clip-info-${notification.id}`" clipPathUnits="objectBoundingBox">
+                            <rect x="0" y="0" :width="Math.min(Math.max(progress / 100 + 0.08, 0), 1)" height="1" />
+                        </clipPath>
+                    </defs>
+                </svg>
+                <Info class="absolute inset-0 text-info w-4 h-4"
+                    :style="{ clipPath: `url(#clip-info-${notification.id})` }" />
             </span>
 
             <div class="grow min-w-0 overflow-hidden">
