@@ -8,7 +8,6 @@ export interface Notification {
     message?: string,
     duration?: number,
     closable?: boolean,
-    showProgress?: boolean,
     action?: {
         label: string,
         onClick: () => void
@@ -16,10 +15,10 @@ export interface Notification {
 }
 
 const DEFAULT_DURATION = {
-    error: 8000,
-    warn: 5000,
-    info: 3000,
-    success: 3000,
+    error: 10000,
+    warn: 8000,
+    info: 5000,
+    success: 5000,
 }
 
 export const useNotificationStore = defineStore("notification", () => {
@@ -29,6 +28,7 @@ export const useNotificationStore = defineStore("notification", () => {
         const id = Date.now()
         const duration = notification.duration ?? DEFAULT_DURATION[notification.type]
         notifications.value.push({ ...notification, id, duration })
+        return id
     }
 
     function remove(id: number) {
