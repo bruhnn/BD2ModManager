@@ -6,7 +6,7 @@ use std::{
 };
 
 use chrono::Utc;
-use log::{debug, warn, error};
+use log::{debug, warn, error, info};
 use serde::{Deserialize, Serialize};
 use tauri::Emitter;
 use tempfile::NamedTempFile;
@@ -215,8 +215,9 @@ pub fn sync_mods(
         )
         .ok();
 
-    // TODO: calculate the size that will be required to transfer, check if has space available
+    // [TODO]: calculate the size that will be required to transfer, check if has space available
     // if is disk full or permission denied => sync end
+    // using dry run
 
     let manifest_path = game_directory.join(".bd2mm.json");
     let game_mods_path = game_directory.join("BepInEx/plugins/BrownDustX/mods/BD2MM");
@@ -242,7 +243,7 @@ pub fn sync_mods(
 
     if method == SyncMethod::Symlink {
         if !can_create_symlink() {
-            debug!("Needs to be running as admin to use symlinks.");
+            warn!("Symlink requires admin privileges, cannot sync mods using symlink method.");
 
             app_handle
                 .emit(
@@ -256,6 +257,7 @@ pub fn sync_mods(
                     },
                 )
                 .ok();
+
             return Err(ModSyncError::SymlinkAdminRequired);
         }
     }
@@ -265,7 +267,8 @@ pub fn sync_mods(
     if let Some(previous_manifest) = load_manifest(&manifest_path) {
         // if method changed, then clean all synced
         if previous_manifest.method != method {
-            debug!("sync method changed, removing all synced mods.");
+            info!("Sync method changed from {:?} to {:?}, removing all synced mods.", previous_manifest.method, method);
+
             for entry in game_mods_path
                 .read_dir()
                 .unwrap_or_else(|_| fs::read_dir(".").unwrap())
@@ -540,7 +543,7 @@ pub fn sync_mods(
 
                 // get parents until BD2MM/, check if any of them has other content, if not remove, this is to remove empty dirs left by mods in subdirs
                 debug!("Checking for empty parent directories to remove for mod: {}", _mod.name);
-                
+
                 for parent in dst_path.ancestors().skip(1).take_while(|p| *p != game_mods_path) {
                     let is_empty = parent.read_dir().map(|mut i| i.next().is_none()).unwrap_or(false);
                     if is_empty {
