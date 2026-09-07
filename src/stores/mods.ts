@@ -254,6 +254,8 @@ export const useModsStore = defineStore('mods', () => {
             return
         }
 
+        debouncedSync.cancel()
+
         isSyncing.value = true;
         try {
             return await invoke("sync_mods")
@@ -267,6 +269,8 @@ export const useModsStore = defineStore('mods', () => {
             loggingStore.logDebug("Sync in progress, skipping unsync.");
             return;
         }
+
+        debouncedSync.cancel()
 
         isSyncing.value = true;
         try {
