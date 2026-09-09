@@ -85,7 +85,7 @@ export function useModActions() {
             notificationStore.add({
                 type: "error",
                 closable: true,
-                title: t("modsTab.errors.previewFailed.title", {modName: mod.name}),
+                title: t("modsTab.notifications.previewMod.error.title", {modName: mod.name}),
                 message: errorMsg,
                 duration: 5000
             })

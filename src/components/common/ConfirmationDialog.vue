@@ -56,7 +56,7 @@ const reject = () => {
 
               <div class="flex justify-between items-center shrink-0">
                 <Checkbox v-if="state.showRememberChoice" v-model="rememberChoice" input-id="remember-choice"
-                  :label="$t('modals.confirmation.rememberChoice')" />
+                  :label="$t('app.modals.confirmation.rememberChoice')" />
 
 
                 <div class="flex flex-1 justify-end gap-2 overflow-hidden">

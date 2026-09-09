@@ -42,7 +42,7 @@ export function useModInstall() {
           type: 'success',
           closable: true,
           title: t('modsTab.notifications.installMod.success.title'),
-          message: t('modsTab.notifications.installMod.success.description', { modName: mod.name })
+          message: t('modsTab.notifications.installMod.success.message', { modName: mod.name })
         })
 
         return mod
@@ -91,7 +91,7 @@ export function useModInstall() {
           type: 'success',
           closable: true,
           title: t('modsTab.notifications.installMod.success.title'),
-          message: t('modsTab.notifications.installMod.success.description', { modName: mod.name })
+          message: t('modsTab.notifications.installMod.success.message', { modName: mod.name })
         })
 
         return mod

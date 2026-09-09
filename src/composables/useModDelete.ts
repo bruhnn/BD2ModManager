@@ -33,7 +33,7 @@ export function useModDelete() {
                 notificationStore.add({
                     type: 'success',
                     title: t('modsTab.notifications.deleteMod.success.title', { count: deletedCount }),
-                    message: t('modsTab.notifications.deleteMod.success.description', {
+                    message: t('modsTab.notifications.deleteMod.success.message', {
                         count: deletedCount,
                         modName: result.deleted[0]
                     })
@@ -57,7 +57,7 @@ export function useModDelete() {
             notificationStore.add({
                 type: 'error',
                 title: t('modsTab.notifications.deleteMod.error.title', { count: totalCount }),
-                message: t('modsTab.notifications.deleteMod.error.description', {
+                message: t('modsTab.notifications.deleteMod.error.message', {
                     count: totalCount,
                     deletedCount,
                     totalCount,
@@ -97,7 +97,7 @@ export function useModDelete() {
 
         const resultConfirm = await confirm.confirm({
             title: t('modsTab.confirmations.deleteMod.title', { count: modNames.length }),
-            message: t('modsTab.confirmations.deleteMod.description', { count: modNames.length, modName: modNames[0] }),
+            message: t('modsTab.confirmations.deleteMod.message', { count: modNames.length, modName: modNames[0] }),
             acceptButton: {
                 variant: 'danger',
                 label: t('modsTab.confirmations.deleteMod.actions.delete'),

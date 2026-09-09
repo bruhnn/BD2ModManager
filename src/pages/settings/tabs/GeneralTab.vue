@@ -154,8 +154,8 @@ async function handleStagingModsBrowse() {
 
         notificationStore.add({
             type: 'success',
-            title: 'Staging Mods Directory Updated',
-            message: `Staging mods directory has been updated to ${folder}.`,
+            title: t('settingsTab.general.notifications.stagingDirectoryUpdated.title'),
+            message: t('settingsTab.general.notifications.stagingDirectoryUpdated.message', { path: folder }),
             duration: 3000
         })
     }
@@ -175,8 +175,8 @@ async function handleGameDirectoryBrowse() {
             logWarning(`Selected game directory ${folder} is not valid.`)
             notificationStore.add({
                 type: 'warn',
-                title: 'Invalid Game Directory',
-                message: `The selected game directory ${folder} is not valid.`,
+                title: t('settingsTab.general.notifications.invalidGameDirectory.title'),
+                message: t('settingsTab.general.notifications.invalidGameDirectory.message', { path: folder }),
                 duration: 5000
             })
             return
@@ -186,8 +186,8 @@ async function handleGameDirectoryBrowse() {
         logInfo(`Game directory changed to ${folder}`)
         notificationStore.add({
             type: 'success',
-            title: 'Game Directory Updated',
-            message: `Game directory has been updated to ${folder}.`,
+            title: t('settingsTab.general.notifications.gameDirectoryUpdated.title'),
+            message: t('settingsTab.general.notifications.gameDirectoryUpdated.message', { path: folder }),
             duration: 3000
         })
     }
@@ -233,7 +233,7 @@ async function handleGameDirectoryBrowse() {
                         </label>
                         <div class="flex w-full gap-2 items-center col-span-2">
                             <Input class="w-full min-w-32" :model-value="settings.gameDirectory ?? ''"
-                                placeholder="Game Directory" readonly />
+                                :placeholder="$t('settingsTab.general.sections.directories.gameDirectory.placeholder')" readonly />
                             <Button :label="$t('common.actions.browse')" :icon="Folder"
                                 @click="handleGameDirectoryBrowse" class="whitespace-nowrap min-w-32" />
                             <Button class="whitespace-nowrap" :icon="SquareArrowOutUpRight"
@@ -247,7 +247,7 @@ async function handleGameDirectoryBrowse() {
                         </label>
                         <div class="flex col-span-2 gap-2 items-center">
                             <Input class="w-full min-w-32" :model-value="settings.stagingDirectory ?? ''"
-                                placeholder="Staging Mods Directory" readonly />
+                                :placeholder="$t('settingsTab.general.sections.directories.modsDirectory.placeholder')" readonly />
                             <Button :label="$t('common.actions.browse')" :icon="Folder" @click="handleStagingModsBrowse"
                                 class="min-w-32" />
                             <Button @click="handleOpenFolder(settings.stagingDirectory)" :icon="SquareArrowOutUpRight"

@@ -39,7 +39,7 @@ export function useModSync() {
 
             const { confirmed } = await confirm.confirm({
                 title: t('modsTab.confirmations.syncMods.titleWithConflicts'),
-                message: t('modsTab.confirmations.syncMods.descriptionWithConflicts'),
+                message: t('modsTab.confirmations.syncMods.messageWithConflicts'),
                 acceptButton: {
                 label: t('modsTab.confirmations.syncMods.actions.syncAnyway'),
                 },
@@ -57,7 +57,7 @@ export function useModSync() {
         if (!skipSyncConfirmation.value) {
             const { confirmed, rememberChoice } = await confirm.confirm({
                 title: t('modsTab.confirmations.syncMods.title'),
-                message: t('modsTab.confirmations.syncMods.description'),
+                message: t('modsTab.confirmations.syncMods.message'),
                 acceptButton: {
                     label: t('modsTab.confirmations.syncMods.actions.sync'),
                 },
@@ -101,7 +101,7 @@ export function useModSync() {
 
             notificationStore.add({
                 closable: true,
-                title: t('modsTab.errors.syncFailed.title'),
+                title: t('modsTab.notifications.syncMods.error.title'),
                 message: errorMessage,
                 duration: 5000,
                 type: 'error'
@@ -116,7 +116,7 @@ export function useModSync() {
             type: 'success',
             closable: true,
             title: t('modsTab.notifications.syncMods.success.title'),
-            message: t('modsTab.notifications.syncMods.success.description'),
+            message: t('modsTab.notifications.syncMods.success.message'),
             duration: 5000,
         })
     }
@@ -127,7 +127,7 @@ export function useModSync() {
         if (!skipUnsyncConfirmation.value) {
             const { confirmed, rememberChoice } = await confirm.confirm({
                 title: t('modsTab.confirmations.unsyncMods.title'),
-                message: t('modsTab.confirmations.unsyncMods.description'),
+                message: t('modsTab.confirmations.unsyncMods.message'),
                 acceptButton: {
                     label: t('modsTab.confirmations.unsyncMods.actions.unsync'),
                 },
@@ -155,7 +155,7 @@ export function useModSync() {
 
             notificationStore.add({
                 closable: true,
-                title: t('errors.unsyncFailed'),
+                title: t('modsTab.notifications.unsyncMods.error.title'),
                 message: errorMessage,
                 duration: 5000,
                 type: 'error'
@@ -169,7 +169,7 @@ export function useModSync() {
         notificationStore.add({
             closable: true,
             title: t('modsTab.notifications.unsyncMods.success.title'),
-            message: t('modsTab.notifications.unsyncMods.success.description'),
+            message: t('modsTab.notifications.unsyncMods.success.message'),
             duration: 3000,
             type: 'success'
         });

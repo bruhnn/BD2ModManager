@@ -88,7 +88,7 @@ export const useModsStore = defineStore('mods', () => {
 
             notificationStore.add({
                 type: "error",
-                title: t("modsTab.notifications.autoSync.title"),
+                title: t("modsTab.notifications.autoSync.error.title"),
                 message: getErrorMessage(t, error)
             });
         }

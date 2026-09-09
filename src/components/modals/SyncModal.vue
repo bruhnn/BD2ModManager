@@ -57,21 +57,21 @@ const formatTimestamp = (timestamp: string) => {
 const title = computed(() => {
   if (syncStateStore.type === SyncType.Sync) {
     switch (syncStateStore.status) {
-      case SyncStatus.SYNCING: return t('modals.sync.titles.syncing')
-      case SyncStatus.COMPLETED: return t('modals.sync.titles.completed')
-      case SyncStatus.FAILED: return t('modals.sync.titles.failed')
-      case SyncStatus.IDLE: return t('modals.sync.titles.idle')
+      case SyncStatus.SYNCING: return t('modsTab.modals.sync.titles.syncing')
+      case SyncStatus.COMPLETED: return t('modsTab.modals.sync.titles.completed')
       case SyncStatus.COMPLETED_WITH_ERRORS: return t('modsTab.notifications.syncMods.completedWithErrors.title')
+      case SyncStatus.FAILED: return t('modsTab.modals.sync.titles.failed')
+      case SyncStatus.IDLE: return t('modsTab.modals.sync.titles.idle')
     }
   } else if (syncStateStore.type === SyncType.Unsync) {
     switch (syncStateStore.status) {
-      case SyncStatus.SYNCING: return t('modals.sync.titles.removing')
-      case SyncStatus.COMPLETED: return t('modals.sync.titles.removed')
-      case SyncStatus.FAILED: return t('modals.sync.titles.failedToRemove')
-      case SyncStatus.IDLE: return t('modals.sync.titles.idleToRemove')
+      case SyncStatus.SYNCING: return t('modsTab.modals.sync.titles.removing')
+      case SyncStatus.COMPLETED: return t('modsTab.modals.sync.titles.removed')
+      case SyncStatus.FAILED: return t('modsTab.modals.sync.titles.failedToRemove')
+      case SyncStatus.IDLE: return t('modsTab.modals.sync.titles.idleToRemove')
     }
   } else {
-    return t('modals.sync.titles.waitingForAction')
+    return t('modsTab.modals.sync.titles.waitingForAction')
     }
 })
 
@@ -167,7 +167,7 @@ const {isDev} = useDev()
 
     <template #footer>
       <div class="flex justify-end shrink-0 p-2 px-4">
-        <Button :label="t('modals.sync.actions.close')" variant="default" @click="closeModal" />
+        <Button :label="t('modsTab.modals.sync.actions.close')" variant="default" @click="closeModal" />
       </div>
     </template>
 
@@ -182,7 +182,7 @@ const {isDev} = useDev()
           <span v-if="syncStateStore.progress.current" class="text-sm text-text-secondary font-mono opacity-50">
             {{ syncStateStore.progress.current }} /
             {{ syncStateStore.progress.total }}
-            {{ t('modals.sync.log.mods') }}
+            {{ t('modsTab.modals.sync.log.mods') }}
           </span>
         </div>
 
@@ -197,17 +197,17 @@ const {isDev} = useDev()
 
         <div class="py-1.5 flex justify-between items-center shrink-0">
           <span class="text-xs text-text-secondary">
-            {{ t('modals.sync.log.title') }}
+            {{ t('modsTab.modals.sync.log.title') }}
           </span>
 
           <span v-if="syncedMods.length" class="text-xs py-0.5 px-1 rounded-xl text-text-secondary">
             {{ syncedMods.length }}
-            {{ t('modals.sync.log.mods') }}
+            {{ t('modsTab.modals.sync.log.mods') }}
           </span>
         </div>
 
         <div v-if="!syncedMods.length" class="flex-1 flex items-center justify-center text-xs text-text-secondary">
-          {{ t('modals.sync.log.waitingToStart') }}
+          {{ t('modsTab.modals.sync.log.waitingToStart') }}
         </div>
 
         <div v-else v-bind="containerProps" class="flex-1 min-h-0" style="height: 100%">
@@ -241,22 +241,22 @@ const {isDev} = useDev()
         <div class="flex flex-wrap items-center py-2 gap-3 border-t border-border-default shrink-0">
           <div class="flex items-center gap-1.5 text-xs text-text-secondary">
             <ArrowRightFromLine class="w-3.5 h-3.5 text-success" />
-            <span>{{ t('modals.sync.status.synced') }}</span>
+            <span>{{ t('modsTab.modals.sync.status.synced') }}</span>
           </div>
 
           <div class="flex items-center gap-1.5 text-xs text-text-secondary">
             <ArrowLeftFromLine class="w-3.5 h-3.5 text-warning" />
-            <span>{{ t('modals.sync.status.removed') }}</span>
+            <span>{{ t('modsTab.modals.sync.status.removed') }}</span>
           </div>
 
           <div class="flex items-center gap-1.5 text-xs text-text-secondary">
             <ArrowRightLeft class="w-3.5 h-3.5 text-info" />
-            <span>{{ t('modals.sync.status.upToDate') }}</span>
+            <span>{{ t('modsTab.modals.sync.status.upToDate') }}</span>
           </div>
 
           <div class="flex items-center gap-1.5 text-xs text-text-secondary">
             <TriangleAlert class="w-3.5 h-3.5 text-error" />
-            <span>{{ t('modals.sync.status.failed') }}</span>
+            <span>{{ t('modsTab.modals.sync.status.failed') }}</span>
           </div>
         </div>
 

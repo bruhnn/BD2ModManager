@@ -200,8 +200,8 @@ async function handleOpenModFolder(mod: BD2Mod) {
     notificationStore.add({
       type: 'error',
       closable: true,
-      title: t('modsTab.errors.modFolderNotFound.title'),
-      message: t('modsTab.errors.modFolderNotFound.message', { modName: mod.name }),
+      title: t('modsTab.notifications.openModFolder.error.notFound.title'),
+      message: t('modsTab.notifications.openModFolder.error.notFound.message', { modName: mod.name }),
       duration: 5000
     })
     return
@@ -217,8 +217,8 @@ async function handleOpenModFolder(mod: BD2Mod) {
     notificationStore.add({
       type: 'error',
       closable: true,
-      title: t('modsTab.errors.modNotDirectory.title'),
-      message: t('modsTab.errors.modNotDirectory.message', { modName: mod.name }),
+      title: t('modsTab.notifications.openModFolder.error.notDirectory.title'),
+      message: t('modsTab.notifications.openModFolder.error.notDirectory.message', { modName: mod.name }),
       duration: 5000
     })
     return
@@ -238,8 +238,8 @@ async function handleOpenStagingModsFolder() {
     return notificationStore.add({
       type: "error",
       closable: true,
-      title: t('modsTab.errors.stagingDirectoryNotSet.title'),
-      message: t('modsTab.errors.stagingDirectoryNotSet.message'),
+      title: t('modsTab.notifications.openStagingModsFolder.error.notSet.title'),
+      message: t('modsTab.notifications.openStagingModsFolder.error.notSet.message'),
       duration: 5000
     });
   }
@@ -253,8 +253,8 @@ async function handleOpenStagingModsFolder() {
     return notificationStore.add({
       type: 'error',
       closable: true,
-      title: t('modsTab.errors.stagingDirectoryNotFound.title'),
-      message: t('modsTab.errors.stagingDirectoryNotFound.message', { stagingDir }),
+      title: t('modsTab.notifications.openStagingModsFolder.error.notFound.title'),
+      message: t('modsTab.notifications.openStagingModsFolder.error.notFound.message', { stagingDir }),
       duration: 5000
     })
   }
@@ -273,8 +273,8 @@ async function openGameFolder() {
     notificationStore.add({
       type: 'error',
       closable: true,
-      title: t('modsTab.errors.gameDirectoryNotSet.title'),
-      message: t('modsTab.errors.gameDirectoryNotSet.message'),
+      title: t('modsTab.notifications.openGameFolder.error.notSet.title'),
+      message: t('modsTab.notifications.openGameFolder.error.notSet.message'),
       duration: 5000
     })
     return
@@ -289,8 +289,8 @@ async function openGameFolder() {
     notificationStore.add({
       type: 'error',
       closable: true,
-      title: t('modsTab.errors.gameDirectoryNotFound.title'),
-      message: t('modsTab.errors.gameDirectoryNotFound.message', { gameDirectory }),
+      title: t('modsTab.notifications.openGameFolder.error.notFound.title'),
+      message: t('modsTab.notifications.openGameFolder.error.notFound.message', { gameDirectory }),
       duration: 5000
     })
     return
@@ -305,8 +305,8 @@ async function openGameFolder() {
     notificationStore.add({
       type: 'error',
       closable: true,
-      title: t('modsTab.errors.gameDirectoryNotDirectory.title'),
-      message: t('modsTab.errors.gameDirectoryNotDirectory.message', { gameDirectory }),
+      title: t('modsTab.notifications.openGameFolder.error.notDirectory.title'),
+      message: t('modsTab.notifications.openGameFolder.error.notDirectory.message', { gameDirectory }),
       duration: 5000
     })
     return
@@ -324,8 +324,8 @@ async function openGameModsFolder() {
     notificationStore.add({
       type: 'error',
       closable: true,
-      title: t('modsTab.errors.gameDirectoryNotSet.title'),
-      message: t('modsTab.errors.gameDirectoryNotSet.message'),
+      title: t('modsTab.notifications.openGameModsFolder.error.gameDirectoryNotSet.title'),
+      message: t('modsTab.notifications.openGameModsFolder.error.gameDirectoryNotSet.message'),
       duration: 5000
     })
     return
@@ -344,8 +344,8 @@ async function openGameModsFolder() {
     notificationStore.add({
       type: 'error',
       closable: true,
-      title: t('modsTab.errors.gameModsDirectoryNotFound.title'),
-      message: t('modsTab.errors.gameModsDirectoryNotFound.message', { gameModsDirectory }),
+      title: t('modsTab.notifications.openGameModsFolder.error.notFound.title'),
+      message: t('modsTab.notifications.openGameModsFolder.error.notFound.message', { gameModsDirectory }),
       duration: 5000
     })
     return
@@ -360,8 +360,8 @@ async function openGameModsFolder() {
     notificationStore.add({
       type: 'error',
       closable: true,
-      title: t('modsTab.errors.gameModsDirectoryNotDirectory.title'),
-      message: t('modsTab.errors.gameModsDirectoryNotDirectory.message', { gameModsDirectory }),
+      title: t('modsTab.notifications.openGameModsFolder.error.notDirectory.title'),
+      message: t('modsTab.notifications.openGameModsFolder.error.notDirectory.message', { gameModsDirectory }),
       duration: 5000
     })
     return

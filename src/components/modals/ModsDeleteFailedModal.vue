@@ -33,8 +33,8 @@ async function handleRetry() {
 </script>
 
 <template>
-    <Modal :show="isOpen" size="md" :title="t('modals.modsDeleteFailed.title')"
-        :subtitle="t('modals.modsDeleteFailed.subtitle', { count: failedEntries.length })" @close="closeModal">
+    <Modal :show="isOpen" size="md" :title="t('modsTab.modals.modsDeleteFailed.title')"
+        :subtitle="t('modsTab.modals.modsDeleteFailed.subtitle', { count: failedEntries.length })" @close="closeModal">
         <div class="flex flex-col bg-surface-dialog px-4 py-4">
             <div class="flex flex-col gap-3">
                 <div v-for="([modName, error]) in failedEntries" :key="modName"
@@ -56,7 +56,7 @@ async function handleRetry() {
                 <Button v-if="params?.onRetry" variant="primary" :icon="RefreshCcw"
                     :icon-class="{ 'animate-spin': retrying }" :disabled="retrying"
                     @click="handleRetry">
-                    {{ t('modals.modsDeleteFailed.actions.retry') }}
+                    {{ t('modsTab.modals.modsDeleteFailed.actions.retry') }}
                 </Button>
             </div>
         </template>

@@ -9,6 +9,7 @@ import CreateProfile from './modals/CreateProfile.vue'
 import Button from '../../components/common/Button.vue'
 import { useConfirm } from '../../plugins/ConfirmService'
 import { useNotificationStore } from '../../stores/notification.ts'
+import { getErrorMessage } from '../../utils/errors'
 
 const profilesStore = useProfilesStore()
 const notificationStore = useNotificationStore()
@@ -67,15 +68,15 @@ async function deleteSelected() {
     profileSelectedId.value = null
     notificationStore.add({
       type: 'success',
-      title: t('profilesTab.notifications.profileDeleted.title'),
-      message: t('profilesTab.notifications.profileDeleted.description', { profileName: deletedName }),
+      title: t('profilesTab.notifications.deleteProfile.success.title'),
+      message: t('profilesTab.notifications.deleteProfile.success.message', { profileName: deletedName }),
       duration: 3000
     })
-  } catch {
+  } catch (error) {
     notificationStore.add({
       type: 'error',
-      title: t('profilesTab.notifications.profileDeleteFailed.title'),
-      message: t('profilesTab.notifications.profileDeleteFailed.description', { profileName: deletedName }),
+      title: t('profilesTab.notifications.deleteProfile.error.title'),
+      message: getErrorMessage(t, error),
       duration: 3000
     })
   }
@@ -86,15 +87,15 @@ async function onProfileEdit(id: string, name: string, description: string | nul
     await profilesStore.editProfile(id, name, description)
     notificationStore.add({
       type: 'success',
-      title: t('profilesTab.notifications.profileUpdated.title'),
-      message: t('profilesTab.notifications.profileUpdated.description', { profileName: name }),
+      title: t('profilesTab.notifications.updateProfile.success.title'),
+      message: t('profilesTab.notifications.updateProfile.success.message', { profileName: name }),
       duration: 3000
     })
-  } catch {
+  } catch (error) {
     notificationStore.add({
       type: 'error',
-      title: t('profilesTab.notifications.profileUpdateFailed.title'),
-      message: t('profilesTab.notifications.profileUpdateFailed.description', { profileName: name }),
+      title: t('profilesTab.notifications.updateProfile.error.title'),
+      message: getErrorMessage(t, error),
       duration: 3000
     })
   }
@@ -109,29 +110,28 @@ async function onProfileCreate(
     await profilesStore.createProfile(name, description, profileTemplateId)
     notificationStore.add({
       type: 'success',
-      title: t('profilesTab.notifications.profileCreated.title'),
-      message: t('profilesTab.notifications.profileCreated.description', { profileName: name }),
+      title: t('profilesTab.notifications.createProfile.success.title'),
+      message: t('profilesTab.notifications.createProfile.success.message', { profileName: name }),
       duration: 3000
     })
-  } catch {
+  } catch (error) {
     notificationStore.add({
       type: 'error',
-      title: t('profilesTab.notifications.profileCreateFailed.title'),
-      message: t('profilesTab.notifications.profileCreateFailed.description', { profileName: name }),
+      title: t('profilesTab.notifications.createProfile.error.title'),
+      message: getErrorMessage(t, error),
       duration: 3000
     })
   }
 }
 
 async function onProfileSwitch(id: string) {
-  const profile = profilesStore.getProfileById(id)
   try {
     await profilesStore.switchProfile(id)
-  } catch {
+  } catch (error) {
     notificationStore.add({
       type: 'error',
-      title: t('profilesTab.notifications.profileSwitchFailed.title'),
-      message: t('profilesTab.notifications.profileSwitchFailed.description', { profileName: profile?.name }),
+      title: t('profilesTab.notifications.switchProfile.error.title'),
+      message: getErrorMessage(t, error),
       duration: 3000
     })
   }

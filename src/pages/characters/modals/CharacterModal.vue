@@ -90,7 +90,7 @@ async function openPreviewMod(mod: BD2Mod) {
         notificationStore.add({
             type: "error",
             closable: true,
-            title: t("modsTab.errors.modPreview.title"),
+            title: t("modsTab.notifications.previewMod.error.title"),
             message: errorMsg,
             duration: 5000
         });
