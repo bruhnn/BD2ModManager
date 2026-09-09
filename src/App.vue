@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch, onMounted, onUnmounted } from "vue"
+import { watch, onMounted, onUnmounted } from "vue"
 import { storeToRefs } from "pinia"
 import { useI18n } from "vue-i18n"
 
@@ -15,9 +15,7 @@ import { useConfirm } from "./plugins/ConfirmService"
 import { useModsStore } from "./stores/mods"
 import { getCurrentWindow } from "@tauri-apps/api/window"
 import Sidebar from "./components/sidebar/Sidebar.vue"
-import { useNotificationStore } from './stores/notification';
 import UpdateAvailableModal from "./components/modals/UpdateAvailableModal.vue"
-import { usePortable } from "./composables/usePortable"
 import NotificationContainer from "./components/notification/NotificationContainer.vue"
 import SyncModal from "./components/modals/SyncModal.vue"
 import LogsModal from "./components/modals/LogsModal.vue"
@@ -32,31 +30,11 @@ const { initialize } = useAppInitializer()
 
 const confirm = useConfirm()
 const modsStore = useModsStore()
-const notificationStore = useNotificationStore()
 
-const { isPortable } = usePortable()
 
 let unlistenClose: (() => void) | null = null
 
 provideHeader()
-
-const modalQueue = ref<string[]>([])
-const currentModalVisible = ref('')
-
-function openModal(modalName: string) {
-  if (!modalQueue.value.includes(modalName)) {
-    modalQueue.value.push(modalName)
-  }
-  if (!currentModalVisible.value) {
-    currentModalVisible.value = modalQueue.value[0]
-  }
-}
-
-function closeModal(modalName: string) {
-  const index = modalQueue.value.indexOf(modalName)
-  if (index !== -1) modalQueue.value.splice(index, 1)
-  currentModalVisible.value = modalQueue.value[0] ?? ''
-}
 
 watch(
   () => settings.value.language,
@@ -74,33 +52,12 @@ watch(
   { immediate: true }
 )
 
-watch(() => settingsStore.appUpdateStatus, (newStatus) => {
-  const skipVersion = localStorage.getItem('skipUpdateVersion')
-  
-  // update available will only show on portable
-  if (newStatus?.version && newStatus.version !== skipVersion && isPortable.value) {
-    openModal('updateAvailableModal')
-  }
-})
 onMounted(async () => {
   if (!import.meta.env.DEV) {
     document.addEventListener("contextmenu", (event) => event.preventDefault())
   }
 
-  const { isFirstLaunch, isBrownDustXOutdated } = await initialize()
-
-  if (isFirstLaunch) {
-    openModal('welcomeModal')
-  }
-
-  if (isBrownDustXOutdated) {
-    notificationStore.add({
-      severity: "warn",
-      title: t('app.notifications.brownDustXOutdated.title'),
-      message: t('app.notifications.brownDustXOutdated.message'),
-      duration: 10000,
-    })
-  }
+  await initialize()
 
   watch(
     () => settings.value.language,
@@ -170,8 +127,8 @@ onUnmounted(() => {
     <NotificationContainer position="bottom-right" /> -->
     <NotificationContainer position="bottom-center"/>
 
-    <WelcomeModal :visible="currentModalVisible === 'welcomeModal'" @close="closeModal('welcomeModal')" />
-    <UpdateAvailableModal :visible="currentModalVisible === 'updateAvailableModal'" @close="closeModal('updateAvailableModal')" />
+    <WelcomeModal />
+    <UpdateAvailableModal />
     <SyncModal />
     <LogsModal />
     <ModsDeleteFailedModal />

@@ -36,6 +36,73 @@
             "brownDustXOutdated": {
                 "title": "BrownDustXが古いバージョンです",
                 "message": "BrownDustXが最新ではありません。更新するまでMODは動作しません。"
+            },
+            "appUpdate": {
+                "downloadFailed": {
+                    "title": "アップデートのダウンロードに失敗しました"
+                },
+                "checkFailed": {
+                    "title": "アップデートの確認に失敗しました",
+                    "message": "アップデートを確認できませんでした：{error}"
+                },
+                "installFailed": {
+                    "title": "アップデートに失敗しました",
+                    "message": "アップデートをインストールできませんでした。GitHubから手動でダウンロードしてください。"
+                },
+                "noUpdateAvailable": {
+                    "title": "利用可能なアップデートはありません",
+                    "message": "ダウンロードできるアップデートはありません。"
+                }
+            },
+            "modPreviewUpdate": {
+                "updated": "BD2ModPreview v{version}を更新しました",
+                "failed": "BD2ModPreviewの更新に失敗しました",
+                "noUpdateAvailable": "BD2ModPreviewは最新です"
+            },
+            "gameDataUpdate": {
+                "updated": "ゲームデータを更新しました",
+                "failed": "ゲームデータの更新に失敗しました"
+            }
+        },
+        "modals": {
+            "updateAvailable": {
+                "title": "アップデートあり",
+                "subtitle": "新バージョン v{version} が利用可能です。",
+                "changelogLabel": "更新内容",
+                "skipLabel": "今後表示しない",
+                "actions": {
+                    "downloadUpdate": "アップデートをダウンロード",
+                    "later": "後で",
+                    "goToReleases": "リリースページへ"
+                }
+            },
+            "welcome": {
+                "title": "BD2ModManagerへようこそ！",
+                "subtitle": "初めてアプリを起動したようです。今すぐゲームディレクトリを設定するか、スキップして後から設定することもできます。",
+                "chips": {
+                    "github": "GitHubを見る",
+                    "discord": "BrownDustX Discord"
+                },
+                "selectGameDirectory": {
+                    "title": "ゲームディレクトリ",
+                    "description": "「BrownDust II.exe」が含まれるフォルダを選択してください。",
+                    "placeholders": {
+                        "gamePath": "ブラウンダスト IIのゲームディレクトリのパス"
+                    },
+                    "labels": {
+                        "foundPaths": "見つかったパス："
+                    },
+                    "validPath": "ゲームディレクトリを設定しました。",
+                    "errors": {
+                        "invalidGameExecutable": "選択したファイルはブラウンダスト IIの実行ファイルではありません。",
+                        "invalidDirectory": "選択したディレクトリには有効なブラウンダスト IIのインストールが含まれていません。",
+                        "unknownError": "不明なエラーが発生しました：{error}"
+                    }
+                },
+                "supportBanner": {
+                    "title": "プロジェクトをサポート ❤️",
+                    "message": "BD2ModManagerは無料のオープンソースです。役に立った場合は、{platform}でのサポートをご検討ください！"
+                }
             }
         }
     },
@@ -69,6 +136,11 @@
             "logs": "ログ",
             "kofi": "Ko-Fiでサポート",
             "afdian": "Afdianでサポート"
+        },
+        "activeDownloads": {
+            "characterAssets": "キャラクター素材",
+            "title": "ダウンロード",
+            "empty": "進行中のダウンロードはありません"
         }
     },
     "sidebar": {
@@ -666,7 +738,11 @@
                     "actions": {
                         "checkForUpdates": "更新を確認",
                         "checkingForUpdates": "更新を確認中...",
-                        "updateModPreview": "BD2ModPreviewを更新"
+                        "updateModPreview": "BD2ModPreviewを更新",
+                        "update": "更新"
+                    },
+                    "status": {
+                        "updateAvailable": "アップデート v{version} が利用可能です。"
                     }
                 }
             }

@@ -3,16 +3,33 @@ import { useCharactersStore } from "../stores/characters";
 import { useProfilesStore } from "../stores/profiles";
 import { useModsStore } from "../stores/mods";
 import { useLoggingStore } from "../stores/logging";
+import { AppUpdateAvailable, useUpdater } from "./useUpdater";
+import { globalModals } from "./useGlobalModals";
+import { useNotificationStore } from "../stores/notification";
+import { useI18n } from "vue-i18n";
+import { useGameStore } from "../stores/game";
+import { useLocalStorage } from "@vueuse/core";
 
 export function useAppInitializer() {
+  const { t } = useI18n()
+  const notificationStore = useNotificationStore()
   const loggingStore = useLoggingStore();
   const settingsStore = useSettingsStore();
   const modsStore = useModsStore();
+  const gameStore = useGameStore()
+  const skipUpdateVersion = useLocalStorage('skipUpdateVersion', '')
+
+  const {
+    checkForModPreviewUpdate,
+    checkForAppUpdate,
+    updateGameData,
+  } = useUpdater()
 
   async function initializeGamePath() {
     // validate saved game dir, if is not valid show the game dir selection
     // [TODO] move to rust backend, there it can set the game dir
     // [TODO] what to do if the saved game directory is not valid? show the select game directory modal? or just show an error and let the user open the select game directory modal from settings?
+
 
     if (!settingsStore.settings.gameDirectory) {
       loggingStore.logDebug("No saved game directory found.");
@@ -32,7 +49,7 @@ export function useAppInitializer() {
     }
   }
 
-  async function initialize(): Promise<{ isFirstLaunch: boolean, isBrownDustXOutdated: boolean }> {
+  async function initialize(): Promise<{ isFirstLaunch: boolean, isBrownDustXOutdated: boolean, isUpdateAvailable: boolean }> {
     loggingStore.logDebug("Starting BD2ModManager");
 
     await Promise.all([
@@ -41,25 +58,49 @@ export function useAppInitializer() {
       useProfilesStore().loadProfiles(),
     ]);
 
-    await modsStore.discoverMods();
+    await modsStore.discoverMods()
+    await gameStore.refresh()
 
-    if (settingsStore.settings.isFirstLaunch) {
-      settingsStore.saveSettings({ isFirstLaunch: false });
+    const isFirstLaunch = settingsStore.settings.isFirstLaunch
+
+    if (isFirstLaunch) {
+      settingsStore.saveSettings({ isFirstLaunch: false })
     }
 
-    await initializeGamePath();
+    await initializeGamePath()
+    updateGameData()
 
-    settingsStore.updateGameData();
+    if (settingsStore.settings.autoUpdateModPreview) {
+      checkForModPreviewUpdate(true)
+    }
 
-    if (settingsStore.settings.autoUpdateModPreview) settingsStore.updateModPreview();
+    let updateAvailable: AppUpdateAvailable | null = null
+
+    if (import.meta.env.DEV || settingsStore.settings.checkForAppUpdates) {
+      updateAvailable = await checkForAppUpdate()
+    }
     
-    if (settingsStore.settings.checkForAppUpdates) settingsStore.checkForAppUpdate();
+    if (isFirstLaunch) {
+      globalModals.welcome.showModal()
+    }
 
-    const brownDustXVersion = await settingsStore.getBrowndustxVersion();
+    if (updateAvailable && updateAvailable.versionAvailable !== skipUpdateVersion.value) {
+      globalModals.updateAvailable.showModal(updateAvailable)
+    }
+
+    if (gameStore.browndustxVersion?.status === "InstalledButOutdated") {
+      notificationStore.add({
+        type: "warn",
+        title: t('app.notifications.brownDustXOutdated.title'),
+        message: t('app.notifications.brownDustXOutdated.message'),
+        duration: 10000,
+      })
+    }
 
     return {
-      isFirstLaunch: settingsStore.settings.isFirstLaunch,
-      isBrownDustXOutdated: brownDustXVersion?.status === "InstalledButOutdated"
+      isFirstLaunch,
+      isBrownDustXOutdated: gameStore.browndustxVersion?.status === "InstalledButOutdated",
+      isUpdateAvailable: updateAvailable !== null
     }
   }
 

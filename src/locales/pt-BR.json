@@ -36,6 +36,73 @@
             "brownDustXOutdated": {
                 "title": "BrownDustX Desatualizado",
                 "message": "O BrownDustX está desatualizado. Os mods não funcionarão até que seja atualizado."
+            },
+            "appUpdate": {
+                "downloadFailed": {
+                    "title": "Falha ao baixar a atualização"
+                },
+                "checkFailed": {
+                    "title": "Falha ao Verificar Atualizações",
+                    "message": "Não foi possível verificar atualizações: {error}"
+                },
+                "installFailed": {
+                    "title": "Falha na Atualização",
+                    "message": "Não foi possível instalar a atualização. Tente baixá-la manualmente pelo GitHub."
+                },
+                "noUpdateAvailable": {
+                    "title": "Nenhuma Atualização Disponível",
+                    "message": "Não há nenhuma atualização disponível para baixar."
+                }
+            },
+            "modPreviewUpdate": {
+                "updated": "BD2ModPreview v{version} atualizado",
+                "failed": "Falha ao atualizar o BD2ModPreview",
+                "noUpdateAvailable": "O BD2ModPreview está atualizado"
+            },
+            "gameDataUpdate": {
+                "updated": "Dados do jogo atualizados",
+                "failed": "Falha ao atualizar os dados do jogo"
+            }
+        },
+        "modals": {
+            "updateAvailable": {
+                "title": "Atualização Disponível",
+                "subtitle": "Uma nova versão está disponível v{version}.",
+                "changelogLabel": "O que há de novo",
+                "skipLabel": "Não mostrar novamente",
+                "actions": {
+                    "downloadUpdate": "Baixar Atualização",
+                    "later": "Depois",
+                    "goToReleases": "Ver Releases"
+                }
+            },
+            "welcome": {
+                "title": "Bem-vindo ao BD2ModManager!",
+                "subtitle": "Parece que esta é a primeira vez que você abre o aplicativo. Você pode configurar o diretório do jogo agora ou pular e fazer isso depois nas configurações.",
+                "chips": {
+                    "github": "Visite nosso GitHub",
+                    "discord": "Discord do BrownDustX"
+                },
+                "selectGameDirectory": {
+                    "title": "Diretório do Jogo",
+                    "description": "Por favor, selecione a pasta que contém o arquivo 'BrownDust II.exe'.",
+                    "placeholders": {
+                        "gamePath": "Caminho para o diretório do Brown Dust II"
+                    },
+                    "labels": {
+                        "foundPaths": "Caminho(s) Encontrado(s):"
+                    },
+                    "validPath": "Diretório do jogo definido com sucesso.",
+                    "errors": {
+                        "invalidGameExecutable": "O arquivo selecionado não é o executável do Brown Dust II.",
+                        "invalidDirectory": "O diretório selecionado não contém uma instalação válida do Brown Dust II.",
+                        "unknownError": "Ocorreu um erro desconhecido: {error}"
+                    }
+                },
+                "supportBanner": {
+                    "title": "Apoie o projeto ❤️",
+                    "message": "BD2ModManager é gratuito e de código aberto. Se foi útil, considere me apoiar no {platform}!"
+                }
             }
         }
     },
@@ -69,6 +136,11 @@
             "logs": "Logs",
             "kofi": "Apoiar no Ko-Fi",
             "afdian": "Apoiar no Afdian"
+        },
+        "activeDownloads": {
+            "characterAssets": "Recursos dos personagens",
+            "title": "Downloads",
+            "empty": "Nenhum download em andamento"
         }
     },
     "sidebar": {
@@ -666,7 +738,11 @@
                     "actions": {
                         "checkForUpdates": "Verificar Atualizações",
                         "checkingForUpdates": "Verificando Atualizações...",
-                        "updateModPreview": "Atualizar BD2ModPreview"
+                        "updateModPreview": "Atualizar BD2ModPreview",
+                        "update": "Atualizar"
+                    },
+                    "status": {
+                        "updateAvailable": "A atualização v{version} está disponível."
                     }
                 }
             }

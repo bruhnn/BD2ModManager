@@ -36,6 +36,73 @@
             "brownDustXOutdated": {
                 "title": "BrownDustX 版本過舊",
                 "message": "BrownDustX 已過時，在更新之前模組將無法正常運作。"
+            },
+            "appUpdate": {
+                "downloadFailed": {
+                    "title": "更新下載失敗"
+                },
+                "checkFailed": {
+                    "title": "檢查更新失敗",
+                    "message": "無法檢查更新：{error}"
+                },
+                "installFailed": {
+                    "title": "更新失敗",
+                    "message": "無法安裝更新。請嘗試從 GitHub 手動下載。"
+                },
+                "noUpdateAvailable": {
+                    "title": "沒有可用更新",
+                    "message": "沒有可供下載的更新。"
+                }
+            },
+            "modPreviewUpdate": {
+                "updated": "BD2ModPreview v{version} 已更新",
+                "failed": "BD2ModPreview 更新失敗",
+                "noUpdateAvailable": "BD2ModPreview 已是最新版本"
+            },
+            "gameDataUpdate": {
+                "updated": "遊戲資料已更新",
+                "failed": "遊戲資料更新失敗"
+            }
+        },
+        "modals": {
+            "updateAvailable": {
+                "title": "有可用更新",
+                "subtitle": "新版本 v{version} 已發布。",
+                "changelogLabel": "更新內容",
+                "skipLabel": "不再提示",
+                "actions": {
+                    "downloadUpdate": "下載更新",
+                    "later": "稍後",
+                    "goToReleases": "前往發布頁"
+                }
+            },
+            "welcome": {
+                "title": "歡迎使用 BD2ModManager！",
+                "subtitle": "這似乎是您第一次啟動此應用程式。您可以現在設定遊戲目錄，或跳過並稍後在設定中完成。",
+                "chips": {
+                    "github": "前往我們的 GitHub",
+                    "discord": "BrownDustX Discord"
+                },
+                "selectGameDirectory": {
+                    "title": "遊戲目錄",
+                    "description": "請選取包含「BrownDust II.exe」的資料夾。",
+                    "placeholders": {
+                        "gamePath": "棕色塵埃 II 遊戲目錄路徑"
+                    },
+                    "labels": {
+                        "foundPaths": "找到的路徑："
+                    },
+                    "validPath": "遊戲目錄設定成功。",
+                    "errors": {
+                        "invalidGameExecutable": "所選檔案不是棕色塵埃 II 的執行檔。",
+                        "invalidDirectory": "所選目錄中沒有有效的棕色塵埃 II 安裝。",
+                        "unknownError": "發生未知錯誤：{error}"
+                    }
+                },
+                "supportBanner": {
+                    "title": "支持專案 ❤️",
+                    "message": "BD2ModManager 是免費開源的。如果對你有幫助，請考慮在 {platform} 上支持我！"
+                }
             }
         }
     },
@@ -69,6 +136,11 @@
             "logs": "日誌",
             "kofi": "在 Ko-Fi 上支持",
             "afdian": "在愛發電上支持"
+        },
+        "activeDownloads": {
+            "characterAssets": "角色資源",
+            "title": "下載",
+            "empty": "目前沒有進行中的下載"
         }
     },
     "sidebar": {
@@ -666,7 +738,11 @@
                     "actions": {
                         "checkForUpdates": "檢查更新",
                         "checkingForUpdates": "正在檢查更新...",
-                        "updateModPreview": "更新 BD2ModPreview"
+                        "updateModPreview": "更新 BD2ModPreview",
+                        "update": "更新"
+                    },
+                    "status": {
+                        "updateAvailable": "更新 v{version} 可用。"
                     }
                 }
             }

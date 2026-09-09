@@ -44,6 +44,42 @@
                 "copied": {
                     "title": "Logs Copied to Clipboard"
                 }
+            },
+            "appUpdate": {
+                "downloadFailed": {
+                    "title": "Update Download Failed"
+                },
+                "checkFailed": {
+                    "title": "Update Check Failed",
+                    "message": "Could not check for updates: {error}"
+                },
+                "installFailed": {
+                    "title": "Update Failed",
+                    "message": "Could not install the update. Try downloading it manually from GitHub."
+                },
+                "noUpdateAvailable": {
+                    "title": "No Update Available",
+                    "message": "There is no update available to download."
+                }
+            },
+            "modPreviewUpdate": {
+                "updated": {
+                    "title": "BD2ModPreview v{version} updated"
+                },
+                "failed": {
+                    "title": "Failed to update BD2ModPreview"
+                },
+                "noUpdateAvailable": {
+                    "title": "BD2ModPreview is up to date"
+                }
+            },
+            "gameDataUpdate": {
+                "updated": {
+                    "title": "Game data updated"
+                },
+                "failed": {
+                    "title": "Failed to update game data"
+                }
             }
         },
         "modals": {
@@ -68,14 +104,54 @@
                     "copyAll": "Copy all logs to clipboard",
                     "openFolder": "Open logs folder"
                 }
+            },
+            "updateAvailable": {
+                "title": "Update Available",
+                "subtitle": "A new version is available v{version}.",
+                "changelogLabel": "What's new",
+                "skipLabel": "Don't show again",
+                "actions": {
+                    "downloadUpdate": "Download Update",
+                    "later": "Later",
+                    "goToReleases": "Go to Releases"
+                }
+            },
+            "welcome": {
+                "title": "Welcome to BD2ModManager!",
+                "subtitle": "It looks like this is your first time launching the app. You can set up your game directory now or skip and do it later in the settings.",
+                "chips": {
+                    "github": "Visit our GitHub",
+                    "discord": "BrownDustX Discord"
+                },
+                "selectGameDirectory": {
+                    "title": "Game Directory",
+                    "description": "Please, select the folder containing 'BrownDust II.exe'.",
+                    "placeholders": {
+                        "gamePath": "Path to Brown Dust II game directory"
+                    },
+                    "labels": {
+                        "foundPaths": "Found Path(s)"
+                    },
+                    "validPath": "Game directory set successfully.",
+                    "errors": {
+                        "invalidGameExecutable": "The selected file is not the Brown Dust II executable.",
+                        "invalidDirectory": "The selected directory does not contain a valid Brown Dust II installation.",
+                        "unknownError": "An unknown error occurred: {error}"
+                    }
+                },
+                "supportBanner": {
+                    "title": "Support the project ❤️",
+                    "message": "BD2ModManager is free and open source. If it has been helpful, consider supporting me on {platform}!"
+                }
             }
         }
     },
     "titlebar": {
         "appUpdate": {
             "checking": "Checking for updates...",
-            "available": "Update available: v{version}",
-            "downloaded": "v{version} is ready! Click to apply the update"
+            "available": "Update v{version} available. Click to download",
+            "downloaded": "v{version} downloaded. Click to install and restart",
+            "updating": "Updating to v{version}..."
         },
         "sync": {
             "applying": "Applying: {modName}",
@@ -101,6 +177,11 @@
             "logs": "Logs",
             "kofi": "Support on Ko-Fi",
             "afdian": "Support on Afdian"
+        },
+        "activeDownloads": {
+            "characterAssets": "Character Assets",
+            "title": "Downloads",
+            "empty": "No active downloads"
         }
     },
     "sidebar": {
@@ -715,7 +796,11 @@
                     "actions": {
                         "checkForUpdates": "Check for Updates",
                         "checkingForUpdates": "Checking for Updates...",
-                        "updateModPreview": "Update BD2ModPreview"
+                        "updateModPreview": "Update BD2ModPreview",
+                        "update": "Update"
+                    },
+                    "status": {
+                        "updateAvailable": "Update v{version} is available."
                     }
                 }
             }

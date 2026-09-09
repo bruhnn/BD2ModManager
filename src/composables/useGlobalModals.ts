@@ -2,6 +2,7 @@ import { readonly, ref } from 'vue'
 
 // import type { BD2ModExtended  } from '../stores/mods'
 import type { Error as StructuredError } from '../utils/errors'
+import type { AppUpdateAvailable } from './useUpdater'
 
 const activeModal = ref<symbol | null>(null)
 const closeHandlers = new Map<symbol, (openNext: boolean) => void>()
@@ -79,6 +80,7 @@ function createModal<T = void>(options?: { force?: boolean }) {
 
 export const globalModals = {
   welcome: createModal(),
+  updateAvailable: createModal<AppUpdateAvailable>(),
   logs: createModal(),
   sync: createModal(),
   modsDeleteFailed: createModal<{
