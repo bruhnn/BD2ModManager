@@ -1,25 +1,25 @@
-use std::sync::{Arc, Mutex};
-use std::path::PathBuf;
 use percent_encoding::percent_decode_str;
-use tauri::{Manager, http};
+use std::path::PathBuf;
+use std::sync::{Arc, Mutex};
+use tauri::{http, Manager};
 
 mod state;
 
-pub mod manager;
 pub mod config;
+pub mod errors;
 pub mod game;
+pub mod manager;
+pub mod migrate;
 pub mod mods;
 pub mod profiles;
-pub mod utils;
 pub mod updater;
-pub mod migrate;
-pub mod errors;
+pub mod utils;
 
 pub use state::AppState;
 
-use crate::manager::BD2ModManager;
 use crate::config::{BD2Config, PartialAppConfig};
-use crate::mods::metadata::{ModMetadataStore};
+use crate::manager::BD2ModManager;
+use crate::mods::metadata::ModMetadataStore;
 use crate::profiles::ProfileManager;
 use crate::state::BundledAssets;
 use crate::updater::commands::PendingUpdate;

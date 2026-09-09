@@ -1,19 +1,22 @@
 <script setup lang="ts">
-import { computed } from 'vue';
-
-import NavigationButton from './NavigationButton.vue';
-import NavigationSection from './NavigationSection.vue'
 import { Bolt, Component, Play, Puzzle, Settings, Users } from '@lucide/vue';
-import { useModsStore } from '../../stores/mods';
-import { invoke } from '@tauri-apps/api/core';
+
+import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { useConfirm } from '../../plugins/ConfirmService';
+
+import { invoke } from '@tauri-apps/api/core';
+
+import { useModsStore } from '../../stores/mods';
 import { useLoggingStore } from '../../stores/logging';
-import Select from '../common/Select.vue';
 import { useProfilesStore } from '../../stores/profiles.ts';
-import MultiButton from '../common/MultiButton.vue';
 import { useNotificationStore } from '../../stores/notification.ts';
 import { useGameStore } from '../../stores/game.ts';
+import { useConfirm } from '../../plugins/ConfirmService';
+
+import NavigationSection from './NavigationSection.vue'
+import NavigationButton from './NavigationButton.vue';
+import MultiButton from '../common/MultiButton.vue';
+import Select from '../common/Select.vue';
 
 const { t } = useI18n()
 const notificationStore = useNotificationStore()
