@@ -922,6 +922,7 @@
             "StorageFull": "Not enough disk space."
         },
         "ModInstallError": {
+            "ModContainsSymlink": "This mod contains a symbolic link or junction: “{path}”. Replace it with the actual files before installing.",
             "ModAlreadyExists": "A mod with this name already exists.",
             "PathNotFound": "The selected mod path was not found.",
             "InvalidName": "The selected path does not have a valid mod name.",
@@ -942,6 +943,7 @@
             "ModAlreadyExists": "A mod named \"{mod_name}\" already exists"
         },
         "ModSyncError": {
+            "ModContainsSymlink": "This mod contains a symbolic link or junction: “{path}”. Replace it with the actual files before syncing.",
             "SymlinkAdminRequired": "Administrator privileges are required to create symbolic links.",
             "PathNotFound": "Path \"{path}\" was not found",
             "CopyFailed": "Failed to copy mod \"{mod_name}\": {kind}",

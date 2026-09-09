@@ -40,6 +40,7 @@ export interface SyncError {
     type:
         | "SymlinkAdminRequired"
         | "PathNotFound"
+        | "ModContainsSymlink"
         | "CopyFailed"
         | "SymlinkFailed"
         | "HardlinkFailed"

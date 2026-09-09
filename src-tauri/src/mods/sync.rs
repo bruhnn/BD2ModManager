@@ -74,6 +74,9 @@ pub enum ModSyncError {
     #[error("the path '{path}' was not found")]
     PathNotFound { path: String },
 
+    #[error("Mod contains a symbolic link or junction: '{path}'")]
+    ModContainsSymlink { path: String },
+
     #[error("failed to copy mod '{mod_name}': {source}")]
     CopyFailed {
         mod_name: String,
@@ -127,6 +130,10 @@ impl serde::Serialize for ModSyncError {
             ModSyncError::SymlinkAdminRequired => ("SymlinkAdminRequired", None),
             ModSyncError::PathNotFound { path } => (
                 "PathNotFound",
+                Some(json!({ "path": path })),
+            ),
+            ModSyncError::ModContainsSymlink { path } => (
+                "ModContainsSymlink",
                 Some(json!({ "path": path })),
             ),
             ModSyncError::CopyFailed { mod_name, source } => (
@@ -586,11 +593,14 @@ pub fn sync_mods(
                         was_updated = true;
                     }
                 }
-                Err(source) => {
+                Err(ModSyncError::Io(source)) => {
                     sync_error = Some(ModSyncError::CopyFailed {
                         mod_name: _mod.name.clone(),
                         source,
                     });
+                }
+                Err(error) => {
+                    sync_error = Some(error);
                 }
             },
             SyncMethod::Symlink => {

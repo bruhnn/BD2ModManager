@@ -2,6 +2,7 @@ use serde::{Deserialize, Serialize};
 use log::{error, info};
 use std::{fs::File, path::PathBuf};
 use zip::ZipArchive;
+use std::os::windows::fs::MetadataExt;
 
 use crate::utils::files::ensure_dir_exists;
 
@@ -17,6 +18,8 @@ pub enum ModInstallError {
     InvalidName { path: String },
     #[error("a mod named '{mod_name}' already exists")]
     ModAlreadyExists { mod_name: String },
+    #[error("Mod contains a symbolic link or junction: '{path}'")]
+    ModContainsSymlink { path: String },
     #[error("the provided path '{path}' does not appear to be a valid mod")]
     NotAMod { path: String },
     #[error("unsupported archive format")]
@@ -44,6 +47,7 @@ impl serde::Serialize for ModInstallError {
             ModInstallError::Io(error) => ("Io".to_string(), Some(json!({ "kind": format!("{:?}", error.kind()) }))),
             ModInstallError::PathNotFound { path, mod_name } => ("PathNotFound".to_string(),Some(json!({ "path": path, "mod_name": mod_name }))),
             ModInstallError::InvalidName { path } => ("InvalidName".to_string(), Some(json!({ "path": path }))),
+            ModInstallError::ModContainsSymlink { path } => ("ModContainsSymlink".to_string(), Some(json!({ "path": path }))),
             ModInstallError::ModAlreadyExists { mod_name } => ("ModAlreadyExists".to_string(), Some(json!({ "mod_name": mod_name }))),
             ModInstallError::UnsupportedFormat => ("UnsupportedFormat".to_string(), None),
             ModInstallError::InvalidArchive => ("InvalidArchive".to_string(), None),
@@ -98,6 +102,15 @@ fn find_mod_root_in_dir(dir: &PathBuf) -> Result<PathBuf, ModInstallError> {
             error!("Failed to walk extracted directory: {:?}", e);
             ModInstallError::InvalidArchive
         })?;
+        let metadata = std::fs::symlink_metadata(entry.path())?;
+
+        // FILE_ATTRIBUTE_REPARSE_POINT
+        if metadata.file_attributes() & 0x400 != 0 {
+            return Err(ModInstallError::ModContainsSymlink {
+                path: entry.path().to_string_lossy().to_string(),
+            });
+        }
+
         if entry
             .path()
             .extension()
