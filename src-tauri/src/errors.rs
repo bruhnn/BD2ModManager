@@ -118,7 +118,7 @@ impl serde::Serialize for AppError {
             AppError::Migrate(err) => get_error_details(err),
             AppError::GameDirectoryNotSet => serde_json::Value::Null,
             AppError::GameRunning => serde_json::Value::Null,
-            AppError::SyncMethodInvalid { method } => serde_json::Value::String(method.clone()),
+            AppError::SyncMethodInvalid { method } => serde_json::json!({ "method": method }),
             AppError::Unknown(_) => serde_json::Value::Null,
         };
 
