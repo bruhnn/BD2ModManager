@@ -53,7 +53,6 @@ export function useAppInitializer() {
     loggingStore.logDebug("Starting BD2ModManager");
 
     await Promise.all([
-      settingsStore.loadSettings(),
       useCharactersStore().loadCharacters(),
       useProfilesStore().loadProfiles(),
     ]);
