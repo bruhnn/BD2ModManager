@@ -107,7 +107,7 @@ pub async fn preview_mod(
                 .map_err(|err| match err.kind() {
                     ErrorKind::NotFound => PreviewError::ModPreviewNotFound,
                     _ => PreviewError::PreviewFailed {
-                        reason: err.kind().to_string(),
+                        reason: err.to_string(),
                     },
                 })?;
         }
