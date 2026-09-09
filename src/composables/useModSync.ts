@@ -6,7 +6,7 @@ import { useNotificationStore } from '../stores/notification'
 import { useI18n } from 'vue-i18n'
 import { useConfirm } from '../plugins/ConfirmService'
 import { getErrorMessage } from '../utils/errors'
-// import { globalModals } from './useGlobalModals'
+import { globalModals } from './useGlobalModals'
 
 export function useModSync() {
     const { t } = useI18n()
@@ -77,7 +77,23 @@ export function useModSync() {
         }
 
         try {
-            await modsStore.syncMods()
+            const result = await modsStore.syncMods()
+            if (!result) return
+
+            if (result.synced < result.total) {
+                loggingStore.logDebug(`Syncing mods completed with errors: ${result.synced} of ${result.total}.`);
+                notificationStore.add({
+                    type: 'warn',
+                    closable: true,
+                    title: t('modsTab.notifications.syncMods.completedWithErrors.title'),
+                    message: t('modsTab.notifications.syncMods.completedWithErrors.message', { synced: result.synced, total: result.total }),
+                    action: {
+                        label: t('modsTab.notifications.syncMods.completedWithErrors.details'),
+                        onClick: () => globalModals.sync.showModal()
+                    }
+                })
+                return
+            }
         } catch (error: any) {
             loggingStore.logError("An error occurred during mod sync:", JSON.stringify(error, null, 2));
 

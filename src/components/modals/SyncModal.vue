@@ -61,6 +61,7 @@ const title = computed(() => {
       case SyncStatus.COMPLETED: return t('modals.sync.titles.completed')
       case SyncStatus.FAILED: return t('modals.sync.titles.failed')
       case SyncStatus.IDLE: return t('modals.sync.titles.idle')
+      case SyncStatus.COMPLETED_WITH_ERRORS: return t('modsTab.notifications.syncMods.completedWithErrors.title')
     }
   } else if (syncStateStore.type === SyncType.Unsync) {
     switch (syncStateStore.status) {

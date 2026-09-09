@@ -58,6 +58,12 @@ struct SyncProgressEvent {
 }
 
 #[derive(Serialize, Clone)]
+pub struct SyncResult {
+    synced: usize,
+    total: usize,
+}
+
+#[derive(Serialize, Clone)]
 struct SyncEndEvent<'a> {
     r#type: SyncType,
     success: bool,
@@ -212,7 +218,7 @@ pub fn sync_mods(
     game_directory: &PathBuf,
     mods: Vec<&BD2Mod>,
     method: SyncMethod,
-) -> Result<(), ModSyncError> {
+) -> Result<SyncResult, ModSyncError> {
     app_handle
         .emit(
             "sync-start",
@@ -397,6 +403,7 @@ pub fn sync_mods(
 
     // skip disabled mods that are not in game folder or mods with errors that are enabled, we don't need to remove because it is never synced
     let mut index = 0;
+    let mut failed = 0;
     let mods_to_sync: Vec<_> = mods
         .clone()
         .into_iter()
@@ -464,6 +471,9 @@ pub fn sync_mods(
             ),
         };
 
+        if error.is_some() {
+            failed += 1;
+        }
         index += 1;
         app_handle
             .emit(
@@ -535,6 +545,7 @@ pub fn sync_mods(
                 )
             };
 
+            failed += 1;
             index = index + 1;
             app_handle
                 .emit(
@@ -560,6 +571,7 @@ pub fn sync_mods(
                 );
                 if let Err(source) = remove_mod_path(&dst_path) {
                     error!("Failed to remove mod {:?} at path {:?}: {}", _mod.name, dst_path, source);
+                    failed += 1;
                     index = index + 1;
                     app_handle
                         .emit(
@@ -753,6 +765,9 @@ pub fn sync_mods(
         };
 
         let no_error = error.is_none();
+        if !no_error {
+            failed += 1;
+        }
 
         app_handle
             .emit(
@@ -789,20 +804,25 @@ pub fn sync_mods(
 
     save_manifest(&manifest_path, manifest).ok();
 
+    let result = SyncResult {
+        synced: index - failed,
+        total: index,
+    };
+
     app_handle
         .emit(
             "sync-end",
             SyncEndEvent {
                 r#type: SyncType::Sync,
                 success: true,
-                synced: index,
-                total: total_mods_count,
+                synced: result.synced,
+                total: result.total,
                 error: None,
             },
         )
         .ok();
 
-    Ok(())
+    Ok(result)
 }
 pub fn unsync_mods(
     app_handle: &tauri::AppHandle,

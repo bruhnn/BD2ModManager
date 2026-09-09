@@ -233,6 +233,20 @@
                 "title": "Mods Synced",
                 "description": "Your mods have been successfully synced with the game folder."
             },
+            "syncMods": {
+                "completedWithErrors": {
+                    "title": "Sync completed with errors",
+                    "message": "{synced} of {total} mods synced. Open the sync details to see which mods failed.",
+                    "details": "View details"
+                },
+                "success": {
+                    "title": "Mods Synced",
+                    "message": "Your mods have been successfully synced with the game folder."
+                },
+                "error": {
+                    "title": "Sync Failed"
+                }
+            },
             "unsyncSuccess": {
                 "title": "Mods Unsynced",
                 "description": "Your mods have been successfully removed from the game folder."

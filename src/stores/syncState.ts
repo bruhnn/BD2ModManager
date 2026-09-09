@@ -6,6 +6,7 @@ export enum SyncStatus {
   IDLE = 'idle',
   SYNCING = 'syncing',
   COMPLETED = 'completed',
+  COMPLETED_WITH_ERRORS = 'completedWithErrors',
   FAILED = 'failed'
 }
 
@@ -66,7 +67,7 @@ export const useSyncStateStore = defineStore("syncState", () => {
     syncEvents.onEnd((event) => {
       console.log("onEnd", event)
       if (event.success) {
-        status.value = SyncStatus.COMPLETED
+        status.value = event.type === SyncType.Sync && event.synced < event.total ? SyncStatus.COMPLETED_WITH_ERRORS : SyncStatus.COMPLETED
       } else {
         status.value = SyncStatus.FAILED
         if (event.error) {

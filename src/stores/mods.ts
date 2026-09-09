@@ -9,6 +9,7 @@ import { useSettingsStore } from './settings';
 import { useNotificationStore } from './notification';
 import { getErrorMessage } from '../utils/errors';
 import { useI18n } from 'vue-i18n';
+import { SyncResult } from '../composables/useModSyncEvents';
 
 export type BD2ModType =
     | { type: 'Standing'; id: string }
@@ -245,7 +246,7 @@ export const useModsStore = defineStore('mods', () => {
         return mod
     }
 
-    async function syncMods(): Promise<undefined> {
+    async function syncMods(): Promise<SyncResult | undefined> {
         if (isSyncing.value) {
             // add to queue or just log?
             // raise an error?
@@ -258,7 +259,7 @@ export const useModsStore = defineStore('mods', () => {
 
         isSyncing.value = true;
         try {
-            return await invoke("sync_mods")
+            return await invoke<SyncResult>("sync_mods")
         } finally {
             isSyncing.value = false;
         }

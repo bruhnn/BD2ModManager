@@ -1,7 +1,7 @@
 use std::{collections::HashMap, io::ErrorKind, path::PathBuf};
 
 use crate::{
-    errors::AppError, mods::{BD2Mod, delete::ModDeleteError, preview::{PreviewError, is_texture_mod, preview_image}, sync::SyncMethod, types::BD2ModError}, utils::path::{get_mod_preview_path, get_staging_dir},
+    errors::AppError, mods::{BD2Mod, delete::ModDeleteError, preview::{PreviewError, is_texture_mod, preview_image}, sync::{SyncMethod, SyncResult}, types::BD2ModError}, utils::path::{get_mod_preview_path, get_staging_dir},
 };
 use serde::Serialize;
 use tauri::{AppHandle, ipc::Channel};
@@ -152,7 +152,7 @@ pub fn install_mod_from_folder(
 pub async fn sync_mods(
     app_handle: tauri::AppHandle,
     state: tauri::State<'_, AppState>,
-) -> Result<(), AppError> {
+) -> Result<SyncResult, AppError> {
     let app_handle = app_handle.clone();
     let config_handle = state.config.clone();
     let mod_manager_handle = state.mod_manager.clone();

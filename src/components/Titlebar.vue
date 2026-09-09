@@ -9,6 +9,7 @@ import { listen, UnlistenFn } from '@tauri-apps/api/event';
 import { openUrl } from '@tauri-apps/plugin-opener';
 import { SyncStatus, useSyncStateStore } from '../stores/syncState';
 import { SyncError, SyncType } from '../composables/useSyncEvents';
+import { getSyncErrorMessage } from '../composables/useModSyncEvents';
 import { getVersion } from '@tauri-apps/api/app';
 import { useI18n } from 'vue-i18n';
 import { useLoggingStore } from '../stores/logging';
@@ -377,12 +378,18 @@ watch(() => settingsStore.appUpdateStatus?.checking, (checking) => {
                         class="w-4 h-4 shrink-0 animate-spin text-accent" />
                     <Check v-else-if="syncStateStore.status === SyncStatus.COMPLETED"
                         class="w-4 h-4 shrink-0 text-success" />
+                    <AlertTriangle v-else-if="syncStateStore.status === SyncStatus.COMPLETED_WITH_ERRORS"
+                        class="w-4 h-4 shrink-0 text-warning" />
                     <AlertTriangle v-else-if="syncStateStore.status === SyncStatus.FAILED"
                         class="w-4 h-4 shrink-0 text-error" />
 
                     <span v-if="syncStateStore.status === SyncStatus.FAILED"
                         class="flex-1 min-w-0 text-sm text-error truncate">
-                        {{ getErrorMessage(t, syncStateStore.error) }}
+                        {{ getSyncErrorMessage(t, syncStateStore.error) }}
+                    </span>
+                    <span v-else-if="syncStateStore.status === SyncStatus.COMPLETED_WITH_ERRORS"
+                        class="text-sm text-warning truncate max-w-30 md:max-w-50">
+                        {{ $t('modsTab.notifications.syncMods.completedWithErrors.title') }}
                     </span>
                     <span v-else-if="syncStateStore.status === SyncStatus.SYNCING"
                         class="text-sm font-mono truncate max-w-30 md:max-w-50">
@@ -406,7 +413,7 @@ watch(() => settingsStore.appUpdateStatus?.checking, (checking) => {
                 </div>
 
                 <button
-                    v-if="syncStateStore.status === SyncStatus.COMPLETED || syncStateStore.status === SyncStatus.FAILED"
+                    v-if="syncStateStore.status === SyncStatus.COMPLETED || syncStateStore.status === SyncStatus.COMPLETED_WITH_ERRORS || syncStateStore.status === SyncStatus.FAILED"
                     @click.stop="showSyncBar = false"
                     class="text-text-primary hover:text-accent relative z-20 transition-all flex items-center justify-center shrink-0">
                     <X class="w-[1.25em] h-[1.25em] cursor-pointer" />

@@ -28,6 +28,11 @@ export interface SyncProgressEvent {
     error: SyncError | null
 }
 
+export interface SyncResult {
+    synced: number
+    total: number
+}
+
 export interface SyncEndEvent {
     type: SyncType
     success: boolean

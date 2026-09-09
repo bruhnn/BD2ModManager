@@ -2,7 +2,7 @@ use std::{collections::HashMap, path::PathBuf};
 use log::{info, error, warn, debug};
 use tauri::{AppHandle, Emitter};
 
-use crate::{mods::{self, BD2Mod, delete::ModDeleteError, install::ModInstallError, metadata::{MetadataError, ModMetadataStore}, rename::ModRenameError, sync::{ModSyncError, SyncMethod}}, profiles::{ProfileManager, types::{Profile, ProfileError}}};
+use crate::{mods::{self, BD2Mod, delete::ModDeleteError, install::ModInstallError, metadata::{MetadataError, ModMetadataStore}, rename::ModRenameError, sync::{ModSyncError, SyncMethod, SyncResult}}, profiles::{ProfileManager, types::{Profile, ProfileError}}};
 
 pub struct BD2ModManager {
     pub profile_manager: ProfileManager,
@@ -214,7 +214,7 @@ impl BD2ModManager {
         app_handle: &AppHandle,
         game_directory: &PathBuf,
         method: SyncMethod,
-    ) -> Result<(), ModSyncError> {
+    ) -> Result<SyncResult, ModSyncError> {
         let mods: Vec<&BD2Mod> = self.cached_mods.values().collect();
 
         mods::sync::sync_mods(app_handle, game_directory, mods, method)
