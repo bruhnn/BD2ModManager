@@ -27,14 +27,21 @@ export function getErrorMessage(t: (key: string, params?: unknown) => string, er
   }
 
   if (isError(error)) {
-    const params = error.details && typeof error.details === "object"
-      ? error.details
-      : { details: error.details }
+    const details = error.details && typeof error.details === "object"
+      ? error.details as Record<string, unknown>
+      : {}
+    const reason = typeof details.kind === "string"
+      ? t(`errors.Io.${details.kind}`)
+      : details.reason
+
     if (error.type === "Io") {
-      const { kind } = error.details as { kind: string }
-      return t(`errors.Io.${kind}`)
+      return String(reason)
     }
-    return t(`errors.${error.parent}.${error.type}`, { ...params, defaultValue: error.message })
+    return t(`errors.${error.parent}.${error.type}`, {
+      ...details,
+      reason,
+      defaultValue: error.message
+    })
   }
 
   if (error instanceof Error) return error.message

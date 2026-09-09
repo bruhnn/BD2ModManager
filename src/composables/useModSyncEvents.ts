@@ -1,6 +1,7 @@
 import { listen, UnlistenFn } from "@tauri-apps/api/event"
 import { ref, Ref } from "vue"
 import { useLoggingStore } from "../stores/logging"
+import { getErrorMessage } from "../utils/errors"
 
 export enum SyncType {
     Sync = "Sync",
@@ -66,20 +67,7 @@ export function getSyncErrorMessage(
     error: SyncError | null | undefined
 ): string {
     if (!error) return t("errors.AppError.Unknown")
-
-    if (error.type === "Io") {
-        return t(`errors.Io.${error.details!.kind}`)
-    }
-
-    const details = error.details ?? {}
-    const reason = error.details?.kind
-        ? t(`errors.Io.${error.details.kind}`)
-        : ""
-
-    return t(`errors.ModSyncError.${error.type}`, {
-        ...details,
-        reason
-    })
+    return getErrorMessage(t, { parent: "ModSyncError", ...error })
 }
 
 interface SyncEventHandlers {
