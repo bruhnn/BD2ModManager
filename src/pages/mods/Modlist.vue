@@ -71,7 +71,6 @@ function getErrorDescription(error: string) {
     const errors: Record<string, string> = {
         "MissingTextures": "modErrors.missingTextures",
         "MissingModfile": "modErrors.missingModfile",
-        "IsNotExtracted": "modErrors.isNotExtracted",
         "ArchiveNotExtracted": "modErrors.archiveNotExtracted",
         "ShouldBeInFolder": "modErrors.shouldBeInFolder",
         "MissingAtlasFile": "modErrors.missingAtlasFile",
