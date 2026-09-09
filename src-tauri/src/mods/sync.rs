@@ -58,12 +58,12 @@ struct SyncProgressEvent {
 }
 
 #[derive(Serialize, Clone)]
-struct SyncEndEvent {
+struct SyncEndEvent<'a> {
     r#type: SyncType,
     success: bool,
     synced: usize,
     total: usize,
-    error: Option<Arc<ModSyncError>>,
+    error: Option<&'a ModSyncError>,
 }
 
 #[derive(thiserror::Error, Debug)]
@@ -236,7 +236,7 @@ pub fn sync_mods(
                 SyncEndEvent {
                     r#type: SyncType::Sync,
                     success: false,
-                    error: Some(Arc::new(ModSyncError::GameModsDirectoryNotFound)),
+                    error: Some(&ModSyncError::GameModsDirectoryNotFound),
                     synced: 0,
                     total: 0,
                 },
@@ -258,7 +258,7 @@ pub fn sync_mods(
                     SyncEndEvent {
                         r#type: SyncType::Sync,
                         success: false,
-                        error: Some(Arc::new(ModSyncError::SymlinkAdminRequired)),
+                        error: Some(&ModSyncError::SymlinkAdminRequired),
                         total: 0,
                         synced: 0,
                     },
@@ -276,10 +276,26 @@ pub fn sync_mods(
         if previous_manifest.method != method {
             info!("Sync method changed from {:?} to {:?}, removing all synced mods.", previous_manifest.method, method);
 
-            for entry in game_mods_path
-                .read_dir()
-                .unwrap_or_else(|_| fs::read_dir(".").unwrap())
-            {
+            let entries = game_mods_path.read_dir().map_err(|source| {
+                let error = ModSyncError::Io(source);
+
+                app_handle
+                    .emit(
+                        "sync-end",
+                        SyncEndEvent {
+                            r#type: SyncType::Sync,
+                            success: false,
+                            synced: 0,
+                            total: 0,
+                            error: Some(&error),
+                        },
+                    )
+                    .ok();
+
+                error
+            })?;
+
+            for entry in entries {
                 if let Ok(entry) = entry {
                     let path = entry.path();
                     if path.symlink_metadata().is_err() {
@@ -348,10 +364,26 @@ pub fn sync_mods(
         // No manifest  remove anything in game mods folder not in current mod list
         let current_mod_names: Vec<String> = mods.iter().map(|m| m.name.clone()).collect();
 
-        for entry in game_mods_path
-            .read_dir()
-            .unwrap_or_else(|_| fs::read_dir(".").unwrap())
-        {
+        let entries = game_mods_path.read_dir().map_err(|source| {
+            let error = ModSyncError::Io(source);
+
+            app_handle
+                .emit(
+                    "sync-end",
+                    SyncEndEvent {
+                        r#type: SyncType::Sync,
+                        success: false,
+                        synced: 0,
+                        total: 0,
+                        error: Some(&error),
+                    },
+                )
+                .ok();
+
+            error
+        })?;
+
+        for entry in entries {
             if let Ok(entry) = entry {
                 let path = entry.path();
                 if let Some(name) = path.file_name().and_then(|n| n.to_str()) {
@@ -791,13 +823,46 @@ pub fn unsync_mods(
     let mut index = 0;
     let total_mods: usize = game_mods_path
         .read_dir()
-        .unwrap_or_else(|_| fs::read_dir(".").unwrap())
+        .map_err(|source| {
+            let error = ModSyncError::Io(source);
+
+            app_handle
+                .emit(
+                    "sync-end",
+                    SyncEndEvent {
+                        r#type: SyncType::Unsync,
+                        success: false,
+                        synced: 0,
+                        total: 0,
+                        error: Some(&error),
+                    },
+                )
+                .ok();
+
+            error
+        })?
         .count();
 
-    for entry in game_mods_path
-        .read_dir()
-        .unwrap_or_else(|_| fs::read_dir(".").unwrap())
-    {
+    let entries = game_mods_path.read_dir().map_err(|source| {
+        let error = ModSyncError::Io(source);
+
+        app_handle
+            .emit(
+                "sync-end",
+                SyncEndEvent {
+                    r#type: SyncType::Unsync,
+                    success: false,
+                    synced: 0,
+                    total: total_mods,
+                    error: Some(&error),
+                },
+            )
+            .ok();
+
+        error
+    })?;
+
+    for entry in entries {
         if let Ok(entry) = entry {
             let path = entry.path();
             debug!("Removing mod at path: {:?}", path);
