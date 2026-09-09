@@ -568,6 +568,7 @@
         "noModsEnabled": "Nenhum mod ativado.",
         "noProfileSelected": "Nenhum perfil selecionado. Por favor, selecione um perfil para ver seus detalhes.",
         "actions": {
+            "cleanMissingMods": "Remover ausentes",
             "createProfile": "Criar Perfil",
             "editProfile": "Editar Perfil",
             "deleteProfile": "Excluir Perfil",
@@ -575,6 +576,15 @@
             "refreshProfiles": "Atualizar Perfis"
         },
         "notifications": {
+            "cleanMissingMods": {
+                "success": {
+                    "title": "Perfil limpo",
+                    "message": "Nenhum mod ausente encontrado em \"{profileName}\". | {count} mod ausente removido de \"{profileName}\". | {count} mods ausentes removidos de \"{profileName}\"."
+                },
+                "error": {
+                    "title": "Falha ao limpar perfil"
+                }
+            },
             "createProfile": {
                 "success": {
                     "title": "Perfil Criado",

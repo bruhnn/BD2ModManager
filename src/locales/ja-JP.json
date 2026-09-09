@@ -568,6 +568,7 @@
         "noModsEnabled": "有効なMODはありません。",
         "noProfileSelected": "プロファイルが選択されていません。詳細を確認するにはプロファイルを選択してください。",
         "actions": {
+            "cleanMissingMods": "不在Modを削除",
             "createProfile": "プロファイルを作成",
             "editProfile": "プロファイルを編集",
             "deleteProfile": "プロファイルを削除",
@@ -575,6 +576,15 @@
             "refreshProfiles": "プロフィールを更新"
         },
         "notifications": {
+            "cleanMissingMods": {
+                "success": {
+                    "title": "プロフィールを整理しました",
+                    "message": "「{profileName}」から存在しないModを{count}件削除しました。"
+                },
+                "error": {
+                    "title": "プロフィールの整理に失敗しました"
+                }
+            },
             "createProfile": {
                 "success": {
                     "title": "プロファイルを作成しました",

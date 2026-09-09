@@ -568,6 +568,7 @@
         "noModsEnabled": "활성화된 모드가 없습니다.",
         "noProfileSelected": "프로필이 선택되지 않았습니다. 상세 정보를 보려면 프로필을 선택해 주세요.",
         "actions": {
+            "cleanMissingMods": "없는 모드 제거",
             "createProfile": "프로필 생성",
             "editProfile": "프로필 편집",
             "deleteProfile": "프로필 삭제",
@@ -575,6 +576,15 @@
             "refreshProfiles": "프로필 새로고침"
         },
         "notifications": {
+            "cleanMissingMods": {
+                "success": {
+                    "title": "프로필 정리 완료",
+                    "message": "\"{profileName}\"에서 없는 모드 {count}개를 제거했습니다."
+                },
+                "error": {
+                    "title": "프로필 정리 실패"
+                }
+            },
             "createProfile": {
                 "success": {
                     "title": "프로필 생성 완료",

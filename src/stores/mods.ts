@@ -6,6 +6,7 @@ import { Character, useCharactersStore } from './characters';
 import { useLoggingStore } from './logging';
 import { useDebounceFn } from '@vueuse/core';
 import { useSettingsStore } from './settings';
+import { useProfilesStore } from './profiles';
 import { useNotificationStore } from './notification';
 import { getErrorMessage } from '../utils/errors';
 import { useI18n } from 'vue-i18n';
@@ -242,6 +243,7 @@ export const useModsStore = defineStore('mods', () => {
             // remove the old mod
             modsCache.value.delete(modName)
         }
+        await useProfilesStore().loadProfiles()
         debouncedSync()
         return mod
     }

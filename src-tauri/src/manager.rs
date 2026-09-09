@@ -268,7 +268,9 @@ impl BD2ModManager {
 
         self.cached_mods.insert(updated_mod.name.clone(), updated_mod.clone());
 
-        if let Err(error) = self.metadata_store.rename_mod(&mod_name, &new_name) {            
+        self.profile_manager.rename_mod_in_profiles(&mod_name, &updated_mod.name);
+
+        if let Err(error) = self.metadata_store.rename_mod(&mod_name, &updated_mod.name) {
             warn!("Failed to rename metadata for mod {}: {:?}", updated_mod.name, error);
         }
 

@@ -196,6 +196,7 @@ pub fn run() {
             profiles::commands::edit_profile,
             profiles::commands::create_profile,
             profiles::commands::delete_profile,
+            profiles::commands::clean_missing_mods,
             // config
             config::commands::get_settings,
             config::commands::set_settings,

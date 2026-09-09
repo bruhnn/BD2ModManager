@@ -114,7 +114,10 @@ pub fn rename_mod(mod_: BD2Mod, new_name: String) -> Result<BD2Mod, ModRenameErr
 
     let mut updated_mod = mod_;
 
-    updated_mod.name = new_name.clone();
+    updated_mod.name = match updated_mod.name.rsplit_once('/') {
+        Some((parent, _)) => format!("{}/{}", parent, new_name),
+        None => new_name.clone(),
+    };
     updated_mod.path = new_path.clone();
     updated_mod.display_name = new_path
         .file_name()

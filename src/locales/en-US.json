@@ -579,6 +579,7 @@
         "noModsEnabled": "No mods enabled.",
         "noProfileSelected": "No profile selected. Please select a profile to view its details.",
         "actions": {
+            "cleanMissingMods": "Remove Missing",
             "createProfile": "Create Profile",
             "editProfile": "Edit Profile",
             "deleteProfile": "Delete Profile",
@@ -586,6 +587,15 @@
             "refreshProfiles": "Refresh Profiles"
         },
         "notifications": {
+            "cleanMissingMods": {
+                "success": {
+                    "title": "Profile Cleaned",
+                    "message": "No missing mods found in \"{profileName}\". | Removed {count} missing mod from \"{profileName}\". | Removed {count} missing mods from \"{profileName}\"."
+                },
+                "error": {
+                    "title": "Failed to Clean Profile"
+                }
+            },
             "createProfile": {
                 "success": {
                     "title": "Profile Created",

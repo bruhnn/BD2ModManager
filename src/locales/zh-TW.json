@@ -568,6 +568,7 @@
         "noModsEnabled": "未啟用任何模組。",
         "noProfileSelected": "未選取設定檔。請選取一個設定檔以查看詳細資訊。",
         "actions": {
+            "cleanMissingMods": "移除遺失項目",
             "createProfile": "建立設定檔",
             "editProfile": "編輯設定檔",
             "deleteProfile": "刪除設定檔",
@@ -575,6 +576,15 @@
             "refreshProfiles": "重新整理設定檔"
         },
         "notifications": {
+            "cleanMissingMods": {
+                "success": {
+                    "title": "設定檔清理完成",
+                    "message": "已從「{profileName}」中移除 {count} 個遺失的模組紀錄。"
+                },
+                "error": {
+                    "title": "設定檔清理失敗"
+                }
+            },
             "createProfile": {
                 "success": {
                     "title": "設定檔已建立",

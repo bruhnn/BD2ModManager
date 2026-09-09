@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, useTemplateRef } from 'vue'
 import { useProfilesStore } from '../../stores/profiles'
-import { Edit, PlusCircle, RefreshCcw, Trash2, TriangleAlert } from '@lucide/vue'
+import { Edit, PlusCircle, RefreshCcw, Trash2, TriangleAlert, ListX } from '@lucide/vue'
 import { useHeader } from '../../composables/useHeader'
 import { useI18n } from 'vue-i18n'
 import EditProfile from './modals/EditProfile.vue'
@@ -20,6 +20,7 @@ const editProfileModal = useTemplateRef('editProfileModal')
 const createProfileModal = useTemplateRef('createProfileModal')
 
 const profileSelectedId = ref<string | null>('default')
+const isCleaning = ref(false)
 
 const selectedProfile = computed(() => {
   if (!profileSelectedId.value) return null
@@ -79,6 +80,31 @@ async function deleteSelected() {
       message: getErrorMessage(t, error),
       duration: 3000
     })
+  }
+}
+
+async function cleanMissingMods() {
+  if (!selectedProfile.value || isCleaning.value) return
+
+  const profile = selectedProfile.value
+  isCleaning.value = true
+  try {
+    const removed = await profilesStore.cleanMissingMods(profile.id)
+    notificationStore.add({
+      type: 'success',
+      title: t('profilesTab.notifications.cleanMissingMods.success.title'),
+      message: t('profilesTab.notifications.cleanMissingMods.success.message', { count: removed, profileName: profile.name }, removed),
+      duration: 3000
+    })
+  } catch (error) {
+    notificationStore.add({
+      type: 'error',
+      title: t('profilesTab.notifications.cleanMissingMods.error.title'),
+      message: getErrorMessage(t, error),
+      duration: 5000
+    })
+  } finally {
+    isCleaning.value = false
   }
 }
 
@@ -206,12 +232,12 @@ useHeader({
           </div>
         </div>
 
-        <div class="flex-1 min-w-0 p-4 box-border">
+        <div class="@container flex-1 min-w-0 p-4 box-border">
           <div v-if="selectedProfile" class="flex flex-col gap-4 h-full">
 
             <div class="flex justify-between items-center gap-2">
               <div class="overflow-hidden min-w-0">
-                <h3 class="font-bold text-lg">{{ selectedProfile.name }}</h3>
+                <h3 class="font-bold text-lg ">{{ selectedProfile.name }}</h3>
                 <p class="text-text-secondary text-sm truncate">
                   {{ selectedProfile.description === 'd3f4ult'
                     ? $t('profilesTab.defaultProfile')
@@ -219,10 +245,23 @@ useHeader({
                 </p>
               </div>
 
-              <div class="flex gap-2">
+              <div class="flex shrink-0 gap-2">
+                <Button
+                  variant="text"
+                  :label="$t('profilesTab.actions.cleanMissingMods')"
+                  label-class="hidden @min-[36rem]:inline"
+                  :title="$t('profilesTab.actions.cleanMissingMods')"
+                  :aria-label="$t('profilesTab.actions.cleanMissingMods')"
+                  :icon="ListX"
+                  :disabled="isCleaning"
+                  @click="cleanMissingMods"
+                />
                 <Button
                   variant="text"
                   :label="$t('profilesTab.actions.editProfile')"
+                  label-class="hidden @min-[36rem]:inline"
+                  :title="$t('profilesTab.actions.editProfile')"
+                  :aria-label="$t('profilesTab.actions.editProfile')"
                   :icon="Edit"
                   :disabled="selectedProfile.id === 'default'"
                   @click="editSelected"
@@ -230,6 +269,9 @@ useHeader({
                 <Button
                   variant="text"
                   :label="$t('profilesTab.actions.deleteProfile')"
+                  label-class="hidden @min-[36rem]:inline"
+                  :title="$t('profilesTab.actions.deleteProfile')"
+                  :aria-label="$t('profilesTab.actions.deleteProfile')"
                   :icon="Trash2"
                   :disabled="selectedProfile.id === 'default'"
                   @click="deleteSelected"

@@ -337,6 +337,52 @@ impl ProfileManager {
         }
     }
 
+    pub fn rename_mod_in_profiles(&mut self, mod_name: &str, new_name: &str) {
+        let mut changed_profiles = Vec::new();
+        for profile in self.profiles.values_mut() {
+            if profile.enabled_mods.iter().any(|m| m == mod_name) {
+                for name in profile.enabled_mods.iter_mut() {
+                    if name == mod_name {
+                        *name = new_name.to_string();
+                    }
+                }
+                changed_profiles.push(profile.clone());
+            }
+        }
+        for profile in changed_profiles {
+            if let Err(e) = self.save_profile(&profile) {
+                error!(
+                    "Failed to save profile '{}' after renaming mod '{}': {}",
+                    profile.name, mod_name, e
+                );
+            }
+        }
+    }
+
+    pub fn clean_missing_mods(&mut self, profile_id: String, staging_dir: &PathBuf) -> Result<usize, ProfileError> {
+        let mut profile = self.profiles.get(&profile_id).cloned().ok_or_else(|| {
+            ProfileError::ProfileNotFound { profile_id: profile_id.clone() }
+        })?;
+
+        read_dir(staging_dir)?;
+
+        let mut enabled_mods = Vec::new();
+        for mod_name in &profile.enabled_mods {
+            if staging_dir.join(mod_name).try_exists()? {
+                enabled_mods.push(mod_name.clone());
+            }
+        }
+
+        let removed = profile.enabled_mods.len() - enabled_mods.len();
+        if removed > 0 {
+            profile.enabled_mods = enabled_mods;
+            self.save_profile(&profile)?;
+            self.profiles.insert(profile_id, profile);
+        }
+
+        Ok(removed)
+    }
+
     pub fn remove_mod_from_profiles(&mut self, mod_name: &str) {
         let mut changed_profiles = Vec::new();
         for profile in self.profiles.values_mut() {
