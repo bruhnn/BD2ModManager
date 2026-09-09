@@ -926,7 +926,6 @@
             "sections": {
                 "migration": {
                     "title": "이전 버전에서 가져오기",
-                    "description": "v3.2.4 이하에서 프로필 및 모드 제작자를 가져옵니다.",
                     "profiles": {
                         "title": "프로필",
                         "description": "v3.2.4 이하에서 가져올 프로필을 선택하세요.",
@@ -954,42 +953,24 @@
                     "notifications": {
                         "importProfilesSuccess": {
                             "title": "프로필 가져오기 완료",
-                            "description": "이전 버전에서 프로필을 성공적으로 가져왔습니다."
+                            "message": "이전 버전에서 프로필을 성공적으로 가져왔습니다."
                         },
                         "importModAuthorsSuccess": {
                             "title": "모드 제작자 가져오기 완료",
-                            "description": "이전 버전에서 모드 제작자를 성공적으로 가져왔습니다."
-                        },
-                        "importFailed": {
-                            "title": "가져오기 실패",
-                            "description": "데이터를 가져오는 중 오류가 발생했습니다: {error}"
-                        },
-                        "errorFetchingProfiles": {
-                            "title": "프로필 가져오기 실패",
-                            "description": "이전 버전에서 프로필을 가져오는 중 오류가 발생했습니다: {error}"
+                            "message": "이전 버전에서 모드 제작자를 성공적으로 가져왔습니다."
                         },
                         "noProfilesToImport": {
                             "title": "가져올 프로필 없음",
-                            "description": "이전 버전에서 가져올 프로필을 찾을 수 없습니다."
+                            "message": "이전 버전에서 가져올 프로필을 찾을 수 없습니다."
                         },
                         "noProfilesSelected": {
                             "title": "선택된 프로필 없음",
-                            "description": "가져올 프로필을 하나 이상 선택해 주세요."
+                            "message": "가져올 프로필을 하나 이상 선택해 주세요."
                         },
                         "noModAuthorsToImport": {
                             "title": "가져올 Mod 제작자 없음",
-                            "description": "이전 버전에서 가져올 수 있는 Mod 제작자를 찾을 수 없습니다."
+                            "message": "이전 버전에서 가져올 수 있는 Mod 제작자를 찾을 수 없습니다."
                         }
-                    },
-                    "errors": {
-                        "IoError": "I/O 오류: {message}",
-                        "ProfileImportError": "프로필 가져오기에 실패했습니다: {message}",
-                        "ProfileDeleteError": "이전 프로필 삭제에 실패했습니다: {message}",
-                        "ModsImportError": "이전 Mod를 읽어오지 못했습니다: {message}",
-                        "ModsParseError": "이전 Mod 파싱에 실패했습니다: {message}",
-                        "ModsDeleteError": "이전 Mod 파일 삭제에 실패했습니다: {message}",
-                        "ModsRefreshError": "가져오기 후 Mod 새로고침에 실패했습니다: {message}",
-                        "Unknown": "예기치 않은 오류가 발생했습니다: {message}"
                     }
                 }
             }
@@ -1001,6 +982,16 @@
         },
         "ModSyncError": {
             "ModContainsSymlink": "이 모드에는 심볼릭 링크 또는 정션이 포함되어 있습니다: “{path}”. 동기화하기 전에 실제 파일로 교체해 주세요."
+        },
+        "MigrateError": {
+            "title": "마이그레이션 실패",
+            "IoError": "I/O 오류: {reason}",
+            "ProfileImportError": "프로필 가져오기에 실패했습니다: {reason}",
+            "ProfileDeleteError": "이전 프로필 삭제에 실패했습니다: {reason}",
+            "ModsImportError": "이전 버전 모드 제작자 정보 가져오기 실패: {reason}",
+            "ModsParseError": "이전 Mod 파싱에 실패했습니다: {reason}",
+            "ModsDeleteError": "이전 Mod 파일 삭제에 실패했습니다: {reason}",
+            "ModsRefreshError": "가져오기 후 Mod 새로고침에 실패했습니다: {reason}"
         },
         "syncFailed": "모드 동기화 실패",
         "unsyncFailed": "모드 동기화 해제 실패",

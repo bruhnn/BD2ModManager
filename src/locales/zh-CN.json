@@ -926,7 +926,6 @@
             "sections": {
                 "migration": {
                     "title": "从旧版本导入",
-                    "description": "从 v3.2.4 或更早版本导入配置文件和模组作者。",
                     "profiles": {
                         "title": "配置文件",
                         "description": "选择要从 v3.2.4 或更早版本导入的配置文件。",
@@ -954,42 +953,24 @@
                     "notifications": {
                         "importProfilesSuccess": {
                             "title": "配置文件已导入",
-                            "description": "配置文件已成功从旧版本导入。"
+                            "message": "配置文件已成功从旧版本导入。"
                         },
                         "importModAuthorsSuccess": {
                             "title": "模组作者已导入",
-                            "description": "模组作者已成功从旧版本导入。"
-                        },
-                        "importFailed": {
-                            "title": "导入失败",
-                            "description": "导入数据时发生错误：{error}"
-                        },
-                        "errorFetchingProfiles": {
-                            "title": "获取配置文件失败",
-                            "description": "从旧版本获取配置文件时发生错误：{error}"
+                            "message": "模组作者已成功从旧版本导入。"
                         },
                         "noProfilesToImport": {
                             "title": "没有可导入的配置文件",
-                            "description": "在旧版本中未找到可导入的配置文件。"
+                            "message": "在旧版本中未找到可导入的配置文件。"
                         },
                         "noProfilesSelected": {
                             "title": "未选择配置文件",
-                            "description": "请至少选择一个要导入的配置文件。"
+                            "message": "请至少选择一个要导入的配置文件。"
                         },
                         "noModAuthorsToImport": {
                             "title": "没有可导入的 Mod 作者",
-                            "description": "在旧版本中未找到可导入的 Mod 作者。"
+                            "message": "在旧版本中未找到可导入的 Mod 作者。"
                         }
-                    },
-                    "errors": {
-                        "IoError": "I/O 错误：{message}",
-                        "ProfileImportError": "导入配置文件失败：{message}",
-                        "ProfileDeleteError": "删除旧版配置文件失败：{message}",
-                        "ModsImportError": "读取旧版 Mod 失败：{message}",
-                        "ModsParseError": "解析旧版 Mod 失败：{message}",
-                        "ModsDeleteError": "删除旧版 Mod 文件失败：{message}",
-                        "ModsRefreshError": "导入后刷新 Mod 失败：{message}",
-                        "Unknown": "发生意外错误：{message}"
                     }
                 }
             }
@@ -1001,6 +982,16 @@
         },
         "ModSyncError": {
             "ModContainsSymlink": "此模组包含符号链接或目录联接：“{path}”。请先将其替换为实际文件，再进行同步。"
+        },
+        "MigrateError": {
+            "title": "迁移失败",
+            "IoError": "I/O 错误：{reason}",
+            "ProfileImportError": "导入配置文件失败：{reason}",
+            "ProfileDeleteError": "删除旧版配置文件失败：{reason}",
+            "ModsImportError": "导入旧版模组作者失败：{reason}",
+            "ModsParseError": "解析旧版 Mod 失败：{reason}",
+            "ModsDeleteError": "删除旧版 Mod 文件失败：{reason}",
+            "ModsRefreshError": "导入后刷新 Mod 失败：{reason}"
         },
         "syncFailed": "模组同步失败",
         "unsyncFailed": "取消模组同步失败",

@@ -926,7 +926,6 @@
             "sections": {
                 "migration": {
                     "title": "從舊版本匯入",
-                    "description": "從 v3.2.4 或更早版本匯入設定檔和模組作者。",
                     "profiles": {
                         "title": "設定檔",
                         "description": "選擇要從 v3.2.4 或更早版本匯入的設定檔。",
@@ -954,42 +953,24 @@
                     "notifications": {
                         "importProfilesSuccess": {
                             "title": "設定檔已匯入",
-                            "description": "設定檔已成功從舊版本匯入。"
+                            "message": "設定檔已成功從舊版本匯入。"
                         },
                         "importModAuthorsSuccess": {
                             "title": "模組作者已匯入",
-                            "description": "模組作者已成功從舊版本匯入。"
-                        },
-                        "importFailed": {
-                            "title": "匯入失敗",
-                            "description": "匯入資料時發生錯誤：{error}"
-                        },
-                        "errorFetchingProfiles": {
-                            "title": "擷取設定檔失敗",
-                            "description": "從舊版本擷取設定檔時發生錯誤：{error}"
+                            "message": "模組作者已成功從舊版本匯入。"
                         },
                         "noProfilesToImport": {
                             "title": "沒有可匯入的設定檔",
-                            "description": "在舊版本中未找到可匯入的設定檔。"
+                            "message": "在舊版本中未找到可匯入的設定檔。"
                         },
                         "noProfilesSelected": {
                             "title": "未選擇任何設定檔",
-                            "description": "請至少選擇一個要匯入的設定檔。"
+                            "message": "請至少選擇一個要匯入的設定檔。"
                         },
                         "noModAuthorsToImport": {
                             "title": "沒有可匯入的 Mod 作者",
-                            "description": "在舊版本中找不到可匯入的 Mod 作者。"
+                            "message": "在舊版本中找不到可匯入的 Mod 作者。"
                         }
-                    },
-                    "errors": {
-                        "IoError": "I/O 錯誤：{message}",
-                        "ProfileImportError": "匯入設定檔失敗：{message}",
-                        "ProfileDeleteError": "刪除舊版設定檔失敗：{message}",
-                        "ModsImportError": "讀取舊版 Mod 失敗：{message}",
-                        "ModsParseError": "解析舊版 Mod 失敗：{message}",
-                        "ModsDeleteError": "刪除舊版 Mod 檔案失敗：{message}",
-                        "ModsRefreshError": "匯入後重新整理 Mod 失敗：{message}",
-                        "Unknown": "發生非預期錯誤：{message}"
                     }
                 }
             }
@@ -1001,6 +982,16 @@
         },
         "ModSyncError": {
             "ModContainsSymlink": "此模組包含符號連結或目錄接合點：「{path}」。請先將其替換為實際檔案，再進行同步。"
+        },
+        "MigrateError": {
+            "title": "遷移失敗",
+            "IoError": "I/O 錯誤：{reason}",
+            "ProfileImportError": "匯入設定檔失敗：{reason}",
+            "ProfileDeleteError": "刪除舊版設定檔失敗：{reason}",
+            "ModsImportError": "匯入舊版模組作者失敗：{reason}",
+            "ModsParseError": "解析舊版 Mod 失敗：{reason}",
+            "ModsDeleteError": "刪除舊版 Mod 檔案失敗：{reason}",
+            "ModsRefreshError": "匯入後重新整理 Mod 失敗：{reason}"
         },
         "syncFailed": "模組同步失敗",
         "unsyncFailed": "取消同步模組失敗",

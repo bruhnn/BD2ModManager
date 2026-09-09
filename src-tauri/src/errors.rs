@@ -1,6 +1,13 @@
 use serde::Serializer;
 
-use crate::{mods::{delete::ModDeleteError, install::ModInstallError, metadata::MetadataError, preview::PreviewError, rename::ModRenameError, sync::ModSyncError}, profiles::types::ProfileError};
+use crate::{
+    migrate::migrate::MigrateError,
+    mods::{
+        delete::ModDeleteError, install::ModInstallError, metadata::MetadataError,
+        preview::PreviewError, rename::ModRenameError, sync::ModSyncError,
+    },
+    profiles::types::ProfileError,
+};
 
 fn get_type_name<T>() -> &'static str {
     let type_name = std::any::type_name::<T>();
@@ -57,6 +64,8 @@ pub enum AppError {
     Metadata(#[from] MetadataError),
     #[error(transparent)]
     Preview(#[from] PreviewError),
+    #[error(transparent)]
+    Migrate(#[from] MigrateError),
 
     #[error("An unknown error occurred: {0}")]
     Unknown(String)
@@ -76,6 +85,7 @@ impl serde::Serialize for AppError {
             AppError::Profile(_) => get_type_name::<ProfileError>(),
             AppError::Metadata(_) => get_type_name::<MetadataError>(),
             AppError::Preview(_) => get_type_name::<PreviewError>(),
+            AppError::Migrate(_) => get_type_name::<MigrateError>(),
             AppError::GameDirectoryNotSet => get_type_name::<AppError>(),
             AppError::SyncMethodInvalid { method: _ } => get_type_name::<AppError>(),
             AppError::GameRunning => get_type_name::<AppError>(),
@@ -90,6 +100,7 @@ impl serde::Serialize for AppError {
             AppError::Profile(err) => get_error_type(err),
             AppError::Metadata(err) => get_error_type(err),
             AppError::Preview(err) => get_error_type(err),
+            AppError::Migrate(err) => get_error_type(err),
             AppError::GameDirectoryNotSet => "GameDirectoryNotSet".to_string(),
             AppError::SyncMethodInvalid { method: _ } => "SyncMethodInvalid".to_string(),
             AppError::GameRunning => "GameRunning".to_string(),
@@ -104,6 +115,7 @@ impl serde::Serialize for AppError {
             AppError::Profile(err) => get_error_details(err),
             AppError::Metadata(err) => get_error_details(err),
             AppError::Preview(err) => get_error_details(err),
+            AppError::Migrate(err) => get_error_details(err),
             AppError::GameDirectoryNotSet => serde_json::Value::Null,
             AppError::GameRunning => serde_json::Value::Null,
             AppError::SyncMethodInvalid { method } => serde_json::Value::String(method.clone()),

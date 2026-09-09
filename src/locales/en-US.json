@@ -937,7 +937,6 @@
             "sections": {
                 "migration": {
                     "title": "Import from Legacy Version",
-                    "description": "Import profiles and mod authors from v3.2.4 or earlier.",
                     "profiles": {
                         "title": "Profiles",
                         "description": "Select the profiles you want to import from v3.2.4 or earlier.",
@@ -965,42 +964,24 @@
                     "notifications": {
                         "importProfilesSuccess": {
                             "title": "Profiles Imported",
-                            "description": "Profiles have been successfully imported from the legacy version."
+                            "message": "Profiles have been successfully imported from the legacy version."
                         },
                         "importModAuthorsSuccess": {
                             "title": "Mod Authors Imported",
-                            "description": "Mod authors have been successfully imported from the legacy version."
-                        },
-                        "importFailed": {
-                            "title": "Import Failed",
-                            "description": "An error occurred while importing data: {error}"
-                        },
-                        "errorFetchingProfiles": {
-                            "title": "Failed to Fetch Profiles",
-                            "description": "An error occurred while fetching profiles from the legacy version: {error}"
+                            "message": "Mod authors have been successfully imported from the legacy version."
                         },
                         "noProfilesToImport": {
                             "title": "No Profiles to Import",
-                            "description": "No profiles were found in the legacy version to import."
+                            "message": "No profiles were found in the legacy version to import."
                         },
                         "noProfilesSelected": {
                             "title": "No Profiles Selected",
-                            "description": "Please select at least one profile to import."
+                            "message": "Please select at least one profile to import."
                         },
                         "noModAuthorsToImport": {
                             "title": "No Mod Authors to Import",
-                            "description": "No mod authors were found in the legacy version to import."
+                            "message": "No mod authors were found in the legacy version to import."
                         }
-                    },
-                    "errors": {
-                        "IoError": "I/O error: {message}",
-                        "ProfileImportError": "Failed to import profile: {message}",
-                        "ProfileDeleteError": "Failed to delete legacy profile: {message}",
-                        "ModsImportError": "Failed to read legacy mods: {message}",
-                        "ModsParseError": "Failed to parse legacy mods: {message}",
-                        "ModsDeleteError": "Failed to delete legacy mods file: {message}",
-                        "ModsRefreshError": "Failed to refresh mods after import: {message}",
-                        "Unknown": "Unexpected error: {message}"
                     }
                 }
             }
@@ -1086,6 +1067,16 @@
             "ModHasErrors": "Mod \"{mod_name}\" contains errors and cannot be previewed",
             "ModPreviewNotFound": "Mod preview tool was not found. You can click 'Check for Updates' in settings to reinstall it.",
             "PreviewFailed": "Failed to preview mod: {reason}"
+        },
+        "MigrateError": {
+            "title": "Migration Failed",
+            "IoError": "I/O error: {reason}",
+            "ProfileImportError": "Failed to import profile: {reason}",
+            "ProfileDeleteError": "Failed to delete legacy profile: {reason}",
+            "ModsImportError": "Failed to import legacy mod authors: {reason}",
+            "ModsParseError": "Failed to parse legacy mods: {reason}",
+            "ModsDeleteError": "Failed to delete legacy mods file: {reason}",
+            "ModsRefreshError": "Failed to refresh mods after import: {reason}"
         }
     },
     "modErrors": {

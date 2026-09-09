@@ -926,7 +926,6 @@
             "sections": {
                 "migration": {
                     "title": "Importar da Versão Legada",
-                    "description": "Importe perfis e autores de mods da versão v3.2.4 ou anterior.",
                     "profiles": {
                         "title": "Perfis",
                         "description": "Selecione os perfis que deseja importar da versão v3.2.4 ou anterior.",
@@ -954,42 +953,24 @@
                     "notifications": {
                         "importProfilesSuccess": {
                             "title": "Perfis Importados",
-                            "description": "Os perfis foram importados com sucesso da versão legada."
+                            "message": "Os perfis foram importados com sucesso da versão legada."
                         },
                         "importModAuthorsSuccess": {
                             "title": "Autores de Mods Importados",
-                            "description": "Os autores de mods foram importados com sucesso da versão legada."
-                        },
-                        "importFailed": {
-                            "title": "Importação Falhou",
-                            "description": "Ocorreu um erro ao importar os dados: {error}"
-                        },
-                        "errorFetchingProfiles": {
-                            "title": "Falha ao Buscar Perfis",
-                            "description": "Ocorreu um erro ao buscar perfis da versão legada: {error}"
+                            "message": "Os autores de mods foram importados com sucesso da versão legada."
                         },
                         "noProfilesToImport": {
                             "title": "Nenhum Perfil para Importar",
-                            "description": "Nenhum perfil foi encontrado na versão legada para importar."
+                            "message": "Nenhum perfil foi encontrado na versão legada para importar."
                         },
                         "noProfilesSelected": {
                             "title": "Nenhum Perfil Selecionado",
-                            "description": "Selecione pelo menos um perfil para importar."
+                            "message": "Selecione pelo menos um perfil para importar."
                         },
                         "noModAuthorsToImport": {
                             "title": "Nenhum Autor de Mod para Importar",
-                            "description": "Nenhum autor de mod foi encontrado na versão legada para importar."
+                            "message": "Nenhum autor de mod foi encontrado na versão legada para importar."
                         }
-                    },
-                    "errors": {
-                        "IoError": "Erro de E/S: {message}",
-                        "ProfileImportError": "Falha ao importar perfil: {message}",
-                        "ProfileDeleteError": "Falha ao excluir perfil legado: {message}",
-                        "ModsImportError": "Falha ao ler mods legados: {message}",
-                        "ModsParseError": "Falha ao analisar mods legados: {message}",
-                        "ModsDeleteError": "Falha ao excluir arquivo de mods legado: {message}",
-                        "ModsRefreshError": "Falha ao atualizar mods após a importação: {message}",
-                        "Unknown": "Erro inesperado: {message}"
                     }
                 }
             }
@@ -1001,6 +982,16 @@
         },
         "ModSyncError": {
             "ModContainsSymlink": "Este mod contém um link simbólico ou uma junção: “{path}”. Substitua pelo conteúdo real antes de sincronizar."
+        },
+        "MigrateError": {
+            "title": "Falha na migração",
+            "IoError": "Erro de E/S: {reason}",
+            "ProfileImportError": "Falha ao importar perfil: {reason}",
+            "ProfileDeleteError": "Falha ao excluir perfil legado: {reason}",
+            "ModsImportError": "Falha ao importar autores dos mods antigos: {reason}",
+            "ModsParseError": "Falha ao analisar mods legados: {reason}",
+            "ModsDeleteError": "Falha ao excluir arquivo de mods legado: {reason}",
+            "ModsRefreshError": "Falha ao atualizar mods após a importação: {reason}"
         },
         "syncFailed": "Falha na Sincronização dos Mods",
         "unsyncFailed": "Falha ao dessincronizar os mods",

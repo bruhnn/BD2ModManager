@@ -926,7 +926,6 @@
             "sections": {
                 "migration": {
                     "title": "旧バージョンからインポート",
-                    "description": "v3.2.4以前のプロフィールとMod作者をインポートします。",
                     "profiles": {
                         "title": "プロフィール",
                         "description": "v3.2.4以前からインポートするプロフィールを選択してください。",
@@ -954,42 +953,24 @@
                     "notifications": {
                         "importProfilesSuccess": {
                             "title": "プロフィールをインポートしました",
-                            "description": "旧バージョンからプロフィールのインポートが完了しました。"
+                            "message": "旧バージョンからプロフィールのインポートが完了しました。"
                         },
                         "importModAuthorsSuccess": {
                             "title": "Mod作者をインポートしました",
-                            "description": "旧バージョンからMod作者のインポートが完了しました。"
-                        },
-                        "importFailed": {
-                            "title": "インポートに失敗しました",
-                            "description": "データのインポート中にエラーが発生しました：{error}"
-                        },
-                        "errorFetchingProfiles": {
-                            "title": "プロフィールの取得に失敗しました",
-                            "description": "旧バージョンからプロフィールを取得中にエラーが発生しました：{error}"
+                            "message": "旧バージョンからMod作者のインポートが完了しました。"
                         },
                         "noProfilesToImport": {
                             "title": "インポートするプロフィールがありません",
-                            "description": "旧バージョンにインポートできるプロフィールが見つかりませんでした。"
+                            "message": "旧バージョンにインポートできるプロフィールが見つかりませんでした。"
                         },
                         "noProfilesSelected": {
                             "title": "プロファイルが選択されていません",
-                            "description": "インポートするプロファイルを1つ以上選択してください。"
+                            "message": "インポートするプロファイルを1つ以上選択してください。"
                         },
                         "noModAuthorsToImport": {
                             "title": "インポートできる Mod 作者がありません",
-                            "description": "旧バージョンにインポート可能な Mod 作者が見つかりませんでした。"
+                            "message": "旧バージョンにインポート可能な Mod 作者が見つかりませんでした。"
                         }
-                    },
-                    "errors": {
-                        "IoError": "I/O エラー：{message}",
-                        "ProfileImportError": "プロファイルのインポートに失敗しました：{message}",
-                        "ProfileDeleteError": "旧プロファイルの削除に失敗しました：{message}",
-                        "ModsImportError": "旧バージョンの Mod の読み込みに失敗しました：{message}",
-                        "ModsParseError": "旧バージョンの Mod の解析に失敗しました：{message}",
-                        "ModsDeleteError": "旧バージョンの Mod ファイルの削除に失敗しました：{message}",
-                        "ModsRefreshError": "インポート後の Mod の再読み込みに失敗しました：{message}",
-                        "Unknown": "予期しないエラーが発生しました：{message}"
                     }
                 }
             }
@@ -1001,6 +982,16 @@
         },
         "ModSyncError": {
             "ModContainsSymlink": "このMODにはシンボリックリンクまたはジャンクション「{path}」が含まれています。同期する前に実際のファイルに置き換えてください。"
+        },
+        "MigrateError": {
+            "title": "移行に失敗しました",
+            "IoError": "I/O エラー：{reason}",
+            "ProfileImportError": "プロファイルのインポートに失敗しました：{reason}",
+            "ProfileDeleteError": "旧プロファイルの削除に失敗しました：{reason}",
+            "ModsImportError": "旧バージョンのMod作者情報のインポートに失敗しました: {reason}",
+            "ModsParseError": "旧バージョンの Mod の解析に失敗しました：{reason}",
+            "ModsDeleteError": "旧バージョンの Mod ファイルの削除に失敗しました：{reason}",
+            "ModsRefreshError": "インポート後の Mod の再読み込みに失敗しました：{reason}"
         },
         "syncFailed": "MODの同期に失敗しました",
         "unsyncFailed": "MODの同期解除に失敗しました",
