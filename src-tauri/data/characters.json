@@ -1,5 +1,5 @@
 {
-    "version": "0.0.27",
+    "version": "0.0.28",
     "characters": [
         {
             "id": "000708",
@@ -7369,6 +7369,117 @@
                 "head_image": "icon_char003793_227.png",
                 "character_image": "illust_inven_char003793_223.png",
                 "skill_image": "illust_skill_char003793_223.png"
+            }
+        },
+        {
+            "id": "021101",
+            "character": "Kyouka Uzen",
+            "costume": "Eternal Chains",
+            "is_collab": true,
+            "cutscene": true,
+            "standing": true,
+            "dating_id": null,
+            "character_image": "illust_inven_char021101_215.png",
+            "skill_preview_image": null,
+            "release_date": "2026-09-10",
+            "gender": "female",
+            "costume_id": "021101",
+            "character_id": 211,
+            "character_name": {
+                "en": "Kyouka Uzen",
+                "cn": "羽前京香",
+                "jp": "羽前京香",
+                "tw": "羽前京香",
+                "kr": "우젠 쿄카"
+            },
+            "costume_name": {
+                "en": "Eternal Chains",
+                "cn": "无穷之锁",
+                "jp": "無窮の鎖",
+                "tw": "無窮之鎖",
+                "kr": "무한의 사슬"
+            },
+            "skin_type": "normal",
+            "grade": 5,
+            "element": "light",
+            "assets": {
+                "head_image": "icon_char021101_218.png",
+                "character_image": "illust_inven_char021101_215.png",
+                "skill_image": null
+            }
+        },
+        {
+            "id": "021201",
+            "character": "Tenka Izumo",
+            "costume": "Ame-no-Mitori",
+            "is_collab": true,
+            "cutscene": true,
+            "standing": true,
+            "dating_id": null,
+            "character_image": "illust_inven_char021201_216.png",
+            "skill_preview_image": null,
+            "release_date": "2026-09-10",
+            "gender": "female",
+            "costume_id": "021201",
+            "character_id": 212,
+            "character_name": {
+                "en": "Tenka Izumo",
+                "cn": "出云天花",
+                "jp": "出雲天花",
+                "tw": "出雲天花",
+                "kr": "이즈모 텐카"
+            },
+            "costume_name": {
+                "en": "Ame-no-Mitori",
+                "cn": "天御鸟命",
+                "jp": "天御鳥命",
+                "tw": "天御鳥命",
+                "kr": "아메노미토리"
+            },
+            "skin_type": "normal",
+            "grade": 5,
+            "element": "dark",
+            "assets": {
+                "head_image": "icon_char021201_219.png",
+                "character_image": "illust_inven_char021201_216.png",
+                "skill_image": null
+            }
+        },
+        {
+            "id": "021291",
+            "character": "Tenka Izumo",
+            "costume": "Special Date",
+            "is_collab": true,
+            "cutscene": true,
+            "standing": true,
+            "dating_id": null,
+            "character_image": "illust_inven_char021291_218.png",
+            "skill_preview_image": null,
+            "release_date": "2026-09-10",
+            "gender": "female",
+            "costume_id": "021291",
+            "character_id": 212,
+            "character_name": {
+                "en": "Tenka Izumo",
+                "cn": "出云天花",
+                "jp": "出雲天花",
+                "tw": "出雲天花",
+                "kr": "이즈모 텐카"
+            },
+            "costume_name": {
+                "en": "Special Date",
+                "cn": "特别外出",
+                "jp": "特別なお出かけ",
+                "tw": "特別外出",
+                "kr": "특별한 외출"
+            },
+            "skin_type": "special",
+            "grade": 5,
+            "element": "dark",
+            "assets": {
+                "head_image": "icon_char021291_221.png",
+                "character_image": "illust_inven_char021291_218.png",
+                "skill_image": null
             }
         }
     ],
