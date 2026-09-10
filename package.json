@@ -31,7 +31,7 @@
     "@vueuse/core": "^14.2.1",
     "lucide-vue-next": "^0.575.0",
     "pinia": "^3.0.4",
-    "pnpm": "^10.34.4",
+    "pnpm": "^10.34.5",
     "tailwindcss": "^4.2.1",
     "vite-svg-loader": "^5.1.0",
     "vue": "^3.5.29",
