@@ -1,62 +1,71 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue';
-import { TabPanel } from '@headlessui/vue';
-import Button from '../../../components/common/Button.vue';
-import Checkbox from '../../../components/common/Checkbox.vue';
-import Section from '../Section.vue';
-import { invoke } from '@tauri-apps/api/core';
-import { useSettingsStore } from '../../../stores/settings';
-import { getVersion } from '@tauri-apps/api/app';
+import { LoaderCircle } from '@lucide/vue'
+import { computed, onMounted, ref, watch } from 'vue'
+import { TabPanel } from '@headlessui/vue'
+import { useI18n } from 'vue-i18n'
 
-const settingsStore = useSettingsStore();
+import { invoke } from '@tauri-apps/api/core'
 
-const appVersion = ref('0.0.0')
-const modPreviewVersion = ref<string | null>('0.0.0')
+import { useSettingsStore } from '../../../stores/settings'
+import { useNotificationStore } from '../../../stores/notification.ts'
+import { UpdateStatus, useUpdater } from '../../../composables/useUpdater.ts'
+
+import Section from '../Section.vue'
+
+import Checkbox from '../../../components/common/Checkbox.vue'
+import Button from '../../../components/common/Button.vue'
+
+
+const notificationStore = useNotificationStore()
+const settingsStore = useSettingsStore()
+const { t } = useI18n()
+
+const {
+  modPreviewUpdate,
+  checkForAppUpdate,
+  checkForModPreviewUpdate,
+  downloadAndInstallModPreview,
+} = useUpdater()
+
+const settings = computed(() => settingsStore.settings)
+const modPreviewVersion = ref<string | null>(null)
 
 onMounted(async () => {
-    appVersion.value = await getVersion()
-    modPreviewVersion.value = await settingsStore.getModPreviewVersion()
+  modPreviewVersion.value = await invoke<string | null>('get_mod_preview_version')
 })
 
-const settings = computed(() => settingsStore.settings);
-
 function onCheckForAppUpdates(value: boolean) {
-  settingsStore.saveSettings({ checkForAppUpdates: value });
+  settingsStore.saveSettings({ checkForAppUpdates: value })
+
   if (value) {
-    settingsStore.checkForAppUpdate();
+    checkForAppUpdate()
   }
 }
 
 function onAutoUpdateModPreview(value: boolean) {
-  settingsStore.saveSettings({ autoUpdateModPreview: value });
+  settingsStore.saveSettings({ autoUpdateModPreview: value })
 }
 
-interface UpdateInfo {
-  latestVersion: string;
-  downloadUrl: string;
-}
+async function checkModPreviewUpdates() {
+  await checkForModPreviewUpdate()
 
-const isCheckingModPreviewUpdates = ref(false)
-const modPreviewUpdatesAvailable = ref<UpdateInfo | null>(null)
-
-function checkModPreviewUpdates() {
-  console.log('Checking for mod preview updates...');
-  isCheckingModPreviewUpdates.value = true;
-  settingsStore.checkForModPreviewUpdate()
-  .then((result) => {
-    const updateAvailable = result as UpdateInfo | null;
-    console.log('Mod preview update available:', updateAvailable);
-    modPreviewUpdatesAvailable.value = updateAvailable;
-  })
-  .finally(() => {
-    isCheckingModPreviewUpdates.value = false;
-  })
+  if (modPreviewUpdate.value === null) {
+    notificationStore.add({
+        type: "info",
+        title: t("app.notifications.modPreviewUpdate.noUpdateAvailable.title")
+    })
+  }
 }
 
 async function updateModPreview() {
-  modPreviewUpdatesAvailable.value = null;
-  await invoke('update_mod_preview');
+  await downloadAndInstallModPreview()
 }
+
+watch(modPreviewUpdate, (update) => {
+  if (update?.status === UpdateStatus.Updated) {
+    modPreviewVersion.value = update.update.versionAvailable
+  }
+})
 </script>
 
 <template>
@@ -82,22 +91,38 @@ async function updateModPreview() {
         </div>
 
         <div class="flex items-center justify-between">
-          <div>
-            <div class="font-medium text-text-primary">BD2ModPreview</div>
-            <div class="text-sm text-text-secondary">
-              Version {{ modPreviewVersion || 'Unknown' }}
+          <div class="min-w-0">
+            <div class="flex items-center gap-2">
+              <LoaderCircle v-if="modPreviewUpdate?.status === UpdateStatus.CheckingForUpdates"
+                class="size-4 shrink-0 animate-spin text-accent" />
+              <div class="font-medium text-text-primary">
+                BD2ModPreview
+                <span class="font-normal text-text-secondary">
+                  {{ modPreviewVersion ? `v${modPreviewVersion}` : 'Unknown' }}
+                </span>
+              </div>
+            </div>
+            <div v-if="modPreviewUpdate?.status === UpdateStatus.UpdateAvailable" class="mt-1 text-sm text-accent">
+              {{ $t('settingsTab.updates.sections.updates.status.updateAvailable', { version: modPreviewUpdate.update.versionAvailable }) }}
+            </div>
+            <div v-else-if="modPreviewUpdate?.status === UpdateStatus.Failed" class="mt-1 text-sm text-error">
+              {{ modPreviewUpdate.error }}
             </div>
           </div>
-          <div>
+          <div class="shrink-0">
             <Button
-              v-if="modPreviewUpdatesAvailable && modPreviewUpdatesAvailable.downloadUrl"
-              :label="$t('settingsTab.updates.sections.updates.actions.updateModPreview')"
+              v-if="modPreviewUpdate?.status === UpdateStatus.UpdateAvailable"
+              :label="$t('settingsTab.updates.sections.updates.actions.update')"
               @click="updateModPreview" />
             <Button
               v-else
-              :label="isCheckingModPreviewUpdates ? $t('settingsTab.updates.sections.updates.actions.checkingForUpdates') : $t('settingsTab.updates.sections.updates.actions.checkForUpdates')"
+              :label="modPreviewUpdate?.status === UpdateStatus.CheckingForUpdates
+                ? $t('settingsTab.updates.sections.updates.actions.checkingForUpdates')
+                : $t('settingsTab.updates.sections.updates.actions.checkForUpdates')"
               @click="checkModPreviewUpdates"
-              :disabled="isCheckingModPreviewUpdates" />
+              :disabled="modPreviewUpdate?.status === UpdateStatus.CheckingForUpdates
+                || modPreviewUpdate?.status === UpdateStatus.Downloading
+                || modPreviewUpdate?.status === UpdateStatus.Updating" />
           </div>
         </div>
       </Section>

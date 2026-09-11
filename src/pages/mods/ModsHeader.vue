@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { Check, Filter, SearchIcon } from 'lucide-vue-next'
+import { Check, Filter, SearchIcon } from '@lucide/vue'
 import Input from '../../components/common/Input.vue'
 import Button from '../../components/common/Button.vue'
 import Checkbox from '../../components/common/Checkbox.vue'

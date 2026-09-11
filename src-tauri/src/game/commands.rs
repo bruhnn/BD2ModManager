@@ -1,5 +1,5 @@
 use std::{fs, path::PathBuf};
-use bd2modmanager_lib::{game::{game::{self, VersionResult}, installer::{self, is_bdx_archive, is_bepinex_archive, is_configmanager_archive}}, utils::path::get_characters_path};
+use crate::{game::{game::{self, VersionResult}, installer::{self, is_bdx_archive, is_bepinex_archive, is_configmanager_archive}}, utils::path::get_characters_path};
 use winreg::{enums::HKEY_CURRENT_USER, RegKey};
 use log::{info, warn};
 

@@ -13,7 +13,7 @@ import {
 } from '@tanstack/vue-table'
 import Checkbox from '../../components/common/Checkbox.vue'
 import { usePreferencesStore } from '../../stores/preferences'
-import { AlertTriangle, ArrowDownWideNarrow, ArrowUpNarrowWide, TriangleAlert } from 'lucide-vue-next'
+import { AlertTriangle, ArrowDownWideNarrow, ArrowUpNarrowWide, TriangleAlert } from '@lucide/vue'
 import ErrorTag from './ErrorTag.vue'
 import type { ContextMenuItem } from '../../components/common/ContextMenu.vue'
 import ContextMenu from '../../components/common/ContextMenu.vue'
@@ -46,9 +46,11 @@ const columnVisibility = computed(() => {
 })
 
 const props = withDefaults(defineProps<{
-    mods: BD2ModExtended[]
+    mods: BD2ModExtended[],
+    isSyncing: boolean
 }>(), {
-    mods: () => []
+    mods: () => [],
+    isSyncing: false
 })
 
 const emit = defineEmits([
@@ -69,7 +71,6 @@ function getErrorDescription(error: string) {
     const errors: Record<string, string> = {
         "MissingTextures": "modErrors.missingTextures",
         "MissingModfile": "modErrors.missingModfile",
-        "IsNotExtracted": "modErrors.isNotExtracted",
         "ArchiveNotExtracted": "modErrors.archiveNotExtracted",
         "ShouldBeInFolder": "modErrors.shouldBeInFolder",
         "MissingAtlasFile": "modErrors.missingAtlasFile",
@@ -105,7 +106,8 @@ const columns = [
                             emit(val ? 'enable-mods' : 'disable-mods', [mod])
                             // mod.enabled = false
                         },
-                        onClick: (e: Event) => e.stopPropagation()
+                        onClick: (e: Event) => e.stopPropagation(),
+                        disabled: props.isSyncing
                     }),
                 h('span', { class: 'truncate flex-1' }, preferencesStore.modNameDisplay === "short" ? mod.displayName : mod.name),
                 mod.conflictingMods && mod.conflictingMods.length > 0 ? h('button', {
@@ -431,12 +433,12 @@ const contextMenuItems = computed<ContextMenuItem[]>(() => {
         {
             label: isSingleSelection ? t('modsTab.modlist.contextMenu.enableMod') : t('modsTab.modlist.contextMenu.enableSelectedMods'),
             key: 'enable',
-            show: hasSelection && selectedMods.value.some(mod => !mod.enabled && mod.errors.length === 0)
+            show: !props.isSyncing && hasSelection && selectedMods.value.some(mod => !mod.enabled && mod.errors.length === 0)
         } as ContextMenuItem,
         {
             label: isSingleSelection ? t('modsTab.modlist.contextMenu.disableMod') : t('modsTab.modlist.contextMenu.disableSelectedMods'),
             key: 'disable',
-            show: hasSelection && selectedMods.value.some(mod => mod.enabled && mod.errors.length === 0)
+            show: !props.isSyncing && hasSelection && selectedMods.value.some(mod => mod.enabled && mod.errors.length === 0)
         } as ContextMenuItem,
         {
             label: isSingleSelection ? t('modsTab.modlist.contextMenu.changeModAuthor') : t('modsTab.modlist.contextMenu.changeSelectedModsAuthor'),
@@ -456,12 +458,12 @@ const contextMenuItems = computed<ContextMenuItem[]>(() => {
         {
             label: t('modsTab.modlist.contextMenu.renameMod'),
             key: 'rename',
-            show: isSingleSelection
+            show: !props.isSyncing && isSingleSelection
         } as ContextMenuItem,
         {
             label: isSingleSelection ? t('modsTab.modlist.contextMenu.deleteMod') : t('modsTab.modlist.contextMenu.deleteSelectedMods'),
             key: 'delete',
-            show: hasSelection
+            show: !props.isSyncing && hasSelection
         } as ContextMenuItem,
         {
             type: 'divider' as const,

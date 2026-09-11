@@ -7,6 +7,9 @@ use std::{
 use sha2::{Digest, Sha256};
 use walkdir::WalkDir;
 use std::time::SystemTime;
+use std::os::windows::fs::MetadataExt;
+
+use crate::mods::{install::ModInstallError, sync::ModSyncError};
 
 pub fn has_extension(path: &Path, extensions: &[&str]) -> bool {
     if let Some(ext) = path.extension() {
@@ -44,7 +47,16 @@ pub fn has_folder(folder: &Path, name: &str) -> bool {
     return false;
 }
 
-pub fn copy_dir_all(src: &Path, dst: &Path) -> io::Result<()> {
+pub fn copy_dir_all(src: &Path, dst: &Path) -> Result<(), ModInstallError> {
+    let metadata = fs::symlink_metadata(src)?;
+
+    // FILE_ATTRIBUTE_REPARSE_POINT
+    if metadata.file_attributes() & 0x400 != 0 {
+        return Err(ModInstallError::ModContainsSymlink {
+            path: src.to_string_lossy().to_string(),
+        });
+    }
+
     if !dst.exists() {
         create_dir_all(dst)?;
     }
@@ -54,7 +66,15 @@ pub fn copy_dir_all(src: &Path, dst: &Path) -> io::Result<()> {
         let entry_path = entry.path();
         let dest_path = dst.join(entry.file_name());
 
-        if entry_path.is_dir() {
+        let metadata = fs::symlink_metadata(&entry_path)?;
+
+        if metadata.file_attributes() & 0x400 != 0 {
+            return Err(ModInstallError::ModContainsSymlink {
+                path: entry_path.to_string_lossy().to_string(),
+            });
+        }
+
+        if metadata.is_dir() {
             copy_dir_all(&entry_path, &dest_path)?;
         } else {
             copy(&entry_path, &dest_path)?;
@@ -64,7 +84,16 @@ pub fn copy_dir_all(src: &Path, dst: &Path) -> io::Result<()> {
     Ok(())
 }
 
-pub fn sync_dirs(src: &Path, dst: &Path) -> io::Result<bool> {
+pub fn sync_dirs(src: &Path, dst: &Path) -> Result<bool, ModSyncError> {
+    let metadata = fs::symlink_metadata(src)?;
+
+    // FILE_ATTRIBUTE_REPARSE_POINT
+    if metadata.file_attributes() & 0x400 != 0 {
+        return Err(ModSyncError::ModContainsSymlink {
+            path: src.to_string_lossy().to_string(),
+        });
+    }
+
     let mut updated = false;
 
     if !dst.exists() {
@@ -78,7 +107,15 @@ pub fn sync_dirs(src: &Path, dst: &Path) -> io::Result<bool> {
         let src_path = entry.path();
         let dst_path = dst.join(entry.file_name());
 
-        if src_path.is_dir() {
+        let metadata = fs::symlink_metadata(&src_path)?;
+
+        if metadata.file_attributes() & 0x400 != 0 {
+            return Err(ModSyncError::ModContainsSymlink {
+                path: src_path.to_string_lossy().to_string(),
+            });
+        }
+
+        if metadata.is_dir() {
             if sync_dirs(&src_path, &dst_path)? {
                 updated = true;
             }

@@ -57,6 +57,12 @@ export const useProfilesStore = defineStore("profiles", () => {
         await loadProfiles();
     }
 
+    async function cleanMissingMods(id: string): Promise<number> {
+        const removed = await invoke<number>("clean_missing_mods", { id });
+        await loadProfiles();
+        return removed;
+    }
+
     function getProfileById(id: string): Profile | null {
         return profiles.value.find(p => p.id === id) || null;
     }
@@ -70,6 +76,7 @@ export const useProfilesStore = defineStore("profiles", () => {
         switchProfile,
         createProfile,
         deleteProfile,
+        cleanMissingMods,
         getProfileById,
         editProfile
     };

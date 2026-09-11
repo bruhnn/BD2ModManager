@@ -1,4 +1,6 @@
 import { createApp } from "vue";
+import "@fontsource/cinzel/700.css";
+import "@fontsource-variable/inter/wght.css";
 import App from "./App.vue";
 import router from "./router";
 import "./styles/main.css";
@@ -12,6 +14,7 @@ import ja_JP from './locales/ja-JP.json'
 import ko_KR from './locales/ko-KR.json'
 import ConfirmPlugin from "./plugins/ConfirmPlugin";
 import { useModsIndexStore } from "./stores/modsIndex";
+import { useSettingsStore } from "./stores/settings";
 
 const pinia = createPinia()
 
@@ -38,4 +41,6 @@ app.use(router)
 const modsIndexStore =useModsIndexStore()
 modsIndexStore.fetchModsIndex()
 
-app.mount("#app");
+useSettingsStore().loadSettings()
+    .catch(error => console.error("Failed to load settings:", error))
+    .finally(() => app.mount("#app"));

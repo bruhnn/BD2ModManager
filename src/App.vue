@@ -1,24 +1,28 @@
 <script setup lang="ts">
-import { ref, watch, onMounted, onUnmounted } from "vue"
+import { watch, onMounted, onUnmounted } from "vue"
 import { storeToRefs } from "pinia"
 import { useI18n } from "vue-i18n"
 
+import { getCurrentWindow } from "@tauri-apps/api/window"
+
 import { useSettingsStore } from "./stores/settings"
+import { useModsStore } from "./stores/mods"
+
+import { useAppInitializer } from "./composables/useAppInit"
 import { provideHeader } from "./composables/useHeader"
+import { useDev } from "./composables/useDev.ts"
+import { useConfirm } from "./plugins/ConfirmService"
 
 import Titlebar from "./components/Titlebar.vue"
 import Header from "./components/Header.vue"
-import ConfirmationDialog from "./components/common/ConfirmationDialog.vue"
-import WelcomeModal from "./components/modals/WelcomeModal.vue"
-import { useAppInitializer } from "./composables/useAppInit"
-import { useConfirm } from "./plugins/ConfirmService"
-import { useModsStore } from "./stores/mods"
-import { getCurrentWindow } from "@tauri-apps/api/window"
 import Sidebar from "./components/sidebar/Sidebar.vue"
-import { useNotificationStore } from './stores/notification';
+import WelcomeModal from "./components/modals/WelcomeModal.vue"
 import UpdateAvailableModal from "./components/modals/UpdateAvailableModal.vue"
-import { usePortable } from "./composables/usePortable"
 import NotificationContainer from "./components/notification/NotificationContainer.vue"
+import ModsDeleteFailedModal from "./components/modals/ModsDeleteFailedModal.vue"
+import ConfirmationDialog from "./components/common/ConfirmationDialog.vue"
+import SyncModal from "./components/modals/SyncModal.vue"
+import LogsModal from "./components/modals/LogsModal.vue"
 
 const { t, locale } = useI18n()
 
@@ -29,37 +33,12 @@ const { initialize } = useAppInitializer()
 
 const confirm = useConfirm()
 const modsStore = useModsStore()
-const notificationStore = useNotificationStore()
 
-const { isPortable } = usePortable()
+const { isDev } = useDev()
 
 let unlistenClose: (() => void) | null = null
 
 provideHeader()
-
-const modalQueue = ref<string[]>([])
-const currentModalVisible = ref('')
-
-function openModal(modalName: string) {
-  if (!modalQueue.value.includes(modalName)) {
-    modalQueue.value.push(modalName)
-  }
-  if (!currentModalVisible.value) {
-    currentModalVisible.value = modalQueue.value[0]
-  }
-}
-
-function closeModal(modalName: string) {
-  const index = modalQueue.value.indexOf(modalName)
-  if (index !== -1) modalQueue.value.splice(index, 1)
-  currentModalVisible.value = modalQueue.value[0] ?? ''
-}
-
-watch(
-  () => settings.value.language,
-  (newLanguage) => (locale.value = newLanguage || "en_US"),
-  { immediate: true }
-)
 
 watch(
   () => settings.value.theme,
@@ -71,41 +50,19 @@ watch(
   { immediate: true }
 )
 
-watch(() => settingsStore.appUpdateStatus, (newStatus) => {
-  const skipVersion = localStorage.getItem('skipUpdateVersion')
-  
-  // update available will only show on portable
-  if (newStatus?.version && newStatus.version !== skipVersion && isPortable.value) {
-    openModal('updateAvailableModal')
-  }
-})
+watch(
+  () => settings.value.language,
+  (newLanguage) => (locale.value = newLanguage || "en_US"),
+  { immediate: true }
+)
+
 onMounted(async () => {
-  if (!import.meta.env.DEV) {
+  if (!isDev.value) {
     document.addEventListener("contextmenu", (event) => event.preventDefault())
   }
 
-  const { isFirstLaunch, isBrownDustXOutdated } = await initialize()
-
-  if (isFirstLaunch) {
-    openModal('welcomeModal')
-  }
-
-  if (isBrownDustXOutdated) {
-    notificationStore.add({
-      severity: "warn",
-      title: t('app.notifications.brownDustXOutdated.title'),
-      message: t('app.notifications.brownDustXOutdated.message'),
-      duration: 10000,
-    })
-  }
-
-  watch(
-    () => settings.value.language,
-    (newLanguage) => (locale.value = newLanguage || "en_US"),
-    { immediate: true }
-  )
-
   const currentWindow = getCurrentWindow()
+
   unlistenClose = await currentWindow.listen("tauri://close-requested", async () => {
     let isSyncNeeded = false
     try {
@@ -130,6 +87,8 @@ onMounted(async () => {
 
     if (result.confirmed) currentWindow.destroy()
   })
+
+  await initialize()
 })
 
 onUnmounted(() => {
@@ -138,8 +97,9 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <main class="w-full h-full overflow-hidden text-sm select-none flex flex-col bg-surface-app text-text-primary">
-    <div class="absolute bg-[image:var(--bg-image-app)] inset-0 bg-cover bg-center opacity-25 pointer-events-none"></div>
+  <main  class="w-full h-full overflow-hidden text-sm select-none flex flex-col bg-surface-app text-text-primary">
+    <div class="absolute bg-[image:var(--bg-image-app)] inset-0 bg-cover bg-center opacity-25 pointer-events-none">
+    </div>
     <Titlebar />
 
     <div class="flex-1 flex overflow-hidden min-h-0">
@@ -149,7 +109,7 @@ onUnmounted(() => {
         <Header />
         <div class="flex-1 overflow-hidden min-h-0">
           <router-view v-slot="{ Component }">
-            <transition name="fade" mode="out-in" >
+            <transition name="fade" mode="out-in">
               <keep-alive :include="['ModsTab', 'CharactersTab']">
                 <component :is="Component" class="h-full" />
               </keep-alive>
@@ -165,12 +125,16 @@ onUnmounted(() => {
     <NotificationContainer position="top-center"/>
     <NotificationContainer position="bottom-left" />
     <NotificationContainer position="bottom-right" /> -->
-    <NotificationContainer position="bottom-center"/>
+    <!-- <NotificationContainer position="top-right" /> -->
+    <NotificationContainer position="bottom-center" />
 
-    <WelcomeModal :visible="currentModalVisible === 'welcomeModal'" @close="closeModal('welcomeModal')" />
-    <UpdateAvailableModal :visible="currentModalVisible === 'updateAvailableModal'" @close="closeModal('updateAvailableModal')" />
+    <!-- global modals -->
+    <WelcomeModal />
+    <UpdateAvailableModal />
+    <SyncModal />
+    <LogsModal />
+    <ModsDeleteFailedModal />
+
   </main>
 </template>
-<style>
-
-</style>
+<style></style>

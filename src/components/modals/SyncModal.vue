@@ -6,32 +6,25 @@ import {
   RefreshCcw,
   TriangleAlert,
   X
-} from 'lucide-vue-next'
+} from '@lucide/vue'
 import { ref, computed, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { refThrottled, useVirtualList } from '@vueuse/core'
 import Button from '../common/Button.vue'
 import Modal from '../common/Modal.vue'
 import { SyncStatus, useSyncStateStore } from '../../stores/syncState'
-import { SyncError, SyncProgressStatus, SyncType } from '../../composables/useSyncEvents'
+import { getSyncErrorMessage, SyncProgressStatus, SyncType } from '../../composables/useModSyncEvents'
 import { useModsStore } from '../../stores/mods'
 import { useDev } from '../../composables/useDev'
+import { globalModals } from '../../composables/useGlobalModals.ts'
 
 const { t } = useI18n()
+const {
+  isOpen,
+  closeModal
+} = globalModals.sync
+
 const syncStateStore = useSyncStateStore()
-
-const emit = defineEmits([
-  'close',
-  'cancel',
-])
-
-const props = defineProps({
-  visible: Boolean
-})
-
-function handleClose() {
-  emit('close')
-}
 
 const getModStatusIcon = (status: SyncProgressStatus) => {
   switch (status) {
@@ -52,23 +45,6 @@ const getModStatusColor = (status: SyncProgressStatus) => {
   }
 }
 
-function getErrorMessage(t: (key: string, params?: any) => string, error: SyncError | null | undefined): string {
-  if (!error) return t('errors.unknownError')
-
-  switch (error.type) {
-    case 'SymlinkAdminRequired': return t('errors.symlinkAdminRequired')
-    case 'PermissionDenied': return t('errors.permissionDenied')
-    case 'DiskFull': return t('errors.diskFull')
-    case 'ModPathNotFound': return t('errors.modPathNotFound', { path: error.details })
-    case 'CopyFailed': return t('errors.copyFailed', { error: error.details })
-    case 'SymlinkFailed': return t('errors.symlinkFailed', { error: error.details })
-    case 'HardlinkFailed': return t('errors.hardlinkFailed', { error: error.details })
-    case 'DirectoryCreationFailed': return t('errors.directoryCreationFailed', { error: error.details })
-    case 'RemovalFailed': return t('errors.removalFailed', { error: error.details })
-    default: return t('errors.unknownError', { error: JSON.stringify(error) })
-  }
-}
-
 const formatTimestamp = (timestamp: string) => {
   return new Date(timestamp).toLocaleTimeString('en-US', {
     hour12: false,
@@ -81,26 +57,27 @@ const formatTimestamp = (timestamp: string) => {
 const title = computed(() => {
   if (syncStateStore.type === SyncType.Sync) {
     switch (syncStateStore.status) {
-      case SyncStatus.SYNCING: return t('modals.sync.titles.syncing')
-      case SyncStatus.COMPLETED: return t('modals.sync.titles.completed')
-      case SyncStatus.FAILED: return t('modals.sync.titles.failed')
-      case SyncStatus.IDLE: return t('modals.sync.titles.idle')
+      case SyncStatus.SYNCING: return t('modsTab.modals.sync.titles.syncing')
+      case SyncStatus.COMPLETED: return t('modsTab.modals.sync.titles.completed')
+      case SyncStatus.COMPLETED_WITH_ERRORS: return t('modsTab.notifications.syncMods.completedWithErrors.title')
+      case SyncStatus.FAILED: return t('modsTab.modals.sync.titles.failed')
+      case SyncStatus.IDLE: return t('modsTab.modals.sync.titles.idle')
     }
   } else if (syncStateStore.type === SyncType.Unsync) {
     switch (syncStateStore.status) {
-      case SyncStatus.SYNCING: return t('modals.sync.titles.removing')
-      case SyncStatus.COMPLETED: return t('modals.sync.titles.removed')
-      case SyncStatus.FAILED: return t('modals.sync.titles.failedToRemove')
-      case SyncStatus.IDLE: return t('modals.sync.titles.idleToRemove')
+      case SyncStatus.SYNCING: return t('modsTab.modals.sync.titles.removing')
+      case SyncStatus.COMPLETED: return t('modsTab.modals.sync.titles.removed')
+      case SyncStatus.FAILED: return t('modsTab.modals.sync.titles.failedToRemove')
+      case SyncStatus.IDLE: return t('modsTab.modals.sync.titles.idleToRemove')
     }
   } else {
-    return t('modals.sync.titles.waitingForAction')
+    return t('modsTab.modals.sync.titles.waitingForAction')
     }
 })
 
 const errorMessage = computed(() => {
   if (syncStateStore?.status === SyncStatus.FAILED && syncStateStore.error) {
-    return getErrorMessage(t, syncStateStore.error)
+    return getSyncErrorMessage(t, syncStateStore.error)
   }
   return ''
 })
@@ -156,7 +133,7 @@ const {isDev} = useDev()
 </script>
 
 <template>
-  <Modal :show="visible" @close="handleClose" class="w-full min-w-xl max-w-2xl min-h-[80vh]">
+  <Modal :show="isOpen" size="lg" @close="closeModal">
     <template #header>
       <div class="flex items-center justify-between gap-3 min-w-0 p-4">
         <div class="min-w-0 flex-1" data-tauri-drag-region>
@@ -182,7 +159,7 @@ const {isDev} = useDev()
         </button>
         <button class="shrink-0 flex items-center justify-center p-1 rounded-full
                  text-text-secondary hover:text-text-primary hover:bg-state-hover transition-colors cursor-pointer"
-          @click="handleClose">
+          @click="closeModal">
           <X class="w-4 h-4" />
         </button>
       </div>
@@ -190,7 +167,7 @@ const {isDev} = useDev()
 
     <template #footer>
       <div class="flex justify-end shrink-0 p-2 px-4">
-        <Button :label="t('modals.sync.actions.close')" variant="default" @click="handleClose" />
+        <Button :label="t('modsTab.modals.sync.actions.close')" variant="default" @click="closeModal" />
       </div>
     </template>
 
@@ -205,7 +182,7 @@ const {isDev} = useDev()
           <span v-if="syncStateStore.progress.current" class="text-sm text-text-secondary font-mono opacity-50">
             {{ syncStateStore.progress.current }} /
             {{ syncStateStore.progress.total }}
-            {{ t('modals.sync.log.mods') }}
+            {{ t('modsTab.modals.sync.log.mods') }}
           </span>
         </div>
 
@@ -220,17 +197,17 @@ const {isDev} = useDev()
 
         <div class="py-1.5 flex justify-between items-center shrink-0">
           <span class="text-xs text-text-secondary">
-            {{ t('modals.sync.log.title') }}
+            {{ t('modsTab.modals.sync.log.title') }}
           </span>
 
           <span v-if="syncedMods.length" class="text-xs py-0.5 px-1 rounded-xl text-text-secondary">
             {{ syncedMods.length }}
-            {{ t('modals.sync.log.mods') }}
+            {{ t('modsTab.modals.sync.log.mods') }}
           </span>
         </div>
 
         <div v-if="!syncedMods.length" class="flex-1 flex items-center justify-center text-xs text-text-secondary">
-          {{ t('modals.sync.log.waitingToStart') }}
+          {{ t('modsTab.modals.sync.log.waitingToStart') }}
         </div>
 
         <div v-else v-bind="containerProps" class="flex-1 min-h-0" style="height: 100%">
@@ -248,13 +225,13 @@ const {isDev} = useDev()
               </span>
 
               <div class="flex-1 min-w-0 gap-2 flex">
-                <span class="text-text-primary truncate block" :title="item.data.modName">
+                <span class="text-text-primary truncate block flex-1" :title="item.data.modName">
                   {{ item.data.modName }}
                 </span>
 
                 <span v-if="item.data.error" class="text-error text-xs mr-2"
-                  :title="'details' in item.data.error ? item.data.error.details : ''">
-                  {{ getErrorMessage(t, item.data.error) }}
+                  :title="item.data.error.message">
+                  {{ getSyncErrorMessage(t, item.data.error) }}
                 </span>
               </div>
             </div>
@@ -264,22 +241,22 @@ const {isDev} = useDev()
         <div class="flex flex-wrap items-center py-2 gap-3 border-t border-border-default shrink-0">
           <div class="flex items-center gap-1.5 text-xs text-text-secondary">
             <ArrowRightFromLine class="w-3.5 h-3.5 text-success" />
-            <span>{{ t('modals.sync.status.synced') }}</span>
+            <span>{{ t('modsTab.modals.sync.status.synced') }}</span>
           </div>
 
           <div class="flex items-center gap-1.5 text-xs text-text-secondary">
             <ArrowLeftFromLine class="w-3.5 h-3.5 text-warning" />
-            <span>{{ t('modals.sync.status.removed') }}</span>
+            <span>{{ t('modsTab.modals.sync.status.removed') }}</span>
           </div>
 
           <div class="flex items-center gap-1.5 text-xs text-text-secondary">
             <ArrowRightLeft class="w-3.5 h-3.5 text-info" />
-            <span>{{ t('modals.sync.status.upToDate') }}</span>
+            <span>{{ t('modsTab.modals.sync.status.upToDate') }}</span>
           </div>
 
           <div class="flex items-center gap-1.5 text-xs text-text-secondary">
             <TriangleAlert class="w-3.5 h-3.5 text-error" />
-            <span>{{ t('modals.sync.status.failed') }}</span>
+            <span>{{ t('modsTab.modals.sync.status.failed') }}</span>
           </div>
         </div>
 

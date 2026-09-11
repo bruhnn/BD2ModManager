@@ -6,7 +6,6 @@
             "close": "닫기",
             "refresh": "새로고침",
             "continue": "계속",
-            "confirm": "확인",
             "browse": "찾아보기",
             "save": "저장"
         },
@@ -20,7 +19,8 @@
         },
         "messages": {
             "selectEmptyState": "여기에는 아무것도 없습니다..."
-        }
+        },
+        "error": "오류"
     },
     "app": {
         "confirmations": {
@@ -36,10 +36,115 @@
             "brownDustXOutdated": {
                 "title": "BrownDustX 버전 오래됨",
                 "message": "BrownDustX가 최신 버전이 아닙니다. 업데이트하기 전까지 모드가 작동하지 않습니다."
+            },
+            "logs": {
+                "cleared": {
+                    "title": "로그를 지웠습니다"
+                },
+                "copied": {
+                    "title": "로그를 클립보드에 복사했습니다"
+                }
+            },
+            "appUpdate": {
+                "downloadFailed": {
+                    "title": "업데이트 다운로드 실패"
+                },
+                "checkFailed": {
+                    "title": "업데이트 확인 실패",
+                    "message": "업데이트를 확인할 수 없습니다: {error}"
+                },
+                "installFailed": {
+                    "title": "업데이트 실패",
+                    "message": "업데이트를 설치할 수 없습니다. GitHub에서 직접 다운로드해 주세요."
+                },
+                "noUpdateAvailable": {
+                    "title": "사용 가능한 업데이트 없음",
+                    "message": "다운로드할 수 있는 업데이트가 없습니다."
+                }
+            },
+            "modPreviewUpdate": {
+                "updated": "BD2ModPreview v{version} 업데이트 완료",
+                "failed": "BD2ModPreview 업데이트 실패",
+                "noUpdateAvailable": "BD2ModPreview가 최신 버전입니다"
+            },
+            "gameDataUpdate": {
+                "updated": "게임 데이터 업데이트 완료",
+                "failed": "게임 데이터 업데이트 실패"
+            }
+        },
+        "modals": {
+            "confirmation": {
+                "rememberChoice": "다시 표시하지 않기"
+            },
+            "logs": {
+                "title": "애플리케이션 로그",
+                "noLogs": "사용 가능한 로그가 없습니다.",
+                "levels": {
+                    "debug": "디버그",
+                    "success": "성공",
+                    "info": "정보",
+                    "warning": "경고",
+                    "error": "오류"
+                },
+                "sources": {
+                    "frontend": "프런트엔드",
+                    "backend": "백엔드"
+                },
+                "actions": {
+                    "clear": "모든 로그 지우기",
+                    "goToFirst": "첫 번째 로그로 이동",
+                    "goToLast": "최신 로그로 이동",
+                    "copyAll": "모든 로그를 클립보드에 복사",
+                    "openFolder": "로그 폴더 열기"
+                }
+            },
+            "welcome": {
+                "title": "BD2ModManager에 오신 것을 환영합니다!",
+                "subtitle": "처음 앱을 실행하신 것 같습니다. 지금 게임 디렉토리를 설정하거나, 나중에 설정에서 변경할 수 있습니다.",
+                "chips": {
+                    "github": "GitHub 방문",
+                    "discord": "BrownDustX Discord"
+                },
+                "selectGameDirectory": {
+                    "title": "게임 디렉토리",
+                    "description": "'BrownDust II.exe'가 있는 폴더를 선택해 주세요.",
+                    "placeholders": {
+                        "gamePath": "브라운더스트 II 게임 디렉토리 경로"
+                    },
+                    "labels": {
+                        "foundPaths": "찾은 경로:"
+                    },
+                    "validPath": "게임 디렉토리가 설정되었습니다.",
+                    "errors": {
+                        "invalidGameExecutable": "선택한 파일은 브라운더스트 II 실행 파일이 아닙니다.",
+                        "invalidDirectory": "선택한 디렉토리에 유효한 브라운더스트 II 설치가 없습니다.",
+                        "unknownError": "알 수 없는 오류가 발생했습니다: {error}"
+                    }
+                },
+                "supportBanner": {
+                    "title": "프로젝트 지원하기 ❤️",
+                    "message": "BD2ModManager는 무료 오픈소스입니다. 도움이 되었다면 {platform}에서 후원을 고려해 주세요!"
+                }
+            },
+            "updateAvailable": {
+                "title": "업데이트 가능",
+                "subtitle": "새 버전 v{version}이 출시되었습니다.",
+                "changelogLabel": "새로운 점",
+                "skipLabel": "다시 표시하지 않기",
+                "actions": {
+                    "downloadUpdate": "업데이트 다운로드",
+                    "later": "나중에",
+                    "goToReleases": "릴리즈 페이지로"
+                }
             }
         }
     },
     "titlebar": {
+        "activeDownloads": {
+            "characterAssets": "캐릭터 리소스",
+            "title": "다운로드",
+            "empty": "진행 중인 다운로드 없음"
+        },
         "appUpdate": {
             "checking": "업데이트 확인 중...",
             "available": "업데이트 가능: v{version}",
@@ -49,20 +154,6 @@
             "applying": "적용 중: {modName}",
             "syncSuccess": "모드 동기화 완료",
             "unsyncSuccess": "모드가 성공적으로 제거되었습니다"
-        },
-        "modPreview": {
-            "downloading": "BD2ModPreview v{version}",
-            "downloadingShort": "BD2ModPreview",
-            "updateFailed": "BD2ModPreview 업데이트 실패",
-            "updateFailedShort": "BD2ModPreview 업데이트 실패",
-            "updated": "BD2ModPreview v{version} 업데이트 완료!",
-            "updatedShort": "BD2ModPreview 업데이트 완료!"
-        },
-        "gameData": {
-            "downloading": "게임 데이터 다운로드 중...",
-            "downloadingShort": "데이터",
-            "checking": "게임 데이터 확인 중...",
-            "updatedShort": "데이터 업데이트 완료"
         },
         "actions": {
             "github": "GitHub",
@@ -75,7 +166,8 @@
         "sections": {
             "navigation": "탐색",
             "settings": "설정",
-            "currentProfile": "현재 프로필"
+            "currentProfile": "현재 프로필",
+            "currentProfilePlaceholder": "프로필 선택"
         },
         "tabs": {
             "mods": "모드",
@@ -85,9 +177,14 @@
             "settings": "설정"
         },
         "notifications": {
-            "gameLaunched": {
-                "title": "게임 실행됨",
-                "description": "게임이 성공적으로 실행되었습니다."
+            "launchGame": {
+                "success": {
+                    "title": "게임 실행됨"
+                },
+                "error": {
+                    "title": "게임 실행 실패",
+                    "message": "게임을 실행할 수 없습니다."
+                }
             }
         },
         "confirmations": {
@@ -189,51 +286,194 @@
                 }
             },
             "deleteMod": {
-                "title": "모드를 삭제하시겠습니까?",
-                "multipleTitle": "선택한 모드를 삭제하시겠습니까?",
-                "message": "모드 \"{modName}\"을(를) 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.",
-                "multipleMessage": "선택한 {count}개의 모드를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.",
+                "title": "모드를 삭제하시겠습니까? | 선택한 모드를 삭제하시겠습니까?",
+                "message": "모드 \"{modName}\"을(를) 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다. | 선택한 {count}개의 모드를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.",
                 "actions": {
                     "delete": "삭제"
                 }
             }
         },
         "notifications": {
-            "syncSuccess": {
-                "title": "모드 동기화 완료",
-                "description": "모드가 게임 폴더와 성공적으로 동기화되었습니다."
+            "syncMods": {
+                "completedWithErrors": {
+                    "title": "동기화가 완료되었지만 오류가 있습니다",
+                    "message": "모드 {total}개 중 {synced}개를 동기화했습니다. 동기화 상세 정보에서 실패한 모드를 확인하세요.",
+                    "details": "상세 정보 보기"
+                },
+                "success": {
+                    "title": "모드 동기화 완료",
+                    "message": "모드가 게임 폴더와 성공적으로 동기화되었습니다."
+                },
+                "error": {
+                    "title": "동기화 실패"
+                }
             },
-            "unsyncSuccess": {
-                "title": "모드 동기화 해제 완료",
-                "description": "모드가 게임 폴더에서 성공적으로 제거되었습니다."
+            "unsyncMods": {
+                "success": {
+                    "title": "모드 동기화 해제 완료",
+                    "message": "모드가 게임 폴더에서 성공적으로 제거되었습니다."
+                },
+                "error": {
+                    "title": "동기화 해제 실패"
+                }
             },
-            "modInstallSuccess": {
-                "title": "모드 설치 완료",
-                "description": "모드 '{modName}'이(가) 성공적으로 설치되었습니다."
+            "renameMod": {
+                "success": {
+                    "title": "모드 이름 변경 완료",
+                    "message": "'{oldName}'의 이름이 '{newName}'(으)로 변경되었습니다."
+                },
+                "error": {
+                    "title": "모드 이름 변경 실패"
+                }
+            },
+            "installMod": {
+                "success": {
+                    "title": "모드 설치 완료",
+                    "message": "모드 '{modName}'이(가) 성공적으로 설치되었습니다."
+                },
+                "error": {
+                    "title": "\"{modName}\" 모드를 설치할 수 없습니다"
+                }
+            },
+            "deleteMod": {
+                "success": {
+                    "title": "모드 삭제 완료 | 모드 삭제 완료",
+                    "message": "모드 '{modName}'이(가) 삭제되었습니다. | 모드 {count}개가 삭제되었습니다."
+                },
+                "error": {
+                    "title": "모드 삭제 실패 | 일부 모드를 삭제할 수 없습니다",
+                    "message": "\"{modName}\"을(를) 삭제할 수 없습니다: {error} | {totalCount}개 중 {deletedCount}개 모드를 삭제했습니다.",
+                    "unexpectedMessage": "모드를 삭제하는 중 예기치 않은 오류가 발생했습니다. 자세한 내용은 로그를 확인하세요.",
+                    "actions": {
+                        "viewDetails": "자세히 보기"
+                    }
+                }
+            },
+            "autoSync": {
+                "error": {
+                    "title": "자동 동기화 실패"
+                }
+            },
+            "previewMod": {
+                "error": {
+                    "title": "모드 미리보기 불가"
+                }
+            },
+            "openModFolder": {
+                "error": {
+                    "notFound": {
+                        "title": "모드 폴더를 찾을 수 없음",
+                        "message": "모드 '{modName}'의 폴더를 찾을 수 없습니다."
+                    },
+                    "notDirectory": {
+                        "title": "모드 경로가 디렉토리가 아님",
+                        "message": "모드 '{modName}'의 경로가 디렉토리가 아닙니다."
+                    }
+                }
+            },
+            "openStagingModsFolder": {
+                "error": {
+                    "notSet": {
+                        "title": "스테이징 디렉토리가 설정되지 않음",
+                        "message": "스테이징 디렉토리가 설정되지 않았습니다."
+                    },
+                    "notFound": {
+                        "title": "스테이징 디렉토리를 찾을 수 없음",
+                        "message": "'{stagingDir}'에서 스테이징 디렉토리를 찾을 수 없습니다. 설정을 확인해 주세요."
+                    }
+                }
+            },
+            "openGameFolder": {
+                "error": {
+                    "notSet": {
+                        "title": "게임 디렉토리가 설정되지 않음",
+                        "message": "게임 디렉토리가 설정되지 않았습니다. 설정을 확인해 주세요."
+                    },
+                    "notFound": {
+                        "title": "게임 디렉토리를 찾을 수 없음",
+                        "message": "'{gameDirectory}'에서 게임 디렉토리를 찾을 수 없습니다. 설정을 확인해 주세요."
+                    },
+                    "notDirectory": {
+                        "title": "게임 경로가 디렉토리가 아님",
+                        "message": "게임 경로 '{gameDirectory}'는 디렉토리가 아닙니다."
+                    }
+                }
+            },
+            "openGameModsFolder": {
+                "error": {
+                    "gameDirectoryNotSet": {
+                        "title": "게임 디렉토리가 설정되지 않음",
+                        "message": "게임 디렉토리가 설정되지 않았습니다. 설정을 확인해 주세요."
+                    },
+                    "notFound": {
+                        "title": "게임 모드 디렉토리를 찾을 수 없음",
+                        "message": "'{gameModsDirectory}'에서 게임 모드 디렉토리를 찾을 수 없습니다."
+                    },
+                    "notDirectory": {
+                        "title": "게임 모드 경로가 디렉토리가 아님",
+                        "message": "게임 모드 경로 '{gameModsDirectory}'는 디렉토리가 아닙니다."
+                    }
+                }
             }
         },
-        "errors": {
-            "modPreview": {
-                "title": "모드 미리보기 불가",
-                "modContainErrors": "모드 '{modName}'에 오류가 있습니다. 미리보기를 열 수 없습니다."
+        "modals": {
+            "modsDeleteFailed": {
+                "title": "일부 모드를 삭제하지 못했습니다",
+                "subtitle": "모드 {count}개를 삭제하지 못했습니다.",
+                "actions": {
+                    "retry": "재시도"
+                }
             },
-            "syncFailed": {
-                "title": "동기화 실패"
+            "sync": {
+                "titles": {
+                    "syncing": "모드 동기화 중...",
+                    "completed": "동기화 완료",
+                    "failed": "동기화 실패",
+                    "idle": "모드 동기화",
+                    "removing": "모드 제거 중...",
+                    "removed": "모드 제거됨",
+                    "failedToRemove": "모드 제거 실패",
+                    "idleToRemove": "모드 제거",
+                    "waitingForAction": "작업 대기 중"
+                },
+                "actions": {
+                    "close": "닫기"
+                },
+                "log": {
+                    "title": "동기화 로그",
+                    "waitingToStart": "동기화 시작 대기 중...",
+                    "mods": "개 모드"
+                },
+                "status": {
+                    "synced": "동기화됨",
+                    "upToDate": "최신 상태",
+                    "removed": "제거됨",
+                    "failed": "실패"
+                }
             },
-            "unsyncFailed": {
-                "title": "동기화 해제 실패"
+            "changeModAuthor": {
+                "title": "모드 제작자 변경",
+                "description": "모드 \"{modName}\"의 새 제작자 이름을 입력하세요.",
+                "descriptionMultiple": "선택한 모드의 새 제작자 이름을 입력하세요.",
+                "placeholder": "새 제작자 이름 입력",
+                "labels": {
+                    "modName": "모드 이름",
+                    "newAuthor": "새 제작자 이름"
+                }
             },
-            "modFolderNotFound": "모드 '{modName}'의 폴더를 찾을 수 없습니다.",
-            "modNotDirectory": "모드 '{modName}'의 경로가 디렉토리가 아닙니다.",
-            "stagingDirectoryNotSet": "스테이징 디렉토리가 설정되지 않았습니다.",
-            "stagingDirectoryNotFound": "'{stagingDir}'에서 스테이징 디렉토리를 찾을 수 없습니다. 설정을 확인해 주세요."
+            "changeModName": {
+                "title": "모드 이름 변경",
+                "description": "모드 \"{modName}\"의 새 이름을 입력하세요.",
+                "labels": {
+                    "modName": "모드 이름"
+                }
+            }
         }
     },
     "charactersTab": {
         "title": "캐릭터",
         "subtitle": "{totalModsCount}개 중 {enabledModsCount}개 모드 활성화됨",
         "charactersNotFound": "캐릭터를 찾을 수 없습니다.",
-        "id": "ID: {id}",
         "filters": {
             "title": "필터",
             "searchPlaceholder": "캐릭터 검색...",
@@ -314,7 +554,8 @@
             "noIndexModsFound": {
                 "title": "모드 없음",
                 "description": "이 캐릭터에 대한 인덱스에 사용 가능한 모드가 없습니다."
-            }
+            },
+            "previewMod": "모드 미리보기"
         }
     },
     "profilesTab": {
@@ -327,6 +568,7 @@
         "noModsEnabled": "활성화된 모드가 없습니다.",
         "noProfileSelected": "프로필이 선택되지 않았습니다. 상세 정보를 보려면 프로필을 선택해 주세요.",
         "actions": {
+            "cleanMissingMods": "없는 모드 제거",
             "createProfile": "프로필 생성",
             "editProfile": "프로필 편집",
             "deleteProfile": "프로필 삭제",
@@ -334,33 +576,50 @@
             "refreshProfiles": "프로필 새로고침"
         },
         "notifications": {
-            "profileCreated": {
-                "title": "프로필 생성 완료",
-                "description": "프로필 \"{profileName}\"이(가) 성공적으로 생성되었습니다."
+            "cleanMissingMods": {
+                "success": {
+                    "title": "프로필 정리 완료",
+                    "message": "\"{profileName}\"에서 없는 모드 {count}개를 제거했습니다."
+                },
+                "error": {
+                    "title": "프로필 정리 실패"
+                }
             },
-            "profileUpdated": {
-                "title": "프로필 업데이트 완료",
-                "description": "프로필 \"{profileName}\"이(가) 성공적으로 업데이트되었습니다."
+            "createProfile": {
+                "success": {
+                    "title": "프로필 생성 완료",
+                    "message": "프로필 \"{profileName}\"이(가) 성공적으로 생성되었습니다."
+                },
+                "error": {
+                    "title": "프로필 생성 실패",
+                    "message": "프로필 \"{profileName}\" 생성 중 오류가 발생했습니다."
+                }
             },
-            "profileDeleted": {
-                "title": "프로필 삭제 완료",
-                "description": "프로필 \"{profileName}\"이(가) 성공적으로 삭제되었습니다."
+            "updateProfile": {
+                "success": {
+                    "title": "프로필 업데이트 완료",
+                    "message": "프로필 \"{profileName}\"이(가) 성공적으로 업데이트되었습니다."
+                },
+                "error": {
+                    "title": "프로필 업데이트 실패",
+                    "message": "프로필 \"{profileName}\" 업데이트 중 오류가 발생했습니다."
+                }
             },
-            "profileCreateFailed": {
-                "title": "프로필 생성 실패",
-                "description": "프로필 \"{profileName}\" 생성 중 오류가 발생했습니다."
+            "deleteProfile": {
+                "success": {
+                    "title": "프로필 삭제 완료",
+                    "message": "프로필 \"{profileName}\"이(가) 성공적으로 삭제되었습니다."
+                },
+                "error": {
+                    "title": "프로필 삭제 실패",
+                    "message": "프로필 \"{profileName}\" 삭제 중 오류가 발생했습니다."
+                }
             },
-            "profileUpdateFailed": {
-                "title": "프로필 업데이트 실패",
-                "description": "프로필 \"{profileName}\" 업데이트 중 오류가 발생했습니다."
-            },
-            "profileDeleteFailed": {
-                "title": "프로필 삭제 실패",
-                "description": "프로필 \"{profileName}\" 삭제 중 오류가 발생했습니다."
-            },
-            "profileSwitchFailed": {
-                "title": "프로필 전환 실패",
-                "description": "프로필 \"{profileName}\"(으)로 전환하는 중 오류가 발생했습니다."
+            "switchProfile": {
+                "error": {
+                    "title": "프로필 전환 실패",
+                    "message": "프로필 \"{profileName}\"(으)로 전환하는 중 오류가 발생했습니다."
+                }
             }
         },
         "confirmations": {
@@ -415,7 +674,6 @@
             "installed": "설치됨",
             "installedButOutdated": "설치됨 (오래된 버전)",
             "notInstalled": "미설치",
-            "gameNotFound": "게임 경로가 설정되지 않았습니다.",
             "bepinexMissing": "BepInEx가 없습니다."
         },
         "labels": {
@@ -441,22 +699,11 @@
             "selectFile": "파일 선택",
             "remove": "제거"
         },
-        "notifications": {
-            "installSuccess": {
-                "title": "BrownDustX 설치 완료",
-                "description": "BrownDustX가 성공적으로 설치되었습니다."
-            },
-            "uninstallSuccess": {
-                "title": "BrownDustX 제거 완료",
-                "description": "BrownDustX가 성공적으로 제거되었습니다."
-            }
-        },
         "confirmations": {
             "removeBepInEx": {
                 "title": "BepInEx를 제거하시겠습니까?",
                 "message": "BepInEx를 제거하시겠습니까? 게임 디렉토리에서 모든 BepInEx 파일이 삭제됩니다. 이 작업은 되돌릴 수 없습니다.",
                 "actions": {
-                    "removeBepInEx": "BepInEx 제거",
                     "confirm": "BepInEx 제거"
                 }
             },
@@ -464,7 +711,6 @@
                 "title": "BrownDustX를 제거하시겠습니까?",
                 "message": "BrownDustX를 제거하시겠습니까? 게임 디렉토리에서 모든 BrownDustX 파일과 모드가 삭제됩니다. 이 작업은 되돌릴 수 없습니다.",
                 "actions": {
-                    "removeBrownDustX": "BrownDustX 제거",
                     "confirm": "BrownDustX 제거"
                 }
             },
@@ -477,25 +723,12 @@
             }
         },
         "alerts": {
-            "caution": "주의",
-            "cautionMessage": "수동 설치를 권장합니다. BepInEx 또는 BrownDustX가 이미 설치된 경우, 설치 프로그램이 기존 파일을 올바르게 제거하지 못할 수 있습니다. GitHub에서 설치한 BepInEx에서 문제가 발생하면 버그 신고 전에 BrownDustX Discord 버전을 먼저 시도해 보세요.",
             "danger": "이 기능은 본인 책임 하에 사용하세요",
             "dangerMessage": "이 기능은 실험적입니다. 게임 설치에 발생하는 어떠한 문제에 대해서도 책임지지 않습니다."
         },
         "modals": {
-            "bepinexGithub": {
-                "title": "GitHub에서 BepInEx 설치",
-                "loading": "GitHub에서 BepInEx 릴리즈를 불러오는 중...",
-                "failedToLoadVersions": "버전 불러오기 실패",
-                "actions": {
-                    "viewOnGithub": "GitHub에서 보기",
-                    "install": "설치",
-                    "retry": "다시 시도"
-                }
-            },
             "installFromGithub": {
                 "title": "GitHub에서 설치",
-                "description": "GitHub에서 제공되는 릴리스 중 설치할 버전을 선택하세요.",
                 "loading": "GitHub에서 릴리스를 불러오는 중...",
                 "failedToLoadVersions": "버전을 불러오지 못했습니다",
                 "bepinexTitle": "BepInEx 설치",
@@ -508,7 +741,6 @@
                 },
                 "enableOtherVersionsWarning": "다른 버전은 BrownDustX와 호환성 문제를 일으킬 수 있습니다. 문제가 발생하면 신고하기 전에 권장 버전으로 다시 전환해 주세요.",
                 "actions": {
-                    "viewOnGithub": "GitHub에서 보기",
                     "install": "설치",
                     "retry": "재시도"
                 }
@@ -537,7 +769,8 @@
             "unsupportedFile": "지원되지 않는 파일 형식이 드롭되었습니다: {path}",
             "unknownArchiveType": "압축 파일 종류를 확인할 수 없습니다: {path}. 파일 이름에 'BepInEx', 'BrownDustX', 'ConfigManager' 중 하나를 포함하도록 이름을 변경해 주세요.",
             "uninstalling": "{scope}을(를) 제거하는 중...",
-            "uninstalledSuccess": "{scope} 제거가 완료되었습니다."
+            "uninstalledSuccess": "{scope} 제거가 완료되었습니다.",
+            "uninstallError": "{scope} 제거 중 오류: {error}"
         },
         "fileDialog": {
             "archiveFilter": "압축 파일",
@@ -552,10 +785,22 @@
         }
     },
     "settingsTab": {
-        "title": "설정",
-        "subtitle": "모드 매니저 설정을 구성하세요.",
         "general": {
             "label": "일반",
+            "notifications": {
+                "stagingDirectoryUpdated": {
+                    "title": "모드 보관 폴더 업데이트 완료",
+                    "message": "모드 보관 폴더가 {path}(으)로 변경되었습니다."
+                },
+                "invalidGameDirectory": {
+                    "title": "잘못된 게임 폴더",
+                    "message": "선택한 게임 폴더 {path}이(가) 올바르지 않습니다."
+                },
+                "gameDirectoryUpdated": {
+                    "title": "게임 폴더 업데이트 완료",
+                    "message": "게임 폴더가 {path}(으)로 변경되었습니다."
+                }
+            },
             "sections": {
                 "application": {
                     "title": "애플리케이션",
@@ -665,10 +910,13 @@
                         "label": "모드 미리보기 자동 업데이트",
                         "description": "애플리케이션 시작 시 BD2ModPreview 업데이트를 자동으로 확인하고, 새 버전이 있으면 업데이트합니다."
                     },
+                    "status": {
+                        "updateAvailable": "업데이트 v{version}을(를) 사용할 수 있습니다."
+                    },
                     "actions": {
                         "checkForUpdates": "업데이트 확인",
                         "checkingForUpdates": "업데이트 확인 중...",
-                        "updateModPreview": "BD2ModPreview 업데이트"
+                        "update": "업데이트"
                     }
                 }
             }
@@ -678,7 +926,6 @@
             "sections": {
                 "migration": {
                     "title": "이전 버전에서 가져오기",
-                    "description": "v3.2.4 이하에서 프로필 및 모드 제작자를 가져옵니다.",
                     "profiles": {
                         "title": "프로필",
                         "description": "v3.2.4 이하에서 가져올 프로필을 선택하세요.",
@@ -706,159 +953,46 @@
                     "notifications": {
                         "importProfilesSuccess": {
                             "title": "프로필 가져오기 완료",
-                            "description": "이전 버전에서 프로필을 성공적으로 가져왔습니다."
+                            "message": "이전 버전에서 프로필을 성공적으로 가져왔습니다."
                         },
                         "importModAuthorsSuccess": {
                             "title": "모드 제작자 가져오기 완료",
-                            "description": "이전 버전에서 모드 제작자를 성공적으로 가져왔습니다."
-                        },
-                        "importFailed": {
-                            "title": "가져오기 실패",
-                            "description": "데이터를 가져오는 중 오류가 발생했습니다: {error}"
-                        },
-                        "errorFetchingProfiles": {
-                            "title": "프로필 가져오기 실패",
-                            "description": "이전 버전에서 프로필을 가져오는 중 오류가 발생했습니다: {error}"
+                            "message": "이전 버전에서 모드 제작자를 성공적으로 가져왔습니다."
                         },
                         "noProfilesToImport": {
                             "title": "가져올 프로필 없음",
-                            "description": "이전 버전에서 가져올 프로필을 찾을 수 없습니다."
+                            "message": "이전 버전에서 가져올 프로필을 찾을 수 없습니다."
                         },
                         "noProfilesSelected": {
                             "title": "선택된 프로필 없음",
-                            "description": "가져올 프로필을 하나 이상 선택해 주세요."
+                            "message": "가져올 프로필을 하나 이상 선택해 주세요."
                         },
                         "noModAuthorsToImport": {
                             "title": "가져올 Mod 제작자 없음",
-                            "description": "이전 버전에서 가져올 수 있는 Mod 제작자를 찾을 수 없습니다."
+                            "message": "이전 버전에서 가져올 수 있는 Mod 제작자를 찾을 수 없습니다."
                         }
-                    },
-                    "errors": {
-                        "IoError": "I/O 오류: {message}",
-                        "ProfileImportError": "프로필 가져오기에 실패했습니다: {message}",
-                        "ProfileDeleteError": "이전 프로필 삭제에 실패했습니다: {message}",
-                        "ModsImportError": "이전 Mod를 읽어오지 못했습니다: {message}",
-                        "ModsParseError": "이전 Mod 파싱에 실패했습니다: {message}",
-                        "ModsDeleteError": "이전 Mod 파일 삭제에 실패했습니다: {message}",
-                        "ModsRefreshError": "가져오기 후 Mod 새로고침에 실패했습니다: {message}",
-                        "Unknown": "예기치 않은 오류가 발생했습니다: {message}"
                     }
                 }
             }
         }
     },
-    "modals": {
-        "logs": {
-            "title": "애플리케이션 로그",
-            "noLogs": "사용 가능한 로그가 없습니다."
-        },
-        "sync": {
-            "titles": {
-                "syncing": "모드 동기화 중...",
-                "completed": "동기화 완료",
-                "failed": "동기화 실패",
-                "idle": "모드 동기화",
-                "removing": "모드 제거 중...",
-                "removed": "모드 제거됨",
-                "failedToRemove": "모드 제거 실패",
-                "idleToRemove": "모드 제거",
-                "waitingForAction": "작업 대기 중"
-            },
-            "actions": {
-                "close": "닫기"
-            },
-            "log": {
-                "title": "동기화 로그",
-                "waitingToStart": "동기화 시작 대기 중...",
-                "mods": "개 모드"
-            },
-            "status": {
-                "synced": "동기화됨",
-                "upToDate": "최신 상태",
-                "removed": "제거됨",
-                "failed": "실패"
-            }
-        },
-        "welcome": {
-            "title": "BD2ModManager에 오신 것을 환영합니다!",
-            "subtitle": "처음 앱을 실행하신 것 같습니다. 지금 게임 디렉토리를 설정하거나, 나중에 설정에서 변경할 수 있습니다.",
-            "chips": {
-                "github": "GitHub 방문",
-                "discord": "BrownDustX Discord",
-                "suggestFeatures": "기능 제안",
-                "reportIssues": "문제 신고",
-                "kofi": "Ko-Fi로 지원하기"
-            },
-            "selectGameDirectory": {
-                "title": "게임 디렉토리",
-                "description": "'BrownDust II.exe'가 있는 폴더를 선택해 주세요.",
-                "placeholders": {
-                    "gamePath": "브라운더스트 II 게임 디렉토리 경로"
-                },
-                "labels": {
-                    "foundPaths": "찾은 경로:"
-                },
-                "validPath": "게임 디렉토리가 설정되었습니다.",
-                "invalidPath": "계속하려면 유효한 게임 디렉토리를 선택해 주세요.",
-                "errors": {
-                    "invalidGameExecutable": "선택한 파일은 브라운더스트 II 실행 파일이 아닙니다.",
-                    "invalidDirectory": "선택한 디렉토리에 유효한 브라운더스트 II 설치가 없습니다.",
-                    "unknownError": "알 수 없는 오류가 발생했습니다: {error}",
-                    "noGamePathSelected": "게임 경로가 선택되지 않았습니다. 계속하려면 유효한 게임 디렉토리를 선택해 주세요."
-                }
-            },
-            "betaBanner": {
-                "message": "이것은 모드 매니저의 {beta}입니다. 버그나 예상치 못한 동작이 발생할 수 있습니다. 문제를 발견하시면 {github}에 신고해 주세요.",
-                "beta": "베타 버전",
-                "github": "GitHub Issues"
-            },
-            "supportBanner": {
-                "title": "프로젝트 지원하기 ❤️",
-                "messageKofi": "BD2ModManager는 무료 오픈소스입니다. 도움이 되었다면 Ko-Fi로 지원을 고려해 주세요!",
-                "messageAfdian": "BD2ModManager는 무료 오픈소스입니다. 도움이 되었다면 Afdian으로 지원을 고려해 주세요!"
-            }
-        },
-        "changeModAuthor": {
-            "title": "모드 제작자 변경",
-            "description": "모드 \"{modName}\"의 새 제작자 이름을 입력하세요.",
-            "descriptionMultiple": "선택한 모드의 새 제작자 이름을 입력하세요.",
-            "placeholder": "새 제작자 이름 입력",
-            "labels": {
-                "modName": "모드 이름",
-                "newAuthor": "새 제작자 이름"
-            },
-            "actions": {
-                "save": "저장"
-            }
-        },
-        "changeModName": {
-            "title": "모드 이름 변경",
-            "description": "모드 \"{modName}\"의 새 이름을 입력하세요.",
-            "placeholder": "새 모드 이름 입력",
-            "labels": {
-                "modName": "모드 이름",
-                "newModName": "새 모드 이름"
-            },
-            "actions": {
-                "save": "저장"
-            }
-        },
-        "updateAvailable": {
-            "title": "업데이트 가능",
-            "subtitle": "새 버전 v{version}이 출시되었습니다.",
-            "changelogLabel": "새로운 점",
-            "skipLabel": "다시 표시하지 않기",
-            "actions": {
-                "downloadUpdate": "업데이트 다운로드",
-                "later": "나중에",
-                "goToReleases": "릴리즈 페이지로"
-            }
-        },
-        "confirmation": {
-            "rememberChoice": "다시 표시하지 않기"
-        }
-    },
     "errors": {
+        "ModInstallError": {
+            "ModContainsSymlink": "이 모드에는 심볼릭 링크 또는 정션이 포함되어 있습니다: “{path}”. 설치하기 전에 실제 파일로 교체해 주세요."
+        },
+        "ModSyncError": {
+            "ModContainsSymlink": "이 모드에는 심볼릭 링크 또는 정션이 포함되어 있습니다: “{path}”. 동기화하기 전에 실제 파일로 교체해 주세요."
+        },
+        "MigrateError": {
+            "title": "마이그레이션 실패",
+            "IoError": "I/O 오류: {reason}",
+            "ProfileImportError": "프로필 가져오기에 실패했습니다: {reason}",
+            "ProfileDeleteError": "이전 프로필 삭제에 실패했습니다: {reason}",
+            "ModsImportError": "이전 버전 모드 제작자 정보 가져오기 실패: {reason}",
+            "ModsParseError": "이전 Mod 파싱에 실패했습니다: {reason}",
+            "ModsDeleteError": "이전 Mod 파일 삭제에 실패했습니다: {reason}",
+            "ModsRefreshError": "가져오기 후 Mod 새로고침에 실패했습니다: {reason}"
+        },
         "syncFailed": "모드 동기화 실패",
         "unsyncFailed": "모드 동기화 해제 실패",
         "modAlreadyExists": "동일한 이름의 모드가 이미 존재합니다.",

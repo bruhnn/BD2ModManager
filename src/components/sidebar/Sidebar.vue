@@ -1,32 +1,29 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue';
+import { Bolt, Component, Play, Puzzle, Settings, Users } from '@lucide/vue';
 
-import NavigationButton from './NavigationButton.vue';
-import NavigationSection from './NavigationSection.vue'
-import { Bolt, Component, Play, Puzzle, Settings, Users } from 'lucide-vue-next';
-import { useModsStore } from '../../stores/mods';
-import { invoke } from '@tauri-apps/api/core';
-import { useSettingsStore } from '../../stores/settings';
+import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { useConfirm } from '../../plugins/ConfirmService';
+
+import { invoke } from '@tauri-apps/api/core';
+
+import { useModsStore } from '../../stores/mods';
 import { useLoggingStore } from '../../stores/logging';
-import Select from '../common/Select.vue';
 import { useProfilesStore } from '../../stores/profiles.ts';
-import MultiButton from '../common/MultiButton.vue';
 import { useNotificationStore } from '../../stores/notification.ts';
+import { useGameStore } from '../../stores/game.ts';
+import { useConfirm } from '../../plugins/ConfirmService';
+
+import NavigationSection from './NavigationSection.vue'
+import NavigationButton from './NavigationButton.vue';
+import MultiButton from '../common/MultiButton.vue';
+import Select from '../common/Select.vue';
 
 const { t } = useI18n()
 const notificationStore = useNotificationStore()
 const confirm = useConfirm()
 const loggingStore = useLoggingStore()
-const settingsStore = useSettingsStore()
-const gameVersion = ref<string | null>(null)
 const { isSyncNeeded } = useModsStore()
-const { getGameVersion } = useSettingsStore()
-
-onMounted(async () => {
-    gameVersion.value = await getGameVersion()
-})
+const gameStore = useGameStore()
 
 async function launchGame(vanilla: boolean = false) {
     if (await isSyncNeeded() && !vanilla) {
@@ -42,20 +39,16 @@ async function launchGame(vanilla: boolean = false) {
     await invoke("launch_game", {
             vanilla
         }).then(() => {
-            notificationStore.add({ severity: 'success', title: t('sidebar.notifications.gameLaunched.title'), duration: 3000 })
+            notificationStore.add({ type: 'success', title: t('sidebar.notifications.launchGame.success.title'), duration: 3000 })
         }).catch((error) => {
             loggingStore.logError('Failed to launch game', error)
-            notificationStore.add({ severity: 'error', title: t('sidebar.notifications.gameLaunchError.title'), message: t('sidebar.notifications.gameLaunchError.description'), duration: 5000 })
+            notificationStore.add({ type: 'error', title: t('sidebar.notifications.launchGame.error.title'), message: t('sidebar.notifications.launchGame.error.message'), duration: 5000 })
         })
 }
 
 const headerImage = computed(() => {
     if (import.meta.env.DEV) return `headers/header7.png`
     return `headers/header${Math.floor(Math.random() * 7) + 1}.png`
-})
-
-watch(() => settingsStore.settings.gameDirectory, (gameDir) => {
-    if (gameDir) getGameVersion().then(v => { gameVersion.value = v })
 })
 
 const profilesStore = useProfilesStore()
@@ -71,8 +64,8 @@ function onProfileSelected(profile_id: string) {
         <!-- header -->
         <div class="h-32 flex items-center flex-col justify-center gap-1 relative overflow-hidden">
             <span class="font-cinzel font-bold text-xl">BROWNDUST II</span>
-            <span v-if="gameVersion" class="text-xs font-semibold flex gap-2 items-center justify-center">
-                Game v{{ gameVersion }}
+            <span v-if="gameStore.gameVersion" class="text-xs font-semibold flex gap-2 items-center justify-center">
+                Game v{{ gameStore.gameVersion }}
             </span>
             <img :src="headerImage"
                 class="absolute inset-0 w-full h-full object-cover opacity-35 mask-[linear-gradient(to_bottom,black_50%,transparent_100%)] pointer-events-none select-none" />

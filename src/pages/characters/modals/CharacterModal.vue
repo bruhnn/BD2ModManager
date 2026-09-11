@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { X, Calendar, Eye, BadgeDollarSign, ExternalLink, Info, Tag } from 'lucide-vue-next';
+import { X, Calendar, Eye, BadgeDollarSign, ExternalLink, Info, Tag } from '@lucide/vue';
 import { Character } from '../../../stores/characters';
 import { BD2Mod, useModsStore } from '../../../stores/mods';
 import { computed, ref } from 'vue';
@@ -45,7 +45,7 @@ const costumeIds = computed((): string[] => {
 
 const installedMods = computed(() => {
     if (!props.selectedCostume) return [];
-    return modsStore.mods.filter(mod => {
+    return modsStore.extendedMods.filter(mod => {
         if (!mod.modType) return false;
         const { type } = mod.modType;
         if (['Cutscene', 'Standing'].includes(type)) {
@@ -88,9 +88,9 @@ async function openPreviewMod(mod: BD2Mod) {
     }).catch((error) => {
         let errorMsg = getErrorMessage(t, error);
         notificationStore.add({
-            severity: "error",
+            type: "error",
             closable: true,
-            title: t("modsTab.errors.modPreview.title"),
+            title: t("modsTab.notifications.previewMod.error.title"),
             message: errorMsg,
             duration: 5000
         });
@@ -143,7 +143,7 @@ const charName = computed(() => {
 </script>
 
 <template>
-    <Modal v-model:show="show" class="w-[50vw] max-h-[85vh]" @close="() => show = false">
+    <Modal v-model:show="show" size="lg" @close="() => show = false">
         <template #footer>
             <div class="flex p-3 justify-end items-center w-full border-t border-border-default">
                 <Button variant="default" :label="$t('common.actions.close')" @click="show = false" />
@@ -239,7 +239,7 @@ const charName = computed(() => {
                                         <label v-for="mod in mods" :key="mod.name"
                                             class="flex items-center gap-3 px-4 py-2.5 border-b border-border-default cursor-pointer hover:bg-state-hover transition-colors"
                                             :class="{ 'bg-surface-dialog': !mod.enabled }">
-                                            <Checkbox :model-value="mod.enabled" @update:model-value="toggleMod(mod)" class="shrink-0" />
+                                            <Checkbox :model-value="mod.enabled" @update:model-value="toggleMod(mod)" :disabled="modsStore.isSyncing" class="shrink-0" />
                                             <button @click.stop="openPreviewMod(mod)" :aria-label="$t('charactersTab.characterModal.previewMod')">
                                                 <Eye class="w-6 h-6 cursor-pointer hover:text-text-primary! transition-colors active:scale-95 text-text-secondary" />
                                             </button>

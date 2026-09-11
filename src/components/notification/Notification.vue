@@ -1,7 +1,10 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted, watch } from 'vue'
 import type { Notification } from '../../stores/notification'
-import { AlertOctagon, AlertTriangle, Check, X } from 'lucide-vue-next'
+import { AlertOctagon, AlertTriangle, Check, Info, X } from '@lucide/vue'
+
+// w-fit max-w-[calc(100vw-2rem)] sm:max-w-3xl
+// noti fixed? w-80 max-w-[calc(100vw-2rem)]
 
 const props = defineProps<{
     notification: Notification
@@ -12,55 +15,98 @@ const emit = defineEmits<{
 }>()
 
 const progress = ref(100)
+const isHovered = ref(false)
+
+let animationFrame: number | null = null
+let startedAt = 0
+let remaining = 0
 
 onMounted(() => {
-    startProgress()
+    resetProgress()
 })
 
 onUnmounted(() => {
-    stopProgress()
+    cancelProgress()
+})
+
+watch(() => props.notification.duration, () => {
+    resetProgress()
 })
 
 function close() {
-    stopProgress()
+    cancelProgress()
     emit('close', props.notification.id)
 }
 
-let stopped = false
+function handleAction() {
+    props.notification.action?.onClick()
+    close()
+}
 
 function startProgress() {
-    if (!props.notification.duration) return
-
     const duration = props.notification.duration
-    const start = performance.now()
+    if (!duration || remaining <= 0 || animationFrame !== null) return
+    const totalDuration = duration
+
+    startedAt = performance.now()
 
     function animate(time: number) {
-        if (stopped) return
+        const currentRemaining = Math.max(remaining - (time - startedAt), 0)
+        progress.value = currentRemaining / totalDuration * 100
 
-        const percent = Math.min((time - start) / duration, 1)
-        progress.value = 100 * (1 - percent)
-
-        if (percent < 1) {
-            requestAnimationFrame(animate)
+        if (currentRemaining > 0) {
+            animationFrame = requestAnimationFrame(animate)
         } else {
+            remaining = 0
+            animationFrame = null
             progress.value = 0
             close()
         }
     }
 
-    requestAnimationFrame(animate)
+    animationFrame = requestAnimationFrame(animate)
 }
 
-function stopProgress() {
-    stopped = true
+function pauseProgress() {
+    if (animationFrame === null || !props.notification.duration) return
+
+    remaining = Math.max(remaining - (performance.now() - startedAt), 0)
+    progress.value = remaining / props.notification.duration * 100
+    cancelProgress()
+}
+
+function cancelProgress() {
+    if (animationFrame !== null) cancelAnimationFrame(animationFrame)
+    animationFrame = null
+}
+
+function resetProgress() {
+    cancelProgress()
+    remaining = props.notification.duration ?? 0
+    progress.value = 100
+
+    if (!isHovered.value) startProgress()
+}
+
+function handleMouseEnter() {
+    isHovered.value = true
+    pauseProgress()
+}
+
+function handleMouseLeave() {
+    isHovered.value = false
+    startProgress()
 }
 
 </script>
 
 <template>
-    <div class="w-80 rounded-md border border-border-default bg-surface-popover shadow-lg text-sm overflow-hidden">
+    <div :class="[
+        'w-fit max-w-[calc(100vw-2rem)] sm:max-w-3xl',
+        'rounded-md border border-border-default bg-surface-popover shadow-lg text-sm overflow-hidden'
+    ]" @mouseenter="handleMouseEnter" @mouseleave="handleMouseLeave">
         <div class="flex items-start gap-3 p-3">
-            <span v-if="notification.severity === 'success'" class="relative w-4 h-4 shrink-0 mt-0.5">
+            <span v-if="notification.type === 'success'" class="relative w-4 h-4 shrink-0 mt-0.5">
                 <Check class="absolute inset-0 text-text-secondary w-4 h-4" />
                 <svg class="absolute inset-0 w-0 h-0 overflow-visible" aria-hidden="true">
                     <defs>
@@ -72,7 +118,7 @@ function stopProgress() {
                 <Check class="absolute inset-0 text-success w-4 h-4"
                     :style="{ clipPath: `url(#clip-success-${notification.id})` }" />
             </span>
-            <span v-else-if="notification.severity === 'error'" class="relative w-4 h-4 shrink-0 mt-0.5">
+            <span v-else-if="notification.type === 'error'" class="relative w-4 h-4 shrink-0 mt-0.5">
                 <AlertOctagon class="absolute inset-0 text-text-secondary w-4 h-4" />
                 <svg class="absolute inset-0 w-0 h-0 overflow-visible" aria-hidden="true">
                     <defs>
@@ -85,7 +131,7 @@ function stopProgress() {
                     :style="{ clipPath: `url(#clip-error-${notification.id})` }" />
             </span>
 
-            <span v-else class="relative w-4 h-4 shrink-0 mt-0.5">
+            <span v-else-if="notification.type === 'warn'" class="relative w-4 h-4 shrink-0 mt-0.5">
                 <AlertTriangle class="absolute inset-0 text-text-secondary w-4 h-4" />
                 <svg class="absolute inset-0 w-0 h-0 overflow-visible" aria-hidden="true">
                     <defs>
@@ -98,18 +144,37 @@ function stopProgress() {
                     :style="{ clipPath: `url(#clip-warn-${notification.id})` }" />
             </span>
 
-            <div class="flex-1 min-w-0">
-                <p class="font-medium text-text-primary">
+            <span v-else-if="notification.type === 'info'" class="relative w-4 h-4 shrink-0 mt-0.5">
+                <Info class="absolute inset-0 text-text-secondary w-4 h-4" />
+                <svg class="absolute inset-0 w-0 h-0 overflow-visible" aria-hidden="true">
+                    <defs>
+                        <clipPath :id="`clip-info-${notification.id}`" clipPathUnits="objectBoundingBox">
+                            <rect x="0" y="0" :width="Math.min(Math.max(progress / 100 + 0.08, 0), 1)" height="1" />
+                        </clipPath>
+                    </defs>
+                </svg>
+                <Info class="absolute inset-0 text-info w-4 h-4"
+                    :style="{ clipPath: `url(#clip-info-${notification.id})` }" />
+            </span>
+
+            <div class="grow min-w-0 overflow-hidden">
+                <p class="font-medium text-text-primary wrap-break-word">
                     {{ notification.title }}
                 </p>
 
-                <p v-if="notification.message" class="text-text-secondary text-xs mt-0.5">
+                <p v-if="notification.message" class="text-text-secondary text-xs mt-0.5 wrap-break-word">
                     {{ notification.message }}
                 </p>
+
+                <button v-if="notification.action" type="button"
+                    class="mt-2 max-w-full text-xs font-medium text-accent wrap-break-word hover:text-accent-hover hover:underline cursor-pointer"
+                    @click="handleAction">
+                    {{ notification.action.label }}
+                </button>
             </div>
 
-            <button @click="close"
-                class="text-text-secondary hover:text-text-primary transition-colors shrink-0 cursor-pointer">
+            <button v-if="notification.closable !== false" @click="close"
+                class="text-text-secondary self-center hover:text-text-primary transition-colors shrink-0 cursor-pointer">
                 <X class="w-4 h-4" />
             </button>
         </div>
