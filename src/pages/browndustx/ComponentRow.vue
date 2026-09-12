@@ -6,6 +6,8 @@ import Tooltip from '../../components/common/Tooltip.vue'
 import { computed } from 'vue';
 import { PluginState, Status } from './types';
 import GithubIcon from '../../components/icons/GithubIcon.vue';
+import DiscordIcon from '../../components/icons/DiscordIcon.vue';
+import { openUrl } from '@tauri-apps/plugin-opener';
 
 const props = defineProps<{
     label: string
@@ -49,6 +51,8 @@ const cantRemoveReason = computed(() =>
         ? t(`browndustxTab.canRemoveReasons.${props.state.canRemove.reason}`, { name: props.label })
         : null
 )
+// [TODO] make it more generic, so we can add other actions in the future, like "update" or "reinstall"
+// like: <ComponentRow :actions="[{ label: 'Install', icon: Upload, onClick: () => emit('install') }, { label: 'Remove', icon: Trash2, onClick: () => emit('remove') }]"/>
 </script>
 
 <template>
@@ -78,6 +82,9 @@ const cantRemoveReason = computed(() =>
         </div>
 
         <div class="flex gap-1 justify-end items-center">
+            <template v-if="label == 'BrownDustX'">
+                <Button variant="text" label="Discord" :icon="DiscordIcon" label-class="hidden lg:inline" @click="openUrl('https://discord.gg/B3Aqz6tDG2')"></Button>
+            </template>
             <template v-if="canInstall">
                 <Button v-if="showGithub" variant="text" :label="$t('browndustxTab.actions.installFromGithub')"
                     :icon="GithubIcon" label-class="hidden lg:inline" :disabled="disabled"
