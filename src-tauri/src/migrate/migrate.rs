@@ -1,4 +1,4 @@
-use std::{collections::HashMap, fmt, fs, path::PathBuf};
+use std::{collections::HashMap, fs, path::PathBuf};
 
 use serde::{Deserialize, Serialize};
 use tauri::Manager;
@@ -30,8 +30,7 @@ pub fn get_legacy_app_local_dir(app_handle: &tauri::AppHandle) -> PathBuf {
         .join("BD2ModManager")
 }
 
-#[derive(thiserror::Error, Serialize, Debug)]
-#[serde(tag = "type", content = "message")]
+#[derive(thiserror::Error, Debug)]
 pub enum MigrateError {
     #[error("I/O Error: {0}")]
     IoError(String),
@@ -51,6 +50,44 @@ pub enum MigrateError {
     ModsRefreshError(String),
 }
 
+impl serde::Serialize for MigrateError {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        use serde::ser::SerializeStruct;
+        use serde_json::json;
+
+        let (type_, details): (&str, serde_json::Value) = match self {
+            MigrateError::IoError(reason) => ("IoError", json!({ "reason": reason })),
+            MigrateError::ProfileImportError(reason) => {
+                ("ProfileImportError", json!({ "reason": reason }))
+            }
+            MigrateError::ProfileDeleteError(reason) => {
+                ("ProfileDeleteError", json!({ "reason": reason }))
+            }
+            MigrateError::ModsImportError(reason) => {
+                ("ModsImportError", json!({ "reason": reason }))
+            }
+            MigrateError::ModsParseError(reason) => {
+                ("ModsParseError", json!({ "reason": reason }))
+            }
+            MigrateError::ModsDeleteError(reason) => {
+                ("ModsDeleteError", json!({ "reason": reason }))
+            }
+            MigrateError::ModsRefreshError(reason) => {
+                ("ModsRefreshError", json!({ "reason": reason }))
+            }
+        };
+
+        let mut s = serializer.serialize_struct("MigrateError", 3)?;
+        s.serialize_field("type", type_)?;
+        s.serialize_field("details", &details)?;
+        s.serialize_field("message", &self.to_string())?;
+        s.end()
+    }
+}
+
 pub fn get_profiles(app_handle: &tauri::AppHandle) -> Result<Vec<LegacyProfile>, MigrateError> {
     let legacy_profiles_dir = get_legacy_app_local_dir(app_handle).join("profiles");
 
@@ -63,7 +100,7 @@ pub fn get_profiles(app_handle: &tauri::AppHandle) -> Result<Vec<LegacyProfile>,
     info!("Searching for legacy profiles in: {}", legacy_profiles_dir.display());
 
     Ok(fs::read_dir(legacy_profiles_dir)
-        .map_err(|e| MigrateError::IoError(format!("Failed to read legacy profiles directory: {:?}", e)))?
+        .map_err(|e| MigrateError::IoError(format!("Failed to read legacy profiles directory: {}", e)))?
         .filter_map(|entry| {
             let entry = entry.ok()?;
             if entry.path().extension()?.to_str()? == "json" {
@@ -102,6 +139,11 @@ pub fn import_profiles(
         .filter(|p| profile_ids.contains(&p.id))
         .collect();
 
+    if selected_profiles.is_empty() {
+        info!("No selected legacy profiles found to import.");
+        return Ok(false);
+    }
+
     for profile in selected_profiles {
         info!("Importing legacy profile: {:?}", profile);
 
@@ -128,7 +170,7 @@ pub fn import_profiles(
                 None
 
             )
-            .map_err(|error| MigrateError::ProfileImportError(format!("Failed to import profile '{}': {:?}", profile_name, error)))?;
+            .map_err(|error| MigrateError::ProfileImportError(format!("Failed to import profile '{}': {}", profile_name, error)))?;
 
         // delete legacy profile file
         let legacy_profiles_dir = get_legacy_app_local_dir(&app_handle).join("profiles");
@@ -136,7 +178,7 @@ pub fn import_profiles(
         if legacy_profile_path.exists() {
             std::fs::remove_file(&legacy_profile_path).map_err(|e| {
                 MigrateError::ProfileDeleteError(format!(
-                    "Failed to delete legacy profile file {}: {:?}",
+                    "Failed to delete legacy profile file {}: {}",
                     legacy_profile_path.display(),
                     e
                 ))
@@ -158,50 +200,42 @@ pub fn import_mod_authors(app_handle: &tauri::AppHandle, mod_manager: &mut BD2Mo
 
     let data = std::fs::read_to_string(&legacy_mods_path).map_err(|e| {
         MigrateError::ModsImportError(format!(
-            "Failed to read legacy mods file {}: {:?}",
+            "Failed to read legacy mods file {}: {}",
             legacy_mods_path.display(),
             e
         ))
     })?;
 
-    let legacy_mods: serde_json::Value = serde_json::from_str(&data).map_err(|e| {
+    let legacy_mods: HashMap<String, HashMap<String, serde_json::Value>> = serde_json::from_str(&data).map_err(|e| {
         MigrateError::ModsParseError(format!(
-            "Failed to parse legacy mods file {}: {:?}",
+            "Failed to parse legacy mods file {}: {}",
             legacy_mods_path.display(),
             e
         ))
     })?;
 
-    if let Some(mods_map) = legacy_mods.as_object() {
-        mod_manager.metadata_store.import_from_legacy(
-            &mods_map
-                .iter()
-                .map(|(k, v)| {
-                    let map = v.as_object()
-                        .cloned()
-                        .map(|m| m.into_iter().collect::<std::collections::HashMap<String, serde_json::Value>>())
-                        .unwrap_or_default();
-                    (k.clone(), map)
-                })
-                .collect::<std::collections::HashMap<String, std::collections::HashMap<String, serde_json::Value>>>()
-        );
+    mod_manager.metadata_store.import_from_legacy(&legacy_mods).map_err(|error| {
+        MigrateError::ModsImportError(format!(
+            "Failed to import legacy mod authors: {}",
+            error
+        ))
+    })?;
 
-        mod_manager.refresh_mods_authors(&app_handle).map_err(|e| {
-            MigrateError::ModsRefreshError(format!(
-                "Failed to refresh mods cache after importing legacy mod authors: {:?}",
-                e
-            ))
-        })?;
+    mod_manager.refresh_mods_authors(&app_handle).map_err(|e| {
+        MigrateError::ModsRefreshError(format!(
+            "Failed to refresh mods cache after importing legacy mod authors: {}",
+            e
+        ))
+    })?;
 
-        // delete legacy mods file
-        std::fs::remove_file(&legacy_mods_path).map_err(|e| {
-            MigrateError::ModsDeleteError(format!(
-                "Failed to delete legacy mods file {}: {:?}",
-                legacy_mods_path.display(),
-                e
-            ))
-        })?;
-    }
+    // delete legacy mods file
+    std::fs::remove_file(&legacy_mods_path).map_err(|e| {
+        MigrateError::ModsDeleteError(format!(
+            "Failed to delete legacy mods file {}: {}",
+            legacy_mods_path.display(),
+            e
+        ))
+    })?;
 
     Ok(true)
 }

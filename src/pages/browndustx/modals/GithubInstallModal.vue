@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue';
-import { DownloadIcon, TriangleAlert } from 'lucide-vue-next';
+import { DownloadIcon, TriangleAlert } from '@lucide/vue';
 import Modal from '../../../components/common/Modal.vue';
 import Button from '../../../components/common/Button.vue';
 import Checkbox from '../../../components/common/Checkbox.vue';
@@ -115,7 +115,7 @@ function handleVersionSelected(downloadUrl: string) {
 </script>
 
 <template>
-    <Modal v-model:show="showModal" @close="showModal = false" class="w-180 max-h-[60%]"
+    <Modal v-model:show="showModal" @close="showModal = false" size="lg"
         :title="$t('browndustxTab.modals.installFromGithub.title')">
         <template #footer>
             <div class="flex justify-end gap-2 p-2">

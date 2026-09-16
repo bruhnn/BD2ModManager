@@ -1,0 +1,352 @@
+use std::{collections::HashMap, io::ErrorKind, path::PathBuf};
+
+use crate::{
+    errors::AppError, mods::{BD2Mod, delete::ModDeleteError, preview::{PreviewError, is_texture_mod, preview_image}, sync::{SyncMethod, SyncResult}, types::BD2ModError}, utils::path::{get_mod_preview_path, get_staging_dir},
+};
+use serde::Serialize;
+use tauri::{AppHandle, ipc::Channel};
+
+use crate::AppState;
+use log::{error};
+
+#[tauri::command]
+pub async fn discover_mods(
+    _app_handle: tauri::AppHandle,
+    state: tauri::State<'_, AppState>,
+) -> Result<Vec<BD2Mod>, AppError> {
+    let config = state.config.lock().unwrap().clone();
+    let mod_manager = state.mod_manager.clone();
+
+    let result = tauri::async_runtime::spawn_blocking(move || {
+        let mut mod_manager = mod_manager.lock().unwrap();
+
+        mod_manager.discover_mods(
+            &get_staging_dir(&config),
+            config.search_mods_recursively,
+        )
+    })
+    .await;
+
+    result.map_err(|error| {
+        error!("Discover mods task panicked: {:?}", error);
+        AppError::Unknown(format!("{:?}", error))
+    })
+}
+
+#[tauri::command]
+pub fn get_mods(state: tauri::State<AppState>) -> Vec<BD2Mod> {
+    let mod_manager = state.mod_manager.lock().unwrap();
+    mod_manager.get_mods()
+}
+
+#[tauri::command]
+pub fn enable_mods(
+    state: tauri::State<AppState>,
+    mod_names: Vec<String>,
+) -> Vec<BD2Mod> {
+    // returns the updated mods
+    let mut mod_manager = state.mod_manager.lock().unwrap();
+    mod_manager.enable_mods(mod_names)
+}
+
+#[tauri::command]
+pub fn disable_mods(
+    state: tauri::State<AppState>,
+    mod_names: Vec<String>,
+) -> Vec<BD2Mod> {
+    let mut mod_manager = state.mod_manager.lock().unwrap();
+    mod_manager.disable_mods(mod_names)
+}
+
+#[tauri::command]
+pub async fn preview_mod(
+    app_handle: AppHandle,
+    state: tauri::State<'_, AppState>,
+    mod_name: String,
+) -> Result<(), AppError> {
+    let mod_manager_handle = state.mod_manager.clone();
+
+    let result = tauri::async_runtime::spawn_blocking(move || -> Result<(), AppError> {
+        let mod_manager = mod_manager_handle.lock().unwrap();
+        let _mod: BD2Mod = mod_manager
+            .get_mod_by_name(&mod_name)
+            .ok_or_else(|| PreviewError::ModNotFound {
+                mod_name: mod_name.clone(),
+            })?;
+        drop(mod_manager);
+
+        // check if the mod has errors, like it is a zip file that is not extracted, or a folder that is missing required files, but for example it is only missing modfile there is no problem
+        // BD2ModError
+        if _mod.errors.iter().any(|e| {
+            !matches!(
+                e,
+                BD2ModError::MissingModfile | BD2ModError::HasConflict
+            )
+        }) {
+            return Err(PreviewError::ModHasErrors {
+                mod_name: mod_name.clone(),
+            })?;
+        }
+
+        let path_buf = PathBuf::from(&_mod.path);
+
+        if !path_buf.exists() {
+            return Err(PreviewError::ModNotFound {
+                mod_name: mod_name.clone(),
+            })?;
+        }
+
+        if is_texture_mod(&path_buf) {
+            return Ok(preview_image(app_handle, &path_buf)?);
+        }
+
+        if let Some(mod_preview_exe) = get_mod_preview_path(&app_handle) {
+            std::process::Command::new(mod_preview_exe)
+                .arg(&path_buf)
+                .spawn()
+                .map_err(|err| match err.kind() {
+                    ErrorKind::NotFound => PreviewError::ModPreviewNotFound,
+                    _ => PreviewError::PreviewFailed {
+                        reason: err.to_string(),
+                    },
+                })?;
+        }
+
+        Ok(())
+    })
+    .await;
+
+    result.map_err(|error| {
+        error!("Preview mod task panicked: {:?}", error);
+        AppError::Unknown(format!("{:?}", error))
+    })?
+}
+
+#[tauri::command]
+pub fn install_mod_from_zip(
+    state: tauri::State<AppState>,
+    path: String,
+) -> Result<BD2Mod, AppError> {
+    let config = state.config.lock().unwrap();
+    let staging_dir = get_staging_dir(&config);
+    let mut mod_manager = state.mod_manager.lock().unwrap();
+    Ok(mod_manager.install_mod(PathBuf::from(path), &staging_dir)?)
+}
+
+#[tauri::command]
+pub fn install_mod_from_folder(
+    state: tauri::State<AppState>,
+    path: String,
+) -> Result<BD2Mod, AppError> {
+    let config = state.config.lock().unwrap();
+    let staging_dir = get_staging_dir(&config);
+    let mut mod_manager = state.mod_manager.lock().unwrap();
+    Ok(mod_manager.install_mod(PathBuf::from(path), &staging_dir)?)
+}
+
+// Sync and unsync uses global events
+// sync-start
+// sync-progress
+// sync-end
+#[tauri::command]
+pub async fn sync_mods(
+    app_handle: tauri::AppHandle,
+    state: tauri::State<'_, AppState>,
+) -> Result<SyncResult, AppError> {
+    let app_handle = app_handle.clone();
+    let config_handle = state.config.clone();
+    let mod_manager_handle = state.mod_manager.clone();
+
+    let result = tauri::async_runtime::spawn_blocking(move || {
+        let config = config_handle.lock().unwrap();
+        let mut mod_manager = mod_manager_handle.lock().unwrap();
+
+        let sync_method = match config.sync_method.as_str() {
+            "copy" => SyncMethod::Copy,
+            "hardlink" => SyncMethod::Hardlink,
+            "symlink" => SyncMethod::Symlink,
+            other => return Err(AppError::SyncMethodInvalid {
+                method: other.to_string(),
+            }),
+        };
+
+        let game_dir = match &config.game_directory {
+            Some(dir) => dir.clone(),
+            None => return Err(AppError::GameDirectoryNotSet),
+        };
+
+        mod_manager
+            .sync_mods(&app_handle, &PathBuf::from(game_dir), sync_method)
+            .map_err(AppError::from)
+    })
+    .await;
+
+    match result {
+        Ok(r) => r,
+        Err(e) => {
+            error!("Sync task panicked: {:?}", e);
+            Err(AppError::Unknown(format!("{:?}", e)))
+        }
+    }
+}
+
+#[tauri::command]
+pub async fn unsync_mods(
+    app_handle: tauri::AppHandle,
+    state: tauri::State<'_, AppState>,
+) -> Result<(), AppError> {
+    let app_handle_clone = app_handle.clone();
+    let mod_manager_handle = state.mod_manager.clone();
+    let config_handle = state.config.clone();
+
+    let game_dir = {
+        let config = config_handle.lock().unwrap();
+        match &config.game_directory {
+            Some(dir) => dir.clone(),
+            None => return Err(AppError::GameDirectoryNotSet),
+        }
+    };
+
+    let result = tauri::async_runtime::spawn_blocking(move || {
+        let mut mod_manager = mod_manager_handle.lock().unwrap();
+        mod_manager
+            .unsync_mods(&app_handle_clone, &PathBuf::from(game_dir))
+            .map_err(AppError::from)
+    })
+    .await;
+
+    match result {
+        Ok(r) => r,
+        Err(e) => {
+            error!("Unsync task panicked: {:?}", e);
+            Err(AppError::Unknown(format!("{:?}", e)))
+        }
+    }
+}
+
+
+#[tauri::command]
+pub fn is_sync_needed(
+    _app_handle: tauri::AppHandle,
+    state: tauri::State<'_, AppState>,
+) -> Result<bool, AppError> {
+    let mod_manager = state.mod_manager.lock().unwrap();
+    let config = state.config.lock().unwrap();
+    let game_dir = config
+        .game_directory
+        .clone()
+        .ok_or(AppError::GameDirectoryNotSet)?;
+    Ok(mod_manager.is_sync_needed(&PathBuf::from(game_dir)))
+}
+
+#[derive(Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct DeleteModsProgress {
+    pub current: usize,
+    pub total: usize,
+    pub mod_name: String,
+}
+
+#[derive(Serialize)]
+pub struct DeleteModsResult {
+    pub mods: Vec<BD2Mod>,
+    pub deleted: Vec<String>,
+    pub failed: HashMap<String, ModDeleteError>,
+}
+
+#[tauri::command]
+pub async fn delete_mods(
+    state: tauri::State<'_, AppState>,
+    mod_names: Vec<String>,
+    on_progress: Channel<DeleteModsProgress>
+) -> Result<DeleteModsResult, AppError> {
+    let mod_manager_handle = state.mod_manager.clone();
+    let result = tauri::async_runtime::spawn_blocking(move || {
+        let mut mod_manager = mod_manager_handle.lock().unwrap();
+
+        let total = mod_names.len();
+        let mut deleted = Vec::new();
+        let mut failed = HashMap::new();
+
+        for (index, mod_name) in mod_names.iter().enumerate() {
+            let _ = on_progress.send(DeleteModsProgress {
+                current: index + 1,
+                total,
+                mod_name: mod_name.clone(),
+            });
+
+            match mod_manager.delete_mod(mod_name.clone()) {
+                Ok(()) => {
+                    deleted.push(mod_name.clone());
+                }
+                Err(error) => {
+                    failed.insert(mod_name.clone(), error);
+                }
+            }
+        }
+
+        let all_mods: Vec<BD2Mod> = mod_manager.get_mods();
+
+        DeleteModsResult {
+            mods: all_mods, deleted, failed
+        }
+    })
+    .await;
+
+    result.map_err(|e| {
+        error!("Delete mods task panicked: {:?}", e);
+        AppError::Unknown(format!("{:?}", e))
+    })
+}
+
+#[tauri::command]
+pub async fn rename_mod(
+    state: tauri::State<'_, AppState>,
+    mod_name: String,
+    new_name: String,
+) -> Result<BD2Mod, AppError> {
+    // [TODO] improve renaming
+    let mod_manager_handle = state.mod_manager.clone();
+    let result = tauri::async_runtime::spawn_blocking(move || {
+        let mut mod_manager = mod_manager_handle.lock().unwrap();
+        mod_manager.rename_mod(mod_name, new_name)
+    })
+    .await;
+
+    result
+        .map_err(|e| {
+            error!("Rename mod task panicked: {:?}", e);
+            AppError::Unknown(format!("{:?}", e))
+        })?
+        .map_err(AppError::from)
+}
+
+
+
+
+
+
+
+/// [INFO] Metadata commnds
+
+#[tauri::command]
+pub async fn set_mod_author(
+    state: tauri::State<'_, AppState>,
+    mod_names: Vec<String>,
+    author: Option<String>,
+) -> Result<Vec<BD2Mod>, AppError> {
+    let mod_manager_handle = state.mod_manager.clone();
+
+    let result = tauri::async_runtime::spawn_blocking(move || {
+        let mut mod_manager = mod_manager_handle.lock().unwrap();
+        mod_manager.set_mod_author(mod_names, author)
+    })
+    .await;
+
+    result
+        .map_err(|error| {
+            error!("Set mod author task panicked: {:?}", error);
+            AppError::Unknown(format!("{:?}", error))
+        })?
+        .map_err(AppError::Metadata)
+}

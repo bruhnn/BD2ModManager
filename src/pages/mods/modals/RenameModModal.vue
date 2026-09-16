@@ -44,7 +44,7 @@ const isNameValid = computed(() => {
 })
 </script>
 <template>
-    <Modal v-model:show="visible" @close="visible = false" :title="$t('modals.changeModName.title')" :subtitle="$t('modals.changeModName.description', {modName: modName})">
+    <Modal v-model:show="visible" @close="visible = false" :title="$t('modsTab.modals.changeModName.title')" :subtitle="$t('modsTab.modals.changeModName.description', {modName: modName})">
         <template #footer>
             <div class="flex justify-end space-x-2 p-2">
                 <Button variant="default" @click="cancel">{{ $t('common.actions.cancel') }}</Button>
@@ -54,7 +54,7 @@ const isNameValid = computed(() => {
 
         <div class="p-4 flex flex-col gap-4">
             <div>
-                <p class="text-md text-primary mb-1 font-bold">{{ $t('modals.changeModName.labels.modName') }}</p>
+                <p class="text-md text-primary mb-1 font-bold">{{ $t('modsTab.modals.changeModName.labels.modName') }}</p>
                 <!-- <p class="font-medium text-sm truncate text-primary">{{ modName }}</p> -->
                 <!-- <input type="text" v-model="newModName" class="w-full mt-1 p-2 border rounded" /> -->
                  <div class="h-10">

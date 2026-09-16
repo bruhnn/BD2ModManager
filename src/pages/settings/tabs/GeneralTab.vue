@@ -3,7 +3,7 @@ import { TabPanel } from '@headlessui/vue';
 import Section from '../Section.vue';
 import { useI18n } from 'vue-i18n';
 import { computed } from 'vue';
-import { Folder, SquareArrowOutUpRight } from 'lucide-vue-next';
+import { Folder, SquareArrowOutUpRight } from '@lucide/vue';
 import { openPath } from '@tauri-apps/plugin-opener';
 import { open } from '@tauri-apps/plugin-dialog';
 import Select from '../../../components/common/Select.vue';
@@ -153,9 +153,9 @@ async function handleStagingModsBrowse() {
         logInfo(`Staging mods directory changed to ${folder}`)
 
         notificationStore.add({
-            severity: 'success',
-            title: 'Staging Mods Directory Updated',
-            message: `Staging mods directory has been updated to ${folder}.`,
+            type: 'success',
+            title: t('settingsTab.general.notifications.stagingDirectoryUpdated.title'),
+            message: t('settingsTab.general.notifications.stagingDirectoryUpdated.message', { path: folder }),
             duration: 3000
         })
     }
@@ -174,9 +174,9 @@ async function handleGameDirectoryBrowse() {
         if (!isValid) {
             logWarning(`Selected game directory ${folder} is not valid.`)
             notificationStore.add({
-                severity: 'warn',
-                title: 'Invalid Game Directory',
-                message: `The selected game directory ${folder} is not valid.`,
+                type: 'warn',
+                title: t('settingsTab.general.notifications.invalidGameDirectory.title'),
+                message: t('settingsTab.general.notifications.invalidGameDirectory.message', { path: folder }),
                 duration: 5000
             })
             return
@@ -185,9 +185,9 @@ async function handleGameDirectoryBrowse() {
         await settingsStore.saveSettings({ gameDirectory: folder })
         logInfo(`Game directory changed to ${folder}`)
         notificationStore.add({
-            severity: 'success',
-            title: 'Game Directory Updated',
-            message: `Game directory has been updated to ${folder}.`,
+            type: 'success',
+            title: t('settingsTab.general.notifications.gameDirectoryUpdated.title'),
+            message: t('settingsTab.general.notifications.gameDirectoryUpdated.message', { path: folder }),
             duration: 3000
         })
     }
@@ -233,7 +233,7 @@ async function handleGameDirectoryBrowse() {
                         </label>
                         <div class="flex w-full gap-2 items-center col-span-2">
                             <Input class="w-full min-w-32" :model-value="settings.gameDirectory ?? ''"
-                                placeholder="Game Directory" readonly />
+                                :placeholder="$t('settingsTab.general.sections.directories.gameDirectory.placeholder')" readonly />
                             <Button :label="$t('common.actions.browse')" :icon="Folder"
                                 @click="handleGameDirectoryBrowse" class="whitespace-nowrap min-w-32" />
                             <Button class="whitespace-nowrap" :icon="SquareArrowOutUpRight"
@@ -247,7 +247,7 @@ async function handleGameDirectoryBrowse() {
                         </label>
                         <div class="flex col-span-2 gap-2 items-center">
                             <Input class="w-full min-w-32" :model-value="settings.stagingDirectory ?? ''"
-                                placeholder="Staging Mods Directory" readonly />
+                                :placeholder="$t('settingsTab.general.sections.directories.modsDirectory.placeholder')" readonly />
                             <Button :label="$t('common.actions.browse')" :icon="Folder" @click="handleStagingModsBrowse"
                                 class="min-w-32" />
                             <Button @click="handleOpenFolder(settings.stagingDirectory)" :icon="SquareArrowOutUpRight"

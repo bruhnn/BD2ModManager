@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { TriangleAlert, Upload, Github, Trash2 } from 'lucide-vue-next'
+import { TriangleAlert, Upload,Trash2 } from '@lucide/vue'
 import { useI18n } from 'vue-i18n'
 import Button from '../../components/common/Button.vue'
 import Tooltip from '../../components/common/Tooltip.vue'
 import { computed } from 'vue';
 import { PluginState, Status } from './types';
+import GithubIcon from '../../components/icons/GithubIcon.vue';
 
 const props = defineProps<{
     label: string
@@ -79,7 +80,7 @@ const cantRemoveReason = computed(() =>
         <div class="flex gap-1 justify-end items-center">
             <template v-if="canInstall">
                 <Button v-if="showGithub" variant="text" :label="$t('browndustxTab.actions.installFromGithub')"
-                    :icon="Github" label-class="hidden lg:inline" :disabled="disabled"
+                    :icon="GithubIcon" label-class="hidden lg:inline" :disabled="disabled"
                     @click="emit('installFromGithub')" />
                 <Button variant="text" :label="$t('browndustxTab.actions.selectFile')" :icon="Upload"
                     label-class="hidden lg:inline" :disabled="disabled" @click="emit('install')" />

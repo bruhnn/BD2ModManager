@@ -1,4 +1,4 @@
-use bd2modmanager_lib::profiles::types::{Profile, ProfileError};
+use crate::profiles::types::{Profile, ProfileError};
 use serde::{Deserialize, Serialize};
 
 use crate::{AppState};
@@ -62,4 +62,14 @@ pub fn delete_profile(
 ) -> Result<(), ProfileError> {
     let mut mod_manager = state.mod_manager.lock().unwrap();
     mod_manager.delete_profile(&app_handle, id)
+}
+
+#[tauri::command]
+pub fn clean_missing_mods(
+    state: tauri::State<AppState>,
+    id: String,
+) -> Result<usize, ProfileError> {
+    let config = state.config.lock().unwrap().clone();
+    let mut mod_manager = state.mod_manager.lock().unwrap();
+    mod_manager.profile_manager.clean_missing_mods(id, &crate::utils::path::get_staging_dir(&config))
 }

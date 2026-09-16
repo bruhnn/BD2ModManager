@@ -10,6 +10,7 @@ import { useLoggingStore } from '../../../stores/logging';
 import { useConfirm } from '../../../plugins/ConfirmService';
 import { useI18n } from 'vue-i18n';
 import { useNotificationStore } from '../../../stores/notification.ts';
+import { getErrorMessage } from '../../../utils/errors.ts';
 
 const profilesStore = useProfilesStore()
 
@@ -22,20 +23,19 @@ interface LegacyProfile {
     name: string
 }
 
-interface MigrateError {
-    type: 'IoError' | 'ProfileImportError' | 'ProfileDeleteError' | 'ModsImportError' | 'ModsParseError' | 'ModsDeleteError' | 'ModsRefreshError'
-    message: string
-}
-
 const profilesIdChoose = ref<string[]>([])
 const legacyProfiles = ref<LegacyProfile[]>([])
 const loggingStore = useLoggingStore()
+const isImportingProfiles = ref(false)
+const isImportingModAuthors = ref(false)
 
-function handleMigrateError(err: unknown) {
-    const e = err as Partial<MigrateError>
-    const key = `settingsTab.experimental.sections.migration.errors.${e.type ?? 'Unknown'}`
-    const message = t(key, { message: e.message ?? String(err) })
-    notificationStore.add({ severity: 'error', title: t('common.error'), message, duration: 5000 })
+function handleMigrateError(error: unknown) {
+    notificationStore.add({
+        type: 'error',
+        title: t('errors.MigrateError.title'),
+        message: getErrorMessage(t, error),
+        duration: 5000
+    })
 }
 
 async function searchLegacyProfiles() {
@@ -43,7 +43,7 @@ async function searchLegacyProfiles() {
         const profiles = await invoke('get_legacy_profiles') as LegacyProfile[]
         legacyProfiles.value = profiles
         if (!profiles.length) {
-            notificationStore.add({ severity: 'info', title: t('settingsTab.experimental.sections.migration.notifications.noProfilesToImport.title'), message: t('settingsTab.experimental.sections.migration.notifications.noProfilesToImport.description'), duration: 3000 })
+            notificationStore.add({ type: 'info', title: t('settingsTab.experimental.sections.migration.notifications.noProfilesToImport.title'), message: t('settingsTab.experimental.sections.migration.notifications.noProfilesToImport.message'), duration: 3000 })
         }
     } catch (err) {
         loggingStore.logError("Error fetching legacy profiles:", err)
@@ -52,56 +52,67 @@ async function searchLegacyProfiles() {
 }
 
 function importProfiles() {
+    if (isImportingProfiles.value) return
     if (profilesIdChoose.value.length === 0) {
-        notificationStore.add({ severity: 'warn', title: t('settingsTab.experimental.sections.migration.notifications.noProfilesSelected.title'), message: t('settingsTab.experimental.sections.migration.notifications.noProfilesSelected.description'), duration: 3000 })
+        notificationStore.add({ type: 'warn', title: t('settingsTab.experimental.sections.migration.notifications.noProfilesSelected.title'), message: t('settingsTab.experimental.sections.migration.notifications.noProfilesSelected.message'), duration: 3000 })
         return
     }
 
+    isImportingProfiles.value = true
     invoke<boolean>('import_legacy_profiles', { profileIds: profilesIdChoose.value })
         .then(async (success) => {
             if (!success) {
-                notificationStore.add({ severity: 'info', title: t('settingsTab.experimental.sections.migration.notifications.noProfilesToImport.title'), message: t('settingsTab.experimental.sections.migration.notifications.noProfilesToImport.description'), duration: 3000 })
+                notificationStore.add({ type: 'info', title: t('settingsTab.experimental.sections.migration.notifications.noProfilesToImport.title'), message: t('settingsTab.experimental.sections.migration.notifications.noProfilesToImport.message'), duration: 3000 })
                 return
             }
 
-            notificationStore.add({ severity: 'success', title: t('settingsTab.experimental.sections.migration.notifications.importProfilesSuccess.title'), message: t('settingsTab.experimental.sections.migration.notifications.importProfilesSuccess.description'), duration: 5000 })
-            
+            notificationStore.add({ type: 'success', title: t('settingsTab.experimental.sections.migration.notifications.importProfilesSuccess.title'), message: t('settingsTab.experimental.sections.migration.notifications.importProfilesSuccess.message'), duration: 5000 })
+
             profilesIdChoose.value = []
-            profilesStore.loadProfiles()
-            
+            await profilesStore.loadProfiles()
+
             await searchLegacyProfiles()
         })
         .catch((err) => {
             loggingStore.logError("Error importing profiles:", err)
             handleMigrateError(err)
         })
+        .finally(() => {
+            isImportingProfiles.value = false
+        })
 }
 
 async function importModAuthors() {
-    const confirmationResult = await confirmation.confirm({
-        title: t('settingsTab.experimental.sections.migration.confirmations.importModAuthors.title'),
-        message: t('settingsTab.experimental.sections.migration.confirmations.importModAuthors.message'),
-        acceptButton: {
-            label: t('settingsTab.experimental.sections.migration.confirmations.importModAuthors.actions.importModAuthors'),
-        },
-        rejectButton: {
-            label: t('settingsTab.experimental.sections.migration.confirmations.importModAuthors.actions.cancel'),
-        },
-    })
-
-    if (!confirmationResult.confirmed) return
-
-    invoke<boolean>('import_legacy_mod_authors')
-        .then((success) => {
-            if (!success) {
-                return notificationStore.add({ severity: 'info', title: t('settingsTab.experimental.sections.migration.notifications.noModAuthorsToImport.title'), message: t('settingsTab.experimental.sections.migration.notifications.noModAuthorsToImport.description'), duration: 3000 })
-            }
-            notificationStore.add({ severity: 'success', title: t('settingsTab.experimental.sections.migration.notifications.importModAuthorsSuccess.title'), message: t('settingsTab.experimental.sections.migration.notifications.importModAuthorsSuccess.description'), duration: 5000 })
+    if (isImportingModAuthors.value) return
+    isImportingModAuthors.value = true
+    try {
+        const confirmationResult = await confirmation.confirm({
+            title: t('settingsTab.experimental.sections.migration.confirmations.importModAuthors.title'),
+            message: t('settingsTab.experimental.sections.migration.confirmations.importModAuthors.message'),
+            acceptButton: {
+                label: t('settingsTab.experimental.sections.migration.confirmations.importModAuthors.actions.importModAuthors'),
+            },
+            rejectButton: {
+                label: t('settingsTab.experimental.sections.migration.confirmations.importModAuthors.actions.cancel'),
+            },
         })
-        .catch((err) => {
-            loggingStore.logError("Error importing mod authors:", err)
-            handleMigrateError(err)
-        })
+
+        if (!confirmationResult.confirmed) return
+
+        await invoke<boolean>('import_legacy_mod_authors')
+            .then((success) => {
+                if (!success) {
+                    return notificationStore.add({ type: 'info', title: t('settingsTab.experimental.sections.migration.notifications.noModAuthorsToImport.title'), message: t('settingsTab.experimental.sections.migration.notifications.noModAuthorsToImport.message'), duration: 3000 })
+                }
+                notificationStore.add({ type: 'success', title: t('settingsTab.experimental.sections.migration.notifications.importModAuthorsSuccess.title'), message: t('settingsTab.experimental.sections.migration.notifications.importModAuthorsSuccess.message'), duration: 5000 })
+            })
+            .catch((err) => {
+                loggingStore.logError("Error importing mod authors:", err)
+                handleMigrateError(err)
+            })
+    } finally {
+        isImportingModAuthors.value = false
+    }
 }
 </script>
 
@@ -112,26 +123,35 @@ async function importModAuthors() {
                 <div class="flex flex-col gap-2">
                     <div class="flex justify-between gap-2">
                         <div class="flex flex-col min-w-0">
-                            <p class="text-text-primary font-medium shrink-0">{{ t('settingsTab.experimental.sections.migration.profiles.title') }}</p>
-                            <p class="text-text-secondary truncate" :title="t('settingsTab.experimental.sections.migration.profiles.description')">
+                            <p class="text-text-primary font-medium shrink-0">{{
+                                t('settingsTab.experimental.sections.migration.profiles.title') }}</p>
+                            <p class="text-text-secondary truncate"
+                                :title="t('settingsTab.experimental.sections.migration.profiles.description')">
                                 {{ t('settingsTab.experimental.sections.migration.profiles.description') }}
                             </p>
                         </div>
                         <div class="flex gap-2 items-center">
-                            <Select class="w-64" :options="legacyProfiles.map(p => ({ label: p.name, value: p.id }))" :placeholder="t('settingsTab.experimental.sections.migration.profiles.selectPlaceholder')" :multiple="true" v-model="profilesIdChoose" />
-                            <Button variant="default" @click="importProfiles">{{ t('settingsTab.experimental.sections.migration.actions.importProfiles') }}</Button>
-                            <Button variant="default" @click="searchLegacyProfiles">{{ t('settingsTab.experimental.sections.migration.actions.searchProfiles', 'Search Profiles') }}</Button>
+                            <Select class="w-64" :options="legacyProfiles.map(p => ({ label: p.name, value: p.id }))"
+                                :placeholder="t('settingsTab.experimental.sections.migration.profiles.selectPlaceholder')"
+                                :multiple="true" v-model="profilesIdChoose" />
+                            <Button variant="default" :disabled="isImportingProfiles" @click="importProfiles">{{
+                                t('settingsTab.experimental.sections.migration.actions.importProfiles') }}</Button>
+                            <Button variant="default" @click="searchLegacyProfiles">{{
+                                t('settingsTab.experimental.sections.migration.actions.searchProfiles') }}</Button>
                         </div>
                     </div>
                     <div class="flex justify-between gap-2">
                         <div class="flex flex-col min-w-0">
-                            <p class="text-text-primary font-medium">{{ t('settingsTab.experimental.sections.migration.modAuthors.title') }}</p>
-                            <p class="text-text-secondary truncate" :title="t('settingsTab.experimental.sections.migration.modAuthors.description')">
+                            <p class="text-text-primary font-medium">{{
+                                t('settingsTab.experimental.sections.migration.modAuthors.title') }}</p>
+                            <p class="text-text-secondary truncate"
+                                :title="t('settingsTab.experimental.sections.migration.modAuthors.description')">
                                 {{ t('settingsTab.experimental.sections.migration.modAuthors.description') }}
                             </p>
                         </div>
                         <div>
-                            <Button variant="default" @click="importModAuthors">{{ t('settingsTab.experimental.sections.migration.actions.importModAuthors') }}</Button>
+                            <Button variant="default" :disabled="isImportingModAuthors" @click="importModAuthors">{{
+                                t('settingsTab.experimental.sections.migration.actions.importModAuthors') }}</Button>
                         </div>
                     </div>
                 </div>

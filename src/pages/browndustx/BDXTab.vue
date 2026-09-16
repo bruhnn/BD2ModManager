@@ -1,5 +1,5 @@
 ﻿<script setup lang="ts">
-import { RefreshCcw, AlertTriangle, TriangleAlert } from 'lucide-vue-next';
+import { RefreshCcw, AlertTriangle, TriangleAlert } from '@lucide/vue';
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, useTemplateRef, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { invoke } from '@tauri-apps/api/core';

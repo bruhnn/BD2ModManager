@@ -37,10 +37,10 @@ function cancel() {
 
 <template>
     <Modal v-model:show="visible" @close="visible = false"
-        :title="$t('modals.changeModAuthor.title')"
+        :title="$t('modsTab.modals.changeModAuthor.title')"
         :subtitle="isMultiple
-            ? $t('modals.changeModAuthor.descriptionMultiple', { count: mods.length })
-            : $t('modals.changeModAuthor.description', { modName: mods[0]?.name })">
+            ? $t('modsTab.modals.changeModAuthor.descriptionMultiple', { count: mods.length })
+            : $t('modsTab.modals.changeModAuthor.description', { modName: mods[0]?.name })">
         <template #footer>
             <div class="flex justify-end space-x-2 p-2">
                 <Button variant="default" @click="cancel">{{ $t('common.actions.cancel') }}</Button>
@@ -50,16 +50,16 @@ function cancel() {
 
         <div class="p-4 flex flex-col gap-4">
             <div v-if="!isMultiple">
-                <p class="text-md text-primary mb-1 font-bold">{{ $t('modals.changeModAuthor.labels.modName') }}</p>
+                <p class="text-md text-primary mb-1 font-bold">{{ $t('modsTab.modals.changeModAuthor.labels.modName') }}</p>
                 <p class="font-medium text-sm truncate text-primary">{{ mods[0]?.name }}</p>
             </div>
 
             <div>
                 <label for="newModAuthor" class="block text-sm font-medium text-primary">{{
-                    $t('modals.changeModAuthor.labels.newAuthor') }}</label>
+                    $t('modsTab.modals.changeModAuthor.labels.newAuthor') }}</label>
                 <div class="h-10">
                     <Input id="newModAuthor" class="w-full h-full" :model-value="newModAuthor" @update:model-value="val => newModAuthor = val"
-                        :placeholder="!isMultiple ? mods[0]?.author : $t('modals.changeModAuthor.multiplePlaceholder')" />
+                        :placeholder="!isMultiple ? mods[0]?.author : $t('modsTab.modals.changeModAuthor.placeholder')" />
                 </div>
             </div>
         </div>

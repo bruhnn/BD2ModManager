@@ -44,7 +44,7 @@ function save() {
 <template>
   <Modal
     v-model:show="visible"
-    class="min-w-120 max-w-200 max-h-[80%]"
+    size="md"
     :title="$t('profilesTab.modals.editProfile.title')"
     :subtitle="$t('profilesTab.modals.editProfile.description')"
     @close="visible = false"

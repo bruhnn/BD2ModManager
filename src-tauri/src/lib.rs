@@ -1,399 +1,242 @@
-use std::{collections::HashMap, path::PathBuf};
+use percent_encoding::percent_decode_str;
+use std::path::PathBuf;
+use std::sync::{Arc, Mutex};
+use tauri::{http, Manager};
+
+mod state;
 
 pub mod config;
+pub mod errors;
 pub mod game;
+pub mod manager;
+pub mod migrate;
 pub mod mods;
 pub mod profiles;
+pub mod updater;
 pub mod utils;
 
-use log::{info, warn};
-use tauri::{AppHandle, Emitter};
+pub use state::AppState;
 
+use crate::config::{BD2Config, PartialAppConfig};
+use crate::manager::BD2ModManager;
 use crate::mods::metadata::ModMetadataStore;
-use crate::mods::sync::{SyncError, SyncMethod};
-use crate::mods::BD2Mod;
-use crate::profiles::types::{Profile, ProfileError};
 use crate::profiles::ProfileManager;
+use crate::state::BundledAssets;
+use crate::updater::commands::PendingUpdate;
+use crate::utils::data;
+use crate::utils::files::ensure_dir_exists;
+use crate::utils::logs::rotate_logs;
+use crate::utils::misc::get_game_asset;
+use crate::utils::path::{get_default_profiles_dir, get_default_staging_dir};
 
-pub struct BD2ModManager {
-    pub profile_manager: ProfileManager,
-    pub cached_mods: HashMap<String, BD2Mod>,
-    pub metadata_store: ModMetadataStore,
-}
-//
-impl BD2ModManager {
-    pub fn new(profile_manager: ProfileManager, metadata_store: ModMetadataStore) -> Self {
-        Self {
-            profile_manager,
-            cached_mods: HashMap::new(),
-            metadata_store,
-        }
+
+#[cfg_attr(mobile, tauri::mobile_entry_point)]
+pub fn run() {
+    let context: tauri::Context = tauri::generate_context!();
+    let bundle_id = context.config().identifier.clone();
+    if let Some(data_dir) = dirs::data_local_dir() {
+        let logs_dir = data_dir.join(&bundle_id).join("logs");
+        rotate_logs(&logs_dir);
     }
 
-    pub fn discover_mods(
-        &mut self,
-        app_handle: &AppHandle,
-        staging_dir: &PathBuf,
-        recursive: bool,
-    ) {
-        info!(
-            "Searching for mods on staging directory ({:?})",
-            staging_dir
-        );
+    tauri::Builder::default()
+        .plugin(tauri_plugin_single_instance::init(|app, _args, _cwd| {
+            let _ = app.get_webview_window("main")
+            .expect("no main window")
+            .set_focus();
+        }))
+        .register_uri_scheme_protocol("bd2assets", |ctx, request| {
+            // standing/065001,065002
+            // standing/065001
+            // heads/065002
+            let uri_path = percent_decode_str(request.uri().path())
+                .decode_utf8_lossy()
+                .trim_start_matches('/')
+                .to_string();
 
-        let mods_found: Vec<BD2Mod> = mods::discover::discover_staging_mods(staging_dir, recursive);
+            // println!("{:?}", uri_path);
 
-        self.cached_mods.clear();
+            let parts: Vec<&str> = uri_path.splitn(2, '/').collect();
 
-        for _mod in mods_found {
-            self.cached_mods.insert(_mod.name.clone(), _mod);
-        }
+            let category = parts.get(0).copied().unwrap_or("standing");
+            let ids_raw = parts.get(1).copied().unwrap_or("");
+            let ids: Vec<&str> = ids_raw.split(',').collect();
 
-        // detect if mods edits the same files (mod type + mod id)
-        mods::conflict::detect_conflicts(&mut self.cached_mods);
-
-        // apply stored metadata (author, etc.)
-        self.metadata_store.apply_to_mods(&mut self.cached_mods);
-
-        // set mods enabled states with the active proifle
-        self.sync_mods_with_profiles();
-
-        // sent event to frontend
-        let all_mods: Vec<&BD2Mod> = self.cached_mods.values().collect();
-        // all_mods.sort_by(|a, b| a.name.cmp(&b.name));
-        app_handle.emit("mods-changed", all_mods).unwrap();
-    }
-
-    fn sync_mods_with_profiles(&mut self) {
-        if let Some(active_profile) = self.profile_manager.get_active_profile() {
-            info!("Active profile ({:?})", active_profile);
-            //
-            for bd2mod in self.cached_mods.values_mut() {
-                bd2mod.enabled = active_profile.get_mod_state(&bd2mod.name);
-            }
-        } else {
-            warn!("No active profile found.");
-        }
-    }
-
-    // mods Methods
-    pub fn enable_mods(&mut self, app_handle: &AppHandle, mod_names: Vec<String>) {
-        for mod_name in mod_names.iter() {
-            if let Some(bd2mod) = self.cached_mods.get_mut(mod_name) {
-                bd2mod.enabled = true;
-                info!("Enabled mod: {}", bd2mod.name);
+            if let Some(bytes) = get_game_asset(ctx.app_handle(), &ids, category) {
+                http::Response::builder()
+                    .header("Content-Type", "image/png")
+                    .header("Access-Control-Allow-Origin", "http://tauri.localhost")
+                    .header("Cache-Control", "public, max-age=604800") // 7 days cache
+                    .body(bytes)
+                    .unwrap()
             } else {
-                warn!("Mod not found: {}", mod_name);
+                // 404
+                http::Response::builder()
+                .status(404)
+                 .body(format!("missing character asset: {:?}", ids).into_bytes())
+                .unwrap()
             }
-        }
+        })
+        .plugin(tauri_plugin_process::init())
+        .plugin(tauri_plugin_updater::Builder::new().build())
+        .plugin(tauri_plugin_os::init())
+        .plugin(tauri_plugin_shell::init())
+        .plugin(tauri_plugin_dialog::init())
+        .plugin(tauri_plugin_store::Builder::new().build())
+        .plugin(tauri_plugin_window_state::Builder::new().build())
+        .plugin(
+            tauri_plugin_log::Builder::new()
+                .clear_targets()
+                .targets([
+                    tauri_plugin_log::Target::new(tauri_plugin_log::TargetKind::Stdout),
+                    tauri_plugin_log::Target::new(tauri_plugin_log::TargetKind::LogDir {
+                        file_name: Some("logs".to_string()),
+                    }),
+                    tauri_plugin_log::Target::new(tauri_plugin_log::TargetKind::Webview).format(
+                        |out, message, record| {
+                            out.finish(format_args!("[{}] {}", record.target(), message))
+                        },
+                    ),
+                ])
+                .filter(|metadata| {
+                    !(cfg!(debug_assertions)
+                        && metadata.target() == "reqwest::connect"
+                        && metadata.level() <= log::Level::Debug)
+                })
+                .max_file_size(10_000_000) // 10mb
+                .level(log::LevelFilter::Debug)
+                .build(),
+        )
+        .plugin(tauri_plugin_opener::init())
+        .setup(|app| {
+            log::info!("Starting app...");
 
-        if let Some(active_profile) = self.profile_manager.get_active_profile() {
-            for mod_name in mod_names.iter() {
-                active_profile.set_mod_state(mod_name, true);
-            }
-        }
+            let app_handle = app.app_handle();
 
-        if let Err(e) = self.profile_manager.save_active_profile() {
-            warn!("Failed to save profiles after enabling mods: {:?}", e);
-        }
+            let mut config = BD2Config::new(app_handle.clone());
+            config.load_config();
 
-        let all_mods: Vec<&BD2Mod> = self.cached_mods.values().collect();
-        app_handle.emit("mods-changed", all_mods).unwrap();
-    }
+            let profiles_dir: PathBuf = get_default_profiles_dir(app_handle, false);
+            // let temp_dir = get_temp_dir();
 
-    pub fn disable_mods(&mut self, app_handle: &AppHandle, mod_names: Vec<String>) {
-        for mod_name in mod_names.iter() {
-            if let Some(bd2mod) = self.cached_mods.get_mut(mod_name) {
-                bd2mod.enabled = false;
-                info!("Disabled mod: {}", bd2mod.name);
-            } else {
-                warn!("Mod not found: {}", mod_name);
-            }
-        }
+            let staging_dir = match &config.staging_directory {
+                Some(path) => PathBuf::from(path),
+                None => {
+                    let staging_dir = get_default_staging_dir();
 
-        if let Some(active_profile) = self.profile_manager.get_active_profile() {
-            for mod_name in mod_names.iter() {
-                active_profile.set_mod_state(mod_name, false);
-            }
-        }
+                    config
+                        .update_config(PartialAppConfig {
+                            staging_directory: Some(staging_dir.to_string_lossy().to_string()),
+                            ..Default::default()
+                        })
+                        .expect("Failed to update config with default staging directory");
 
-        if let Err(e) = self.profile_manager.save_active_profile() {
-            warn!("Failed to save profiles after disabling mods: {:?}", e);
-        }
-
-        let all_mods: Vec<&BD2Mod> = self.cached_mods.values().collect();
-        app_handle.emit("mods-changed", all_mods).unwrap();
-    }
-
-    // profile
-    pub fn load_profiles(&mut self) -> Result<(), ProfileError> {
-        self.profile_manager.load_profiles()
-    }
-
-    pub fn get_profiles(&self) -> Vec<Profile> {
-        self.profile_manager.get_profiles()
-    }
-
-    pub fn get_active_profile(&mut self) -> Option<&mut Profile> {
-        self.profile_manager.get_active_profile()
-    }
-
-    pub fn create_profile(
-        &mut self,
-        name: String,
-        description: Option<String>,
-        template_id: Option<String>,
-    ) -> Result<(), ProfileError> {
-        self.profile_manager
-            .create_profile(name, description, None, None, template_id)
-    }
-
-    pub fn switch_profile(
-        &mut self,
-        app_handle: &AppHandle,
-        profile_id: String,
-    ) -> Result<(), ProfileError> {
-        info!("Switching profile to {:?}", profile_id);
-
-        self.profile_manager.set_active_profile(profile_id)?;
-
-        self.sync_mods_with_profile();
-
-        if let Err(e) = self.update_mods_on_frontend(app_handle) {
-            warn!("Failed to update frontend after switching profile: {:?}", e);
-        }
-
-        Ok(())
-    }
-
-    pub fn edit_profile(
-        &mut self,
-        profile_id: String,
-        name: String,
-        description: Option<String>,
-    ) -> Result<(), ProfileError> {
-        self.profile_manager
-            .edit_profile(profile_id, name, description)
-    }
-
-    pub fn delete_profile(
-        &mut self,
-        app_handle: &AppHandle,
-        profile_id: String,
-    ) -> Result<(), ProfileError> {
-        self.profile_manager.delete_profile(profile_id)?;
-        self.sync_mods_with_profile();
-
-        if let Err(e) = self.update_mods_on_frontend(app_handle) {
-            warn!("Failed to update frontend after deleting profile: {:?}", e);
-        }
-
-        Ok(())
-    }
-
-    // manager
-    pub fn install_mod(
-        &mut self,
-        app_handle: &AppHandle,
-        path: PathBuf,
-        staging_dir: &PathBuf,
-    ) -> Result<String, mods::install::ModInstallError> {
-        let mod_path = mods::install::install_mod(&path, staging_dir)?;
-
-        let (is_mod, error) = mods::discover::analyze_mod_path(&mod_path);
-        if is_mod {
-            let new_mod = mods::discover::create_mod(staging_dir, &mod_path, error);
-            let mod_name = new_mod.name.clone();
-            self.cached_mods.insert(mod_name.clone(), new_mod);
-            mods::conflict::detect_conflicts(&mut self.cached_mods);
-            self.metadata_store.apply_to_mods(&mut self.cached_mods);
-            self.sync_mods_with_profiles();
-            let all_mods: Vec<&BD2Mod> = self.cached_mods.values().collect();
-            app_handle.emit("mods-changed", all_mods).unwrap();
-            Ok(mod_name)
-        } else {
-            Err(mods::install::ModInstallError::InvalidMod)
-        }
-    }
-
-    pub fn sync_mods(
-        &mut self,
-        app_handle: &AppHandle,
-        game_directory: &PathBuf,
-        method: SyncMethod,
-    ) -> Result<(), SyncError> {
-        let mods: Vec<&BD2Mod> = self.cached_mods.values().collect();
-
-        mods::sync::sync_mods(app_handle, game_directory, mods, method)
-    }
-
-    pub fn unsync_mods(
-        &mut self,
-        app_handle: &AppHandle,
-        game_directory: &PathBuf,
-    ) -> Result<(), SyncError> {
-        let _mods: Vec<&BD2Mod> = self.cached_mods.values().collect();
-
-        mods::sync::unsync_mods(app_handle, game_directory)
-    }
-
-    pub fn is_sync_needed(&self, _app_handle: &AppHandle, game_directory: &PathBuf) -> bool {
-        let mods: Vec<&BD2Mod> = self.cached_mods.values().collect();
-
-        mods::sync::is_sync_needed(game_directory, &mods)
-    }
-
-    fn delete_mod(&mut self, mod_name: String) -> Result<(), String> {
-        // [TODO] move to mods::delete
-        if let Some(mod_info) = self.cached_mods.get(&mod_name) {
-            let mod_path = mod_info.path.clone();
-
-            let rel = PathBuf::from(&mod_info.name);
-            let staging_dir = mod_path
-                .ancestors()
-                .nth(rel.components().count())
-                .map(|p| p.to_path_buf());
-
-            if mod_path.exists() {
-                if mod_path.is_dir() {
-                    std::fs::remove_dir_all(&mod_path).map_err(|e| {
-                        format!("Failed to delete mod directory {:?}: {:?}", mod_path, e)
-                    })?;
-                } else {
-                    std::fs::remove_file(&mod_path).map_err(|e| {
-                        format!("Failed to delete mod file {:?}: {:?}", mod_path, e)
-                    })?;
+                    staging_dir
                 }
+            };
 
-                if let Some(staging) = staging_dir {
-                    let mut current = mod_path.parent().map(|p| p.to_path_buf());
-                    while let Some(dir) = current {
-                        if dir == staging {
-                            break;
-                        }
+            // ensure_dir_exists(&temp_dir).expect("Failed to create temp directory");
+            ensure_dir_exists(&profiles_dir).expect("Failed to get profiles dir");
+            ensure_dir_exists(&staging_dir).expect("Failed to create mods directory");
 
-                        // Only remove if the directory is empty
-                        match std::fs::read_dir(&dir) {
-                            Ok(mut entries) => {
-                                if entries.next().is_none() {
-                                    let _ = std::fs::remove_dir(&dir);
-                                } else {
-                                    break; // directory still has other mods
-                                }
-                            }
-                            Err(_) => break,
-                        }
-                        current = dir.parent().map(|p| p.to_path_buf());
-                    }
-                }
-            }
-            self.cached_mods.remove(&mod_name);
+            let profile_manager: ProfileManager = ProfileManager::new(profiles_dir);
+
+            let metadata_path = app_handle
+                .path()
+                .app_data_dir()
+                .expect("Failed to resolve AppData dir")
+                .join("mod_metadata.json");
+            let metadata_store = ModMetadataStore::new(metadata_path);
+
+            let mut mod_manager: BD2ModManager =
+                BD2ModManager::new(profile_manager, metadata_store);
+
+            mod_manager
+                .load_profiles()
+                .expect("failed to load profiles");
+
+            let app_state: AppState = AppState {
+                mod_manager: Arc::new(Mutex::new(mod_manager)),
+                config: Arc::new(Mutex::new(config)),
+            };
+
+            let bundled_assets: std::collections::HashSet<String> = app
+                .asset_resolver()
+                .iter()
+                .map(|(path, _)| path.to_string())
+                .collect();
+
+            app.manage(app_state);
+            app.manage(PendingUpdate(std::sync::Mutex::new(None)));
+            app.manage(BundledAssets(bundled_assets));
+
+            // move data to appdata
+            data::move_data_to_appdata(&app_handle).expect("Failed to move data to appdata");
+
             Ok(())
-        } else {
-            Err(format!("Mod '{}' not found", mod_name))
-        }
-    }
-
-    pub fn delete_mods(&mut self, app_handle: &AppHandle, mod_names: Vec<String>) -> bool {
-        for mod_name in mod_names {
-            let _ = self.delete_mod(mod_name);
-        }
-        let all_mods: Vec<&BD2Mod> = self.cached_mods.values().collect();
-        app_handle.emit("mods-changed", all_mods).unwrap();
-        true
-    }
-
-    pub fn rename_mod(
-        &mut self,
-        app_handle: &AppHandle,
-        old_name: String,
-        new_name: String,
-    ) -> bool {
-        if let Some(mod_info) = self.cached_mods.get(&old_name) {
-            let mod_path = mod_info.path.clone();
-            let new_path = mod_path
-                .parent()
-                .unwrap_or_else(|| std::path::Path::new(""))
-                .join(&new_name);
-
-            if mod_path.exists() {
-                if let Err(e) = std::fs::rename(&mod_path, &new_path) {
-                    eprintln!(
-                        "Failed to rename mod from {:?} to {:?}: {:?}",
-                        mod_path, new_path, e
-                    );
-                    return false;
-                }
-            } else {
-                eprintln!("Mod path does not exist: {:?}", mod_path);
-                return false;
-            }
-
-            let mut updated_mod = mod_info.clone();
-            updated_mod.name = new_name.clone();
-            updated_mod.path = new_path;
-            self.cached_mods.remove(&old_name);
-            self.cached_mods.insert(new_name.clone(), updated_mod);
-
-            self.metadata_store.rename(&old_name, &new_name);
-
-            let all_mods: Vec<&BD2Mod> = self.cached_mods.values().collect();
-            app_handle.emit("mods-changed", all_mods).unwrap();
-            true
-        } else {
-            eprintln!("Mod not found for renaming: {}", old_name);
-            false
-        }
-    }
-
-    pub fn set_mod_author(
-        &mut self,
-        app_handle: &AppHandle,
-        mod_names: Vec<String>,
-        author: Option<String>,
-    ) {
-        self.metadata_store.set_authors(&mod_names, author.clone());
-
-        for mod_name in &mod_names {
-            if let Some(mod_info) = self.cached_mods.get_mut(mod_name) {
-                mod_info.author = author.clone();
-            }
-        }
-
-        let all_mods: Vec<&BD2Mod> = self.cached_mods.values().collect();
-        app_handle.emit("mods-changed", all_mods).unwrap();
-    }
-
-    pub fn refresh_mods_authors(&mut self, app_handle: &AppHandle) -> Result<(), String> {
-        for mod_info in self.cached_mods.values_mut() {
-            let author = self.metadata_store.get_author(&mod_info.name);
-            mod_info.author = author;
-        }
-        let all_mods: Vec<&BD2Mod> = self.cached_mods.values().collect();
-        app_handle.emit("mods-changed", all_mods).unwrap();
-        Ok(())
-    }
-
-    pub fn update_mods_on_frontend(&self, app_handle: &AppHandle) -> Result<(), String> {
-        let all_mods: Vec<&BD2Mod> = self.cached_mods.values().collect();
-        app_handle
-            .emit("mods-changed", all_mods)
-            .map_err(|e| format!("Failed to emit mods-changed event: {:?}", e))
-    }
-
-    fn sync_mods_with_profile(&mut self) {
-        if let Some(active_profile) = self.profile_manager.get_active_profile() {
-            info!("Active profile ({:?})", active_profile);
-
-            for bd2mod in self.cached_mods.values_mut() {
-                bd2mod.enabled = active_profile.get_mod_state(&bd2mod.name);
-            }
-        } else {
-            warn!("No active profile found.");
-            // reset all mods to disabled if no active profile is found, just in case
-            for bd2mod in self.cached_mods.values_mut() {
-                bd2mod.enabled = false;
-            }
-        }
-    }
+        })
+        .invoke_handler(tauri::generate_handler![
+            // mods
+            mods::commands::discover_mods,
+            mods::commands::get_mods,
+            mods::commands::enable_mods,
+            mods::commands::disable_mods,
+            mods::commands::delete_mods,
+            mods::commands::rename_mod,
+            mods::commands::set_mod_author,
+            mods::commands::install_mod_from_zip,
+            mods::commands::install_mod_from_folder,
+            mods::commands::sync_mods,
+            mods::commands::unsync_mods,
+            mods::commands::is_sync_needed,
+            mods::commands::preview_mod,
+            // profiles
+            profiles::commands::get_profiles,
+            profiles::commands::switch_profile,
+            profiles::commands::edit_profile,
+            profiles::commands::create_profile,
+            profiles::commands::delete_profile,
+            profiles::commands::clean_missing_mods,
+            // config
+            config::commands::get_settings,
+            config::commands::set_settings,
+            // game
+            game::commands::locate_game,
+            game::commands::validate_game_path,
+            game::commands::launch_game,
+            game::commands::get_game_version,
+            game::commands::get_browndustx_version,
+            game::commands::get_bepinex_version,
+            game::commands::get_configmanager_version,
+            game::commands::install_bepinex,
+            game::commands::install_browndustx,
+            game::commands::install_configmanager,
+            game::commands::uninstall_bepinex,
+            game::commands::uninstall_browndustx,
+            game::commands::uninstall_configmanager,
+            game::commands::determine_archive_type,
+            game::commands::get_characters,
+            // updater
+            updater::commands::get_mod_preview_version,
+            updater::commands::check_for_app_update,
+            #[cfg(not(feature = "portable"))]
+            updater::commands::download_app_update,
+            #[cfg(not(feature = "portable"))]
+            updater::commands::install_app_update,
+            updater::commands::check_for_mod_preview_update,
+            updater::commands::download_mod_preview,
+            updater::commands::update_game_data,
+            // migration
+            migrate::commands::get_legacy_profiles,
+            migrate::commands::import_legacy_profiles,
+            migrate::commands::import_legacy_mod_authors,
+            // utils
+            utils::commands::is_folder,
+            utils::commands::path_exists,
+            utils::commands::is_portable,
+            utils::commands::get_user_locale,
+            utils::commands::get_logs_directory,
+        ])
+        .run(tauri::generate_context!())
+        .expect("error while running tauri application");
 }

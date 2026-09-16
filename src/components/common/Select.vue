@@ -1,7 +1,7 @@
 <script setup>
 import { ref, computed, watch, useTemplateRef } from "vue"
 import { Listbox, ListboxButton, ListboxOptions, ListboxOption } from "@headlessui/vue"
-import { ChevronsUpDownIcon, Check } from "lucide-vue-next"
+import { ChevronsUpDownIcon, Check } from "@lucide/vue"
 import { flip, offset, shift, size as floatingSize, useFloating } from "@floating-ui/vue"
 
 const props = defineProps({

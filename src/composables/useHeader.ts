@@ -1,4 +1,4 @@
-import { ref, provide, inject, isRef, watch, onMounted, onActivated, onDeactivated, onUnmounted, type MaybeRef, Ref } from 'vue'
+import { ref, provide, inject, isRef, watch, onMounted, onActivated, onDeactivated, onUnmounted, type MaybeRef, Ref, ComputedRef } from 'vue'
 
 const headerSymbol = Symbol('header')
 
@@ -24,7 +24,7 @@ interface HeaderContext {
 
 interface UseHeaderOptions {
   title?: MaybeRef<string>
-  subtitle?: MaybeRef<string>
+  subtitle?: MaybeRef<string> | ComputedRef<string>
   buttons?: MaybeRef<HeaderButton[]>
 }
 

@@ -18,7 +18,7 @@ body {
 body {
   background: var(--surface-base);
   color: var(--text-primary);
-  /* font-family: system-ui, sans-serif; */
+  font-family: var(--font-sans);
 }
 
 #app {
@@ -28,6 +28,7 @@ body {
 }
 
 @theme {
+  --font-sans: "Inter Variable", "Segoe UI", "Microsoft YaHei UI", "Yu Gothic UI", "Malgun Gothic", system-ui, sans-serif;
   --font-cinzel: "Cinzel", serif;
 
   --animate-sweep: sweep 5s ease-in-out infinite;
@@ -79,6 +80,17 @@ body {
   --color-error-bg: var(--error-bg);
   --color-info: var(--info);
   --color-info-bg: var(--info-bg);
+  --color-debug: var(--debug);
+  --color-debug-bg: var(--debug-bg);
+
+  --color-changelog-added: var(--changelog-added);
+  --color-changelog-added-bg: var(--changelog-added-bg);
+  --color-changelog-improved: var(--changelog-improved);
+  --color-changelog-improved-bg: var(--changelog-improved-bg);
+  --color-changelog-fixed: var(--changelog-fixed);
+  --color-changelog-fixed-bg: var(--changelog-fixed-bg);
+  --color-changelog-removed: var(--changelog-removed);
+  --color-changelog-removed-bg: var(--changelog-removed-bg);
 
   --color-mod-cutscene: var(--mod-cutscene);
   --color-mod-cutscene-bg: var(--mod-cutscene-bg);
@@ -130,6 +142,11 @@ body {
 
 ::-webkit-scrollbar-track {
   background: transparent;
+}
+
+::-webkit-scrollbar-corner {
+  background: transparent;
+  display: none ;
 }
 
 
