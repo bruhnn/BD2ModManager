@@ -1,5 +1,5 @@
 {
-    "version": "0.0.28",
+    "version": "0.0.29",
     "characters": [
         {
             "id": "000708",
@@ -7417,7 +7417,7 @@
             "standing": true,
             "dating_id": null,
             "character_image": "illust_inven_char021201_216.png",
-            "skill_preview_image": null,
+            "skill_preview_image": "illust_skill_char021201_216.png",
             "release_date": "2026-09-10",
             "gender": "female",
             "costume_id": "021201",
@@ -7442,7 +7442,7 @@
             "assets": {
                 "head_image": "icon_char021201_219.png",
                 "character_image": "illust_inven_char021201_216.png",
-                "skill_image": null
+                "skill_image": "illust_skill_char021201_216.png"
             }
         },
         {
@@ -7454,7 +7454,7 @@
             "standing": true,
             "dating_id": null,
             "character_image": "illust_inven_char021291_218.png",
-            "skill_preview_image": null,
+            "skill_preview_image": "illust_skill_char021291_218.png",
             "release_date": "2026-09-10",
             "gender": "female",
             "costume_id": "021291",
@@ -7479,6 +7479,80 @@
             "assets": {
                 "head_image": "icon_char021291_221.png",
                 "character_image": "illust_inven_char021291_218.png",
+                "skill_image": "illust_skill_char021291_218.png"
+            }
+        },
+        {
+            "id": "021301",
+            "character": "Ren Yamashiro",
+            "costume": "Lord of the Cosmos",
+            "is_collab": true,
+            "cutscene": true,
+            "standing": true,
+            "dating_id": null,
+            "character_image": "illust_inven_char021301_217.png",
+            "skill_preview_image": "illust_skill_char021301_217.png",
+            "release_date": "2026-09-23",
+            "gender": "female",
+            "costume_id": "021301",
+            "character_id": 213,
+            "character_name": {
+                "en": "Ren Yamashiro",
+                "cn": "山城恋",
+                "jp": "山城恋",
+                "tw": "山城戀",
+                "kr": "야마시로 렌"
+            },
+            "costume_name": {
+                "en": "Lord of the Cosmos",
+                "cn": "无限宇宙之全一",
+                "jp": "無限宇宙の全一",
+                "tw": "無限宇宙之全一",
+                "kr": "무한우주의 전일"
+            },
+            "skin_type": "normal",
+            "grade": 5,
+            "element": "light",
+            "assets": {
+                "head_image": "icon_char021301_220.png",
+                "character_image": "illust_inven_char021301_217.png",
+                "skill_image": "illust_skill_char021301_217.png"
+            }
+        },
+        {
+            "id": "021391",
+            "character": "Ren Yamashiro",
+            "costume": "Role Reversal",
+            "is_collab": true,
+            "cutscene": false,
+            "standing": true,
+            "dating_id": null,
+            "character_image": "illust_inven_char021391_219.png",
+            "skill_preview_image": null,
+            "release_date": "2026-09-23",
+            "gender": "female",
+            "costume_id": "021391",
+            "character_id": 213,
+            "character_name": {
+                "en": "Ren Yamashiro",
+                "cn": "山城恋",
+                "jp": "山城恋",
+                "tw": "山城戀",
+                "kr": "야마시로 렌"
+            },
+            "costume_name": {
+                "en": "Role Reversal",
+                "cn": "关系逆转",
+                "jp": "主従逆転",
+                "tw": "主僕逆轉",
+                "kr": "관계 역전"
+            },
+            "skin_type": "special",
+            "grade": 5,
+            "element": "light",
+            "assets": {
+                "head_image": "icon_char021391_222.png",
+                "character_image": "illust_inven_char021391_219.png",
                 "skill_image": null
             }
         }
