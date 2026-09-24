@@ -2,7 +2,7 @@
 import { convertFileSrc } from '@tauri-apps/api/core'
 import { CostumeWithMods } from './CharacterGrid.vue'
 import { isCostumeNew } from '../../stores/characters'
-import { Check, X } from 'lucide-vue-next'
+import { Check, X } from '@lucide/vue'
 import { computed } from 'vue'
 import Image from '../../components/common/Image.vue'
 import { formatCharName, useLang } from '../../utils/formatCharName.ts'

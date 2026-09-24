@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, useTemplateRef } from 'vue'
 import { useProfilesStore } from '../../stores/profiles'
-import { Edit, PlusCircle, RefreshCcw, Trash2, TriangleAlert } from 'lucide-vue-next'
+import { Edit, PlusCircle, RefreshCcw, Trash2, TriangleAlert, ListX } from '@lucide/vue'
 import { useHeader } from '../../composables/useHeader'
 import { useI18n } from 'vue-i18n'
 import EditProfile from './modals/EditProfile.vue'
@@ -9,6 +9,7 @@ import CreateProfile from './modals/CreateProfile.vue'
 import Button from '../../components/common/Button.vue'
 import { useConfirm } from '../../plugins/ConfirmService'
 import { useNotificationStore } from '../../stores/notification.ts'
+import { getErrorMessage } from '../../utils/errors'
 
 const profilesStore = useProfilesStore()
 const notificationStore = useNotificationStore()
@@ -19,6 +20,7 @@ const editProfileModal = useTemplateRef('editProfileModal')
 const createProfileModal = useTemplateRef('createProfileModal')
 
 const profileSelectedId = ref<string | null>('default')
+const isCleaning = ref(false)
 
 const selectedProfile = computed(() => {
   if (!profileSelectedId.value) return null
@@ -66,18 +68,43 @@ async function deleteSelected() {
     await profilesStore.deleteProfile(profileSelectedId.value)
     profileSelectedId.value = null
     notificationStore.add({
-      severity: 'success',
-      title: t('profilesTab.notifications.profileDeleted.title'),
-      message: t('profilesTab.notifications.profileDeleted.description', { profileName: deletedName }),
+      type: 'success',
+      title: t('profilesTab.notifications.deleteProfile.success.title'),
+      message: t('profilesTab.notifications.deleteProfile.success.message', { profileName: deletedName }),
       duration: 3000
     })
-  } catch {
+  } catch (error) {
     notificationStore.add({
-      severity: 'error',
-      title: t('profilesTab.notifications.profileDeleteFailed.title'),
-      message: t('profilesTab.notifications.profileDeleteFailed.description', { profileName: deletedName }),
+      type: 'error',
+      title: t('profilesTab.notifications.deleteProfile.error.title'),
+      message: getErrorMessage(t, error),
       duration: 3000
     })
+  }
+}
+
+async function cleanMissingMods() {
+  if (!selectedProfile.value || isCleaning.value) return
+
+  const profile = selectedProfile.value
+  isCleaning.value = true
+  try {
+    const removed = await profilesStore.cleanMissingMods(profile.id)
+    notificationStore.add({
+      type: 'success',
+      title: t('profilesTab.notifications.cleanMissingMods.success.title'),
+      message: t('profilesTab.notifications.cleanMissingMods.success.message', { count: removed, profileName: profile.name }, removed),
+      duration: 3000
+    })
+  } catch (error) {
+    notificationStore.add({
+      type: 'error',
+      title: t('profilesTab.notifications.cleanMissingMods.error.title'),
+      message: getErrorMessage(t, error),
+      duration: 5000
+    })
+  } finally {
+    isCleaning.value = false
   }
 }
 
@@ -85,16 +112,16 @@ async function onProfileEdit(id: string, name: string, description: string | nul
   try {
     await profilesStore.editProfile(id, name, description)
     notificationStore.add({
-      severity: 'success',
-      title: t('profilesTab.notifications.profileUpdated.title'),
-      message: t('profilesTab.notifications.profileUpdated.description', { profileName: name }),
+      type: 'success',
+      title: t('profilesTab.notifications.updateProfile.success.title'),
+      message: t('profilesTab.notifications.updateProfile.success.message', { profileName: name }),
       duration: 3000
     })
-  } catch {
+  } catch (error) {
     notificationStore.add({
-      severity: 'error',
-      title: t('profilesTab.notifications.profileUpdateFailed.title'),
-      message: t('profilesTab.notifications.profileUpdateFailed.description', { profileName: name }),
+      type: 'error',
+      title: t('profilesTab.notifications.updateProfile.error.title'),
+      message: getErrorMessage(t, error),
       duration: 3000
     })
   }
@@ -108,30 +135,29 @@ async function onProfileCreate(
   try {
     await profilesStore.createProfile(name, description, profileTemplateId)
     notificationStore.add({
-      severity: 'success',
-      title: t('profilesTab.notifications.profileCreated.title'),
-      message: t('profilesTab.notifications.profileCreated.description', { profileName: name }),
+      type: 'success',
+      title: t('profilesTab.notifications.createProfile.success.title'),
+      message: t('profilesTab.notifications.createProfile.success.message', { profileName: name }),
       duration: 3000
     })
-  } catch {
+  } catch (error) {
     notificationStore.add({
-      severity: 'error',
-      title: t('profilesTab.notifications.profileCreateFailed.title'),
-      message: t('profilesTab.notifications.profileCreateFailed.description', { profileName: name }),
+      type: 'error',
+      title: t('profilesTab.notifications.createProfile.error.title'),
+      message: getErrorMessage(t, error),
       duration: 3000
     })
   }
 }
 
 async function onProfileSwitch(id: string) {
-  const profile = profilesStore.getProfileById(id)
   try {
     await profilesStore.switchProfile(id)
-  } catch {
+  } catch (error) {
     notificationStore.add({
-      severity: 'error',
-      title: t('profilesTab.notifications.profileSwitchFailed.title'),
-      message: t('profilesTab.notifications.profileSwitchFailed.description', { profileName: profile?.name }),
+      type: 'error',
+      title: t('profilesTab.notifications.switchProfile.error.title'),
+      message: getErrorMessage(t, error),
       duration: 3000
     })
   }
@@ -206,12 +232,12 @@ useHeader({
           </div>
         </div>
 
-        <div class="flex-1 min-w-0 p-4 box-border">
+        <div class="@container flex-1 min-w-0 p-4 box-border">
           <div v-if="selectedProfile" class="flex flex-col gap-4 h-full">
 
             <div class="flex justify-between items-center gap-2">
               <div class="overflow-hidden min-w-0">
-                <h3 class="font-bold text-lg">{{ selectedProfile.name }}</h3>
+                <h3 class="font-bold text-lg ">{{ selectedProfile.name }}</h3>
                 <p class="text-text-secondary text-sm truncate">
                   {{ selectedProfile.description === 'd3f4ult'
                     ? $t('profilesTab.defaultProfile')
@@ -219,10 +245,23 @@ useHeader({
                 </p>
               </div>
 
-              <div class="flex gap-2">
+              <div class="flex shrink-0 gap-2">
+                <Button
+                  variant="text"
+                  :label="$t('profilesTab.actions.cleanMissingMods')"
+                  label-class="hidden @min-[36rem]:inline"
+                  :title="$t('profilesTab.actions.cleanMissingMods')"
+                  :aria-label="$t('profilesTab.actions.cleanMissingMods')"
+                  :icon="ListX"
+                  :disabled="isCleaning"
+                  @click="cleanMissingMods"
+                />
                 <Button
                   variant="text"
                   :label="$t('profilesTab.actions.editProfile')"
+                  label-class="hidden @min-[36rem]:inline"
+                  :title="$t('profilesTab.actions.editProfile')"
+                  :aria-label="$t('profilesTab.actions.editProfile')"
                   :icon="Edit"
                   :disabled="selectedProfile.id === 'default'"
                   @click="editSelected"
@@ -230,6 +269,9 @@ useHeader({
                 <Button
                   variant="text"
                   :label="$t('profilesTab.actions.deleteProfile')"
+                  label-class="hidden @min-[36rem]:inline"
+                  :title="$t('profilesTab.actions.deleteProfile')"
+                  :aria-label="$t('profilesTab.actions.deleteProfile')"
                   :icon="Trash2"
                   :disabled="selectedProfile.id === 'default'"
                   @click="deleteSelected"

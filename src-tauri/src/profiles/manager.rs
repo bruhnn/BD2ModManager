@@ -6,7 +6,7 @@ use std::{
 };
 
 use chrono::Utc;
-use log::{info, warn, error};
+use log::{error, info, warn, debug};
 use tempfile::NamedTempFile;
 
 use crate::profiles::types::{Profile, ProfileError};
@@ -43,7 +43,8 @@ impl ProfileManager {
         };
 
         self._create_profile_json(&default_profile)?;
-        self.profiles.insert(default_profile.id.clone(), default_profile);
+        self.profiles
+            .insert(default_profile.id.clone(), default_profile);
         Ok(())
     }
 
@@ -51,12 +52,30 @@ impl ProfileManager {
         let mut path = self.directory.clone();
         path.push(format!("{}.json", profile.id));
 
+        if path.exists() {
+            error!("Profile JSON already exists: {:?}", path);
+            return Err(ProfileError::ProfileAlreadyExists {
+                profile_name: profile.name.clone(),
+            });
+        }
+
         info!("Creating Profile -> {:?}", path);
 
-        let file = File::create(&path)
-            .map_err(|e| ProfileError::CreateFailed(format!("Failed to create profile json {:?}: {}", path, e)))?;
-        serde_json::to_writer_pretty(&file, profile)
-            .map_err(|e| ProfileError::CreateFailed(format!("Failed to write profile json {:?}: {}", path, e)))?;
+        let file = File::create(&path).map_err(|source| {
+            error!("Failed to create profile JSON '{}': {:?}", profile.name, source);
+            ProfileError::CreateFailed {
+                profile_name: profile.name.clone(),
+                source,
+            }
+        })?;
+
+        serde_json::to_writer_pretty(&file, profile).map_err(|source| {
+            error!("Failed to write profile JSON '{}': {:?}", profile.name, source);
+            ProfileError::SerializeFailed {
+                profile_name: profile.name.clone(),
+                source,
+            }
+        })?;
 
         info!("Profile created successfully -> {:?}", profile);
 
@@ -69,14 +88,37 @@ impl ProfileManager {
 
         info!("Saving Profile -> {:?}", path);
 
-        let mut tmp = NamedTempFile::new_in(path.parent().unwrap())
-            .map_err(|e| ProfileError::SaveFailed(format!("Failed to create tmp file for {:?}: {}", path, e)))?;
-        serde_json::to_writer_pretty(&mut tmp, profile)
-            .map_err(|e| ProfileError::SaveFailed(format!("Failed to write profile json {:?}: {}", path, e)))?;
-        tmp.flush()
-            .map_err(|e| ProfileError::SaveFailed(format!("Failed to flush profile json {:?}: {}", path, e)))?;
-        tmp.persist(&path)
-            .map_err(|e| ProfileError::SaveFailed(format!("Failed to persist profile json {:?}: {}", path, e.error)))?;
+        let mut tmp = NamedTempFile::new_in(path.parent().unwrap()).map_err(|source| {
+            error!(
+                "Failed to create temporary file for profile '{}': {:?}",
+                profile.name, source
+            );
+            ProfileError::SaveFailed {
+                profile_name: profile.name.clone(),
+                source,
+            }
+        })?;
+
+        serde_json::to_writer_pretty(&mut tmp, profile).map_err(|source| {
+            error!("Failed to write profile json {:?}: {}", path, source);
+            ProfileError::SerializeFailed {
+                profile_name: profile.name.clone(),
+                source,
+            }
+        })?;
+
+        tmp.flush().map_err(|source| {
+            error!("Failed to flush profile json {:?}: {}", path, source);
+            ProfileError::SaveFailed {
+                profile_name: profile.name.clone(),
+                source,
+            }
+        })?;
+
+        tmp.persist(&path).map_err(|e| ProfileError::SaveFailed {
+            profile_name: profile.name.clone(),
+            source: e.error,
+        })?;
 
         info!("Profile saved successfully -> {:?}", profile);
 
@@ -85,8 +127,14 @@ impl ProfileManager {
 
     pub fn load_profiles(&mut self) -> Result<(), ProfileError> {
         if !self.directory.exists() {
-            if let Err(error) = create_dir(&self.directory) {
-                return Err(ProfileError::LoadFailed(format!("An error ocurred when creating the profiles directory: ({})", error)));
+            if let Err(source) = create_dir(&self.directory) {
+                error!(
+                    "Failed to create profiles directory {:?}: {}",
+                    self.directory, source
+                );
+                return Err(ProfileError::ProfilesDirectoryNotFound {
+                    path: self.directory.to_string_lossy().into_owned(),
+                });
             };
         }
 
@@ -103,14 +151,13 @@ impl ProfileManager {
                 .for_each(|profile_path| {
                     let path = profile_path.path();
 
-                    info!("Profile found {:?}", path);
+                    debug!("Profile found {:?}", path);
 
                     if let Ok(data) = read_to_string(&path) {
                         match serde_json::from_str::<Profile>(&data) {
                             Ok(mut profile) => {
                                 info!("Profile {} ({}) was loaded.", profile.name, profile.id);
 
-                                // mod names backward compatibility all mod names uses / instea of \\
                                 profile.enabled_mods = profile
                                     .enabled_mods
                                     .into_iter()
@@ -188,39 +235,40 @@ impl ProfileManager {
             return Err(ProfileError::CannotDeleteDefault);
         }
 
-        let profile_deleted: bool;
-
         if (profile_id == self.active_profile_id.clone().unwrap_or_default())
             && (self.profiles.len() > 1)
         {
-            // If the profile to be deleted is the active one, switch to default first
             self.set_active_profile(Self::DEFAULT_PROFILE_ID.to_string())?;
         }
 
-        if let Some(profile) = self.profiles.get(&profile_id) {
-            let mut path = self.directory.clone();
-            path.push(format!("{}.json", profile.id));
+        let profile = self
+            .profiles
+            .get(&profile_id)
+            .ok_or_else(|| ProfileError::ProfileNotFound {
+                profile_id: profile_id.clone(),
+            })?;
 
-            if path.exists() {
-                match std::fs::remove_file(&path) {
-                    Ok(()) => {
-                        profile_deleted = true;
-                    }
-                    Err(error) => return Err(ProfileError::DeleteFailed(format!("Failed to delete profile json {:?}: {}", path, error))),
-                }
-            } else {
-                return Err(ProfileError::NotFound(profile_id));
+        let mut path = self.directory.clone();
+        path.push(format!("{}.json", profile.id));
+
+        if !path.exists() {
+            error!(
+                "Profile JSON file not found for profile '{}': {:?}",
+                profile.name, path
+            );
+            return Err(ProfileError::ProfileNotFound { profile_id });
+        }
+
+        std::fs::remove_file(&path).map_err(|source| {
+            error!("Failed to delete profile JSON '{}': {:?}", profile.name, source);
+            ProfileError::DeleteFailed {
+                profile_name: profile.name.clone(),
+                source,
             }
-        } else {
-            return Err(ProfileError::NotFound(profile_id));
-        }
+        })?;
 
-        if profile_deleted {
-            self.profiles.remove(&profile_id);
-            Ok(())
-        } else {
-            Err(ProfileError::DeleteFailed(format!("Failed to delete profile with id '{}'", profile_id)))
-        }
+        self.profiles.remove(&profile_id);
+        Ok(())
     }
 
     pub fn edit_profile(
@@ -233,7 +281,7 @@ impl ProfileManager {
             profile.name = name;
             profile.description = description.unwrap_or_default();
         } else {
-            return Err(ProfileError::NotFound(profile_id));
+            return Err(ProfileError::ProfileNotFound { profile_id });
         }
 
         self.save_profile(self.profiles.get(&profile_id).unwrap())?;
@@ -252,7 +300,7 @@ impl ProfileManager {
 
     pub fn set_active_profile(&mut self, profile_id: String) -> Result<(), ProfileError> {
         if !self.profiles.contains_key(&profile_id) {
-            return Err(ProfileError::NotFound(profile_id));
+            return Err(ProfileError::ProfileNotFound { profile_id });
         }
 
         self.active_profile_id = Some(profile_id.clone());
@@ -268,7 +316,10 @@ impl ProfileManager {
 
         for profile in changed_profiles {
             if let Err(e) = self.save_profile(&profile) {
-                error!("Failed to save profile '{}' when setting active profile: {}", profile.name, e);
+                error!(
+                    "Failed to save profile '{}' when setting active profile: {}",
+                    profile.name, e
+                );
             }
         }
 
@@ -278,13 +329,75 @@ impl ProfileManager {
     pub fn save_active_profile(&mut self) -> Result<(), ProfileError> {
         if let Some(active_profile) = self.get_active_profile() {
             let profile_to_save = active_profile.clone();
-
             self.save_profile(&profile_to_save)?;
             Ok(())
         } else {
-            Err(ProfileError::NotFound(
-                "No active profile to save.".to_string(),
-            ))
+            error!("No active profile to save.");
+            Err(ProfileError::NoActiveProfile)
+        }
+    }
+
+    pub fn rename_mod_in_profiles(&mut self, mod_name: &str, new_name: &str) {
+        let mut changed_profiles = Vec::new();
+        for profile in self.profiles.values_mut() {
+            if profile.enabled_mods.iter().any(|m| m == mod_name) {
+                for name in profile.enabled_mods.iter_mut() {
+                    if name == mod_name {
+                        *name = new_name.to_string();
+                    }
+                }
+                changed_profiles.push(profile.clone());
+            }
+        }
+        for profile in changed_profiles {
+            if let Err(e) = self.save_profile(&profile) {
+                error!(
+                    "Failed to save profile '{}' after renaming mod '{}': {}",
+                    profile.name, mod_name, e
+                );
+            }
+        }
+    }
+
+    pub fn clean_missing_mods(&mut self, profile_id: String, staging_dir: &PathBuf) -> Result<usize, ProfileError> {
+        let mut profile = self.profiles.get(&profile_id).cloned().ok_or_else(|| {
+            ProfileError::ProfileNotFound { profile_id: profile_id.clone() }
+        })?;
+
+        read_dir(staging_dir)?;
+
+        let mut enabled_mods = Vec::new();
+        for mod_name in &profile.enabled_mods {
+            if staging_dir.join(mod_name).try_exists()? {
+                enabled_mods.push(mod_name.clone());
+            }
+        }
+
+        let removed = profile.enabled_mods.len() - enabled_mods.len();
+        if removed > 0 {
+            profile.enabled_mods = enabled_mods;
+            self.save_profile(&profile)?;
+            self.profiles.insert(profile_id, profile);
+        }
+
+        Ok(removed)
+    }
+
+    pub fn remove_mod_from_profiles(&mut self, mod_name: &str) {
+        let mut changed_profiles = Vec::new();
+        for profile in self.profiles.values_mut() {
+            if profile.enabled_mods.iter().any(|m| m == mod_name) {
+                profile.enabled_mods.retain(|m| m != mod_name);
+                changed_profiles.push(profile.clone());
+            }
+        }
+        for profile in changed_profiles {
+            if let Err(e) = self.save_profile(&profile) {
+                error!(
+                    "Failed to save profile '{}' after removing mod '{}': {}",
+                    profile.name, mod_name, e
+                );
+            }
         }
     }
 }

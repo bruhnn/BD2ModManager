@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { LucideIcon } from 'lucide-vue-next';
 import { computed, MaybeRef } from 'vue'
+import type { Component } from 'vue';
 
 const props = defineProps<{
   label?: MaybeRef<string>
-  icon?: LucideIcon
+  icon?: Component
   labelClass?: string
   iconClass?: string | object | Array<string | object>
   disabled?: boolean
@@ -35,7 +35,7 @@ const VARIANTS = {
 }
 
 const classList = computed(() => [
-    'inline-flex items-center font-medium border cursor-pointer transition-colors disabled:pointer-events-none disabled:opacity-50 whitespace-nowrap',
+    'inline-flex items-center font-medium border cursor-pointer transition-colors disabled:pointer-events-none disabled:opacity-50 whitespace-nowrap focus:outline-none',
     SIZES[props.size ?? 'md'],
     VARIANTS[props.variant ?? 'default']
 ])

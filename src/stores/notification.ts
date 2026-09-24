@@ -3,12 +3,22 @@ import { readonly, ref } from "vue";
 
 export interface Notification {
     id: number,
-    severity: "info" | "success" | "error" | "warn" ,
+    type: "info" | "success" | "error" | "warn" ,
     title?: string,
     message?: string,
     duration?: number,
     closable?: boolean,
-    showProgress?: boolean
+    action?: {
+        label: string,
+        onClick: () => void
+    }
+}
+
+const DEFAULT_DURATION = {
+    error: 10000,
+    warn: 8000,
+    info: 5000,
+    success: 5000,
 }
 
 export const useNotificationStore = defineStore("notification", () => {
@@ -16,7 +26,9 @@ export const useNotificationStore = defineStore("notification", () => {
 
     function add(notification: Omit<Notification, "id">) {
         const id = Date.now()
-        notifications.value.push({ ...notification, id })
+        const duration = notification.duration ?? DEFAULT_DURATION[notification.type]
+        notifications.value.push({ ...notification, id, duration })
+        return id
     }
 
     function remove(id: number) {
