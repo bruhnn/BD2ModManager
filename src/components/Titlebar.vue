@@ -126,7 +126,7 @@ onUnmounted(() => {
                 </span>
             </span>
             <transition name="slide-fade">
-                <div v-if="appUpdate?.status && appUpdate.status !== UpdateStatus.Downloading"
+                <div v-if="appUpdate?.status && appUpdate.status !== UpdateStatus.Downloading && appUpdate.status !== UpdateStatus.Failed"
                     class="flex min-w-0 items-center gap-1.5 text-xs font-medium"
                     :aria-disabled="isUpdating" :style="{ pointerEvents: isUpdating ? 'none' : undefined }" :class="appUpdate?.status === UpdateStatus.UpdateAvailable || appUpdate?.status === UpdateStatus.Downloaded
                         ? 'cursor-pointer text-accent'
