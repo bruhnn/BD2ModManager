@@ -1,30 +1,28 @@
 <script setup lang="ts">
-import { X, Calendar, Eye, BadgeDollarSign, ExternalLink, Info, Tag } from '@lucide/vue';
-import { Character } from '../../../stores/characters';
-import { BD2Mod, useModsStore } from '../../../stores/mods';
-import { computed, ref } from 'vue';
-import Button from '../../../components/common/Button.vue';
-import Image from '../../../components/common/Image.vue';
-import Modal from '../../../components/common/Modal.vue';
-import Checkbox from '../../../components/common/Checkbox.vue';
-import { useLoggingStore } from '../../../stores/logging';
-import { getErrorMessage } from '../../../utils/errors';
+import { X, Calendar, Eye, Tag } from '@lucide/vue';
+
+import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { Tab, TabGroup, TabList, TabPanels, TabPanel } from '@headlessui/vue';
-import { useModsIndexStore } from '../../../stores/modsIndex';
-import KofiIcon from '../../../components/icons/KofiIcon.vue';
-import DiscordIcon from '../../../components/icons/DiscordIcon.vue';
-import PatreonIcon from '../../../components/icons/PatreonIcon.vue';
-import { openUrl } from '@tauri-apps/plugin-opener';
-import AfDianIcon from '../../../components/icons/AfDianIcon.vue';
+
 import { convertFileSrc } from '@tauri-apps/api/core';
+
+import { Character } from '../../../stores/characters';
+import { BD2Mod, useModsStore } from '../../../stores/mods';
 import { useNotificationStore } from '../../../stores/notification.ts';
+import { useLoggingStore } from '../../../stores/logging';
+
+import { getErrorMessage } from '../../../utils/errors';
 import { getCharName, useLang } from '../../../utils/formatCharName.ts';
+
+import Modal from '../../../components/common/Modal.vue';
+import Image from '../../../components/common/Image.vue';
+import Button from '../../../components/common/Button.vue';
+import Checkbox from '../../../components/common/Checkbox.vue';
 
 const loggingStore = useLoggingStore();
 const notificationStore = useNotificationStore();
 const { t } = useI18n();
-const modsIndex = useModsIndexStore();
 
 const show = defineModel('show', {
     type: Boolean,
@@ -96,34 +94,6 @@ async function openPreviewMod(mod: BD2Mod) {
         });
         loggingStore.logError("Error previewing mod:", error);
     });
-}
-
-function getIconForLink(key: string) {
-    switch (key) {
-        case "patreon": return PatreonIcon;
-        case "ko-fi": return KofiIcon;
-        case "discord": return DiscordIcon;
-        case "afdian": return AfDianIcon;
-        default: return ExternalLink;
-    }
-}
-
-function handleOpenLink(link: string | null) {
-    if (!link) return;
-    openUrl(link);
-}
-
-const tooltipVisible = ref<string | null>(null);
-
-const hasIndexMods = computed(() => {
-    if (!props.selectedCostume) return false;
-    return ['cutscene', 'standing', 'dating'].some(
-        type => costumeIds.value.some(id => modsIndex.getMods(id, type).length > 0)
-    );
-});
-
-function getIndexMods(type: string) {
-    return costumeIds.value.flatMap(id => modsIndex.getMods(id, type));
 }
 
 const imageUrl = computed(() => {
@@ -212,12 +182,6 @@ const charName = computed(() => {
                                 {{ $t('charactersTab.characterModal.modsTab') }}
                             </button>
                         </Tab>
-                        <Tab v-slot="{ selected }" key="discoverModsTab" as="template">
-                            <button class="px-4 py-1.5 text-sm rounded-sm transition-colors outline-none cursor-pointer  hover:bg-state-hover"
-                                :class="selected ? 'bg-accent! text-text-on-accent font-medium' : 'text-text-secondary hover:text-text-primary'">
-                                {{ $t('charactersTab.characterModal.discoverModsTab') }}
-                            </button>
-                        </Tab>
                     </TabList>
 
                     <TabPanels as="div" class="overflow-y-auto h-100">
@@ -250,62 +214,6 @@ const charName = computed(() => {
                                         </label>
                                     </div>
                                 </template>
-                            </div>
-                        </TabPanel>
-
-                        <TabPanel key="discoverModsPanel">
-                            <div>
-                                <div class="bg-surface-card border border-border-default rounded-lg p-3 m-2 flex items-start gap-2">
-                                    <Info class="w-5 h-5 text-text-secondary" />
-                                    <p class="text-sm text-text-secondary font-medium text-wrap">
-                                        {{ $t('charactersTab.characterModal.discoverModsDescription', { latestUpdate: modsIndex.latestUpdate }) }}
-                                    </p>
-                                </div>
-                                <template v-for="type in ['cutscene', 'standing', 'dating']">
-                                    <div v-if="getIndexMods(type).length > 0"
-                                        class="flex items-center justify-between px-4 py-2 bg-surface-dialog border-b border-border-default sticky top-0 z-10">
-                                        <span class="text-xs font-medium text-text-secondary uppercase tracking-wide">
-                                            {{ $t(`charactersTab.modTypes.${type}`) }}
-                                        </span>
-                                    </div>
-
-                                    <label v-for="(mod, index) in getIndexMods(type)" :key="`${type}-${index}`"
-                                        class="flex items-center gap-3 px-4 py-2.5 border-b border-border-default transition-colors">
-                                        <div class="flex-1 min-w-0 flex items-center gap-2">
-                                            <div class="relative flex items-center">
-                                                <BadgeDollarSign class="w-5 h-5"
-                                                    :class="{ 'text-success/70': !mod.is_paid, 'text-warning': mod.is_paid }"
-                                                    @mouseenter="tooltipVisible = `${type}-${index}`"
-                                                    @mouseleave="tooltipVisible = null" />
-                                                
-                                                    <span v-show="tooltipVisible === `${type}-${index}`"
-                                                        class="absolute top-[50%] translate-y-[-50%] z-15 left-full ml-2 text-xs text-text-primary font-medium bg-surface-popover border border-border-default px-2 py-1 rounded-sm whitespace-nowrap">
-                                                        {{ mod.is_paid ? $t('charactersTab.characterModal.paidMod') : $t('charactersTab.characterModal.freeMod') }}
-                                                    </span>
-
-                                            </div>
-
-                                            <p class="text-sm truncate text-text-primary flex-1">{{ mod.authorData?.name }}</p>
-
-                                            <div class="flex flex-row gap-4">
-                                                <div v-for="(link, key) in Object.fromEntries(Object.entries(mod.authorData?.links || {}).filter(([_, link]) => link))"
-                                                    :key="key" class="flex items-center gap-1.5 cursor-pointer group"
-                                                    @click="handleOpenLink(link)">
-                                                    <component :is="getIconForLink(key)" class="w-4 h-4"
-                                                        :color="{ 'patreon': '#FF424D', 'ko-fi': '#29ABE0', 'discord': '#5865F2', 'afdian': '#946CE6' }[key]" />
-                                                    <span :title="link || ''"
-                                                        class="text-sm text-text-primary font-medium transition-colors" :class="[
-                                                            `group-hover:text-[${{ 'patreon': '#FF424D', 'ko-fi': '#29ABE0', 'discord': '#5865F2', 'afdian': '#946CE6' }[key]}]`
-                                                        ]">{{ key[0].toUpperCase() + key.slice(1) }}</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </label>
-                                </template>
-                                <div v-if="!hasIndexMods" class="text-center py-12 px-4">
-                                    <p class="text-sm font-medium text-text-secondary mb-1">{{ $t('charactersTab.characterModal.noIndexModsFound.title') }}</p>
-                                    <p class="text-xs text-text-secondary">{{ $t('charactersTab.characterModal.noIndexModsFound.description') }}</p>
-                                </div>
                             </div>
                         </TabPanel>
                     </TabPanels>

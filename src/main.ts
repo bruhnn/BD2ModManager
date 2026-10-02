@@ -13,7 +13,6 @@ import zh_TW from './locales/zh-TW.json'
 import ja_JP from './locales/ja-JP.json'
 import ko_KR from './locales/ko-KR.json'
 import ConfirmPlugin from "./plugins/ConfirmPlugin";
-import { useModsIndexStore } from "./stores/modsIndex";
 import { useSettingsStore } from "./stores/settings";
 
 const pinia = createPinia()
@@ -37,9 +36,6 @@ app.use(router)
 .use(pinia)
 .use(i18n)
 .use(ConfirmPlugin)
-
-const modsIndexStore =useModsIndexStore()
-modsIndexStore.fetchModsIndex()
 
 useSettingsStore().loadSettings()
     .catch(error => console.error("Failed to load settings:", error))
