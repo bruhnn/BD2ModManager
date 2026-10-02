@@ -152,8 +152,8 @@
     "titlebar": {
         "appUpdate": {
             "checking": "Checking for updates...",
-            "available": "Update v{version} available. Click to download",
-            "downloaded": "v{version} downloaded. Click to install and restart",
+            "available": "Update to v{version}",
+            "downloaded": "Install v{version} and restart",
             "updating": "Updating to v{version}..."
         },
         "activeDownloads": {
