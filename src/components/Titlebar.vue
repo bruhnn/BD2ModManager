@@ -125,31 +125,7 @@ onUnmounted(() => {
                     @bruhnn
                 </span>
             </span>
-            <transition name="slide-fade">
-                <div v-if="appUpdate?.status && appUpdate.status !== UpdateStatus.Downloading && appUpdate.status !== UpdateStatus.Failed"
-                    class="flex min-w-0 items-center gap-1.5 text-xs font-medium"
-                    :aria-disabled="isUpdating" :style="{ pointerEvents: isUpdating ? 'none' : undefined }" :class="appUpdate?.status === UpdateStatus.UpdateAvailable || appUpdate?.status === UpdateStatus.Downloaded
-                        ? 'cursor-pointer text-accent'
-                        : 'text-text-secondary'" @click="handleAppUpdateClick">
-                    <RotateCw
-                        v-if="appUpdate?.status === UpdateStatus.CheckingForUpdates || appUpdate?.status === UpdateStatus.Installing"
-                        class="w-3.5 h-3.5 shrink-0 animate-spin" />
-                    <Sparkles v-else class="w-3.5 h-3.5 shrink-0" />
-
-                    <span v-if="appUpdate?.status === UpdateStatus.CheckingForUpdates" class="truncate">
-                        {{ $t('titlebar.appUpdate.checking') }}
                     </span>
-                    <span v-else-if="appUpdate?.status === UpdateStatus.UpdateAvailable" class="truncate">
-                        {{ $t('titlebar.appUpdate.available', { version: appUpdate?.update?.versionAvailable }) }}
-                    </span>
-                    <span v-else-if="appUpdate?.status === UpdateStatus.Downloaded" class="truncate">
-                        {{ $t('titlebar.appUpdate.downloaded', { version: appUpdate?.update?.versionAvailable }) }}
-                    </span>
-                    <span v-else-if="appUpdate?.status === UpdateStatus.Installing" class="truncate">
-                        {{ $t('titlebar.appUpdate.updating', { version: appUpdate?.update?.versionAvailable }) }}
-                    </span>
-                </div>
-            </transition>
         </div>
 
         <div class="flex min-w-0 items-stretch justify-end overflow-hidden">
@@ -207,6 +183,44 @@ onUnmounted(() => {
             </div>
 
             <div class="flex items-center shrink-0 gap-1">
+                <transition name="slide-fade">
+                <button
+                    v-if="appUpdate?.status && appUpdate.status !== UpdateStatus.Downloading && appUpdate.status !== UpdateStatus.Failed"
+                    class="flex items-center gap-1 md:gap-2 cursor-pointer hover:bg-accent-hover hover:text-text-on-accent rounded-sm px-2.5 py-1 transition-colors duration-200"
+                    :aria-disabled="isUpdating"
+                    :style="{ pointerEvents: isUpdating ? 'none' : undefined }"
+                    :class="{
+                        'text-accent':
+                            appUpdate?.status === UpdateStatus.UpdateAvailable ||
+                            appUpdate?.status === UpdateStatus.Downloaded
+                    }"
+                    @click="handleAppUpdateClick">
+                        <RotateCw v-if="
+                            appUpdate?.status === UpdateStatus.CheckingForUpdates ||
+                            appUpdate?.status === UpdateStatus.Installing" class="w-[1.25em] h-[1.25em] shrink-0 animate-spin" />
+
+                        <Sparkles v-else class="w-[1.25em] h-[1.25em] shrink-0" />
+
+                        <span class="hidden min-[1152px]:inline font-semibold text-sm">
+                            <template v-if="appUpdate?.status === UpdateStatus.CheckingForUpdates">
+                                {{ $t('titlebar.appUpdate.checking') }}
+                            </template>
+
+                            <template v-else-if="appUpdate?.status === UpdateStatus.UpdateAvailable">
+                                {{ $t('titlebar.appUpdate.available', { version: appUpdate?.update?.versionAvailable }) }}
+                            </template>
+
+                            <template v-else-if="appUpdate?.status === UpdateStatus.Downloaded">
+                                {{ $t('titlebar.appUpdate.downloaded', { version: appUpdate?.update?.versionAvailable }) }}
+                            </template>
+
+                            <template v-else-if="appUpdate?.status === UpdateStatus.Installing">
+                                {{ $t('titlebar.appUpdate.updating', { version: appUpdate?.update?.versionAvailable }) }}
+                            </template>
+                        </span>
+                    </button>
+                </transition>
+
                 <ActiveDownloads />
                 <button
                     class="flex items-center gap-1 md:gap-2 cursor-pointer hover:bg-accent-hover hover:text-text-on-accent rounded-sm px-2.5 py-1 transition-colors duration-200"
