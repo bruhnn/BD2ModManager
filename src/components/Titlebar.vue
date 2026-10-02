@@ -5,11 +5,10 @@ import KofiIcon from './icons/KofiIcon.vue';
 import AfDianIcon from './icons/AfDianIcon.vue';
 import ActiveDownloads from './ActiveDownloads.vue';
 
-import { computed, ref, watch, onUnmounted } from 'vue';
+import { computed, ref, watch, onUnmounted, onMounted } from 'vue';
 import { refThrottled } from '@vueuse/core';
 import { useI18n } from 'vue-i18n';
 
-import { UnlistenFn } from '@tauri-apps/api/event';
 import { getCurrentWindow } from '@tauri-apps/api/window';
 import { openUrl } from '@tauri-apps/plugin-opener';
 
@@ -25,7 +24,7 @@ import { usePortable } from '../composables/usePortable';
 import { useLocale } from '../composables/useLocale.ts';
 import { getErrorMessage } from '../utils/errors';
 
-const unlistenFunctions = ref<UnlistenFn[]>([])
+import Tooltip from './common/Tooltip.vue';
 
 const { appVersion } = useAppVersion()
 const { isChineseLanguage } = useLocale()
@@ -103,8 +102,95 @@ watch(() => syncStateStore.status, () => {
     if (!showSyncBar.value) showSyncBar.value = true
 })
 
+let creditsInterval: ReturnType<typeof setInterval>
+const credits = ref<any[]>([])
+const creditIndex = ref(0)
+const creditPosition = ref(1)
+const creditsSinceZero = ref(0)
+
+const allCredits = computed(() => [
+    { type: "creator", name: "@bruhnn", platform: "github" },
+    ...credits.value
+])
+
+function shuffle<T>(items: T[]) {
+    const shuffled = [...items]
+
+    for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1))
+
+            ;[shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
+    }
+
+    return shuffled
+}
+
+async function fetchCredits() {
+    try {
+        const response = await fetch(
+            "https://shy-waterfall-2797.bruhnn.workers.dev/credits"
+        )
+
+        if (!response.ok) {
+            throw new Error(`Failed to fetch credits: ${response.status}`)
+        }
+
+        const data = await response.json()
+
+        const supporters = shuffle(
+            data.sponsors.filter((item: any) => item.type === 'supporter')
+        )
+
+        const contributors = shuffle(
+            data.sponsors.filter((item: any) => item.type === 'contributor')
+        )
+
+        const mixed: any[] = []
+
+        while (supporters.length || contributors.length) {
+            mixed.push(...supporters.splice(0, 2))
+
+            if (contributors.length) {
+                mixed.push(contributors.shift())
+            }
+        }
+
+        credits.value = mixed
+
+    } catch (error) {
+        loggingStore.logError("Failed to fetch credits", error)
+    }
+}
+
+function rotateCredits() {
+    const delay = creditIndex.value === 0 ? 30000 : 5000
+
+    creditsInterval = setTimeout(() => {
+        if (creditsSinceZero.value === 3) {
+            creditIndex.value = 0
+            creditsSinceZero.value = 0
+        } else {
+            creditIndex.value = creditPosition.value
+            creditPosition.value++
+            creditsSinceZero.value++
+
+            if (creditPosition.value >= allCredits.value.length) {
+                creditPosition.value = 1
+                creditsSinceZero.value = 3
+            }
+        }
+
+        rotateCredits()
+    }, delay)
+}
+
+onMounted(async () => {
+    await fetchCredits()
+    if (credits.value.length > 0) rotateCredits()
+})
+
 onUnmounted(() => {
-    unlistenFunctions.value.forEach(fn => fn())
+    clearTimeout(creditsInterval)
 })
 </script>
 
@@ -112,20 +198,49 @@ onUnmounted(() => {
     <div class="grid min-h-10 h-10 shrink-0 sticky grid-cols-[minmax(0,1fr)_auto] select-none overflow-hidden transition-[max-height] duration-300 ease-out bg-surface-app border-b border-border-subtle"
         data-tauri-drag-region>
         <div class="flex min-w-0 items-center gap-2.5 overflow-hidden px-2 py-1" data-tauri-drag-region>
-            <span class="truncate font-bold text-lg select-none" data-tauri-drag-region>
+            <span class="font-bold text-lg select-none whitespace-nowrap" data-tauri-drag-region>
                 Mod Manager
             </span>
-            <span class="text-xs font-semibold flex gap-2 items-center justify-center whitespace-nowrap">
-                <Heart class="inline w-3.5 h-3.5 text-accent" />
-                v{{ appVersion }} by
-                <span class="cursor-pointer
-                    bg-linear-to-r from-accent via-accent/60 to-accent
-                    bg-size-[200%_100%] bg-clip-text text-transparent
-                    animate-sweep hover:via-accent/80 transition-colors" @click="handleOpenGithubUser">
-                    @bruhnn
-                </span>
-            </span>
+            <span class="text-xs font-semibold flex min-w-0 gap-1 items-center whitespace-nowrap">
+                <Heart class="w-3.5 h-3.5 shrink-0 mr-1 text-accent" />
+                <span class="shrink-0">v{{ appVersion }}</span>
+                <transition name="credits" mode="out-in">
+                    <span :key="creditIndex" class="inline-flex items-center min-w-0">
+                        <Tooltip class="min-w-0" placement="bottom"
+                            :text="allCredits[creditIndex]?.type === 'creator' ? $t('titlebar.credits.creator_tooltip') : allCredits[creditIndex]?.type === 'supporter' ? $t('titlebar.credits.supporter_tooltip', { platform: ({
+                                afdian: 'AfDian',
+                                kofi: 'Ko-Fi',
+                                github: 'GitHub',
+                            } as Record<string, string>)[allCredits[creditIndex]?.platform]}) : $t('titlebar.credits.bug_reports_tooltip')"
+                            :background-color="allCredits[creditIndex]?.platform === 'afdian' ? '#946CE6' : '#24292f'"
+                            text-color="#ffffff">
+                            <template #icon>
+                                <AfDianIcon v-if="allCredits[creditIndex]?.platform === 'afdian'"
+                                    class="w-5 h-5 shrink-0" color="currentColor" />
+                                <GithubIcon v-else class="w-4 h-4 shrink-0" />
+                            </template>
+                            <span tabindex="0" class="truncate max-w-64
+                                bg-linear-to-r
+                                bg-size-[200%_100%]
+                                bg-clip-text text-transparent
+                                animate-sweep
+                                transition-colors" :class="[
+                                    allCredits[creditIndex]?.platform === 'afdian'
+                                        ? 'from-[#946CE6] via-[#B79AF5] to-[#946CE6] hover:via-[#C8B2F8]'
+                                        : 'from-accent via-accent/60 to-accent hover:via-accent/80',
+
+                                    { 'cursor-pointer': allCredits[creditIndex]?.type === 'creator' }
+                                ]" @click="allCredits[creditIndex]?.type === 'creator' && handleOpenGithubUser()">
+                                <span class="shrink-0 text-text-primary">
+                                    {{ allCredits[creditIndex]?.type === 'creator' ? $t('titlebar.credits.creator') : $t('titlebar.credits.thanks') }}
+                                </span>
+                                {{ ' ' }}
+                                <span class="shrink-0"> {{ allCredits[creditIndex]?.name }}</span>
+                            </span>
+                        </Tooltip>
                     </span>
+                </transition>
+            </span>
         </div>
 
         <div class="flex min-w-0 items-stretch justify-end overflow-hidden">
@@ -273,6 +388,28 @@ onUnmounted(() => {
 </template>
 
 <style scoped>
+.credits-enter-active,
+.credits-leave-active {
+    transition: opacity 0.2s ease-out, transform 0.2s ease-out;
+}
+
+.credits-enter-from {
+    opacity: 0;
+    transform: translateY(4px);
+}
+
+.credits-leave-to {
+    opacity: 0;
+    transform: translateY(-4px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .credits-enter-active,
+    .credits-leave-active {
+        transition: none;
+    }
+}
+
 .slide-fade-enter-active {
     transition: all 0.2s ease-out;
 }

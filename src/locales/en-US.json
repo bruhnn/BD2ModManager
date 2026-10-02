@@ -171,6 +171,13 @@
             "github": "GitHub",
             "kofi": "Support on Ko-Fi",
             "afdian": "Support on Afdian"
+        },
+        "credits": {
+            "creator": "by",
+            "thanks": "thanks to",
+            "creator_tooltip": "Created by \\@bruhnn",
+            "supporter_tooltip": "Supporter on {platform}",
+            "bug_reports_tooltip": "Bug reports and suggestions on GitHub"
         }
     },
     "sidebar": {
