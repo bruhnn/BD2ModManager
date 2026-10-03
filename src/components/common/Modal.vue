@@ -16,7 +16,7 @@ const props = withDefaults(
     subtitle?: string,
     overlay?: boolean,
     closeOnEscape?: boolean,
-    size?: 'sm' | 'md' | 'lg' | 'xl' | 'sm-xs' | 'lg-lg'
+    size?: 'sm' | 'md' | 'lg' | 'xl' | 'sm-xs' | 'lg-lg' | 'xl-lg',
   }>(),
   {
     overlay: true,
@@ -32,6 +32,7 @@ const sizeClass = computed(() => ({
   xl: 'max-w-[1200px]',
   'sm-xs': 'max-w-120 h-80',
   'lg-lg': 'max-w-240 h-240',
+  'xl-lg': 'max-w-[1200px] h-240'
 }[props.size]));
 
 defineEmits(["close"])

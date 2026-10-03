@@ -121,7 +121,7 @@ async function openLogsFolder() {
 }
 </script>
 <template>
-    <Modal :show="isOpen" size="lg-lg" @close="closeModal" :title="t('app.modals.logs.title')">
+    <Modal :show="isOpen" size="xl-lg" @close="closeModal" :title="t('app.modals.logs.title')">
         <div class="flex flex-col h-full min-h-0 p-2 px-4 gap-2">
             <!-- header -->
             <div class="flex flex-row justify-between items-center">
