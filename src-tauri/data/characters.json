@@ -1,5 +1,5 @@
 {
-    "version": "0.0.29",
+    "version": "0.0.30",
     "characters": [
         {
             "id": "000708",
@@ -7553,6 +7553,80 @@
             "assets": {
                 "head_image": "icon_char021391_222.png",
                 "character_image": "illust_inven_char021391_219.png",
+                "skill_image": null
+            }
+        },
+        {
+            "id": "004302",
+            "character": "Nekyndalia",
+            "costume": "Unraveling Mummy",
+            "is_collab": false,
+            "cutscene": true,
+            "standing": false,
+            "dating_id": null,
+            "character_image": "illust_inven_char004302_225.png",
+            "skill_preview_image": null,
+            "release_date": "2026-10-08",
+            "gender": "female",
+            "costume_id": "004302",
+            "character_id": 43,
+            "character_name": {
+                "en": "Nekyndalia",
+                "cn": "内肯达莉亚",
+                "jp": "ネケンダリア",
+                "tw": "涅肯達莉亞",
+                "kr": "네켄달리아"
+            },
+            "costume_name": {
+                "en": "Unraveling Mummy",
+                "cn": "白缕轻缠木乃伊",
+                "jp": "ゆるゆるミイラ",
+                "tw": "殘破木乃伊",
+                "kr": "헐거운 미라"
+            },
+            "skin_type": "normal",
+            "grade": 5,
+            "element": "wind",
+            "assets": {
+                "head_image": "icon_char004302_231.png",
+                "character_image": "illust_inven_char004302_225.png",
+                "skill_image": null
+            }
+        },
+        {
+            "id": "004192",
+            "character": "Tyr",
+            "costume": "Clumsy Wuff",
+            "is_collab": false,
+            "cutscene": true,
+            "standing": false,
+            "dating_id": null,
+            "character_image": "illust_inven_char004192_227.png",
+            "skill_preview_image": null,
+            "release_date": "2026-10-08",
+            "gender": "female",
+            "costume_id": "004192",
+            "character_id": 41,
+            "character_name": {
+                "en": "Tyr",
+                "cn": "提尔",
+                "jp": "ティル",
+                "tw": "提爾",
+                "kr": "티르"
+            },
+            "costume_name": {
+                "en": "Clumsy Wuff",
+                "cn": "笨拙小狼",
+                "jp": "不器用な狼",
+                "tw": "傻呼呼小狼",
+                "kr": "서투른 늑대"
+            },
+            "skin_type": "special",
+            "grade": 5,
+            "element": "wind",
+            "assets": {
+                "head_image": "icon_char004192_233.png",
+                "character_image": "illust_inven_char004192_227.png",
                 "skill_image": null
             }
         }
