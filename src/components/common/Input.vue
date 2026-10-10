@@ -2,12 +2,14 @@
 import { TransitionRoot } from '@headlessui/vue'
 import { X } from '@lucide/vue'
 import { useAttrs, computed } from 'vue'
+import type { InputTypeHTMLAttribute } from 'vue'
 
 defineOptions({ inheritAttrs: false })
 
 const searchQuery = defineModel<string>({ default: '' })
 
 const props = defineProps<{
+  type?: InputTypeHTMLAttribute
   placeholder?: string
   disabled?: boolean
   readonly?: boolean
@@ -54,7 +56,7 @@ const showIconRight = computed(() => props.iconRight && !showClear.value)
         :disabled="disabled"
         :readonly="readonly"
         :tabindex="readonly ? -1 : undefined"
-        type="text"
+        :type="props.type ?? 'text'"
         class="w-full transition-colors
                border bg-surface-input text-text-primary
                placeholder:text-text-secondary

@@ -854,7 +854,11 @@
                     },
                     "autoSyncMods": {
                         "label": "Auto Sync Mods",
-                        "description": "Enable this option to automatically sync mods to the game folder when they are enabled or disabled."
+                        "description": "Enable this option to automatically sync mods to the game folder when they are enabled or disabled.",
+                        "delay": {
+                            "label": "Auto Sync Delay",
+                            "description": "How long to wait before automatically syncing mods."
+                        }
                     },
                     "syncMethod": {
                         "label": "Sync Method",

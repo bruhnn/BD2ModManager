@@ -67,7 +67,7 @@ export const useModsStore = defineStore('mods', () => {
 
     const modsCache = ref<Map<string, BD2Mod>>(new Map())
 
-    const autoSyncMs = 3000
+    const autoSyncMs = computed(() => settingsStore.settings.autoSyncModsDelay)
 
     // is syncing or unsycing too
     const isSyncing = ref(false);

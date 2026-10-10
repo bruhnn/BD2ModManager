@@ -17,6 +17,7 @@ interface Settings {
     autoUpdateGameData: boolean,
     skipUpdateVersion?: string | null,
     autoSyncMods: boolean,
+    autoSyncModsDelay: number,
     isFirstLaunch: boolean,
 }
 
@@ -38,7 +39,7 @@ export const useSettingsStore = defineStore("settings", () => {
         // ex. {theme: ..., language: ...}
         // ex 2. {gameDirectory: ...}
         return invoke("set_settings", { value }).then((_value) => {
-            loadSettings() // or Object.assign(settings, value)
+            return loadSettings() // or Object.assign(settings, value)
         })
     }
 

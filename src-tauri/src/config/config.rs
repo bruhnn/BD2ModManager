@@ -15,6 +15,7 @@ pub struct AppConfig {
     pub sync_method: String,
     pub search_mods_recursively: bool,
     pub auto_sync_mods: bool,
+    pub auto_sync_mods_delay: u64,
     pub check_for_app_updates: bool,
     pub auto_download_game_data: bool,
     pub auto_update_mod_preview: bool,
@@ -40,6 +41,7 @@ pub struct PartialAppConfig {
     pub releases_url: Option<String>,
     pub skip_update_version: Option<String>,
     pub auto_sync_mods: Option<bool>,
+    pub auto_sync_mods_delay: Option<u64>,
     pub is_first_launch: Option<bool>,
 }
 
@@ -84,6 +86,9 @@ impl AppConfig {
         if let Some(auto_sync_mods) = partial.auto_sync_mods {
             self.auto_sync_mods = auto_sync_mods;
         }
+        if let Some(auto_sync_mods_delay) = partial.auto_sync_mods_delay {
+            self.auto_sync_mods_delay = auto_sync_mods_delay;
+        }
         if let Some(is_first_launch) = partial.is_first_launch {
             self.is_first_launch = is_first_launch;
         }
@@ -106,6 +111,7 @@ impl Default for AppConfig {
             releases_url: "https://api.github.com/repos/bruhnn/BD2ModManager/releases".into(),
             skip_update_version: None,
             auto_sync_mods: false,
+            auto_sync_mods_delay: 3000,
             is_first_launch: true,
         }
     }
@@ -127,6 +133,7 @@ impl Default for PartialAppConfig {
             releases_url: None,
             skip_update_version: None,
             auto_sync_mods: None,
+            auto_sync_mods_delay: None,
             is_first_launch: None,
         }
     }

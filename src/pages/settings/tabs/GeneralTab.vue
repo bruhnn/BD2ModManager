@@ -1,23 +1,25 @@
 <script setup lang="ts">
-import { TabPanel } from '@headlessui/vue';
-import Section from '../Section.vue';
-import { useI18n } from 'vue-i18n';
-import { computed } from 'vue';
-import { Folder, SquareArrowOutUpRight } from '@lucide/vue';
-import { openPath } from '@tauri-apps/plugin-opener';
-import { open } from '@tauri-apps/plugin-dialog';
-import Select from '../../../components/common/Select.vue';
-import Input from '../../../components/common/Input.vue';
-import Button from '../../../components/common/Button.vue';
-import Checkbox from '../../../components/common/Checkbox.vue';
-import { useLoggingStore } from '../../../stores/logging';
-import { Language, useSettingsStore } from '../../../stores/settings';
-import { useNotificationStore } from '../../../stores/notification.ts';
-import { usePreferencesStore } from '../../../stores/preferences.ts';
+import { TabPanel } from '@headlessui/vue'
+import { computed, nextTick, ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { Folder, SquareArrowOutUpRight } from '@lucide/vue'
+import { openPath } from '@tauri-apps/plugin-opener'
+import { open } from '@tauri-apps/plugin-dialog'
+
+import Checkbox from '../../../components/common/Checkbox.vue'
+import Section from '../Section.vue'
+import Select from '../../../components/common/Select.vue'
+import Slider from '../../../components/common/Slider.vue'
+import Button from '../../../components/common/Button.vue'
+import Input from '../../../components/common/Input.vue'
+
+import { useLoggingStore } from '../../../stores/logging'
+import { Language, useSettingsStore } from '../../../stores/settings'
+import { useNotificationStore } from '../../../stores/notification.ts'
+import { usePreferencesStore } from '../../../stores/preferences.ts'
 
 const settingsStore = useSettingsStore()
 const preferencesStore = usePreferencesStore()
-
 const notificationStore = useNotificationStore()
 
 const { t, availableLocales } = useI18n()
@@ -27,6 +29,12 @@ const {
     logError,
     logInfo,
 } = useLoggingStore()
+const autoSyncModsDelay = ref((settingsStore.settings.autoSyncModsDelay ?? 3000) / 1000)
+const autoSyncModsDelayInput = ref(String(autoSyncModsDelay.value))
+
+watch(autoSyncModsDelay, (value) => {
+    autoSyncModsDelayInput.value = String(value)
+})
 
 const mappedLanguages = [
     { // en
@@ -115,6 +123,17 @@ async function onAutoSyncModsChanged(value: boolean) {
 
     await settingsStore.saveSettings({ autoSyncMods: value })
     logInfo(`Auto sync mods changed to ${value}`)
+}
+
+async function onAutoSyncModsDelayChanged(value: number) {
+    const seconds = Number.isFinite(value) ? Math.min(10, Math.max(1, value)) : autoSyncModsDelay.value
+    autoSyncModsDelay.value = seconds
+    autoSyncModsDelayInput.value = String(seconds)
+    const milliseconds = Math.round(seconds * 1000)
+    if (milliseconds === settingsStore.settings.autoSyncModsDelay) return
+
+    await settingsStore.saveSettings({ autoSyncModsDelay: milliseconds })
+    logInfo(`Auto sync delay changed to ${seconds} seconds`)
 }
 
 async function onSyncMethodChanged(value: string) {
@@ -259,16 +278,61 @@ async function handleGameDirectoryBrowse() {
 
             <Section :title="$t('settingsTab.general.sections.modManagement.title')">
                 <div class="space-y-4">
-                    <div class="flex items-center gap-3">
-                        <Checkbox inputId="searchModsRecursively" :model-value="settings.searchModsRecursively" :label="$t('settingsTab.general.sections.modManagement.searchRecursively.label')"
+                    <div class="flex flex-col items-start gap-3">
+                        <Checkbox
+                            inputId="searchModsRecursively"
+                            :model-value="settings.searchModsRecursively"
+                            :label="$t('settingsTab.general.sections.modManagement.searchRecursively.label')"
                             :description="$t('settingsTab.general.sections.modManagement.searchRecursively.description')"
-                            @update:model-value="onSearchModsRecursivelyChanged"  />
-                    </div>
-
-                    <div class="flex items-center gap-3">
-                        <Checkbox :model-value="settings.autoSyncMods" :label="$t('settingsTab.general.sections.modManagement.autoSyncMods.label')"
+                            @update:model-value="onSearchModsRecursivelyChanged"
+                        />
+                        <Checkbox
+                            :model-value="settings.autoSyncMods"
+                            :label="$t('settingsTab.general.sections.modManagement.autoSyncMods.label')"
                             :description="$t('settingsTab.general.sections.modManagement.autoSyncMods.description')"
-                            @update:model-value="onAutoSyncModsChanged" />
+                            @update:model-value="onAutoSyncModsChanged"
+                        />
+                        <div class="grid w-full grid-cols-3 items-center gap-4">
+                            <div class="flex flex-col">
+                                <label
+                                    for="autoSyncModsDelay"
+                                    class="text-sm font-medium"
+                                >
+                                    {{ $t('settingsTab.general.sections.modManagement.autoSyncMods.delay.label') }}
+                                </label>
+                                <p
+                                    id="autoSyncModsDelayDescription"
+                                    class="text-xs text-text-secondary"
+                                >
+                                    {{ $t('settingsTab.general.sections.modManagement.autoSyncMods.delay.description') }}
+                                </p>
+                            </div>
+                            <div class="col-span-2 flex min-w-0 items-center gap-2">
+                                <Slider
+                                    v-model="autoSyncModsDelay"
+                                    suffix="s"
+                                    :min="1"
+                                    :max="10"
+                                    :step="0.1"
+                                    :disabled="!settings.autoSyncMods"
+                                    :aria-label="$t('settingsTab.general.sections.modManagement.autoSyncMods.delay.label')"
+                                    aria-describedby="autoSyncModsDelayDescription"
+                                    @change="onAutoSyncModsDelayChanged"
+                                />
+                                <div class="w-16 shrink-0">
+                                    <Input
+                                        id="autoSyncModsDelay"
+                                        v-model="autoSyncModsDelayInput"
+                                        type="text"
+                                        inputmode="decimal"
+                                        :disabled="!settings.autoSyncMods"
+                                        aria-describedby="autoSyncModsDelayDescription"
+                                        @change="onAutoSyncModsDelayChanged(Number(autoSyncModsDelayInput.replace(',', '.')))"
+                                    />
+                                </div>
+                                <span class="text-sm text-text-secondary">s</span>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="grid grid-cols-3 items-center gap-4">
