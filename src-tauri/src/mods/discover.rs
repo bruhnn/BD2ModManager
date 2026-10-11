@@ -52,20 +52,29 @@ impl ModAnalysis {
     }
 
     fn determine_mod_status(&self) -> (bool, Option<BD2ModError>) {
-        match (
-            self.has_modfile,
-            self.has_skel,
-            self.has_atlas,
-            self.has_textures_folder,
-            self.has_images,
-        ) {
-            (true, _, _, _, _) => (true, None),
-            (false, true, true, _, _) => (true, Some(BD2ModError::MissingModfile)),
-            (false, true, false, _, _) => (true, Some(BD2ModError::MissingAtlasFile)),
-            (false, false, _, true, _) => (true, Some(BD2ModError::MissingModfile)),
-            // (false, false, _, false, true) => (true, Some(BD2ModError::IncompleteMod)),
-            _ => (false, None),
+        let is_mod = self.has_modfile
+            || self.has_skel
+            || self.has_atlas
+            || self.has_textures_folder;
+
+        if !is_mod {
+            debug!("No mod related files found in the directory.");
+            return (false, None);
         }
+
+        if !self.has_modfile {
+            return (true, Some(BD2ModError::MissingModfile));
+        }
+
+        if self.has_skel && !self.has_atlas {
+            return (true, Some(BD2ModError::MissingAtlasFile));
+        }
+
+        if !self.has_images && !self.has_textures_folder {
+            return (true, Some(BD2ModError::MissingTextures));
+        }
+
+        (true, None)
     }
 }
 
@@ -258,7 +267,6 @@ pub fn discover_unmanaged_mods(game_directory: &Path, staging_mods: &mut [BD2Mod
             }
 
             continue;
-        
         }
         if entry.file_type().is_dir() || entry.file_type().is_symlink() {
             let staging_index = relative
