@@ -295,6 +295,10 @@
         },
         "notifications": {
             "syncMods": {
+                "skippedUnmanaged": {
+                    "title": "일부 모드를 건너뛰었습니다",
+                    "message": "관리되지 않는 모드 {count}개는 변경되지 않았습니다. 교체하거나 삭제하려면 “{action}”를 선택하세요."
+                },
                 "completedWithErrors": {
                     "title": "동기화가 완료되었지만 오류가 있습니다",
                     "message": "모드 {total}개 중 {synced}개를 동기화했습니다. 동기화 상세 정보에서 실패한 모드를 확인하세요.",
@@ -309,6 +313,20 @@
                 }
             },
             "unsyncMods": {
+                "skippedUnmanaged": {
+                    "title": "일부 모드를 건너뛰었습니다",
+                    "message": "관리되지 않는 모드 {count}개는 변경되지 않았습니다. 삭제하려면 “{action}”를 선택하세요.",
+                    "action": "동기화 해제 및 관리되지 않는 모드 삭제"
+                },
+                "completedWithErrors": {
+                    "title": "동기화 해제가 오류와 함께 완료되었습니다",
+                    "message": "모드 {total}개 중 {synced}개를 삭제했습니다. 실패한 모드는 동기화 상세 정보에서 확인하세요.",
+                    "details": "상세 정보 보기"
+                },
+                "noChanges": {
+                    "title": "모드 동기화 해제",
+                    "message": "동기화를 해제할 관리 중인 모드가 없습니다."
+                },
                 "success": {
                     "title": "모드 동기화 해제 완료",
                     "message": "모드가 게임 폴더에서 성공적으로 제거되었습니다."
@@ -981,6 +999,8 @@
             "ModContainsSymlink": "이 모드에는 심볼릭 링크 또는 정션이 포함되어 있습니다: “{path}”. 설치하기 전에 실제 파일로 교체해 주세요."
         },
         "ModSyncError": {
+            "DirectoriesNested": "모드 보관 폴더와 게임 모드 폴더가 겹칩니다. 동기화하기 전에 별도의 폴더를 선택하세요.",
+            "DestinationContainsSymlink": "대상 경로에 심볼릭 링크 또는 정션이 있습니다: “{path}”. 동기화하기 전에 일반 폴더로 바꾸세요.",
             "ModContainsSymlink": "이 모드에는 심볼릭 링크 또는 정션이 포함되어 있습니다: “{path}”. 동기화하기 전에 실제 파일로 교체해 주세요."
         },
         "MigrateError": {
@@ -1022,6 +1042,7 @@
         "archiveNotExtracted": "이 모드는 아직 압축이 해제되지 않은 압축 파일입니다. 활성화하기 전에 압축을 해제해 주세요.",
         "shouldBeInFolder": "이 모드는 폴더 안에 있어야 합니다. 모드와 같은 이름의 폴더를 만들고 모드 파일을 그 안으로 이동해 주세요.",
         "missingAtlasFile": "이 모드에 아틀라스 파일이 없습니다.",
+        "unmanaged": "이 모드는 게임 폴더에 있지만 BD2MM에서 관리하지 않습니다. 여기서는 활성화하거나 비활성화할 수 없습니다.",
         "noDescription": "설명이 없습니다."
     }
 }

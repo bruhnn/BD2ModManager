@@ -295,6 +295,10 @@
         },
         "notifications": {
             "syncMods": {
+                "skippedUnmanaged": {
+                    "title": "已略過部分模組",
+                    "message": "{count} 個未受管理的模組保持不變。請選擇「{action}」以替換或移除它們。"
+                },
                 "completedWithErrors": {
                     "title": "同步已完成，但發生錯誤",
                     "message": "已同步 {synced}/{total} 個模組。開啟同步詳細資訊以查看哪些模組失敗。",
@@ -309,6 +313,20 @@
                 }
             },
             "unsyncMods": {
+                "skippedUnmanaged": {
+                    "title": "部分模組已略過",
+                    "message": "{count} 個未受管理的模組保持不變。選擇「{action}」以刪除它們。",
+                    "action": "取消同步並刪除未受管理的模組"
+                },
+                "completedWithErrors": {
+                    "title": "取消同步已完成，但發生錯誤",
+                    "message": "已刪除 {total} 個模組中的 {synced} 個。開啟同步詳細資訊查看失敗的模組。",
+                    "details": "查看詳細資訊"
+                },
+                "noChanges": {
+                    "title": "取消模組同步",
+                    "message": "沒有可取消同步的受管理模組。"
+                },
                 "success": {
                     "title": "模組已取消同步",
                     "message": "模組已成功從遊戲資料夾中移除。"
@@ -981,6 +999,8 @@
             "ModContainsSymlink": "此模組包含符號連結或目錄接合點：「{path}」。請先將其替換為實際檔案，再進行安裝。"
         },
         "ModSyncError": {
+            "DirectoriesNested": "暫存資料夾與遊戲模組資料夾存在包含關係。同步前請選擇互不包含的資料夾。",
+            "DestinationContainsSymlink": "目標路徑包含符號連結或目錄連接：「{path}」。同步前請將其替換為一般資料夾。",
             "ModContainsSymlink": "此模組包含符號連結或目錄接合點：「{path}」。請先將其替換為實際檔案，再進行同步。"
         },
         "MigrateError": {
@@ -1022,6 +1042,7 @@
         "archiveNotExtracted": "此模組是一個尚未解壓縮的壓縮檔，請在嘗試啟用前先解壓縮。",
         "shouldBeInFolder": "此模組應放置在一個資料夾內，請建立一個與模組同名的資料夾，並將模組檔案移入其中。",
         "missingAtlasFile": "此模組缺少圖集檔案。",
+        "unmanaged": "此模組位於遊戲資料夾中，但未由 BD2MM 管理，無法在此啟用或停用。",
         "noDescription": "未提供描述。"
     }
 }

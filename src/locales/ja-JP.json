@@ -295,6 +295,10 @@
         },
         "notifications": {
             "syncMods": {
+                "skippedUnmanaged": {
+                    "title": "一部のMODがスキップされました",
+                    "message": "管理対象外のMOD {count} 個は変更されませんでした。置き換えまたは削除するには「{action}」を選択してください。"
+                },
                 "completedWithErrors": {
                     "title": "同期が完了しましたが、エラーがあります",
                     "message": "{total} 個中 {synced} 個のMODを同期しました。同期の詳細を開くと、失敗したMODを確認できます。",
@@ -309,6 +313,20 @@
                 }
             },
             "unsyncMods": {
+                "skippedUnmanaged": {
+                    "title": "一部のModがスキップされました",
+                    "message": "管理対象外のMod {count}件は変更されませんでした。削除するには「{action}」を選択してください。",
+                    "action": "同期解除して管理対象外のModを削除"
+                },
+                "completedWithErrors": {
+                    "title": "同期解除がエラーありで完了しました",
+                    "message": "{total}件中{synced}件のModを削除しました。失敗したModは同期の詳細で確認できます。",
+                    "details": "詳細を表示"
+                },
+                "noChanges": {
+                    "title": "Modの同期解除",
+                    "message": "同期解除する管理対象のModはありません。"
+                },
                 "success": {
                     "title": "MODの同期を解除しました",
                     "message": "MODがゲームフォルダから正常に削除されました。"
@@ -981,6 +999,8 @@
             "ModContainsSymlink": "このMODにはシンボリックリンクまたはジャンクション「{path}」が含まれています。インストールする前に実際のファイルに置き換えてください。"
         },
         "ModSyncError": {
+            "DirectoriesNested": "保存先とゲームのModフォルダーが重複しています。同期前に別々のフォルダーを選択してください。",
+            "DestinationContainsSymlink": "同期先にシンボリックリンクまたはジャンクションがあります:「{path}」。同期前に通常のフォルダーに置き換えてください。",
             "ModContainsSymlink": "このMODにはシンボリックリンクまたはジャンクション「{path}」が含まれています。同期する前に実際のファイルに置き換えてください。"
         },
         "MigrateError": {
@@ -1022,6 +1042,7 @@
         "archiveNotExtracted": "このMODはまだ解凍されていない圧縮ファイルです。有効化する前に解凍してください。",
         "shouldBeInFolder": "このMODはフォルダ内に配置する必要があります。MODと同じ名前のフォルダを作成し、MODファイルをその中に移動してください。",
         "missingAtlasFile": "このMODにはアトラスファイルがありません。",
+        "unmanaged": "このMODはゲームフォルダ内にありますが、BD2MMでは管理されていません。ここでは有効化や無効化はできません。",
         "noDescription": "説明はありません。"
     }
 }

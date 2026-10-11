@@ -295,6 +295,10 @@
         },
         "notifications": {
             "syncMods": {
+                "skippedUnmanaged": {
+                    "title": "Alguns mods foram ignorados",
+                    "message": "{count} mod não gerenciado foi mantido sem alterações. Escolha “{action}” para substituí-lo ou removê-lo. | {count} mods não gerenciados foram mantidos sem alterações. Escolha “{action}” para substituí-los ou removê-los."
+                },
                 "completedWithErrors": {
                     "title": "Sincronização concluída com erros",
                     "message": "{synced} de {total} mods sincronizados. Abra os detalhes da sincronização para ver quais mods falharam.",
@@ -309,6 +313,20 @@
                 }
             },
             "unsyncMods": {
+                "skippedUnmanaged": {
+                    "title": "Alguns mods foram ignorados",
+                    "message": "{count} mod não gerenciado foi mantido. Selecione “{action}” para removê-lo. | {count} mods não gerenciados foram mantidos. Selecione “{action}” para removê-los.",
+                    "action": "Dessincronizar e remover mods não gerenciados"
+                },
+                "completedWithErrors": {
+                    "title": "Dessincronização concluída com erros",
+                    "message": "{synced} de {total} mods removidos. Abra os detalhes para ver quais mods falharam.",
+                    "details": "Ver detalhes"
+                },
+                "noChanges": {
+                    "title": "Dessincronizar mods",
+                    "message": "Nenhum mod gerenciado para dessincronizar."
+                },
                 "success": {
                     "title": "Mods Dessincronizados",
                     "message": "Seus mods foram removidos com sucesso da pasta do jogo."
@@ -981,6 +999,8 @@
             "ModContainsSymlink": "Este mod contém um link simbólico ou uma junção: “{path}”. Substitua pelo conteúdo real antes de instalar."
         },
         "ModSyncError": {
+            "DirectoriesNested": "As pastas de staging e de mods do jogo se sobrepõem. Escolha pastas separadas antes de sincronizar.",
+            "DestinationContainsSymlink": "O destino contém um link simbólico ou uma junção: “{path}”. Substitua essa pasta por uma pasta normal antes de sincronizar.",
             "ModContainsSymlink": "Este mod contém um link simbólico ou uma junção: “{path}”. Substitua pelo conteúdo real antes de sincronizar."
         },
         "MigrateError": {
@@ -1022,6 +1042,7 @@
         "archiveNotExtracted": "Este mod é um arquivo compactado que ainda não foi extraído. Por favor, extraia-o antes de tentar ativá-lo.",
         "shouldBeInFolder": "Este mod deve estar dentro de uma pasta. Por favor, crie uma pasta com o mesmo nome do mod e mova o arquivo do mod para dentro dela.",
         "missingAtlasFile": "Este mod está sem o arquivo de atlas.",
+        "unmanaged": "Este mod está na pasta do jogo, mas não é gerenciado pelo BD2MM. Não é possível ativá-lo ou desativá-lo por aqui.",
         "noDescription": "Nenhuma descrição fornecida."
     }
 }
