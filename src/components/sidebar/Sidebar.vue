@@ -62,7 +62,7 @@ function onProfileSelected(profile_id: string) {
         class="flex flex-col min-h-0 h-full gap-0 overflow-y-auto min-w-70 max-w-70 border-r border-border-subtle bg-surface-panel">
 
         <!-- header -->
-        <div class="h-32 flex items-center flex-col justify-center gap-1 relative overflow-hidden">
+        <div class="h-32 flex items-center flex-col justify-center gap-1 relative overflow-hidden shrink-0">
             <span class="font-cinzel font-bold text-xl">BROWNDUST II</span>
             <span v-if="gameStore.gameVersion" class="text-xs font-semibold flex gap-2 items-center justify-center">
                 Game v{{ gameStore.gameVersion }}
