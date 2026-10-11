@@ -522,8 +522,8 @@ useHeader({
       <div class="flex gap-2 text-primary">
         <MultiButton :label="$t('modsTab.actions.openModsFolder')" :icon="Folder" @click="handleOpenStagingModsFolder"
           :actions="[
-            { label: t('modsTab.actions.openGameFolder'), clicked: openGameFolder },
-            { label: t('modsTab.actions.openGameModsFolder'), clicked: openGameModsFolder }
+            { label: t('modsTab.actions.openGameFolder'), clicked: openGameFolder, icon: Folder },
+            { label: t('modsTab.actions.openGameModsFolder'), clicked: openGameModsFolder, icon: Folder }
           ]" />
 
         <MultiButton variant="default" :disabled="modsStore.isSyncing" :label="$t('modsTab.actions.unsyncMods')" :icon="FolderMinus" @click="() => unsyncMods()" :actions="[
