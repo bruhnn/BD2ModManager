@@ -208,6 +208,7 @@ pub fn run() {
             // game
             game::commands::locate_game,
             game::commands::validate_game_path,
+            game::commands::validate_staging_path,
             game::commands::launch_game,
             game::commands::get_game_version,
             game::commands::get_browndustx_version,

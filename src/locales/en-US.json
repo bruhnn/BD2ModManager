@@ -838,6 +838,10 @@
                 "gameDirectoryUpdated": {
                     "title": "Game Directory Updated",
                     "message": "Game directory has been updated to {path}."
+                },
+                "invalidStagingDirectory": {
+                    "title": "Invalid staging folder",
+                    "message": "Choose a folder separate from BrownDustX/mods. Neither folder can contain the other."
                 }
             },
             "sections": {

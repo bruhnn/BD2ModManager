@@ -58,6 +58,10 @@ export const useSettingsStore = defineStore("settings", () => {
         return invoke<boolean>("validate_game_path", { path })
     }
 
+    function validateStagingPath(path: string): Promise<boolean> {
+        return invoke<boolean>("validate_staging_path", { path })
+    }
+
     const availableThemes = ref([
         { label: 'Dark 1', value: 'dark-1' },
         { label: 'Dark 2', value: 'dark-2' },
@@ -77,7 +81,7 @@ export const useSettingsStore = defineStore("settings", () => {
         // BrownDustX
         locateGamePath,
         validateGamePath,
-
+        validateStagingPath,
         // themes
         availableThemes: availableThemes,
     }

@@ -45,6 +45,40 @@ pub fn validate_game_path(path: String) -> bool {
 }
 
 #[tauri::command]
+pub fn validate_staging_path(
+    state: tauri::State<AppState>,
+    path: PathBuf,
+) -> bool {
+    let Some(game_directory) = get_game_path(&state) else {
+        return true;
+    };
+
+    let mut paths = [
+        path,
+        game_directory.join("BepInEx/plugins/BrownDustX/mods"),
+    ];
+
+    for path in &mut paths {
+        // resolve the existing part of the path
+        let Some(parent) = path.ancestors().find(|parent| parent.exists()) else {
+            return false;
+        };
+
+        let Ok(resolved) = parent.canonicalize() else {
+            return false;
+        };
+
+        let resolved = resolved.join(path.strip_prefix(parent).unwrap());
+        *path = PathBuf::from(resolved.to_string_lossy().to_lowercase());
+    }
+
+    let staging = &paths[0];
+    let game_mods = &paths[1];
+
+    !staging.starts_with(game_mods) && !game_mods.starts_with(staging)
+}
+
+#[tauri::command]
 pub fn get_game_version(state: tauri::State<AppState>) -> Option<String> {
     let game_path = get_game_path(&state)?;
     game::get_game_version(&game_path)

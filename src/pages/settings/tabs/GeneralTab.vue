@@ -166,8 +166,20 @@ async function handleStagingModsBrowse() {
     })
 
     if (folder && settingsStore) {
+        // validate
+        if (!(await settingsStore.validateStagingPath(folder))) {
+            logWarning(`Selected staging mods directory ${folder} is not valid.`)
 
-        await settingsStore.saveSettings({ stagingDirectory: folder })
+            return notificationStore.add({
+                type: 'warn',
+                title: t('settingsTab.general.notifications.invalidStagingDirectory.title'),
+                message: t('settingsTab.general.notifications.invalidStagingDirectory.message', { path: folder }),
+            })
+        }
+
+        await settingsStore.saveSettings({
+            stagingDirectory: folder,
+        })
 
         logInfo(`Staging mods directory changed to ${folder}`)
 
