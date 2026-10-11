@@ -21,6 +21,7 @@ use crate::config::{BD2Config, PartialAppConfig};
 use crate::manager::BD2ModManager;
 use crate::mods::metadata::ModMetadataStore;
 use crate::profiles::ProfileManager;
+#[cfg(not(debug_assertions))]
 use crate::state::BundledAssets;
 use crate::updater::commands::PendingUpdate;
 use crate::utils::data;
@@ -160,15 +161,19 @@ pub fn run() {
                 config: Arc::new(Mutex::new(config)),
             };
 
-            let bundled_assets: std::collections::HashSet<String> = app
-                .asset_resolver()
-                .iter()
-                .map(|(path, _)| path.to_string())
-                .collect();
+            #[cfg(not(debug_assertions))]
+            {
+                let bundled_assets: std::collections::HashSet<String> = app
+                    .asset_resolver()
+                    .iter()
+                    .map(|(path, _)| path.to_string())
+                    .collect();
+
+                app.manage(BundledAssets(bundled_assets));
+            }
 
             app.manage(app_state);
             app.manage(PendingUpdate(std::sync::Mutex::new(None)));
-            app.manage(BundledAssets(bundled_assets));
 
             // move data to appdata
             data::move_data_to_appdata(&app_handle).expect("Failed to move data to appdata");

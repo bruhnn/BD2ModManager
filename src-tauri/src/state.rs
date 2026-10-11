@@ -2,6 +2,7 @@ use std::sync::{Arc, Mutex};
 
 use crate::{manager::BD2ModManager, config::BD2Config};
 
+#[cfg(not(debug_assertions))]
 pub struct BundledAssets(pub std::collections::HashSet<String>);
 
 pub struct AppState {
