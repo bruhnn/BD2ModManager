@@ -42,6 +42,14 @@ body {
       background-position: -200% 0;
     }
   }
+
+  --animate-pulse-2: pulse-2 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+
+  @keyframes pulse-2 {
+    50% {
+      opacity: 0.85;
+    }
+  }
 }
 
 @theme inline {

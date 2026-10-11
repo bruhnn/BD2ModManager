@@ -7,10 +7,9 @@ pub enum BD2ModError {
     MissingTextures,
     MissingAtlasFile,
     ShouldBeInFolder,
-    HasConflict,
     ArchiveNotExtracted,
-    IncompleteMod,
-    InvalidMod,
+    Unmanaged, // not in staging, but in game folder
+    UnmanagedButInStaging, // in staging, not in game folder
 }
 
 #[derive(Debug, Clone, PartialEq, Hash, Eq, Serialize, Deserialize)]

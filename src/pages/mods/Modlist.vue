@@ -74,6 +74,8 @@ function getErrorDescription(error: string) {
         "ArchiveNotExtracted": "modErrors.archiveNotExtracted",
         "ShouldBeInFolder": "modErrors.shouldBeInFolder",
         "MissingAtlasFile": "modErrors.missingAtlasFile",
+        "Unmanaged": "modErrors.unmanaged",
+        "UnmanagedButInStaging": "modErrors.unmanagedButInStaging",
     }
 
     return t(errors[error] || 'modErrors.noDescription', { error })
@@ -96,8 +98,11 @@ const columns = [
     columnHelper.accessor('name', {
         cell: info => {
             const mod = info.row.original
+            // UnmanagedButInStaging is just a warning "error"
+            const modHasErrors = mod.errors.some(e => e !== 'UnmanagedButInStaging')
+
             return h('div', { class: 'flex items-center gap-2 overflow-hidden' }, [
-                mod.errors.length > 0 ? h('span', { class: 'select-none rounded-lg text-sm font-mono' },
+                modHasErrors ? h('span', { class: 'select-none rounded-lg text-sm font-mono' },
                     h(AlertTriangle, { class: 'text-error w-[1.25rem] h-[1.25rem]' })
                 ) :
                     h(Checkbox, {
@@ -433,12 +438,12 @@ const contextMenuItems = computed<ContextMenuItem[]>(() => {
         {
             label: isSingleSelection ? t('modsTab.modlist.contextMenu.enableMod') : t('modsTab.modlist.contextMenu.enableSelectedMods'),
             key: 'enable',
-            show: !props.isSyncing && hasSelection && selectedMods.value.some(mod => !mod.enabled && mod.errors.length === 0)
+            show: !props.isSyncing && hasSelection && selectedMods.value.some(mod => !mod.enabled && mod.errors.every(e => e === 'UnmanagedButInStaging'))
         } as ContextMenuItem,
         {
             label: isSingleSelection ? t('modsTab.modlist.contextMenu.disableMod') : t('modsTab.modlist.contextMenu.disableSelectedMods'),
             key: 'disable',
-            show: !props.isSyncing && hasSelection && selectedMods.value.some(mod => mod.enabled && mod.errors.length === 0)
+            show: !props.isSyncing && hasSelection && selectedMods.value.some(mod => mod.enabled && mod.errors.every(e => e === 'UnmanagedButInStaging'))
         } as ContextMenuItem,
         {
             label: isSingleSelection ? t('modsTab.modlist.contextMenu.changeModAuthor') : t('modsTab.modlist.contextMenu.changeSelectedModsAuthor'),

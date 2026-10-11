@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { TabPanel } from '@headlessui/vue'
-import { computed, nextTick, ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { Folder, SquareArrowOutUpRight } from '@lucide/vue'
 import { openPath } from '@tauri-apps/plugin-opener'

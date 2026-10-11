@@ -50,6 +50,13 @@ pub fn get_staging_dir(config: &BD2Config) -> PathBuf {
     }
 }
 
+pub fn get_game_dir(config: &BD2Config) -> Option<PathBuf> {
+    match &config.game_directory {
+        Some(path) => return Some(PathBuf::from(path)),
+        None => None,
+    }
+}
+
 pub fn get_mod_preview_path(app: &AppHandle) -> Option<PathBuf> {
     if let Ok(path) = app
         .app_handle()

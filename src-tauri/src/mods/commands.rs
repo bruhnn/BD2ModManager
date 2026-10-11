@@ -1,7 +1,7 @@
 use std::{collections::HashMap, io::ErrorKind, path::PathBuf};
 
 use crate::{
-    errors::AppError, mods::{BD2Mod, delete::ModDeleteError, preview::{PreviewError, is_texture_mod, preview_image}, sync::{SyncMethod, SyncResult}, types::BD2ModError}, utils::path::{get_mod_preview_path, get_staging_dir},
+    errors::AppError, mods::{BD2Mod, delete::ModDeleteError, preview::{PreviewError, is_texture_mod, preview_image}, sync::{SyncMethod, SyncResult}, types::BD2ModError}, utils::path::{get_game_dir, get_mod_preview_path, get_staging_dir},
 };
 use serde::Serialize;
 use tauri::{AppHandle, ipc::Channel};
@@ -22,6 +22,7 @@ pub async fn discover_mods(
 
         mod_manager.discover_mods(
             &get_staging_dir(&config),
+            &get_game_dir(&config),
             config.search_mods_recursively,
         )
     })
@@ -80,7 +81,7 @@ pub async fn preview_mod(
         if _mod.errors.iter().any(|e| {
             !matches!(
                 e,
-                BD2ModError::MissingModfile | BD2ModError::HasConflict
+                BD2ModError::MissingModfile|BD2ModError::Unmanaged|BD2ModError::UnmanagedButInStaging
             )
         }) {
             return Err(PreviewError::ModHasErrors {
@@ -152,6 +153,7 @@ pub fn install_mod_from_folder(
 pub async fn sync_mods(
     app_handle: tauri::AppHandle,
     state: tauri::State<'_, AppState>,
+    remove_unmanaged_mods: Option<bool>
 ) -> Result<SyncResult, AppError> {
     let app_handle = app_handle.clone();
     let config_handle = state.config.clone();
@@ -163,7 +165,7 @@ pub async fn sync_mods(
 
         let sync_method = match config.sync_method.as_str() {
             "copy" => SyncMethod::Copy,
-            "hardlink" => SyncMethod::Hardlink,
+            // "hardlink" => SyncMethod::Hardlink,
             "symlink" => SyncMethod::Symlink,
             other => return Err(AppError::SyncMethodInvalid {
                 method: other.to_string(),
@@ -176,7 +178,7 @@ pub async fn sync_mods(
         };
 
         mod_manager
-            .sync_mods(&app_handle, &PathBuf::from(game_dir), sync_method)
+            .sync_mods(&app_handle, &PathBuf::from(game_dir), &get_staging_dir(&config), sync_method, remove_unmanaged_mods.unwrap_or(false))
             .map_err(AppError::from)
     })
     .await;
@@ -194,15 +196,16 @@ pub async fn sync_mods(
 pub async fn unsync_mods(
     app_handle: tauri::AppHandle,
     state: tauri::State<'_, AppState>,
-) -> Result<(), AppError> {
+    remove_unmanaged_mods: Option<bool>
+) -> Result<SyncResult, AppError> {
     let app_handle_clone = app_handle.clone();
     let mod_manager_handle = state.mod_manager.clone();
     let config_handle = state.config.clone();
 
-    let game_dir = {
+    let (game_dir, staging_dir) = {
         let config = config_handle.lock().unwrap();
         match &config.game_directory {
-            Some(dir) => dir.clone(),
+            Some(dir) => (dir.clone(), get_staging_dir(&config)),
             None => return Err(AppError::GameDirectoryNotSet),
         }
     };
@@ -210,7 +213,7 @@ pub async fn unsync_mods(
     let result = tauri::async_runtime::spawn_blocking(move || {
         let mut mod_manager = mod_manager_handle.lock().unwrap();
         mod_manager
-            .unsync_mods(&app_handle_clone, &PathBuf::from(game_dir))
+            .unsync_mods(&app_handle_clone, &PathBuf::from(game_dir), &staging_dir, remove_unmanaged_mods.unwrap_or(false))
             .map_err(AppError::from)
     })
     .await;
@@ -236,7 +239,17 @@ pub fn is_sync_needed(
         .game_directory
         .clone()
         .ok_or(AppError::GameDirectoryNotSet)?;
-    Ok(mod_manager.is_sync_needed(&PathBuf::from(game_dir)))
+    let game_dir = PathBuf::from(game_dir);
+    let staging_dir = get_staging_dir(&config);
+    let sync_method = match config.sync_method.as_str() {
+        "copy" => SyncMethod::Copy,
+        "symlink" => SyncMethod::Symlink,
+        other => return Err(AppError::SyncMethodInvalid {
+            method: other.to_string(),
+        }),
+    };
+
+    Ok(mod_manager.is_sync_needed(&game_dir, &staging_dir, sync_method))
 }
 
 #[derive(Clone, Serialize)]

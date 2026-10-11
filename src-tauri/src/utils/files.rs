@@ -1,5 +1,5 @@
 use std::{
-    fs::{self, copy, create_dir_all, read, read_dir, remove_dir_all, remove_file},
+    fs::{self, copy, create_dir_all, read, read_dir},
     io,
     path::{Path, PathBuf},
 };
@@ -8,6 +8,8 @@ use sha2::{Digest, Sha256};
 use walkdir::WalkDir;
 use std::time::SystemTime;
 use std::os::windows::fs::MetadataExt;
+use std::os::windows::ffi::OsStrExt;
+use windows_sys::Win32::Storage::FileSystem::GetDiskFreeSpaceExW;
 
 use crate::mods::{install::ModInstallError, sync::ModSyncError};
 
@@ -84,6 +86,42 @@ pub fn copy_dir_all(src: &Path, dst: &Path) -> Result<(), ModInstallError> {
     Ok(())
 }
 
+pub fn dirs_match(src: &Path, dst: &Path) -> Result<bool, ModSyncError> {
+    let source = fs::symlink_metadata(src)?;
+    if source.file_attributes() & 0x400 != 0 {
+        return Err(ModSyncError::ModContainsSymlink {
+            path: src.to_string_lossy().to_string(),
+        });
+    }
+    let destination = match fs::symlink_metadata(dst) {
+        Ok(metadata) => metadata,
+        Err(error) if error.kind() == io::ErrorKind::NotFound => return Ok(false),
+        Err(error) => return Err(error.into()),
+    };
+    if destination.file_attributes() & 0x400 != 0 || source.is_dir() != destination.is_dir() {
+        return Ok(false);
+    }
+    if !source.is_dir() {
+        return Ok(source.len() == destination.len() && source.modified()? == destination.modified()?);
+    }
+
+    for entry in read_dir(src)? {
+        let entry = entry?;
+        if !dirs_match(&entry.path(), &dst.join(entry.file_name()))? {
+            return Ok(false);
+        }
+    }
+    for entry in read_dir(dst)? {
+        let entry = entry?;
+        match fs::symlink_metadata(src.join(entry.file_name())) {
+            Ok(_) => {},
+            Err(error) if error.kind() == io::ErrorKind::NotFound => return Ok(false),
+            Err(error) => return Err(error.into()),
+        }
+    }
+    Ok(true)
+}
+
 pub fn sync_dirs(src: &Path, dst: &Path) -> Result<bool, ModSyncError> {
     let metadata = fs::symlink_metadata(src)?;
 
@@ -95,6 +133,24 @@ pub fn sync_dirs(src: &Path, dst: &Path) -> Result<bool, ModSyncError> {
     }
 
     let mut updated = false;
+
+    let source = PathBuf::from(src.canonicalize()?.to_string_lossy().to_lowercase());
+    let parent = dst.ancestors().skip(1).find(|parent| parent.exists()).ok_or_else(|| {
+        io::Error::new(io::ErrorKind::NotFound, "Destination parent was not found")
+    })?;
+    let destination = PathBuf::from(parent.canonicalize()?.join(dst.strip_prefix(parent).unwrap()).to_string_lossy().to_lowercase());
+    if source.starts_with(&destination) || destination.starts_with(&source) {
+        return Err(ModSyncError::DirectoriesNested);
+    }
+    match fs::symlink_metadata(dst) {
+        Ok(metadata) if metadata.file_attributes() & 0x400 != 0 || !metadata.is_dir() => {
+            crate::mods::sync::remove_mod_path(dst)?;
+            updated = true;
+        }
+        Ok(_) => {},
+        Err(error) if error.kind() == io::ErrorKind::NotFound => {},
+        Err(error) => return Err(error.into()),
+    }
 
     if !dst.exists() {
         create_dir_all(dst)?;
@@ -120,6 +176,15 @@ pub fn sync_dirs(src: &Path, dst: &Path) -> Result<bool, ModSyncError> {
                 updated = true;
             }
         } else {
+            match fs::symlink_metadata(&dst_path) {
+                Ok(metadata) if metadata.file_attributes() & 0x400 != 0 || metadata.is_dir() => {
+                    crate::mods::sync::remove_mod_path(&dst_path)?;
+                    updated = true;
+                }
+                Ok(_) => {},
+                Err(error) if error.kind() == io::ErrorKind::NotFound => {},
+                Err(error) => return Err(error.into()),
+            }
             let needs_copy = if dst_path.exists() {
                 let src_meta = src_path.metadata()?;
                 let dst_meta = dst_path.metadata()?;
@@ -145,11 +210,7 @@ pub fn sync_dirs(src: &Path, dst: &Path) -> Result<bool, ModSyncError> {
         let src_path = src.join(entry.file_name());
 
         if !src_path.exists() {
-            if dst_path.is_dir() {
-                remove_dir_all(&dst_path)?;
-            } else {
-                remove_file(&dst_path)?;
-            }
+            crate::mods::sync::remove_mod_path(&dst_path)?;
             updated = true;
         }
     }
@@ -209,4 +270,44 @@ pub fn cleanup_empty_dirs(game_path: &PathBuf, file_list: &[String]) {
             let _ = fs::remove_dir(dir);
         }
     }
+}
+
+
+pub fn get_available_size(path: &PathBuf) -> Result<u64, std::io::Error> {
+    let path: Vec<u16> = path
+    .as_os_str()
+    .encode_wide()
+    .chain(std::iter::once(0))
+    .collect();
+
+    let mut available_space: u64 = 0;
+
+    let result = unsafe {
+        GetDiskFreeSpaceExW(
+            path.as_ptr(),
+            &mut available_space,
+            std::ptr::null_mut(),
+            std::ptr::null_mut(),
+        )
+    };
+
+    if result == 0 {
+        return Err(std::io::Error::last_os_error().into());
+    }
+
+    Ok(available_space)
+}
+
+pub fn get_directory_size(path: &PathBuf) -> Result<u64, std::io::Error> {
+    let mut size = 0u64;
+
+    for entry in WalkDir::new(path).follow_links(false) {
+        let entry = entry.map_err(std::io::Error::from)?;
+
+        if entry.file_type().is_file() {
+            size += entry.metadata().map_err(std::io::Error::from)?.len();
+        }
+    }
+
+    Ok(size)
 }

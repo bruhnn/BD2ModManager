@@ -64,16 +64,7 @@ onMounted(async () => {
   const currentWindow = getCurrentWindow()
 
   unlistenClose = await currentWindow.listen("tauri://close-requested", async () => {
-    let isSyncNeeded = false
-    try {
-      isSyncNeeded = await modsStore.isSyncNeeded()
-    } catch (error) {
-      console.error("Error checking sync status:", error)
-      currentWindow.destroy()
-      return
-    }
-
-    if (!isSyncNeeded) {
+    if (!modsStore.isSyncNeeded) {
       currentWindow.destroy()
       return
     }

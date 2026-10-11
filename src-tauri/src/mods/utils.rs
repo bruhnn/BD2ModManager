@@ -1,5 +1,7 @@
 use std::{fs, path::Path};
 
+use rapidhash::v3::rapidhash_v3;
+
 use crate::mods::BD2ModType;
 
 pub fn extract_character_id(filename: &str, prefix: &str) -> Option<String> {
@@ -63,4 +65,12 @@ pub fn get_mod_type(folder_path: &Path) -> Option<BD2ModType> {
     }
 
     None
+}
+
+pub fn game_folder_name(mod_name: &str) -> String {
+    format!(
+        "{}_{:016x}",
+        mod_name.rsplit('/').next().unwrap(),
+        rapidhash_v3(mod_name.as_bytes())
+    )
 }

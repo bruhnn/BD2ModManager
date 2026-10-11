@@ -2,7 +2,7 @@ use std::{collections::HashMap, path::PathBuf};
 use log::{info, error, warn, debug};
 use tauri::{AppHandle, Emitter};
 
-use crate::{mods::{self, BD2Mod, delete::ModDeleteError, install::ModInstallError, metadata::{MetadataError, ModMetadataStore}, rename::ModRenameError, sync::{ModSyncError, SyncMethod, SyncResult}}, profiles::{ProfileManager, types::{Profile, ProfileError}}};
+use crate::{mods::{self, BD2Mod, delete::ModDeleteError, install::ModInstallError, metadata::{MetadataError, ModMetadataStore}, rename::ModRenameError, sync::{ModSyncError, SyncMethod, SyncResult}, types::BD2ModError}, profiles::{ProfileManager, types::{Profile, ProfileError}}};
 
 pub struct BD2ModManager {
     pub profile_manager: ProfileManager,
@@ -22,6 +22,7 @@ impl BD2ModManager {
     pub fn discover_mods(
         &mut self,
         staging_dir: &PathBuf,
+        game_dir: &Option<PathBuf>,
         recursive: bool,
     ) -> Vec<BD2Mod> {
         info!(
@@ -29,11 +30,21 @@ impl BD2ModManager {
             staging_dir
         );
 
-        let mods_found: Vec<BD2Mod> = mods::discover::discover_staging_mods(staging_dir, recursive);
+        let mut mods_found: Vec<BD2Mod> = mods::discover::discover_staging_mods(staging_dir, recursive);
+        let unmanaged_mods = if let Some(game_dir) = game_dir {
+            mods::discover::discover_unmanaged_mods(game_dir, &mut mods_found)
+        } else {
+            vec![]
+        };
+
 
         self.cached_mods.clear();
 
         for _mod in mods_found {
+            self.cached_mods.insert(_mod.name.clone(), _mod);
+        }
+
+        for _mod in unmanaged_mods {
             self.cached_mods.insert(_mod.name.clone(), _mod);
         }
 
@@ -213,27 +224,36 @@ impl BD2ModManager {
         &mut self,
         app_handle: &AppHandle,
         game_directory: &PathBuf,
+        staging_directory: &PathBuf,
         method: SyncMethod,
+        remove_unmanaged_mods: bool,
     ) -> Result<SyncResult, ModSyncError> {
-        let mods: Vec<&BD2Mod> = self.cached_mods.values().collect();
+        let mods: Vec<&BD2Mod> = self
+        .cached_mods
+        .values()
+        // remove unmanaged mods from the list
+        .filter(|mod_entry| !mod_entry.errors.contains(&BD2ModError::Unmanaged))
+        .collect();
 
-        mods::sync::sync_mods(app_handle, game_directory, mods, method)
+        mods::sync::sync_mods(app_handle, game_directory, staging_directory, mods, method, remove_unmanaged_mods)
     }
 
     pub fn unsync_mods(
         &mut self,
         app_handle: &AppHandle,
         game_directory: &PathBuf,
-    ) -> Result<(), ModSyncError> {
+        staging_directory: &PathBuf,
+        remove_unmanaged_mods: bool
+    ) -> Result<SyncResult, ModSyncError> {
         // let mods: Vec<&BD2Mod> = self.cached_mods.values().collect();
         // [TODO] unsync all mods, or only the ones that are currently synced (in manifest)? 
-        mods::sync::unsync_mods(app_handle, game_directory)
+        mods::sync::unsync_mods(app_handle, game_directory, staging_directory, remove_unmanaged_mods)
     }
 
-    pub fn is_sync_needed(&self, game_directory: &PathBuf) -> bool {
+    pub fn is_sync_needed(&self, game_directory: &PathBuf, staging_directory: &PathBuf, method: SyncMethod) -> bool {
         let mods: Vec<&BD2Mod> = self.cached_mods.values().collect();
 
-        mods::sync::is_sync_needed(game_directory, &mods)
+        mods::sync::is_sync_needed(game_directory, staging_directory, method, mods)
     }
 
     pub fn delete_mod(&mut self, mod_name: String) -> Result<(), ModDeleteError> {

@@ -291,9 +291,11 @@
                 "titleWithConflicts": "Sync Mods with Conflicts",
                 "message": "This will overwrite the mods in your game folder. This action cannot be undone.",
                 "messageWithConflicts": "Some mods have conflicts with each other. The game may fail to launch until conflicts are resolved.",
+                "messageWithRemoveUnmanaged": "This will sync the mods in your game folder and remove any unmanaged mods inside BD2MM. This action cannot be undone.",
                 "actions": {
                     "sync": "Sync",
-                    "syncAnyway": "Sync Anyway"
+                    "syncAnyway": "Sync Anyway",
+                    "syncAndRemoveUnmanaged": "Sync and Remove Unmanaged"
                 }
             },
             "unsyncMods": {
@@ -313,6 +315,10 @@
         },
         "notifications": {
             "syncMods": {
+                "skippedUnmanaged": {
+                    "title": "Some mods were skipped",
+                    "message": "{count} unmanaged mod was left unchanged. Choose “{action}” to replace or remove it. | {count} unmanaged mods were left unchanged. Choose “{action}” to replace or remove them."
+                },
                 "completedWithErrors": {
                     "title": "Sync completed with errors",
                     "message": "{synced} of {total} mods synced. Open the sync details to see which mods failed.",
@@ -320,13 +326,28 @@
                 },
                 "success": {
                     "title": "Mods Synced",
-                    "message": "Your mods have been successfully synced with the game folder."
+                    "message": "Your mods have been successfully synced with the game folder.",
+                    "details" :"View details"
                 },
                 "error": {
                     "title": "Sync Failed"
                 }
             },
             "unsyncMods": {
+                "skippedUnmanaged": {
+                    "title": "Some mods were skipped",
+                    "message": "{count} unmanaged mod was left unchanged. Choose “{action}” to remove it. | {count} unmanaged mods were left unchanged. Choose “{action}” to remove them.",
+                    "action": "Unsync and Remove Unmanaged Mods"
+                },
+                "completedWithErrors": {
+                    "title": "Unsync completed with errors",
+                    "message": "{synced} of {total} mods removed. Open the sync details to see which mods failed.",
+                    "details": "View details"
+                },
+                "noChanges": {
+                    "title": "Unsync Mods",
+                    "message": "No managed mods to unsync."
+                },
                 "success": {
                     "title": "Mods Unsynced",
                     "message": "Your mods have been successfully removed from the game folder."
@@ -1042,6 +1063,8 @@
             "ModAlreadyExists": "A mod named \"{mod_name}\" already exists"
         },
         "ModSyncError": {
+            "DirectoriesNested": "The staging and game mods folders overlap. Choose separate folders before syncing.",
+            "DestinationContainsSymlink": "The destination contains a symbolic link or junction: “{path}”. Replace that parent folder with a normal folder before syncing.",
             "ModContainsSymlink": "This mod contains a symbolic link or junction: “{path}”. Replace it with the actual files before syncing.",
             "SymlinkAdminRequired": "Administrator privileges are required to create symbolic links.",
             "PathNotFound": "The mod folder was not found.",
@@ -1050,7 +1073,8 @@
             "HardlinkFailed": "Failed to create the hard links. {reason}",
             "RemovalFailed": "Failed to remove the synced mod. {reason}",
             "DirectoryCreationFailed": "Failed to create a required directory. {reason}",
-            "GameModsDirectoryNotFound": "Could not find or create the game's mods directory"
+            "GameModsDirectoryNotFound": "Could not find or create the game's mods directory",
+            "NoAvailableDiskSpace": "There is not enough disk space."
         },
         "ProfileError": {
             "ProfileNotFound": "Profile \"{profile_id}\" was not found",
@@ -1096,6 +1120,8 @@
         "archiveNotExtracted": "This mod is a compressed file that has not been extracted yet. Please extract it before trying to enable it.",
         "shouldBeInFolder": "This mod should be inside a folder. Please create a folder with the same name as the mod and move the mod file inside it.",
         "missingAtlasFile": "This mod is missing the atlas file.",
+        "unmanaged": "This mod is in the game folder but is not managed by BD2MM. It cannot be enabled or disabled here.",
+        "unmanagedButInStaging": "This mod is already in the game folder but not installed by BD2MM, so sync won't change it even if enabled. Use \"Sync and Remove unmanaged mods\" to replace it.",
         "noDescription": "No description provided."
     }
 }

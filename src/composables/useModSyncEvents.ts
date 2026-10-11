@@ -30,8 +30,10 @@ export interface SyncProgressEvent {
 }
 
 export interface SyncResult {
+    success: boolean
     synced: number
     total: number
+    skipped_unmanaged: number
 }
 
 export interface SyncEndEvent {
@@ -47,6 +49,8 @@ export interface SyncError {
         | "SymlinkAdminRequired"
         | "PathNotFound"
         | "ModContainsSymlink"
+        | "DirectoriesNested"
+        | "DestinationContainsSymlink"
         | "CopyFailed"
         | "SymlinkFailed"
         | "HardlinkFailed"

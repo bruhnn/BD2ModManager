@@ -1,19 +1,16 @@
 use log::{debug, info, warn};
 use rayon::prelude::*;
+use walkdir::WalkDir;
 use std::{
-    ffi::OsStr,
-    fs::{self, read_dir},
-    path::Path,
-    sync::Arc,
-    time::Instant,
+    collections::HashMap, ffi::OsStr, fs::{self, read_dir}, path::Path, sync::Arc, time::Instant,
 };
 
 use crate::{
-    mods::{types::BD2ModError, utils::get_mod_type, BD2Mod},
-    utils::{files::has_extension, is_archive},
+    mods::{BD2Mod, sync::load_manifest, types::BD2ModError, utils::{game_folder_name, get_mod_type}}, utils::{files::has_extension, is_archive},
 };
 
-const MAX_DEPTH: usize = 5;
+
+const MAX_DEPTH: usize = 15;
 
 static MOD_EXTENSIONS: &[&str] = &["png", "modfile", "atlas", "skel", "json"];
 
@@ -126,124 +123,6 @@ pub fn create_mod(staging_directory: &Path, path: &Path, error: Option<BD2ModErr
     }
 }
 
-// fn is_textures_folder(entry: &walkdir::DirEntry) -> bool {
-//     if let Some(file_name) = entry.path().file_name() {
-//         file_name == "textures"
-//     } else {
-//         false
-//     }
-// }
-
-// Very fast but if a mod is inside another mod it will take it too.
-// pub fn discover_staging_mods_1(staging_directory: &Path, recursive: bool) -> Vec<BD2Mod> {
-//     let start = Instant::now();
-//     let staging_dir = Arc::new(staging_directory.to_path_buf());
-
-//     let mods: Vec<BD2Mod> = if recursive {
-//         WalkDir::new(staging_directory)
-//             .min_depth(1)
-//             .max_depth(MAX_DEPTH)
-//             .into_iter()
-//             .par_bridge()
-//             .filter_map(Result::ok)
-//             .filter(|entry| !is_textures_folder(entry))
-//             .filter(|e| e.file_type().is_dir())
-//             .filter_map(|entry| {
-//                 let (is_mod, error) = analyze_mod_path(entry.path());
-//                 if is_mod {
-//                     Some(create_mod(&staging_dir, entry.path(), error))
-//                 } else {
-//                     None
-//                 }
-//             })
-//             .collect()
-//     } else {
-//         match read_dir(staging_directory) {
-//             Ok(entries) => entries
-//                 .par_bridge()
-//                 .filter_map(Result::ok)
-//                 .filter_map(|entry| {
-//                     let (is_mod, error) = analyze_mod_path(&entry.path());
-//                     if is_mod {
-//                         Some(create_mod(&staging_dir, &entry.path(), error))
-//                     } else {
-//                         None
-//                     }
-//                 })
-//                 .collect(),
-//             Err(e) => {
-//                 eprintln!("Failed to read staging directory: {}", e);
-//                 Vec::new()
-//             }
-//         }
-//     };
-
-//     info!("discover_staging_mods() took {:?}", start.elapsed());
-
-//     mods
-// }
-
-// // 50-70ms
-// fn discover_mods_recursive_1(dir: &Path, staging_directory: &Path, mods: &mut Vec<BD2Mod>) {
-//     if let Ok(entries) = read_dir(dir) {
-//         for entry in entries.filter_map(Result::ok) {
-//             let path = entry.path();
-
-//             if path.is_dir() {
-//                 // Skip textures folders
-//                 if path.file_name() == Some(OsStr::new("textures")) {
-//                     continue;
-//                 }
-
-//                 // Check if this directory is a mod
-//                 let (is_mod, error) = analyze_mod_path(&path);
-
-//                 if is_mod {
-//                     // println!("{:?}", path);
-//                     mods.push(create_mod(staging_directory, &path, error));
-//                     // Don't recurse into mod directories - this prevents nested detection
-//                 } else {
-//                     // Only recurse if this isn't a mod directory
-//                     discover_mods_recursive_1(&path, staging_directory, mods);
-//                 }
-//             }
-//         }
-//     }
-// }
-
-// pub fn discover_staging_mods_2(staging_directory: &Path, recursive: bool) -> Vec<BD2Mod> {
-//     let start = Instant::now();
-
-//     let mods: Vec<BD2Mod> = if recursive {
-//         let mut mods = Vec::new();
-//         discover_mods_recursive_1(staging_directory, staging_directory, &mut mods);
-//         mods
-//     } else {
-//         match read_dir(staging_directory) {
-//             Ok(entries) => entries
-//                 .par_bridge()
-//                 .filter_map(Result::ok)
-//                 .filter_map(|entry| {
-//                     let (is_mod, error) = analyze_mod_path(&entry.path());
-//                     if is_mod {
-//                         Some(create_mod(staging_directory, &entry.path(), error))
-//                     } else {
-//                         None
-//                     }
-//                 })
-//                 .collect(),
-//             Err(e) => {
-//                 eprintln!("Failed to read staging directory: {}", e);
-//                 Vec::new()
-//             }
-//         }
-//     };
-
-//     info!("discover_staging_mods() took {:?}", start.elapsed());
-
-//     mods
-// }
-
 fn discover_mods_recursive(dir: &Path, staging_directory: &Path, depth: usize) -> Vec<BD2Mod> {
     if depth >= MAX_DEPTH {
         warn!(
@@ -322,4 +201,117 @@ pub fn discover_staging_mods(staging_directory: &Path, recursive: bool) -> Vec<B
 
     info!("discover_staging_mods() took {:?}", start.elapsed());
     mods
+}
+
+
+pub fn discover_unmanaged_mods(game_directory: &Path, staging_mods: &mut [BD2Mod]) -> Vec<BD2Mod> {
+    let manifest_path = game_directory.join(".bd2mm.json");
+
+    let manifest = match load_manifest(&manifest_path) {
+        Ok(manifest) => manifest,
+        Err(error) => {
+            warn!("Failed to load manifest: {}", error);
+            return Vec::new();
+        }
+    };
+
+    let game_mods_path =
+        game_directory.join("BepInEx/plugins/BrownDustX/mods");
+
+    // staging mods by the folder name they get in the game
+    let staging_by_folder: HashMap<String, usize> = staging_mods
+        .iter()
+        .enumerate()
+        .map(|(index, m)| (game_folder_name(&m.name).to_lowercase(), index))
+        .collect();
+    
+    let mut mods_unmanaged = Vec::new();
+
+    let mut entries = WalkDir::new(&game_mods_path)
+        .follow_links(false)
+        .min_depth(1)
+        .into_iter();
+
+    while let Some(entry) = entries.next() {
+        let Ok(entry) = entry else {
+            continue;
+        };
+
+        let path = entry.path().to_path_buf();
+
+        let relative = path
+            .strip_prefix(&game_mods_path)
+            .unwrap_or(&path)
+            .to_string_lossy()
+            .replace('\\', "/");
+
+        let is_managed = manifest.as_ref().is_some_and(|manifest| {
+            manifest.synced_mods.iter().any(|mod_entry| {
+                let managed_path = format!("BD2MM/{}", mod_entry.game_folder.replace('\\', "/"));
+                managed_path.eq_ignore_ascii_case(&relative)
+            })
+        });
+
+        if is_managed {
+            if entry.file_type().is_dir() {
+                entries.skip_current_dir();
+            }
+
+            continue;
+        
+        }
+        if entry.file_type().is_dir() || entry.file_type().is_symlink() {
+            let staging_index = relative
+                .split_once('/')
+                .filter(|(root, _)| root.eq_ignore_ascii_case("BD2MM"))
+                .and_then(|(_, folder)| staging_by_folder.get(&folder.to_lowercase()))
+                .copied();
+
+            if let Some(index) = staging_index {
+                let errors = &mut staging_mods[index].errors;
+                if !errors.iter().any(|e| matches!(e, BD2ModError::UnmanagedButInStaging)) {
+                    errors.insert(0, BD2ModError::UnmanagedButInStaging);
+                }
+                if entry.file_type().is_dir() {
+                    entries.skip_current_dir();
+                }
+                continue;
+            }
+        }
+
+        if entry.file_type().is_symlink() {
+            let (is_mod, error) = analyze_mod_path(&path);
+
+            if is_mod {
+                let mut _mod = create_mod(&game_mods_path, &path, error);
+                _mod.name = format!("BD2MMUnmanaged/{}", _mod.name);
+                _mod.errors.insert(0, BD2ModError::Unmanaged);
+                mods_unmanaged.push(_mod);
+            }
+            continue;
+        }
+
+        if !entry.file_type().is_dir() {
+            continue;
+        }
+
+        let (is_mod, error) = analyze_mod_path(&path);
+
+        if is_mod {
+            let mut _mod = create_mod(
+                &game_mods_path,
+                &path,
+                error,
+            );
+            // we add a new namespce just to not collide with staging with the same name
+            _mod.name = format!("BD2MMUnmanaged/{}", _mod.name);
+            _mod.errors.insert(0, BD2ModError::Unmanaged);
+
+            mods_unmanaged.push(_mod);
+
+            entries.skip_current_dir();
+        }
+    }
+
+    mods_unmanaged
 }

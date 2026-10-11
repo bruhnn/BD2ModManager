@@ -58,6 +58,8 @@ export interface DeleteModsResult {
     failed: Record<string, ModDeleteError>,
 }
 
+// export function isError
+
 export const useModsStore = defineStore('mods', () => {
     const { t } = useI18n()
     const settingsStore = useSettingsStore()
@@ -71,6 +73,7 @@ export const useModsStore = defineStore('mods', () => {
 
     // is syncing or unsycing too
     const isSyncing = ref(false);
+    const isSyncNeeded = ref(false);
 
     const debouncedSync = useDebounceFn(async () => {
         if (!settingsStore.settings.autoSyncMods) return;
@@ -156,6 +159,7 @@ export const useModsStore = defineStore('mods', () => {
     async function discoverMods(): Promise<BD2Mod[]> {
         const mods = await invoke<BD2Mod[]>("discover_mods")
         setMods(mods)
+        await checkIsSyncNeeded()
         return mods
     }
 
@@ -171,6 +175,7 @@ export const useModsStore = defineStore('mods', () => {
             const mods = await invoke<BD2Mod[]>("enable_mods", { modNames })
             updateMods(mods)
             debouncedSync()
+            checkIsSyncNeeded()
             return mods
         } catch (error) {
             for (const mod of previousStates) {
@@ -195,6 +200,7 @@ export const useModsStore = defineStore('mods', () => {
             const mods = await invoke<BD2Mod[]>("disable_mods", { modNames })
             updateMods(mods)
             debouncedSync()
+            checkIsSyncNeeded()
             return mods
         } catch (error) {
             for (const mod of previousStates) {
@@ -231,6 +237,7 @@ export const useModsStore = defineStore('mods', () => {
             // only updates the mods list if at least one mod was deleted, otherwise it will be the same as before
             setMods(result.mods)
             debouncedSync()
+            checkIsSyncNeeded()
         }
         return result
     }
@@ -245,10 +252,11 @@ export const useModsStore = defineStore('mods', () => {
         }
         await useProfilesStore().loadProfiles()
         debouncedSync()
+        checkIsSyncNeeded()
         return mod
     }
 
-    async function syncMods(): Promise<SyncResult | undefined> {
+    async function syncMods(removeUnmanagedMods: boolean = false): Promise<SyncResult | undefined> {
         if (isSyncing.value) {
             // add to queue or just log?
             // raise an error?
@@ -261,13 +269,27 @@ export const useModsStore = defineStore('mods', () => {
 
         isSyncing.value = true;
         try {
-            return await invoke<SyncResult>("sync_mods")
+            let result = await invoke<SyncResult>("sync_mods", { removeUnmanagedMods })
+            
+            return result
         } finally {
+            if (removeUnmanagedMods) {
+                try {
+                    await discoverMods()
+                } catch (error) {
+                    loggingStore.logError('Failed to refresh mods after sync:', error)
+                }
+            }
+            try {
+                await checkIsSyncNeeded()
+            } catch (error) {
+                loggingStore.logError('Failed to check if sync is needed:', error)
+            }
             isSyncing.value = false;
         }
     }
 
-    async function unsyncMods(): Promise<undefined> {
+    async function unsyncMods(removeUnmanagedMods: boolean = false): Promise<SyncResult | undefined> {
         if (isSyncing.value) {
             loggingStore.logDebug("Sync in progress, skipping unsync.");
             return;
@@ -277,15 +299,30 @@ export const useModsStore = defineStore('mods', () => {
 
         isSyncing.value = true;
         try {
-            return await invoke("unsync_mods")
+            let result = await invoke<SyncResult>("unsync_mods", { removeUnmanagedMods })
+            
+            return result
         } finally {
+            if (removeUnmanagedMods) {
+                try {
+                    await discoverMods()
+                } catch (error) {
+                    loggingStore.logError('Failed to refresh mods after unsync:', error)
+                }
+            }
+            try {
+                await checkIsSyncNeeded()
+            } catch (error) {
+                loggingStore.logError('Failed to check if sync is needed:', error)
+            }
             isSyncing.value = false;
         }
     }
 
-    async function isSyncNeeded(): Promise<boolean> {
-        // on rust backend it will compare the current modlist with the manifest inside game folder, if different then it needs to sync
-        return invoke<boolean>("is_sync_needed")
+    async function checkIsSyncNeeded(): Promise<boolean> {
+        let result = await invoke<boolean>("is_sync_needed")
+        isSyncNeeded.value = result
+        return result
     }
 
     async function setModAuthor(modNames: string | string[], author: string | null): Promise<BD2Mod[]> {
@@ -310,6 +347,7 @@ export const useModsStore = defineStore('mods', () => {
         mods: readonly(mods),
         extendedMods: readonly(extendedMods),
         isSyncing: readonly(isSyncing),
+        isSyncNeeded: readonly(isSyncNeeded),
         discoverMods,
         enableMods,
         disableMods,
@@ -319,7 +357,7 @@ export const useModsStore = defineStore('mods', () => {
         syncMods,
         unsyncMods,
         setModAuthor,
-        isSyncNeeded,
+        checkIsSyncNeeded,
         deleteMods,
         renameMod
     }

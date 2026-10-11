@@ -22,11 +22,11 @@ const { t } = useI18n()
 const notificationStore = useNotificationStore()
 const confirm = useConfirm()
 const loggingStore = useLoggingStore()
-const { isSyncNeeded } = useModsStore()
+const modsStore = useModsStore()
 const gameStore = useGameStore()
 
 async function launchGame(vanilla: boolean = false) {
-    if (await isSyncNeeded() && !vanilla) {
+    if (modsStore.isSyncNeeded && !vanilla) {
         const result = await confirm.confirm({
             title: t('sidebar.confirmations.unsyncedMods.title'),
             message: t('sidebar.confirmations.unsyncedMods.message'),

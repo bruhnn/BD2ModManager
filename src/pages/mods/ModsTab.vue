@@ -68,8 +68,6 @@ const {
 } = useModSync()
 
 const isRefreshing = ref(false)
-// [TODO] reactive is sync needed
-const isSyncNeeded = ref(0)
 
 const debouncedSearchQuery = ref('');
 
@@ -527,8 +525,13 @@ useHeader({
             { label: t('modsTab.actions.openGameFolder'), clicked: openGameFolder },
             { label: t('modsTab.actions.openGameModsFolder'), clicked: openGameModsFolder }
           ]" />
-        <Button variant="default" :disabled="modsStore.isSyncing" :label="$t('modsTab.actions.unsyncMods')" :icon="FolderMinus" @click="unsyncMods" />
-        <Button :variant="isSyncNeeded ? 'primary' : 'default'" :disabled="modsStore.isSyncing" :label="$t('modsTab.actions.syncMods')" :icon="FolderSync" @click="syncMods" :class="{'animate-pulse hover:animate-none': isSyncNeeded}" />
+
+        <MultiButton variant="default" :disabled="modsStore.isSyncing" :label="$t('modsTab.actions.unsyncMods')" :icon="FolderMinus" @click="() => unsyncMods()" :actions="[
+          { label: $t('modsTab.actions.unsyncModsAndRemoveUnmanaged', 'Unsync and Remove Unmanaged Mods',), icon: FolderMinus, clicked: () => unsyncMods(true), disabled: modsStore.isSyncing },
+        ]" />
+        <MultiButton :variant="modsStore.isSyncNeeded? 'primary': 'default'" :disabled="modsStore.isSyncing" :class="{'animate-pulse-2 hover:animate-none transition-colors': modsStore.isSyncNeeded}" :label="$t('modsTab.actions.syncMods')" :icon="FolderSync" @click="syncMods()" :actions="[
+          { label: t('modsTab.actions.syncModsAndRemoveUnmanaged', 'Sync and Remove Unmanaged Mods'), icon: FolderSync, clicked: () => syncMods(true), disabled: modsStore.isSyncing },
+        ]" />
       </div>
     </div>
   </div>

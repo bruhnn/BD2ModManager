@@ -22,8 +22,8 @@ export function useModSync() {
 
     // const isSyncing = computed(() => modsStore.isSyncing)
 
-    async function syncMods() {
-        loggingStore.logDebug(`Syncing mods [confirmation skipped: ${skipSyncConfirmation.value}]`);
+    async function syncMods(removeUnmanagedMods: boolean = false) {
+        loggingStore.logDebug(`Syncing mods [confirmation skipped = ${skipSyncConfirmation.value}, remove unmanaged mods = ${removeUnmanagedMods}]`);
 
         if (modsStore.isSyncing) {
             loggingStore.logDebug("Mod sync already in progress.");
@@ -54,31 +54,64 @@ export function useModSync() {
             }
         }
 
-        if (!skipSyncConfirmation.value) {
-            const { confirmed, rememberChoice } = await confirm.confirm({
+        // because we dont remove the other mods like before we dont need to ask for confirmation anymore
+
+        // if (!skipSyncConfirmation.value) {
+        //     const { confirmed, rememberChoice } = await confirm.confirm({
+        //         title: t('modsTab.confirmations.syncMods.title'),
+        //         message: t('modsTab.confirmations.syncMods.message'),
+        //         acceptButton: {
+        //             label: t('modsTab.confirmations.syncMods.actions.sync'),
+        //         },
+        //         rejectButton: {
+        //             label: t('common.actions.cancel'),
+        //         },
+        //         showRememberChoice: true
+        //     })
+
+        //     if (!confirmed) {
+        //         return
+        //     }
+
+        //     if (rememberChoice) {
+        //         skipSyncConfirmation.value = true
+        //     }
+        // }
+
+        if (removeUnmanagedMods) {
+            const { confirmed } = await confirm.confirm({
                 title: t('modsTab.confirmations.syncMods.title'),
-                message: t('modsTab.confirmations.syncMods.message'),
-                acceptButton: {
-                    label: t('modsTab.confirmations.syncMods.actions.sync'),
+                message: t('modsTab.confirmations.syncMods.messageWithRemoveUnmanaged'),
+                acceptButton: { 
+                    label: t('modsTab.confirmations.syncMods.actions.syncAndRemoveUnmanaged'),
                 },
                 rejectButton: {
                     label: t('common.actions.cancel'),
-                },
-                showRememberChoice: true
+                }
             })
 
-            if (!confirmed) {
-                return
-            }
 
-            if (rememberChoice) {
-                skipSyncConfirmation.value = true
+            if (!confirmed) {
+                loggingStore.logDebug("User cancelled sync with remove unmanaged mods.");
+                return
             }
         }
 
         try {
-            const result = await modsStore.syncMods()
+            const result = await modsStore.syncMods(removeUnmanagedMods)
             if (!result) return
+
+            if (result.skipped_unmanaged > 0) {
+                notificationStore.add({
+                    type: 'warn',
+                    closable: true,
+                    title: t('modsTab.notifications.syncMods.skippedUnmanaged.title'),
+                    message: t('modsTab.notifications.syncMods.skippedUnmanaged.message', {
+                        count: result.skipped_unmanaged,
+                        action: t('modsTab.confirmations.syncMods.actions.syncAndRemoveUnmanaged'),
+                    }, result.skipped_unmanaged),
+                })
+            }
 
             if (result.synced < result.total) {
                 loggingStore.logDebug(`Syncing mods completed with errors: ${result.synced} of ${result.total}.`);
@@ -94,6 +127,36 @@ export function useModSync() {
                 })
                 return
             }
+
+            if (result.skipped_unmanaged > 0 && result.total === 0) return
+
+            if (result.success && result.synced === result.total && result.total === 0) {
+                // no sync needed, no changes
+                loggingStore.logDebug(`Syncing mods completed successfully. No changes were made.`);
+                notificationStore.add({
+                    type: 'info',
+                    closable: true,
+                    title: t('modsTab.notifications.syncMods.noChanges.title', 'Sync Mods'),
+                    message: t('modsTab.notifications.syncMods.noChanges.message', 'No changes were made during the sync process.'),
+                    duration: 3000,
+                })
+                return
+            }
+
+            
+            loggingStore.logDebug(`Syncing mods completed successfully.`);
+
+            notificationStore.add({
+                type: 'success',
+                closable: true,
+                title: t('modsTab.notifications.syncMods.success.title'),
+                message: t('modsTab.notifications.syncMods.success.message'),
+                action: {
+                    label: t('modsTab.notifications.syncMods.success.details'),
+                    onClick: () => globalModals.sync.showModal()
+                },
+                duration: 5000,
+            })
         } catch (error: any) {
             loggingStore.logError("An error occurred during mod sync:", JSON.stringify(error, null, 2));
 
@@ -110,18 +173,9 @@ export function useModSync() {
             return
         }
 
-        loggingStore.logDebug(`Syncing mods completed successfully.`);
-
-        notificationStore.add({
-            type: 'success',
-            closable: true,
-            title: t('modsTab.notifications.syncMods.success.title'),
-            message: t('modsTab.notifications.syncMods.success.message'),
-            duration: 5000,
-        })
     }
 
-    async function unsyncMods() {
+    async function unsyncMods(removeUnmanagedMods: boolean = false) {
         loggingStore.logDebug(`Unsyncing mods [confirmation skipped: ${skipUnsyncConfirmation.value}]`);
 
         if (!skipUnsyncConfirmation.value) {
@@ -147,7 +201,55 @@ export function useModSync() {
         }
 
         try {
-            await modsStore.unsyncMods();
+            const result = await modsStore.unsyncMods(removeUnmanagedMods)
+            if (!result) return
+
+            if (result.skipped_unmanaged > 0) {
+                notificationStore.add({
+                    type: 'warn',
+                    closable: true,
+                    title: t('modsTab.notifications.unsyncMods.skippedUnmanaged.title'),
+                    message: t('modsTab.notifications.unsyncMods.skippedUnmanaged.message', {
+                        count: result.skipped_unmanaged,
+                        action: t('modsTab.notifications.unsyncMods.skippedUnmanaged.action'),
+                    }, result.skipped_unmanaged),
+                })
+            }
+
+            if (result.synced < result.total) {
+                notificationStore.add({
+                    type: 'warn',
+                    closable: true,
+                    title: t('modsTab.notifications.unsyncMods.completedWithErrors.title'),
+                    message: t('modsTab.notifications.unsyncMods.completedWithErrors.message', { synced: result.synced, total: result.total }),
+                    action: {
+                        label: t('modsTab.notifications.unsyncMods.completedWithErrors.details'),
+                        onClick: () => globalModals.sync.showModal()
+                    }
+                })
+                return
+            }
+
+            if (result.skipped_unmanaged > 0 && result.total === 0) return
+
+            if (result.total === 0) {
+                notificationStore.add({
+                    type: 'info',
+                    closable: true,
+                    title: t('modsTab.notifications.unsyncMods.noChanges.title'),
+                    message: t('modsTab.notifications.unsyncMods.noChanges.message'),
+                    duration: 3000,
+                })
+                return
+            }
+            loggingStore.logDebug(`Unsyncing mods completed successfully.`);
+            notificationStore.add({
+                closable: true,
+                title: t('modsTab.notifications.unsyncMods.success.title'),
+                message: t('modsTab.notifications.unsyncMods.success.message'),
+                duration: 3000,
+                type: 'success'
+            });
         } catch (error: any) {
             loggingStore.logError("An error occurred during mod unsync:", JSON.stringify(error, null, 2));
 
@@ -163,16 +265,6 @@ export function useModSync() {
 
             return
         }
-
-        loggingStore.logDebug(`Unsyncing mods completed successfully.`);
-
-        notificationStore.add({
-            closable: true,
-            title: t('modsTab.notifications.unsyncMods.success.title'),
-            message: t('modsTab.notifications.unsyncMods.success.message'),
-            duration: 3000,
-            type: 'success'
-        });
     }
 
     // should issyncneeded be here?
