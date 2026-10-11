@@ -117,10 +117,7 @@ watch(() => downloads.value.length, (count, previousCount) => {
       hideTimeout = null
     }, 30000)
   }
-
-  console.log(count, previousCount)
 })
-
 
 onUnmounted(() => {
   if (hideTimeout !== null) window.clearTimeout(hideTimeout)
@@ -204,15 +201,18 @@ onUnmounted(() => {
 </template>
 
 <style scoped>
-.downloads-trigger-enter-active,
+.downloads-trigger-enter-active {
+  transition: all 0.2s ease-out;
+  
+}
 .downloads-trigger-leave-active {
-  transition: opacity 160ms ease, transform 160ms ease;
+  transition: all 0.15s ease-in;
 }
 
 .downloads-trigger-enter-from,
 .downloads-trigger-leave-to {
-  opacity: 0;
-  transform: translateY(-3px) scale(0.97);
+      opacity: 0;
+    transform: translateY(-4px);
 }
 
 @media (prefers-reduced-motion: reduce) {
