@@ -1,6 +1,9 @@
-<script setup lang="ts">
+<script
+    setup
+    lang="ts"
+>
 import { TabPanel } from '@headlessui/vue'
-import { computed, ref, watch } from 'vue'
+import { computed, nextTick, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { Folder, SquareArrowOutUpRight } from '@lucide/vue'
 import { openPath } from '@tauri-apps/plugin-opener'
@@ -24,11 +27,9 @@ const notificationStore = useNotificationStore()
 
 const { t, availableLocales } = useI18n()
 
-const {
-    logWarning,
-    logError,
-    logInfo,
-} = useLoggingStore()
+const { logWarning, logError, logInfo } = useLoggingStore()
+
+const pendingTheme = ref<string | null>(null)
 const autoSyncModsDelay = ref((settingsStore.settings.autoSyncModsDelay ?? 3000) / 1000)
 const autoSyncModsDelayInput = ref(String(autoSyncModsDelay.value))
 
@@ -37,29 +38,45 @@ watch(autoSyncModsDelay, (value) => {
 })
 
 const mappedLanguages = [
-    { // en
-        label: "English (United States)", value: "en_US",
+    {
+        // en
+        label: 'English (United States)',
+        value: 'en_US',
     },
-    { // cn, maybe add zh_HK?
-        label: "中文 (中国)", value: "zh_CN",
+    {
+        // cn, maybe add zh_HK?
+        label: '中文 (中国)',
+        value: 'zh_CN',
     },
-    { // zh-TW
-        label: "中文 (台湾)", value: "zh_TW",
+    {
+        // zh-TW
+        label: '中文 (台湾)',
+        value: 'zh_TW',
     },
-    { // ja
-        label: "日本語 (日本)", value: "ja_JP",
+    {
+        // ja
+        label: '日本語 (日本)',
+        value: 'ja_JP',
     },
-    { // ko
-        label: "한국어 (대한민국)", value: "ko_KR",
+    {
+        // ko
+        label: '한국어 (대한민국)',
+        value: 'ko_KR',
     },
-    { // ru
-        label: "Русский (Россия)", value: "ru_RU",
+    {
+        // ru
+        label: 'Русский (Россия)',
+        value: 'ru_RU',
     },
-    { // pt
-        label: "Português (Brasil)", value: "pt_BR",
+    {
+        // pt
+        label: 'Português (Brasil)',
+        value: 'pt_BR',
     },
-    { // es
-        label: "Español (España)", value: "es_ES",
+    {
+        // es
+        label: 'Español (España)',
+        value: 'es_ES',
     },
 ]
 
@@ -76,18 +93,62 @@ const availableSyncMethods = computed(() => [
 ])
 
 const settings = computed(() => {
-    return settingsStore.settings;
+    return settingsStore.settings
 })
+
+function onThemeSelected(theme: string) {
+    if (!theme) return
+
+    pendingTheme.value = theme
+}
+
+async function onThemeSelectClosed() {
+    if (!pendingTheme.value) return
+
+    const theme = pendingTheme.value
+    pendingTheme.value = null
+
+    // Wait until the Select dropdown has actually disappeared.
+    await nextTick()
+
+    await onThemeChanged(theme)
+}
 
 async function onThemeChanged(theme: string) {
     if (!theme) return
 
-    if (!settingsStore.availableThemes.find((t: any) => t.value === theme)) {
+    const isValidTheme = settingsStore.availableThemes.some((availableTheme) => availableTheme.value === theme)
+
+    if (!isValidTheme) {
         logWarning(`Theme ${theme} is not in the list of available themes.`)
         return
     }
 
-    await settingsStore.saveSettings({ theme })
+    if (!document.startViewTransition) {
+        await settingsStore.saveSettings({ theme })
+
+        logInfo(`Theme changed to ${theme}`)
+        return
+    }
+
+    const transition = document.startViewTransition(async () => {
+        await settingsStore.saveSettings({ theme })
+        await nextTick()
+    })
+
+    await transition.ready
+
+    document.documentElement.animate(
+        {
+            clipPath: ['inset(49.9% round 7px)', 'inset(0% round 7px)'],
+        },
+        {
+            duration: 300,
+            easing: 'cubic-bezier(0.2, 0.7, 0.3, 1)',
+            fill: 'both',
+            pseudoElement: '::view-transition-new(root)',
+        },
+    )
 
     logInfo(`Theme changed to ${theme}`)
 }
@@ -95,14 +156,13 @@ async function onThemeChanged(theme: string) {
 async function onLanguageChanged(language: Language) {
     if (!language) return
 
-
     if (!settingsStore || settingsStore == undefined) {
         return logError('Settings store is not available. Cannot change language.')
     }
 
     await settingsStore.saveSettings({ language })
-    logInfo(`Language changed to ${language}`)
 
+    logInfo(`Language changed to ${language}`)
 }
 
 async function onSearchModsRecursivelyChanged(value: boolean) {
@@ -111,7 +171,10 @@ async function onSearchModsRecursivelyChanged(value: boolean) {
         return
     }
 
-    await settingsStore.saveSettings({ searchModsRecursively: value })
+    await settingsStore.saveSettings({
+        searchModsRecursively: value,
+    })
+
     logInfo(`Search mods recursively changed to ${value}`)
 }
 
@@ -142,20 +205,23 @@ async function onSyncMethodChanged(value: string) {
         return
     }
 
-    await settingsStore.saveSettings({ syncMethod: value })
+    await settingsStore.saveSettings({
+        syncMethod: value,
+    })
+
     logInfo(`Sync method changed to ${value}`)
 }
 
 async function handleOpenFolder(path: string | undefined | null) {
     if (!path || path.trim() === '') {
-        logWarning('Cannot open folder: path is empty');
-        return;
+        logWarning('Cannot open folder: path is empty')
+        return
     }
 
     try {
-        await openPath(path);
+        await openPath(path)
     } catch (error) {
-        logError('Failed to open folder:', error);
+        logError('Failed to open folder:', error)
     }
 }
 
@@ -187,11 +253,10 @@ async function handleStagingModsBrowse() {
             type: 'success',
             title: t('settingsTab.general.notifications.stagingDirectoryUpdated.title'),
             message: t('settingsTab.general.notifications.stagingDirectoryUpdated.message', { path: folder }),
-            duration: 3000
+            duration: 3000,
         })
     }
 }
-
 
 async function handleGameDirectoryBrowse() {
     const folder = await open({
@@ -200,31 +265,39 @@ async function handleGameDirectoryBrowse() {
     })
 
     if (folder && settingsStore) {
-        // [TODO] check on frontend for now, but should move to backend
         const isValid = await settingsStore.validateGamePath(folder)
+
         if (!isValid) {
             logWarning(`Selected game directory ${folder} is not valid.`)
+
             notificationStore.add({
                 type: 'warn',
                 title: t('settingsTab.general.notifications.invalidGameDirectory.title'),
                 message: t('settingsTab.general.notifications.invalidGameDirectory.message', { path: folder }),
-                duration: 5000
+                duration: 5000,
             })
+
             return
         }
 
-        await settingsStore.saveSettings({ gameDirectory: folder })
+        await settingsStore.saveSettings({
+            gameDirectory: folder,
+        })
+
         logInfo(`Game directory changed to ${folder}`)
+
         notificationStore.add({
             type: 'success',
             title: t('settingsTab.general.notifications.gameDirectoryUpdated.title'),
             message: t('settingsTab.general.notifications.gameDirectoryUpdated.message', { path: folder }),
-            duration: 3000
+            duration: 3000,
         })
     }
 }
 
+
 </script>
+
 <template>
     <TabPanel>
         <div class="flex flex-col gap-8">
@@ -234,18 +307,22 @@ async function handleGameDirectoryBrowse() {
                         <label class="text-sm font-medium">
                             {{ $t('settingsTab.general.sections.application.theme.label') }}
                         </label>
+
                         <Select :model-value="settings.theme" :options="settingsStore.availableThemes"
-                            :placeholder="$t('settingsTab.general.sections.application.theme.placeholder')" option-label="label"
-                            option-value="value" @update:model-value="onThemeChanged" class="col-span-2" />
+                            :placeholder="$t('settingsTab.general.sections.application.theme.placeholder')"
+                            option-label="label" option-value="value" class="col-span-2"
+                            @update:model-value="onThemeSelected" @close="onThemeSelectClosed" />
                     </div>
 
                     <div class="grid grid-cols-3 items-center gap-4">
                         <label class="text-sm font-medium">
                             {{ $t('settingsTab.general.sections.application.language.label') }}
                         </label>
+
                         <Select :model-value="settings.language" :options="availableLanguages"
-                            :placeholder="$t('settingsTab.general.sections.application.language.placeholder')" option-label="label"
-                            option-value="value" @update:model-value="onLanguageChanged" class="col-span-2" />
+                            :placeholder="$t('settingsTab.general.sections.application.language.placeholder')"
+                            option-label="label" option-value="value" class="col-span-2"
+                            @update:model-value="onLanguageChanged" />
                     </div>
 
                     <div class="flex items-start gap-3">
@@ -262,13 +339,17 @@ async function handleGameDirectoryBrowse() {
                         <label class="text-sm font-medium">
                             {{ $t('settingsTab.general.sections.directories.gameDirectory.label') }}
                         </label>
+
                         <div class="flex w-full gap-2 items-center col-span-2">
                             <Input class="w-full min-w-32" :model-value="settings.gameDirectory ?? ''"
-                                :placeholder="$t('settingsTab.general.sections.directories.gameDirectory.placeholder')" readonly />
+                                :placeholder="$t('settingsTab.general.sections.directories.gameDirectory.placeholder')"
+                                readonly />
+
                             <Button :label="$t('common.actions.browse')" :icon="Folder"
-                                @click="handleGameDirectoryBrowse" class="whitespace-nowrap min-w-32" />
+                                class="whitespace-nowrap min-w-32" @click="handleGameDirectoryBrowse" />
+
                             <Button class="whitespace-nowrap" :icon="SquareArrowOutUpRight"
-                                @click="handleOpenFolder(settings.gameDirectory)" :disabled="!settings.gameDirectory" />
+                                :disabled="!settings.gameDirectory" @click="handleOpenFolder(settings.gameDirectory)" />
                         </div>
                     </div>
 
@@ -276,13 +357,17 @@ async function handleGameDirectoryBrowse() {
                         <label class="text-sm font-medium">
                             {{ $t('settingsTab.general.sections.directories.modsDirectory.label') }}
                         </label>
+
                         <div class="flex col-span-2 gap-2 items-center">
                             <Input class="w-full min-w-32" :model-value="settings.stagingDirectory ?? ''"
-                                :placeholder="$t('settingsTab.general.sections.directories.modsDirectory.placeholder')" readonly />
-                            <Button :label="$t('common.actions.browse')" :icon="Folder" @click="handleStagingModsBrowse"
-                                class="min-w-32" />
-                            <Button @click="handleOpenFolder(settings.stagingDirectory)" :icon="SquareArrowOutUpRight"
-                                :disabled="!settings.stagingDirectory" />
+                                :placeholder="$t('settingsTab.general.sections.directories.modsDirectory.placeholder')"
+                                readonly />
+
+                            <Button :label="$t('common.actions.browse')" :icon="Folder" class="min-w-32"
+                                @click="handleStagingModsBrowse" />
+
+                            <Button :icon="SquareArrowOutUpRight" :disabled="!settings.stagingDirectory"
+                                @click="handleOpenFolder(settings.stagingDirectory)" />
                         </div>
                     </div>
                 </div>
@@ -291,56 +376,35 @@ async function handleGameDirectoryBrowse() {
             <Section :title="$t('settingsTab.general.sections.modManagement.title')">
                 <div class="space-y-4">
                     <div class="flex flex-col items-start gap-3">
-                        <Checkbox
-                            inputId="searchModsRecursively"
-                            :model-value="settings.searchModsRecursively"
+                        <Checkbox inputId="searchModsRecursively" :model-value="settings.searchModsRecursively"
                             :label="$t('settingsTab.general.sections.modManagement.searchRecursively.label')"
                             :description="$t('settingsTab.general.sections.modManagement.searchRecursively.description')"
-                            @update:model-value="onSearchModsRecursivelyChanged"
-                        />
-                        <Checkbox
-                            :model-value="settings.autoSyncMods"
+                            @update:model-value="onSearchModsRecursivelyChanged" />
+                        <Checkbox :model-value="settings.autoSyncMods"
                             :label="$t('settingsTab.general.sections.modManagement.autoSyncMods.label')"
                             :description="$t('settingsTab.general.sections.modManagement.autoSyncMods.description')"
-                            @update:model-value="onAutoSyncModsChanged"
-                        />
+                            @update:model-value="onAutoSyncModsChanged" />
                         <div class="grid w-full grid-cols-3 items-center gap-4">
                             <div class="flex flex-col">
-                                <label
-                                    for="autoSyncModsDelay"
-                                    class="text-sm font-medium"
-                                >
+                                <label for="autoSyncModsDelay" class="text-sm font-medium">
                                     {{ $t('settingsTab.general.sections.modManagement.autoSyncMods.delay.label') }}
                                 </label>
-                                <p
-                                    id="autoSyncModsDelayDescription"
-                                    class="text-xs text-text-secondary"
-                                >
-                                    {{ $t('settingsTab.general.sections.modManagement.autoSyncMods.delay.description') }}
+                                <p id="autoSyncModsDelayDescription" class="text-xs text-text-secondary">
+                                    {{ $t('settingsTab.general.sections.modManagement.autoSyncMods.delay.description')
+                                    }}
                                 </p>
                             </div>
                             <div class="col-span-2 flex min-w-0 items-center gap-2">
-                                <Slider
-                                    v-model="autoSyncModsDelay"
-                                    suffix="s"
-                                    :min="1"
-                                    :max="10"
-                                    :step="0.1"
+                                <Slider v-model="autoSyncModsDelay" suffix="s" :min="1" :max="10" :step="0.1"
                                     :disabled="!settings.autoSyncMods"
                                     :aria-label="$t('settingsTab.general.sections.modManagement.autoSyncMods.delay.label')"
                                     aria-describedby="autoSyncModsDelayDescription"
-                                    @change="onAutoSyncModsDelayChanged"
-                                />
+                                    @change="onAutoSyncModsDelayChanged" />
                                 <div class="w-16 shrink-0">
-                                    <Input
-                                        id="autoSyncModsDelay"
-                                        v-model="autoSyncModsDelayInput"
-                                        type="text"
-                                        inputmode="decimal"
-                                        :disabled="!settings.autoSyncMods"
+                                    <Input id="autoSyncModsDelay" v-model="autoSyncModsDelayInput" type="text"
+                                        inputmode="decimal" :disabled="!settings.autoSyncMods"
                                         aria-describedby="autoSyncModsDelayDescription"
-                                        @change="onAutoSyncModsDelayChanged(Number(autoSyncModsDelayInput.replace(',', '.')))"
-                                    />
+                                        @change="onAutoSyncModsDelayChanged(Number(autoSyncModsDelayInput.replace(',', '.')))" />
                                 </div>
                                 <span class="text-sm text-text-secondary">s</span>
                             </div>
@@ -349,11 +413,17 @@ async function handleGameDirectoryBrowse() {
 
                     <div class="grid grid-cols-3 items-center gap-4">
                         <div class="flex flex-col">
-                            <span class="text-sm font-medium">{{ $t('settingsTab.general.sections.modManagement.syncMethod.label') }}</span>
-                            <p class="text-xs text-text-secondary">{{ $t('settingsTab.general.sections.modManagement.syncMethod.description') }}</p>
+                            <span class="text-sm font-medium">
+                                {{ $t('settingsTab.general.sections.modManagement.syncMethod.label') }}
+                            </span>
+
+                            <p class="text-xs text-text-secondary">
+                                {{ $t('settingsTab.general.sections.modManagement.syncMethod.description') }}
+                            </p>
                         </div>
-                        <Select :model-value="settings.syncMethod" :options="availableSyncMethods"
-                            @update:model-value="onSyncMethodChanged" class="col-span-2" />
+
+                        <Select :model-value="settings.syncMethod" :options="availableSyncMethods" class="col-span-2"
+                            @update:model-value="onSyncMethodChanged" />
                     </div>
                 </div>
             </Section>

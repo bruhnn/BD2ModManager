@@ -25,6 +25,32 @@ body {
   width: 100%;
   height: 100%;
   overflow: hidden;
+  
+}
+
+::view-transition {
+    pointer-events: none;
+}
+
+::view-transition-group(root),
+::view-transition-image-pair(root),
+::view-transition-old(root),
+::view-transition-new(root) {
+    pointer-events: none;
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+    animation: none;
+    mix-blend-mode: normal;
+}
+
+::view-transition-old(root) {
+    z-index: 1;
+}
+
+::view-transition-new(root) {
+    z-index: 2;
 }
 
 @theme {
