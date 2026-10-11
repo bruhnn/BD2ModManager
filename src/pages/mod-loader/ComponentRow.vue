@@ -29,10 +29,10 @@ const { t } = useI18n()
 
 function getStatusMessage(status: Status) {
     switch (status) {
-        case Status.Installed: return t("browndustxTab.status.installed")
-        case Status.InstalledButOutdated: return t("browndustxTab.status.installedButOutdated")
-        case Status.NotInstalled: return t("browndustxTab.status.notInstalled")
-        case Status.BepInExMissing: return t("browndustxTab.status.bepinexMissing")
+        case Status.Installed: return t("modLoaderTab.status.installed")
+        case Status.InstalledButOutdated: return t("modLoaderTab.status.installedButOutdated")
+        case Status.NotInstalled: return t("modLoaderTab.status.notInstalled")
+        case Status.BepInExMissing: return t("modLoaderTab.status.bepinexMissing")
         default: return status
     }
 }
@@ -48,7 +48,7 @@ const canInstall = computed(() =>
 
 const cantRemoveReason = computed(() =>
     props.state.canRemove?.type === 'No'
-        ? t(`browndustxTab.canRemoveReasons.${props.state.canRemove.reason}`, { name: props.label })
+        ? t(`modLoaderTab.canRemoveReasons.${props.state.canRemove.reason}`, { name: props.label })
         : null
 )
 // [TODO] make it more generic, so we can add other actions in the future, like "update" or "reinstall"
@@ -86,20 +86,20 @@ const cantRemoveReason = computed(() =>
                 <Button variant="text" label="Discord" :icon="DiscordIcon" label-class="hidden lg:inline" @click="openUrl('https://discord.gg/B3Aqz6tDG2')"></Button>
             </template>
             <template v-if="canInstall">
-                <Button v-if="showGithub" variant="text" :label="$t('browndustxTab.actions.installFromGithub')"
+                <Button v-if="showGithub" variant="text" :label="$t('modLoaderTab.actions.installFromGithub')"
                     :icon="GithubIcon" label-class="hidden lg:inline" :disabled="disabled"
                     @click="emit('installFromGithub')" />
-                <Button variant="text" :label="$t('browndustxTab.actions.selectFile')" :icon="Upload"
+                <Button variant="text" :label="$t('modLoaderTab.actions.selectFile')" :icon="Upload"
                     label-class="hidden lg:inline" :disabled="disabled" @click="emit('install')" />
             </template>
 
             <template v-else-if="isInstalled(state.status)">
                 <Tooltip v-if="cantRemoveReason" class="hidden lg:inline-flex" :text="cantRemoveReason">
-                    <Button variant="text" :label="$t('browndustxTab.actions.remove')" :icon="Trash2"
+                    <Button variant="text" :label="$t('modLoaderTab.actions.remove')" :icon="Trash2"
                         label-class="hidden lg:inline" :disabled="disabled || state.canRemove?.type === 'No'"
                         @click="emit('remove')" />
                 </Tooltip>
-                <Button v-else variant="text" :label="$t('browndustxTab.actions.remove')" :icon="Trash2"
+                <Button v-else variant="text" :label="$t('modLoaderTab.actions.remove')" :icon="Trash2"
                     label-class="hidden lg:inline" :disabled="disabled" @click="emit('remove')" />
             </template>
         </div>

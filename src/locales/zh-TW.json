@@ -173,7 +173,7 @@
             "mods": "模組",
             "characters": "角色",
             "profiles": "設定檔",
-            "browndustx": "BrownDustX",
+            "modLoader": "模組載入器",
             "settings": "設定"
         },
         "notifications": {
@@ -214,14 +214,14 @@
             "openGameFolder": "開啟遊戲資料夾",
             "openGameModsFolder": "開啟遊戲 Mod 資料夾"
         },
-        "browndustx": {
+        "modLoader": {
             "status": {
                 "installed": "BrownDustX v{version}",
                 "installedButOutdated": "BrownDustX v{version}（版本過舊）",
                 "gameNotFound": "未設定遊戲目錄",
                 "notInstalled": "BrownDustX 未安裝"
             },
-            "navigation": "前往 BrownDustX"
+            "navigation": "前往模組載入器"
         },
         "header": {
             "searchPlaceholder": "搜尋模組、角色、作者...",
@@ -686,8 +686,8 @@
             }
         }
     },
-    "browndustxTab": {
-        "title": "BrownDustX",
+    "modLoaderTab": {
+        "title": "模組載入器",
         "status": {
             "installed": "已安裝",
             "installedButOutdated": "已安裝（版本過舊）",

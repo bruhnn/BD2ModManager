@@ -191,7 +191,7 @@
             "mods": "Mods",
             "characters": "Characters",
             "profiles": "Profiles",
-            "browndustx": "BrownDustX",
+            "modLoader": "Mod Loader",
             "settings": "Settings"
         },
         "notifications": {
@@ -232,14 +232,14 @@
             "syncMods": "Sync Mods",
             "unsyncMods": "Unsync Mods"
         },
-        "browndustx": {
+        "modLoader": {
             "status": {
                 "installed": "BrownDustX v{version}",
                 "installedButOutdated": "BrownDustX v{version} (Outdated)",
                 "gameNotFound": "Game directory not found",
                 "notInstalled": "BrownDustX not installed"
             },
-            "navigation": "Go to BrownDustX"
+            "navigation": "Go to Mod Loader"
         },
         "header": {
             "searchPlaceholder": "Search mods, characters, authors...",
@@ -707,8 +707,8 @@
             }
         }
     },
-    "browndustxTab": {
-        "title": "BrownDustX",
+    "modLoaderTab": {
+        "title": "Mod Loader",
         "status": {
             "installed": "Installed",
             "installedButOutdated": "Installed (Outdated)",

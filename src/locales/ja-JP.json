@@ -173,7 +173,7 @@
             "mods": "MOD",
             "characters": "キャラクター",
             "profiles": "プロファイル",
-            "browndustx": "BrownDustX",
+            "modLoader": "Modローダー",
             "settings": "設定"
         },
         "notifications": {
@@ -214,14 +214,14 @@
             "openGameFolder": "ゲームフォルダを開く",
             "openGameModsFolder": "ゲームの Mod フォルダを開く"
         },
-        "browndustx": {
+        "modLoader": {
             "status": {
                 "installed": "BrownDustX v{version}",
                 "installedButOutdated": "BrownDustX v{version}（古いバージョン）",
                 "gameNotFound": "ゲームディレクトリが設定されていません",
                 "notInstalled": "BrownDustXがインストールされていません"
             },
-            "navigation": "BrownDustXへ移動"
+            "navigation": "Modローダーへ移動"
         },
         "header": {
             "searchPlaceholder": "MOD、キャラクター、作者を検索...",
@@ -686,8 +686,8 @@
             }
         }
     },
-    "browndustxTab": {
-        "title": "BrownDustX",
+    "modLoaderTab": {
+        "title": "Modローダー",
         "status": {
             "installed": "インストール済み",
             "installedButOutdated": "インストール済み（古いバージョン）",

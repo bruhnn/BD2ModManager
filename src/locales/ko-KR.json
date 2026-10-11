@@ -173,7 +173,7 @@
             "mods": "모드",
             "characters": "캐릭터",
             "profiles": "프로필",
-            "browndustx": "BrownDustX",
+            "modLoader": "모드 로더",
             "settings": "설정"
         },
         "notifications": {
@@ -214,14 +214,14 @@
             "openGameFolder": "게임 폴더 열기",
             "openGameModsFolder": "게임 Mod 폴더 열기"
         },
-        "browndustx": {
+        "modLoader": {
             "status": {
                 "installed": "BrownDustX v{version}",
                 "installedButOutdated": "BrownDustX v{version} (오래된 버전)",
                 "gameNotFound": "게임 디렉토리가 설정되지 않음",
                 "notInstalled": "BrownDustX 미설치"
             },
-            "navigation": "BrownDustX로 이동"
+            "navigation": "모드 로더로 이동"
         },
         "header": {
             "searchPlaceholder": "모드, 캐릭터, 제작자 검색...",
@@ -686,8 +686,8 @@
             }
         }
     },
-    "browndustxTab": {
-        "title": "BrownDustX",
+    "modLoaderTab": {
+        "title": "모드 로더",
         "status": {
             "installed": "설치됨",
             "installedButOutdated": "설치됨 (오래된 버전)",

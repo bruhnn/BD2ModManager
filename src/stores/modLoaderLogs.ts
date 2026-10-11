@@ -8,7 +8,7 @@ export interface LogMessage {
     timestamp: string;
 }
 
-export const useBdxLogsStore = defineStore('bdxlogs', () => {
+export const useModLoaderLogsStore = defineStore('modLoaderLogs', () => {
     const logs = ref([] as LogMessage[])
 
     return {

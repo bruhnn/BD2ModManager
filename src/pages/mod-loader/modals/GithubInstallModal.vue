@@ -116,7 +116,7 @@ function handleVersionSelected(downloadUrl: string) {
 
 <template>
     <Modal v-model:show="showModal" @close="showModal = false" size="lg"
-        :title="$t('browndustxTab.modals.installFromGithub.title')">
+        :title="$t('modLoaderTab.modals.installFromGithub.title')">
         <template #footer>
             <div class="flex justify-end gap-2 p-2">
                 <Button label="Cancel" @click="$emit('close')" />
@@ -125,14 +125,14 @@ function handleVersionSelected(downloadUrl: string) {
 
         <div class="p-4">
             <div v-if="isLoading" class="text-center py-8 text-text-secondary">
-                {{ $t('browndustxTab.modals.installFromGithub.loading') }}
+                {{ $t('modLoaderTab.modals.installFromGithub.loading') }}
             </div>
 
             <div v-else-if="releases.length > 0" class="space-y-4">
                 <div v-if="enableOtherVersions">
                     <p class="text-sm text-warning flex gap-2">
                         <TriangleAlert class="w-4 h-4 shrink-0 text-warning" />
-                        {{ $t('browndustxTab.modals.installFromGithub.enableOtherVersionsWarning') }}
+                        {{ $t('modLoaderTab.modals.installFromGithub.enableOtherVersionsWarning') }}
                     </p>
                 </div>
                 <div class="space-y-2 overflow-y-auto max-h-96">
@@ -152,7 +152,7 @@ function handleVersionSelected(downloadUrl: string) {
                                         v-if="release.version === recommendedVersion"
                                         class="text-xs px-2.5 py-1 rounded-full bg-success-bg font-bold text-success "
                                     >
-                                        {{ $t('browndustxTab.modals.installFromGithub.badges.recommended') }}
+                                        {{ $t('modLoaderTab.modals.installFromGithub.badges.recommended') }}
                                     </span>
                                 </div>
                                 <span class="text-sm font-mono text-text-secondary">
@@ -162,7 +162,7 @@ function handleVersionSelected(downloadUrl: string) {
                             <Button
                                 variant="default"
                                 :icon="DownloadIcon"
-                                :label="$t('browndustxTab.modals.installFromGithub.actions.install')"
+                                :label="$t('modLoaderTab.modals.installFromGithub.actions.install')"
                                 :disabled="release.version !== recommendedVersion && !enableOtherVersions"
                                 @click="handleVersionSelected(release.assets[0].download_url)"
                             />
@@ -173,14 +173,14 @@ function handleVersionSelected(downloadUrl: string) {
                 <div class="border-border-default space-y-2">
                     <Checkbox
                         v-model="enableOtherVersions"
-                        :label="$t('browndustxTab.modals.installFromGithub.options.enableOtherVersions')"
+                        :label="$t('modLoaderTab.modals.installFromGithub.options.enableOtherVersions')"
                     />
                 </div>
             </div>
 
             <div v-else class="text-center py-8">
-                <p class="text-text-secondary mb-2">{{ $t('browndustxTab.modals.installFromGithub.failedToLoadVersions') }}</p>
-                <Button variant="primary" :label="$t('browndustxTab.modals.installFromGithub.actions.retry')" @click="getReleases" />
+                <p class="text-text-secondary mb-2">{{ $t('modLoaderTab.modals.installFromGithub.failedToLoadVersions') }}</p>
+                <Button variant="primary" :label="$t('modLoaderTab.modals.installFromGithub.actions.retry')" @click="getReleases" />
             </div>
         </div>
     </Modal>

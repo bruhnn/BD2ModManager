@@ -3,7 +3,7 @@ import ModsTab from './pages/mods/ModsTab.vue'
 import CharactersTab from './pages/characters/CharactersTab.vue'
 import SettingsTab from './pages/settings/SettingsTab.vue'
 import ProfilesTab from './pages/profiles/ProfilesTab.vue'
-import BDXTab from './pages/browndustx/BDXTab.vue'
+import ModLoaderTab from './pages/mod-loader/ModLoaderTab.vue'
 import ScenesTab from './pages/scenes/ScenesTab.vue'
 import NpcsTab from './pages/npcs/NpcsTab.vue'
 
@@ -38,9 +38,9 @@ const routes = [
         component: ProfilesTab
     },
     {
-        name: 'bdx',
-        path: '/bdx',
-        component: BDXTab
+        name: 'mod-loader',
+        path: '/mod-loader',
+        component: ModLoaderTab
     },
     {
         name: 'settings',

@@ -7,7 +7,7 @@ import { open } from '@tauri-apps/plugin-dialog';
 import { listen } from '@tauri-apps/api/event';
 
 import { useSettingsStore } from '../../stores/settings';
-import { LogMessage, useBdxLogsStore } from '../../stores/BDXLogs';
+import { LogMessage, useModLoaderLogsStore } from '../../stores/modLoaderLogs';
 import { useHeader } from '../../composables/useHeader';
 import { useConfirm } from '../../plugins/ConfirmService';
 import { useLoggingStore } from '../../stores/logging';
@@ -18,7 +18,7 @@ import { PluginState, Status } from './types';
 const { t } = useI18n()
 const confirm = useConfirm()
 const settingsStore = useSettingsStore()
-const { logs } = useBdxLogsStore()
+const { logs } = useModLoaderLogsStore()
 const loggingStore = useLoggingStore()
 
 const defaultState = (): PluginState => ({ status: Status.NotInstalled, version: null })
@@ -39,22 +39,22 @@ function pushLog(level: LogMessage['level'], scope: LogMessage['scope'], message
 
 function mapInstallError(error: unknown): string {
     if (typeof error === 'string') {
-        if (error === 'GamePathNotSet') return t('browndustxTab.errors.gamePathNotSet')
-        if (error === 'BepInExNotInstalled') return t('browndustxTab.errors.bepinexNotInstalled')
-        if (error === 'BepInExAlreadyInstalled' || error === 'PluginAlreadyInstalled') return t('browndustxTab.errors.alreadyInstalled')
+        if (error === 'GamePathNotSet') return t('modLoaderTab.errors.gamePathNotSet')
+        if (error === 'BepInExNotInstalled') return t('modLoaderTab.errors.bepinexNotInstalled')
+        if (error === 'BepInExAlreadyInstalled' || error === 'PluginAlreadyInstalled') return t('modLoaderTab.errors.alreadyInstalled')
     }
 
     if (typeof error === 'object' && error !== null) {
         const obj = error as Record<string, string>
         const msg = Object.values(obj)[0]
-        if ('InvalidBepInExArchive' in obj || 'InvalidPluginArchive' in obj) return t('browndustxTab.errors.invalidArchive')
-        if ('ArchiveNotFound' in obj) return t('browndustxTab.errors.archiveNotFound', { error: msg })
-        if ('ExtractionFailed' in obj) return t('browndustxTab.errors.extractionFailed', { error: msg })
-        if ('DownloadFailed' in obj) return t('browndustxTab.errors.downloadFailed', { error: msg })
-        if ('Unknown' in obj) return t('browndustxTab.errors.unknown', { error: msg })
+        if ('InvalidBepInExArchive' in obj || 'InvalidPluginArchive' in obj) return t('modLoaderTab.errors.invalidArchive')
+        if ('ArchiveNotFound' in obj) return t('modLoaderTab.errors.archiveNotFound', { error: msg })
+        if ('ExtractionFailed' in obj) return t('modLoaderTab.errors.extractionFailed', { error: msg })
+        if ('DownloadFailed' in obj) return t('modLoaderTab.errors.downloadFailed', { error: msg })
+        if ('Unknown' in obj) return t('modLoaderTab.errors.unknown', { error: msg })
     }
 
-    return t('browndustxTab.errors.unknown', { error: String(error) })
+    return t('modLoaderTab.errors.unknown', { error: String(error) })
 }
 
 async function getComponentState(
@@ -69,14 +69,14 @@ async function getComponentState(
             const installed = installedStatuses.includes(result.status)
             pushLog('info', scope,
                 installed
-                    ? t('browndustxTab.logs.versionInstalled', { scope, version: result.version })
-                    : t('browndustxTab.logs.notInstalled', { scope })
+                    ? t('modLoaderTab.logs.versionInstalled', { scope, version: result.version })
+                    : t('modLoaderTab.logs.notInstalled', { scope })
             )
         }
         return result
     } catch (error) {
         loggingStore.logError(`Error fetching ${scope} status:`, error)
-        pushLog('error', scope, t('browndustxTab.logs.fetchError', { scope, error }))
+        pushLog('error', scope, t('modLoaderTab.logs.fetchError', { scope, error }))
         return defaultState()
     }
 }
@@ -94,23 +94,23 @@ async function initialize(log = true) {
 
 async function installFromArchive(command: string, scope: LogMessage['scope'], path: string) {
     try {
-        pushLog('info', scope, t('browndustxTab.logs.installingFromArchive', { scope, path }))
+        pushLog('info', scope, t('modLoaderTab.logs.installingFromArchive', { scope, path }))
         await invoke(command, { path })
-        pushLog('success', scope, t('browndustxTab.logs.installedSuccess', { scope }))
+        pushLog('success', scope, t('modLoaderTab.logs.installedSuccess', { scope }))
         await initialize()
     } catch (error) {
-        pushLog('error', scope, t('browndustxTab.logs.installError', { scope, error: mapInstallError(error) }))
+        pushLog('error', scope, t('modLoaderTab.logs.installError', { scope, error: mapInstallError(error) }))
     }
 }
 
 async function installFromUrl(command: string, scope: LogMessage['scope'], url: string) {
     try {
-        pushLog('info', scope, t('browndustxTab.logs.installingFromUrl', { scope, url }))
+        pushLog('info', scope, t('modLoaderTab.logs.installingFromUrl', { scope, url }))
         await invoke(command, {url})
-        pushLog('success', scope, t('browndustxTab.logs.installedSuccess', { scope }))
+        pushLog('success', scope, t('modLoaderTab.logs.installedSuccess', { scope }))
         await initialize()
     } catch (error) {
-        pushLog('error', scope, t('browndustxTab.logs.installError', { scope, error: mapInstallError(error) }))
+        pushLog('error', scope, t('modLoaderTab.logs.installError', { scope, error: mapInstallError(error) }))
     }
 }
 
@@ -118,7 +118,7 @@ async function promptForArchive(title: string, command: string, scope: LogMessag
     const selected = await open({
         title,
         multiple: false,
-        filters: [{ name: t('browndustxTab.fileDialog.archiveFilter'), extensions: ['zip', 'rar', '7z'] }]
+        filters: [{ name: t('modLoaderTab.fileDialog.archiveFilter'), extensions: ['zip', 'rar', '7z'] }]
     })
     if (selected && typeof selected === 'string') {
         await installFromArchive(command, scope, selected)
@@ -127,19 +127,19 @@ async function promptForArchive(title: string, command: string, scope: LogMessag
 
 async function uninstallComponent(command: string, confirmKey: string, scope: LogMessage['scope']) {
     const result = await confirm.confirm({
-        title: t(`browndustxTab.confirmations.${confirmKey}.title`),
-        message: t(`browndustxTab.confirmations.${confirmKey}.message`),
-        acceptButton: { label: t(`browndustxTab.confirmations.${confirmKey}.actions.confirm`) },
+        title: t(`modLoaderTab.confirmations.${confirmKey}.title`),
+        message: t(`modLoaderTab.confirmations.${confirmKey}.message`),
+        acceptButton: { label: t(`modLoaderTab.confirmations.${confirmKey}.actions.confirm`) },
         rejectButton: { label: t('common.actions.cancel') },
     })
     if (result.confirmed) {
         try {
-            pushLog('info', scope, t('browndustxTab.logs.uninstalling', { scope }))
+            pushLog('info', scope, t('modLoaderTab.logs.uninstalling', { scope }))
             await invoke(command)
-            pushLog('success', scope, t('browndustxTab.logs.uninstalledSuccess', { scope }))
+            pushLog('success', scope, t('modLoaderTab.logs.uninstalledSuccess', { scope }))
             await initialize()
         } catch (error) {
-            pushLog('error', scope, t('browndustxTab.logs.uninstallError', { scope, error: mapInstallError(error) }))
+            pushLog('error', scope, t('modLoaderTab.logs.uninstallError', { scope, error: mapInstallError(error) }))
         }
     }
 }
@@ -151,7 +151,7 @@ async function setupDragAndDrop() {
         for (const path of event.payload?.paths as string[]) {
             const lower = path.toLowerCase()
             if (!lower.endsWith('.zip') && !lower.endsWith('.rar') && !lower.endsWith('.7z')) {
-                pushLog('warn', 'All', t('browndustxTab.logs.unsupportedFile', { path }))
+                pushLog('warn', 'All', t('modLoaderTab.logs.unsupportedFile', { path }))
                 continue
             }
 
@@ -165,7 +165,7 @@ async function setupDragAndDrop() {
             if (archiveType === 'BEPINEX') await installFromArchive('install_bepinex', 'BepInEx', path)
             else if (archiveType === 'BROWNDUSTX') await installFromArchive('install_browndustx', 'BrownDustX', path)
             else if (archiveType === 'CONFIGMANAGER') await installFromArchive('install_configmanager', 'Configuration Manager', path)
-            else pushLog('warn', 'All', t('browndustxTab.logs.unknownArchiveType', { path }))
+            else pushLog('warn', 'All', t('modLoaderTab.logs.unknownArchiveType', { path }))
         }
     })
 }
@@ -182,10 +182,10 @@ onBeforeUnmount(() => {
 
 watch(() => settingsStore.settings.gameDirectory, async (newPath) => {
     if (newPath) {
-        pushLog('info', 'All', t('browndustxTab.logs.gameDirectorySet', { path: newPath }))
+        pushLog('info', 'All', t('modLoaderTab.logs.gameDirectorySet', { path: newPath }))
         await initialize()
     } else {
-        pushLog('warn', 'All', t('browndustxTab.logs.gameDirectoryUnset'))
+        pushLog('warn', 'All', t('modLoaderTab.logs.gameDirectoryUnset'))
         bepInExState.value = defaultState()
         brownDustXState.value = defaultState()
         configurationManagerState.value = defaultState()
@@ -193,7 +193,7 @@ watch(() => settingsStore.settings.gameDirectory, async (newPath) => {
 })
 
 useHeader({
-    title: computed(() => t('browndustxTab.title')),
+    title: computed(() => t('modLoaderTab.title')),
     buttons: [{
         label: computed(() => t('common.actions.refresh')),
         icon: RefreshCcw,
@@ -220,12 +220,12 @@ const CONFIGMANAGER_ASSETS_FILTER_REGEX = /BepInEx/i
 <template>
     <div class="h-full min-h-0 flex flex-col overflow-x-auto">
         <GithubInstallModal v-model:show="isBepInExDialogOpen"
-            :title="$t('browndustxTab.modals.installFromGithub.bepinexTitle')" @close="isBepInExDialogOpen = false"
+            :title="$t('modLoaderTab.modals.installFromGithub.bepinexTitle')" @close="isBepInExDialogOpen = false"
             @on-version-select="(downloadUrl) => installFromUrl('install_bepinex', 'BepInEx', downloadUrl)" :releases-url="BEPINEX_RELEASES_URL"
             :recommended-version="BEPINEX_RECOMMENDED_VERSION" :assets-filter-regex="BEPINEX_ASSETS_FILTER_REGEX" />
 
         <GithubInstallModal v-model:show="isConfigManagerDialogOpen"
-            :title="$t('browndustxTab.modals.installFromGithub.configManagerTitle')"
+            :title="$t('modLoaderTab.modals.installFromGithub.configManagerTitle')"
             @close="isConfigManagerDialogOpen = false" @on-version-select="(downloadUrl) => installFromUrl('install_configmanager', 'Configuration Manager', downloadUrl)"
             :releases-url="CONFIGMANAGER_RELEASES_URL" :recommended-version="CONFIGMANAGER_RECOMMENDED_VERSION"
             :assets-filter-regex="CONFIGMANAGER_ASSETS_FILTER_REGEX" />
@@ -235,43 +235,43 @@ const CONFIGMANAGER_ASSETS_FILTER_REGEX = /BepInEx/i
             <div class="flex gap-2.5 p-3 rounded bg-error-bg text-sm">
                 <TriangleAlert class="w-4 h-4 shrink-0 mt-0.5 text-error" />
                 <div class="flex flex-col gap-0.5">
-                    <p class="font-medium text-error">{{ $t('browndustxTab.alerts.danger') }}</p>
-                    <p class="text-text-secondary">{{ $t('browndustxTab.alerts.dangerMessage') }}</p>
+                    <p class="font-medium text-error">{{ $t('modLoaderTab.alerts.danger') }}</p>
+                    <p class="text-text-secondary">{{ $t('modLoaderTab.alerts.dangerMessage') }}</p>
                 </div>
             </div>
 
             <div>
                 <h3 class="text-text-secondary uppercase text-xs font-semibold tracking-wider mb-1">
-                    {{ $t('browndustxTab.labels.frameworkAndPlugins') }}
+                    {{ $t('modLoaderTab.labels.frameworkAndPlugins') }}
                 </h3>
 
                 <section class="mb-2">
                     <p v-if="!gameDirectorySet" class="text-error text-sm">
-                        {{ $t("browndustxTab.messages.gameDirectoryNotSet") }}
+                        {{ $t("modLoaderTab.messages.gameDirectoryNotSet") }}
                     </p>
                     <p v-else class="text-text-secondary font-mono text-xs flex items-center gap-1.5">
-                        <span>{{ $t("browndustxTab.labels.gameDirectory") }}</span>
+                        <span>{{ $t("modLoaderTab.labels.gameDirectory") }}</span>
                         <span class="text-text-primary font-mono">{{ settingsStore.settings.gameDirectory }}</span>
                     </p>
                 </section>
 
                 <div class="flex flex-col">
-                    <ComponentRow label="BepInEx" :description="$t('browndustxTab.descriptions.bepinex')"
+                    <ComponentRow label="BepInEx" :description="$t('modLoaderTab.descriptions.bepinex')"
                         :state="bepInExState" :disabled="!gameDirectorySet" :show-github="true" 
                         @install-from-github="isBepInExDialogOpen = true"
-                        @install="promptForArchive($t('browndustxTab.fileDialog.bepinexTitle'), 'install_bepinex', 'BepInEx')"
+                        @install="promptForArchive($t('modLoaderTab.fileDialog.bepinexTitle'), 'install_bepinex', 'BepInEx')"
                         @remove="uninstallComponent('uninstall_bepinex', 'removeBepInEx', 'BepInEx')" />
-                    <ComponentRow label="BrownDustX" :description="$t('browndustxTab.descriptions.browndustx')"
+                    <ComponentRow label="BrownDustX" :description="$t('modLoaderTab.descriptions.browndustx')"
                         :state="brownDustXState" :disabled="!gameDirectorySet" :requires-bep-in-ex="true"
                         :bep-in-ex-installed="bepInExInstalled"
-                        @install="promptForArchive($t('browndustxTab.fileDialog.browndustxTitle'), 'install_browndustx', 'BrownDustX')"
+                        @install="promptForArchive($t('modLoaderTab.fileDialog.browndustxTitle'), 'install_browndustx', 'BrownDustX')"
                         @remove="uninstallComponent('uninstall_browndustx', 'removeBrownDustX', 'BrownDustX')" />
                     <ComponentRow label="Configuration Manager"
-                        :description="$t('browndustxTab.descriptions.configurationManager')"
+                        :description="$t('modLoaderTab.descriptions.configurationManager')"
                         :state="configurationManagerState" :disabled="!gameDirectorySet" :show-github="true"
                         :requires-bep-in-ex="true" :bep-in-ex-installed="bepInExInstalled"
                         @install-from-github="isConfigManagerDialogOpen = true"
-                        @install="promptForArchive($t('browndustxTab.fileDialog.configManagerTitle'), 'install_configmanager', 'Configuration Manager')"
+                        @install="promptForArchive($t('modLoaderTab.fileDialog.configManagerTitle'), 'install_configmanager', 'Configuration Manager')"
                         @remove="uninstallComponent('uninstall_configmanager', 'removeConfigManager', 'Configuration Manager')" />
                 </div>
             </div>
@@ -280,35 +280,35 @@ const CONFIGMANAGER_ASSETS_FILTER_REGEX = /BepInEx/i
                 <p v-if="bepInExState.status === Status.Installed && brownDustXState.status === Status.NotInstalled"
                     class="text-warning flex gap-1.5 items-center text-xs">
                     <AlertTriangle class="inline w-4 h-4 shrink-0" />
-                    {{ $t("browndustxTab.messages.brownDustXMissing") }}
+                    {{ $t("modLoaderTab.messages.brownDustXMissing") }}
                 </p>
                 <p v-if="configurationManagerState.status === Status.NotInstalled && brownDustXState.status === Status.Installed"
                     class="text-warning flex gap-1.5 items-center text-xs">
                     <AlertTriangle class="inline w-4 h-4 shrink-0" />
-                    {{ $t("browndustxTab.messages.configurationManagerMissing") }}
+                    {{ $t("modLoaderTab.messages.configurationManagerMissing") }}
                 </p>
                 <p v-if="brownDustXState.status === Status.BepInExMissing"
                     class="text-warning flex gap-1.5 items-center text-xs">
                     <AlertTriangle class="inline w-4 h-4 shrink-0" />
-                    {{ $t("browndustxTab.messages.bepinexMissing") }}
+                    {{ $t("modLoaderTab.messages.bepinexMissing") }}
                 </p>
             </div>
 
             <div v-if="gameDirectorySet"
                 class="p-4 rounded border-2 border-dashed border-border-default text-center text-sm text-text-secondary">
-                {{ $t("browndustxTab.messages.dragAndDrop") }}
+                {{ $t("modLoaderTab.messages.dragAndDrop") }}
             </div>
 
             <div class="flex-1 flex flex-col min-h-0">
                 <h3 class="text-text-secondary uppercase text-xs tracking-wider mb-2">
-                    {{ $t('browndustxTab.labels.logs') }}
+                    {{ $t('modLoaderTab.labels.logs') }}
                 </h3>
                 <div ref="logsContainer"
                     class="flex-1 flex flex-col text-text-secondary overflow-y-auto bg-bg-surface p-2 border border-border-default rounded min-h-0"
                     :class="{ 'items-center justify-center': logs.length === 0 }">
                     <template v-if="logs.length === 0">
                         <div class="text-xs font-mono text-text-secondary italic text-center py-2">
-                            {{ $t('browndustxTab.messages.noLogsYet') }}
+                            {{ $t('modLoaderTab.messages.noLogsYet') }}
                         </div>
                     </template>
                     <template v-else>

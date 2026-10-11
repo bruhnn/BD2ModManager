@@ -502,20 +502,20 @@ useHeader({
       <div class="flex flex-col">
         <span class="font-semibold">
           <template v-if="gameStore.browndustxVersion?.status == 'Installed'">
-            {{ $t("modsTab.browndustx.status.installed", { version: gameStore.browndustxVersion.version }) }}
+            {{ $t("modsTab.modLoader.status.installed", { version: gameStore.browndustxVersion.version }) }}
           </template>
           <template v-else-if="gameStore.browndustxVersion?.status == 'InstalledButOutdated'">
-            {{ $t("modsTab.browndustx.status.installedButOutdated", { version: gameStore.browndustxVersion.version }) }}
+            {{ $t("modsTab.modLoader.status.installedButOutdated", { version: gameStore.browndustxVersion.version }) }}
           </template>
           <template v-else-if="!gameStore.browndustxVersion">
-            {{ $t("modsTab.browndustx.status.gameNotFound") }}
+            {{ $t("modsTab.modLoader.status.gameNotFound") }}
           </template>
           <template v-else>
-            {{ $t("modsTab.browndustx.status.notInstalled") }}
+            {{ $t("modsTab.modLoader.status.notInstalled") }}
           </template>
         </span>
-        <RouterLink to="bdx" class="text-text-secondary text-xs hover:underline">
-          {{ $t("modsTab.browndustx.navigation") }}
+        <RouterLink to="/mod-loader" class="text-text-secondary text-xs hover:underline">
+          {{ $t("modsTab.modLoader.navigation") }}
         </RouterLink>
       </div>
 
