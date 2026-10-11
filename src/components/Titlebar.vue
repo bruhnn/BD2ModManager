@@ -53,6 +53,8 @@ function minimizeWindow() { appWindow.minimize() }
 function toggleMaximizeWindow() { isMaximized.value ? appWindow.unmaximize() : appWindow.maximize() }
 
 async function handleAppUpdateClick() {
+    if (appUpdate.value?.status === UpdateStatus.CheckingForUpdates) return
+
     if (isUpdating.value) return
     if (isPortable.value) {
         // open modal
@@ -299,20 +301,19 @@ onUnmounted(() => {
 
             <div class="flex items-center shrink-0 gap-1">
                 <transition name="slide-fade">
-                <button
-                    v-if="appUpdate?.status && appUpdate.status !== UpdateStatus.Downloading && appUpdate.status !== UpdateStatus.Failed"
-                    class="flex items-center gap-1 md:gap-2 cursor-pointer hover:bg-accent-hover hover:text-text-on-accent rounded-sm px-2.5 py-1 transition-colors duration-200"
-                    :aria-disabled="isUpdating"
-                    :style="{ pointerEvents: isUpdating ? 'none' : undefined }"
-                    :class="{
-                        'text-accent':
-                            appUpdate?.status === UpdateStatus.UpdateAvailable ||
-                            appUpdate?.status === UpdateStatus.Downloaded
-                    }"
-                    @click="handleAppUpdateClick">
+                    <button
+                        v-if="appUpdate?.status && appUpdate.status !== UpdateStatus.Downloading && appUpdate.status !== UpdateStatus.Failed"
+                        class="flex items-center gap-1 md:gap-2 cursor-pointer hover:bg-accent-hover hover:text-text-on-accent rounded-sm px-2.5 py-1 transition-colors duration-200"
+                        :aria-disabled="isUpdating" :style="{ pointerEvents: isUpdating ? 'none' : undefined }" :class="{
+                            'text-accent':
+                                appUpdate?.status === UpdateStatus.UpdateAvailable ||
+                                appUpdate?.status === UpdateStatus.Downloaded,
+                            'hover:bg-transparent cursor-default!': appUpdate?.status === UpdateStatus.CheckingForUpdates || appUpdate?.status === UpdateStatus.Installing
+                        }" @click="handleAppUpdateClick">
                         <RotateCw v-if="
                             appUpdate?.status === UpdateStatus.CheckingForUpdates ||
-                            appUpdate?.status === UpdateStatus.Installing" class="w-[1.25em] h-[1.25em] shrink-0 animate-spin" />
+                            appUpdate?.status === UpdateStatus.Installing"
+                            class="w-[1.25em] h-[1.25em] shrink-0 animate-spin" />
 
                         <Sparkles v-else class="w-[1.25em] h-[1.25em] shrink-0" />
 
