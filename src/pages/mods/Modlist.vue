@@ -14,7 +14,6 @@ import {
 import Checkbox from '../../components/common/Checkbox.vue'
 import { usePreferencesStore } from '../../stores/preferences'
 import { AlertTriangle, ArrowDownWideNarrow, ArrowUpNarrowWide, TriangleAlert } from '@lucide/vue'
-import ErrorTag from './ErrorTag.vue'
 import type { ContextMenuItem } from '../../components/common/ContextMenu.vue'
 import ContextMenu from '../../components/common/ContextMenu.vue'
 import { useI18n } from 'vue-i18n'
@@ -23,6 +22,7 @@ import { useRouter } from 'vue-router'
 import Image from '../../components/common/Image.vue'
 import { formatCharName, useLang } from '../../utils/formatCharName.ts'
 import { convertFileSrc } from '@tauri-apps/api/core'
+import ErrorsTag from './components/ErrorsTag.vue'
 
 const router = useRouter()
 
@@ -66,20 +66,6 @@ const emit = defineEmits([
 ])
 
 const columnHelper = createColumnHelper<BD2ModExtended>()
-
-function getErrorDescription(error: string) {
-    const errors: Record<string, string> = {
-        "MissingTextures": "modErrors.missingTextures",
-        "MissingModfile": "modErrors.missingModfile",
-        "ArchiveNotExtracted": "modErrors.archiveNotExtracted",
-        "ShouldBeInFolder": "modErrors.shouldBeInFolder",
-        "MissingAtlasFile": "modErrors.missingAtlasFile",
-        "Unmanaged": "modErrors.unmanaged",
-        "UnmanagedButInStaging": "modErrors.unmanagedButInStaging",
-    }
-
-    return t(errors[error] || 'modErrors.noDescription', { error })
-}
 
 function getTypeClass(type: string) {
     if (!preferencesStore.enableModTypeColors) return ''
@@ -126,15 +112,12 @@ const columns = [
                     h(TriangleAlert, { class: 'w-4 h-4 transition-colors' }),
                     h('span', { class: ' font-bold text-xs' }, mod.conflictingMods.length)
                 ]) : null,
-                mod.errors.length > 0 ? h('div', { class: 'flex gap-2 flex-wrap' },
-                    mod.errors.map((error, index) =>
-                        h(ErrorTag, {
-                            key: index,
-                            label: error,
-                            description: getErrorDescription(error)
-                        })
-                    )
-                ) : null
+                // [First Error + 1] or [First Error + 2] etc
+                mod.errors.length > 0 ? h('div', {class: 'flex gap-2 flex-wrap'},
+                    h(ErrorsTag, {
+                        errors: [...mod.errors]
+                    })
+                ): null
             ])
         },
         header: () => h('span', { class: 'flex text-text-primary items-center' }, t('modsTab.modlist.header.modName')),
