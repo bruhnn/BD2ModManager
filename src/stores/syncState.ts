@@ -66,8 +66,10 @@ export const useSyncStateStore = defineStore("syncState", () => {
     })
     syncEvents.onEnd((event) => {
       console.log("onEnd", event)
+      progress.total = event.total
       if (event.success) {
-        status.value = event.type === SyncType.Sync && event.synced < event.total ? SyncStatus.COMPLETED_WITH_ERRORS : SyncStatus.COMPLETED
+        progress.current = event.total
+        status.value = event.synced < event.total ? SyncStatus.COMPLETED_WITH_ERRORS : SyncStatus.COMPLETED
       } else {
         status.value = SyncStatus.FAILED
         if (event.error) {

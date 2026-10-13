@@ -151,11 +151,6 @@ export function useModSync() {
                 closable: true,
                 title: t('modsTab.notifications.syncMods.success.title'),
                 message: t('modsTab.notifications.syncMods.success.message'),
-                action: {
-                    label: t('modsTab.notifications.syncMods.success.details'),
-                    onClick: () => globalModals.sync.showModal()
-                },
-                duration: 5000,
             })
         } catch (error: any) {
             loggingStore.logError("An error occurred during mod sync:", JSON.stringify(error, null, 2));
@@ -166,7 +161,6 @@ export function useModSync() {
                 closable: true,
                 title: t('modsTab.notifications.syncMods.error.title'),
                 message: errorMessage,
-                duration: 5000,
                 type: 'error'
             });
 

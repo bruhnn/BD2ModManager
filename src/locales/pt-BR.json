@@ -999,6 +999,19 @@
             "ModContainsSymlink": "Este mod contém um link simbólico ou uma junção: “{path}”. Substitua pelo conteúdo real antes de instalar."
         },
         "ModSyncError": {
+            "ManifestCorrupt": "O manifesto de sincronização está corrompido. {reason}",
+            "ManifestSaveFailed": "Não foi possível salvar o manifesto de sincronização. {reason}",
+            "UnsyncFailed": "Não foi possível remover {failed} de {total} mods.",
+            "ModNotFound": "O mod \"{mod_name}\" não foi encontrado na pasta de staging.",
+            "NoAvailableDiskSpace": "Não há espaço suficiente no disco.",
+            "SymlinkAdminRequired": "São necessárias permissões de administrador para criar links simbólicos.",
+            "PathNotFound": "A pasta do mod não foi encontrada.",
+            "CopyFailed": "Não foi possível copiar o mod. {reason}",
+            "SymlinkFailed": "Não foi possível criar o link simbólico. {reason}",
+            "HardlinkFailed": "Não foi possível criar os links físicos. {reason}",
+            "RemovalFailed": "Não foi possível remover o mod sincronizado. {reason}",
+            "DirectoryCreationFailed": "Não foi possível criar uma pasta necessária. {reason}",
+            "GameModsDirectoryNotFound": "Não foi possível encontrar ou criar a pasta de mods do jogo.",
             "DirectoriesNested": "As pastas de staging e de mods do jogo se sobrepõem. Escolha pastas separadas antes de sincronizar.",
             "DestinationContainsSymlink": "O destino contém um link simbólico ou uma junção: “{path}”. Substitua essa pasta por uma pasta normal antes de sincronizar.",
             "ModContainsSymlink": "Este mod contém um link simbólico ou uma junção: “{path}”. Substitua pelo conteúdo real antes de sincronizar."

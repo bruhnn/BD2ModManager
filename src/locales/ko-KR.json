@@ -999,6 +999,19 @@
             "ModContainsSymlink": "이 모드에는 심볼릭 링크 또는 정션이 포함되어 있습니다: “{path}”. 설치하기 전에 실제 파일로 교체해 주세요."
         },
         "ModSyncError": {
+            "ManifestCorrupt": "동기화 매니페스트가 손상되었습니다. {reason}",
+            "ManifestSaveFailed": "동기화 매니페스트를 저장하지 못했습니다. {reason}",
+            "UnsyncFailed": "모드 {total}개 중 {failed}개를 삭제하지 못했습니다.",
+            "ModNotFound": "스테이징 폴더에서 \"{mod_name}\" 모드를 찾을 수 없습니다.",
+            "NoAvailableDiskSpace": "디스크 공간이 부족합니다.",
+            "SymlinkAdminRequired": "심볼릭 링크를 만들려면 관리자 권한이 필요합니다.",
+            "PathNotFound": "모드 폴더를 찾을 수 없습니다.",
+            "CopyFailed": "모드를 복사하지 못했습니다. {reason}",
+            "SymlinkFailed": "심볼릭 링크를 만들지 못했습니다. {reason}",
+            "HardlinkFailed": "하드 링크를 만들지 못했습니다. {reason}",
+            "RemovalFailed": "동기화된 모드를 삭제하지 못했습니다. {reason}",
+            "DirectoryCreationFailed": "필요한 폴더를 만들지 못했습니다. {reason}",
+            "GameModsDirectoryNotFound": "게임 모드 폴더를 찾거나 만들지 못했습니다.",
             "DirectoriesNested": "모드 보관 폴더와 게임 모드 폴더가 겹칩니다. 동기화하기 전에 별도의 폴더를 선택하세요.",
             "DestinationContainsSymlink": "대상 경로에 심볼릭 링크 또는 정션이 있습니다: “{path}”. 동기화하기 전에 일반 폴더로 바꾸세요.",
             "ModContainsSymlink": "이 모드에는 심볼릭 링크 또는 정션이 포함되어 있습니다: “{path}”. 동기화하기 전에 실제 파일로 교체해 주세요."

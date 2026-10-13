@@ -67,6 +67,7 @@ const title = computed(() => {
     switch (syncStateStore.status) {
       case SyncStatus.SYNCING: return t('modsTab.modals.sync.titles.removing')
       case SyncStatus.COMPLETED: return t('modsTab.modals.sync.titles.removed')
+      case SyncStatus.COMPLETED_WITH_ERRORS: return t('modsTab.notifications.unsyncMods.completedWithErrors.title')
       case SyncStatus.FAILED: return t('modsTab.modals.sync.titles.failedToRemove')
       case SyncStatus.IDLE: return t('modsTab.modals.sync.titles.idleToRemove')
     }
@@ -83,7 +84,9 @@ const errorMessage = computed(() => {
 })
 
 const realProgress = computed(() => {
-  if (!syncStateStore?.progress.total) return 100
+  if (!syncStateStore?.progress.total) {
+    return syncStateStore.status === SyncStatus.COMPLETED || syncStateStore.status === SyncStatus.COMPLETED_WITH_ERRORS ? 100 : 0
+  }
   return Math.round(
     (syncStateStore.progress.current / syncStateStore.progress.total) * 100
   )

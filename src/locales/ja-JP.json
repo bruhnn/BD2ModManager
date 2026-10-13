@@ -999,6 +999,19 @@
             "ModContainsSymlink": "このMODにはシンボリックリンクまたはジャンクション「{path}」が含まれています。インストールする前に実際のファイルに置き換えてください。"
         },
         "ModSyncError": {
+            "ManifestCorrupt": "同期マニフェストが破損しています。{reason}",
+            "ManifestSaveFailed": "同期マニフェストを保存できませんでした。{reason}",
+            "UnsyncFailed": "{total}件中{failed}件のModを削除できませんでした。",
+            "ModNotFound": "ステージングフォルダーにMod「{mod_name}」が見つかりません。",
+            "NoAvailableDiskSpace": "ディスクの空き容量が不足しています。",
+            "SymlinkAdminRequired": "シンボリックリンクの作成には管理者権限が必要です。",
+            "PathNotFound": "Modのフォルダーが見つかりません。",
+            "CopyFailed": "Modをコピーできませんでした。{reason}",
+            "SymlinkFailed": "シンボリックリンクを作成できませんでした。{reason}",
+            "HardlinkFailed": "ハードリンクを作成できませんでした。{reason}",
+            "RemovalFailed": "同期済みのModを削除できませんでした。{reason}",
+            "DirectoryCreationFailed": "必要なフォルダーを作成できませんでした。{reason}",
+            "GameModsDirectoryNotFound": "ゲームのModフォルダーが見つからないか、作成できませんでした。",
             "DirectoriesNested": "保存先とゲームのModフォルダーが重複しています。同期前に別々のフォルダーを選択してください。",
             "DestinationContainsSymlink": "同期先にシンボリックリンクまたはジャンクションがあります:「{path}」。同期前に通常のフォルダーに置き換えてください。",
             "ModContainsSymlink": "このMODにはシンボリックリンクまたはジャンクション「{path}」が含まれています。同期する前に実際のファイルに置き換えてください。"

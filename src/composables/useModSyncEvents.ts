@@ -46,6 +46,11 @@ export interface SyncEndEvent {
 
 export interface SyncError {
     type:
+        | "ManifestCorrupt"
+        | "ManifestSaveFailed"
+        | "UnsyncFailed"
+        | "NoAvailableDiskSpace"
+        | "ModNotFound"
         | "SymlinkAdminRequired"
         | "PathNotFound"
         | "ModContainsSymlink"
@@ -59,6 +64,9 @@ export interface SyncError {
         | "GameModsDirectoryNotFound"
         | "Io"
     details: {
+        reason?: string
+        failed?: number
+        total?: number
         kind?: string
         mod_name?: string
         path?: string

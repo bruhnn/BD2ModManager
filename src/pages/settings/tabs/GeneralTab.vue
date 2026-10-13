@@ -20,8 +20,10 @@ import { useLoggingStore } from '../../../stores/logging'
 import { Language, useSettingsStore } from '../../../stores/settings'
 import { useNotificationStore } from '../../../stores/notification.ts'
 import { usePreferencesStore } from '../../../stores/preferences.ts'
+import { useModsStore } from '../../../stores/mods'
 
 const settingsStore = useSettingsStore()
+const modsStore = useModsStore()
 const preferencesStore = usePreferencesStore()
 const notificationStore = useNotificationStore()
 
@@ -208,6 +210,7 @@ async function onSyncMethodChanged(value: string) {
     await settingsStore.saveSettings({
         syncMethod: value,
     })
+    await modsStore.checkIsSyncNeeded()
 
     logInfo(`Sync method changed to ${value}`)
 }
@@ -246,6 +249,7 @@ async function handleStagingModsBrowse() {
         await settingsStore.saveSettings({
             stagingDirectory: folder,
         })
+        await modsStore.discoverMods()
 
         logInfo(`Staging mods directory changed to ${folder}`)
 
@@ -283,6 +287,7 @@ async function handleGameDirectoryBrowse() {
         await settingsStore.saveSettings({
             gameDirectory: folder,
         })
+        await modsStore.discoverMods()
 
         logInfo(`Game directory changed to ${folder}`)
 
