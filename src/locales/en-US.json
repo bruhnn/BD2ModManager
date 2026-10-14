@@ -1069,19 +1069,14 @@
         "ModSyncError": {
             "ManifestCorrupt": "The sync manifest is corrupt. {reason}",
             "ManifestSaveFailed": "Failed to save the sync manifest. {reason}",
-            "UnsyncFailed": "Failed to remove {failed} of {total} mods.",
-            "ModNotFound": "Mod \"{mod_name}\" was not found in the staging folder.",
             "DirectoriesNested": "The staging and game mods folders overlap. Choose separate folders before syncing.",
             "DestinationContainsSymlink": "The destination contains a symbolic link or junction: “{path}”. Replace that parent folder with a normal folder before syncing.",
             "ModContainsSymlink": "This mod contains a symbolic link or junction: “{path}”. Replace it with the actual files before syncing.",
             "SymlinkAdminRequired": "Administrator privileges are required to create symbolic links.",
-            "PathNotFound": "The mod folder was not found.",
             "CopyFailed": "Failed to copy the mod. {reason}",
             "SymlinkFailed": "Failed to create the symbolic link. {reason}",
-            "HardlinkFailed": "Failed to create the hard links. {reason}",
             "RemovalFailed": "Failed to remove the synced mod. {reason}",
             "DirectoryCreationFailed": "Failed to create a required directory. {reason}",
-            "GameModsDirectoryNotFound": "Could not find or create the game's mods directory",
             "NoAvailableDiskSpace": "There is not enough disk space."
         },
         "ProfileError": {

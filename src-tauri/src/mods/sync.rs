@@ -95,12 +95,6 @@ pub enum ModSyncError {
     #[error("Symlink requires admin privileges")]
     SymlinkAdminRequired,
 
-    #[error("Mod '{mod_name}' was not found in the staging directory")]
-    ModNotFound { mod_name: String },
-
-    #[error("the path '{path}' was not found")]
-    PathNotFound { path: String },
-
     #[error("Mod contains a symbolic link or junction: '{path}'")]
     ModContainsSymlink { path: String },
 
@@ -124,13 +118,6 @@ pub enum ModSyncError {
         source: std::io::Error,
     },
 
-    #[error("failed to create hardlink for mod '{mod_name}': {source}")]
-    HardlinkFailed {
-        mod_name: String,
-        #[source]
-        source: std::io::Error,
-    },
-
     #[error("failed to remove '{path}': {source}")]
     RemovalFailed {
         path: String,
@@ -143,9 +130,6 @@ pub enum ModSyncError {
         #[source]
         source: std::io::Error,
     },
-
-    #[error("Game mods directory not found")]
-    GameModsDirectoryNotFound,
 
     #[error("No available disk space for sync")]
     NoAvailableDiskSpace,
@@ -179,10 +163,6 @@ impl serde::Serialize for ModSyncError {
                 ("DestinationContainsSymlink", Some(json!({ "path": path })))
             }
             ModSyncError::SymlinkAdminRequired => ("SymlinkAdminRequired", None),
-            ModSyncError::PathNotFound { path } => ("PathNotFound", Some(json!({ "path": path }))),
-            ModSyncError::ModNotFound { mod_name } => {
-                ("ModNotFound", Some(json!({ "mod_name": mod_name })))
-            }
             ModSyncError::ModContainsSymlink { path } => {
                 ("ModContainsSymlink", Some(json!({ "path": path })))
             }
@@ -194,10 +174,6 @@ impl serde::Serialize for ModSyncError {
                 "SymlinkFailed",
                 Some(json!({ "mod_name": mod_name, "kind": format!("{:?}", source.kind()) })),
             ),
-            ModSyncError::HardlinkFailed { mod_name, source } => (
-                "HardlinkFailed",
-                Some(json!({ "mod_name": mod_name, "kind": format!("{:?}", source.kind()) })),
-            ),
             ModSyncError::RemovalFailed { path, source } => (
                 "RemovalFailed",
                 Some(json!({ "path": path, "kind": format!("{:?}", source.kind()) })),
@@ -206,7 +182,6 @@ impl serde::Serialize for ModSyncError {
                 "DirectoryCreationFailed",
                 Some(json!({ "kind": format!("{:?}", source.kind()) })),
             ),
-            ModSyncError::GameModsDirectoryNotFound => ("GameModsDirectoryNotFound", None),
             ModSyncError::NoAvailableDiskSpace => ("NoAvailableDiskSpace", None),
             ModSyncError::Io(source) => (
                 "Io",

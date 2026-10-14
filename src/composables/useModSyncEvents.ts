@@ -50,18 +50,14 @@ export interface SyncError {
         | "ManifestSaveFailed"
         | "UnsyncFailed"
         | "NoAvailableDiskSpace"
-        | "ModNotFound"
         | "SymlinkAdminRequired"
-        | "PathNotFound"
         | "ModContainsSymlink"
         | "DirectoriesNested"
         | "DestinationContainsSymlink"
         | "CopyFailed"
         | "SymlinkFailed"
-        | "HardlinkFailed"
         | "RemovalFailed"
         | "DirectoryCreationFailed"
-        | "GameModsDirectoryNotFound"
         | "Io"
     details: {
         reason?: string

@@ -1001,17 +1001,12 @@
         "ModSyncError": {
             "ManifestCorrupt": "同步清单已损坏。{reason}",
             "ManifestSaveFailed": "无法保存同步清单。{reason}",
-            "UnsyncFailed": "{total} 个模组中有 {failed} 个无法删除。",
-            "ModNotFound": "暂存文件夹中未找到模组“{mod_name}”。",
             "NoAvailableDiskSpace": "磁盘空间不足。",
             "SymlinkAdminRequired": "创建符号链接需要管理员权限。",
-            "PathNotFound": "未找到模组文件夹。",
             "CopyFailed": "无法复制模组。{reason}",
             "SymlinkFailed": "无法创建符号链接。{reason}",
-            "HardlinkFailed": "无法创建硬链接。{reason}",
             "RemovalFailed": "无法删除已同步的模组。{reason}",
             "DirectoryCreationFailed": "无法创建所需文件夹。{reason}",
-            "GameModsDirectoryNotFound": "无法找到或创建游戏的模组文件夹。",
             "DirectoriesNested": "暂存文件夹与游戏模组文件夹存在包含关系。同步前请选择互不包含的文件夹。",
             "DestinationContainsSymlink": "目标路径包含符号链接或目录联接：“{path}”。同步前请将其替换为普通文件夹。",
             "ModContainsSymlink": "此模组包含符号链接或目录联接：“{path}”。请先将其替换为实际文件，再进行同步。"
