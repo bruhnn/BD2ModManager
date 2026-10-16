@@ -3160,7 +3160,7 @@
             "standing": true,
             "dating_id": null,
             "character_image": "illust_inven_char101103_150.png",
-            "skill_preview_image": null,
+            "skill_preview_image": "illust_skill_char101103_150.png",
             "release_date": "2024-10-31",
             "gender": "female",
             "costume_id": "060903",
@@ -3185,7 +3185,7 @@
             "assets": {
                 "head_image": "icon_char101103_153.png",
                 "character_image": "illust_inven_char101103_150.png",
-                "skill_image": null
+                "skill_image": "illust_skill_char101103_150.png"
             }
         },
         {
@@ -3200,7 +3200,7 @@
             "standing": true,
             "dating_id": null,
             "character_image": "illust_inven_char101201_75.png",
-            "skill_preview_image": null,
+            "skill_preview_image": "illust_skill_char101201_75.png",
             "release_date": "2023-06-22",
             "gender": "male",
             "costume_id": "062701",
@@ -3225,7 +3225,7 @@
             "assets": {
                 "head_image": "icon_char101201_56.png",
                 "character_image": "illust_inven_char101201_75.png",
-                "skill_image": null
+                "skill_image": "illust_skill_char101201_75.png"
             }
         },
         {
@@ -3277,7 +3277,7 @@
             "standing": true,
             "dating_id": null,
             "character_image": "illust_inven_char100501_9.png",
-            "skill_preview_image": null,
+            "skill_preview_image": "illust_skill_char100501_9.png",
             "release_date": "2023-06-22",
             "gender": "male",
             "costume_id": "060101",
@@ -3302,7 +3302,7 @@
             "assets": {
                 "head_image": "icon_char100501_9.png",
                 "character_image": "illust_inven_char100501_9.png",
-                "skill_image": null
+                "skill_image": "illust_skill_char100501_9.png"
             }
         },
         {
@@ -3465,7 +3465,7 @@
             "standing": true,
             "dating_id": null,
             "character_image": "illust_inven_char100401_8.png",
-            "skill_preview_image": null,
+            "skill_preview_image": "illust_skill_char100401_8.png",
             "release_date": "2023-06-22",
             "gender": "male",
             "costume_id": "000901",
@@ -3490,7 +3490,7 @@
             "assets": {
                 "head_image": "icon_char100401_8.png",
                 "character_image": "illust_inven_char100401_8.png",
-                "skill_image": null
+                "skill_image": "illust_skill_char100401_8.png"
             }
         },
         {
@@ -3542,7 +3542,7 @@
             "standing": true,
             "dating_id": null,
             "character_image": "illust_inven_char103601_35.png",
-            "skill_preview_image": null,
+            "skill_preview_image": "illust_skill_char103601_35.png",
             "release_date": "2023-06-22",
             "gender": "female",
             "costume_id": "062501",
@@ -3567,7 +3567,7 @@
             "assets": {
                 "head_image": "icon_char103601_20.png",
                 "character_image": "illust_inven_char103601_35.png",
-                "skill_image": null
+                "skill_image": "illust_skill_char103601_35.png"
             }
         },
         {
@@ -3657,7 +3657,7 @@
             "standing": true,
             "dating_id": null,
             "character_image": "illust_inven_char101401_66.png",
-            "skill_preview_image": null,
+            "skill_preview_image": "illust_skill_char101401_66.png",
             "release_date": "2023-06-22",
             "gender": "female",
             "costume_id": "061901",
@@ -3682,7 +3682,7 @@
             "assets": {
                 "head_image": "icon_char101401_53.png",
                 "character_image": "illust_inven_char101401_66.png",
-                "skill_image": null
+                "skill_image": "illust_skill_char101401_66.png"
             }
         },
         {
@@ -3697,7 +3697,7 @@
             "standing": true,
             "dating_id": null,
             "character_image": "illust_inven_char101402_16.png",
-            "skill_preview_image": null,
+            "skill_preview_image": "illust_skill_char101402_16.png",
             "release_date": "2023-06-22",
             "gender": "female",
             "costume_id": "061902",
@@ -3722,7 +3722,7 @@
             "assets": {
                 "head_image": "icon_char101402_16.png",
                 "character_image": "illust_inven_char101402_16.png",
-                "skill_image": null
+                "skill_image": "illust_skill_char101402_16.png"
             }
         },
         {
@@ -3811,7 +3811,7 @@
             "standing": true,
             "dating_id": null,
             "character_image": "illust_inven_char103301_32.png",
-            "skill_preview_image": null,
+            "skill_preview_image": "illust_skill_char103301_32.png",
             "release_date": "2023-06-22",
             "gender": "female",
             "costume_id": "064801",
@@ -3836,7 +3836,7 @@
             "assets": {
                 "head_image": "icon_char103301_23.png",
                 "character_image": "illust_inven_char103301_32.png",
-                "skill_image": null
+                "skill_image": "illust_skill_char103301_32.png"
             }
         },
         {
@@ -3851,7 +3851,7 @@
             "standing": true,
             "dating_id": null,
             "character_image": "illust_inven_char100301_6.png",
-            "skill_preview_image": null,
+            "skill_preview_image": "illust_skill_char100301_6.png",
             "release_date": "2023-06-22",
             "gender": "female",
             "costume_id": "001501",
@@ -3876,7 +3876,7 @@
             "assets": {
                 "head_image": "icon_char100301_7.png",
                 "character_image": "illust_inven_char100301_6.png",
-                "skill_image": null
+                "skill_image": "illust_skill_char100301_6.png"
             }
         },
         {
@@ -4372,7 +4372,7 @@
             "standing": true,
             "dating_id": null,
             "character_image": "illust_inven_char103701_36.png",
-            "skill_preview_image": null,
+            "skill_preview_image": "illust_skill_char103701_36.png",
             "release_date": "2023-06-22",
             "gender": "female",
             "costume_id": "062601",
@@ -4397,7 +4397,7 @@
             "assets": {
                 "head_image": "icon_char103701_21.png",
                 "character_image": "illust_inven_char103701_36.png",
-                "skill_image": null
+                "skill_image": "illust_skill_char103701_36.png"
             }
         },
         {
@@ -4412,7 +4412,7 @@
             "standing": true,
             "dating_id": null,
             "character_image": "illust_inven_char100801_12.png",
-            "skill_preview_image": null,
+            "skill_preview_image": "illust_skill_char100801_12.png",
             "release_date": "2023-06-22",
             "gender": "female",
             "costume_id": "001601",
@@ -4437,7 +4437,7 @@
             "assets": {
                 "head_image": "icon_char100801_12.png",
                 "character_image": "illust_inven_char100801_12.png",
-                "skill_image": null
+                "skill_image": "illust_skill_char100801_12.png"
             }
         },
         {
@@ -6376,7 +6376,7 @@
             "standing": true,
             "dating_id": null,
             "character_image": "illust_inven_char100101_4.png",
-            "skill_preview_image": null,
+            "skill_preview_image": "illust_skill_char100101_4.png",
             "release_date": "2023-06-22",
             "gender": "male",
             "costume_id": "001301",
@@ -6401,7 +6401,7 @@
             "assets": {
                 "head_image": "icon_char100101_5.png",
                 "character_image": "illust_inven_char100101_4.png",
-                "skill_image": null
+                "skill_image": "illust_skill_char100101_4.png"
             }
         },
         {
@@ -6416,7 +6416,7 @@
             "standing": true,
             "dating_id": null,
             "character_image": "illust_inven_char100201_5.png",
-            "skill_preview_image": null,
+            "skill_preview_image": "illust_skill_char100201_5.png",
             "release_date": "2023-06-22",
             "gender": "male",
             "costume_id": "001401",
@@ -6441,7 +6441,7 @@
             "assets": {
                 "head_image": "icon_char100201_6.png",
                 "character_image": "illust_inven_char100201_5.png",
-                "skill_image": null
+                "skill_image": "illust_skill_char100201_5.png"
             }
         },
         {
@@ -6456,7 +6456,7 @@
             "standing": true,
             "dating_id": null,
             "character_image": "illust_inven_char100502_45.png",
-            "skill_preview_image": null,
+            "skill_preview_image": "illust_skill_char100502_45.png",
             "release_date": "2023-06-22",
             "gender": "male",
             "costume_id": "060102",
@@ -6481,7 +6481,7 @@
             "assets": {
                 "head_image": "icon_char100502_27.png",
                 "character_image": "illust_inven_char100502_45.png",
-                "skill_image": null
+                "skill_image": "illust_skill_char100502_45.png"
             }
         },
         {
@@ -6496,7 +6496,7 @@
             "standing": true,
             "dating_id": null,
             "character_image": "illust_inven_char100601_11.png",
-            "skill_preview_image": null,
+            "skill_preview_image": "illust_skill_char100601_11.png",
             "release_date": "2023-06-22",
             "gender": "female",
             "costume_id": "060201",
@@ -6521,7 +6521,7 @@
             "assets": {
                 "head_image": "icon_char100601_11.png",
                 "character_image": "illust_inven_char100601_11.png",
-                "skill_image": null
+                "skill_image": "illust_skill_char100601_11.png"
             }
         },
         {
@@ -6536,7 +6536,7 @@
             "standing": true,
             "dating_id": null,
             "character_image": "illust_inven_char101601_78.png",
-            "skill_preview_image": null,
+            "skill_preview_image": "illust_skill_char101601_78.png",
             "release_date": "2023-06-22",
             "gender": "female",
             "costume_id": "060401",
@@ -6561,7 +6561,7 @@
             "assets": {
                 "head_image": "icon_char101601_76.png",
                 "character_image": "illust_inven_char101601_78.png",
-                "skill_image": null
+                "skill_image": "illust_skill_char101601_78.png"
             }
         },
         {
@@ -6576,7 +6576,7 @@
             "standing": true,
             "dating_id": null,
             "character_image": "illust_inven_char101101_67.png",
-            "skill_preview_image": null,
+            "skill_preview_image": "illust_skill_char101101_67.png",
             "release_date": "2023-06-22",
             "gender": "female",
             "costume_id": "060901",
@@ -6601,7 +6601,7 @@
             "assets": {
                 "head_image": "icon_char101101_52.png",
                 "character_image": "illust_inven_char101101_67.png",
-                "skill_image": null
+                "skill_image": "illust_skill_char101101_67.png"
             }
         },
         {
@@ -6616,7 +6616,7 @@
             "standing": true,
             "dating_id": null,
             "character_image": "illust_inven_char101102_25.png",
-            "skill_preview_image": null,
+            "skill_preview_image": "illust_skill_char101102_25.png",
             "release_date": "2023-07-20",
             "gender": "female",
             "costume_id": "060902",
@@ -6641,7 +6641,7 @@
             "assets": {
                 "head_image": "icon_char101102_41.png",
                 "character_image": "illust_inven_char101102_25.png",
-                "skill_image": null
+                "skill_image": "illust_skill_char101102_25.png"
             }
         },
         {
@@ -6656,7 +6656,7 @@
             "standing": true,
             "dating_id": null,
             "character_image": "illust_inven_char101501_65.png",
-            "skill_preview_image": null,
+            "skill_preview_image": "illust_skill_char101501_65.png",
             "release_date": "2023-06-22",
             "gender": "male",
             "costume_id": "062101",
@@ -6681,7 +6681,7 @@
             "assets": {
                 "head_image": "icon_char101501_55.png",
                 "character_image": "illust_inven_char101501_65.png",
-                "skill_image": null
+                "skill_image": "illust_skill_char101501_65.png"
             }
         },
         {
@@ -6696,7 +6696,7 @@
             "standing": true,
             "dating_id": null,
             "character_image": "illust_inven_char101502_17.png",
-            "skill_preview_image": null,
+            "skill_preview_image": "illust_skill_char101502_17.png",
             "release_date": "2023-06-22",
             "gender": "male",
             "costume_id": "062102",
@@ -6721,7 +6721,7 @@
             "assets": {
                 "head_image": "icon_char101502_17.png",
                 "character_image": "illust_inven_char101502_17.png",
-                "skill_image": null
+                "skill_image": "illust_skill_char101502_17.png"
             }
         },
         {
@@ -6736,7 +6736,7 @@
             "standing": true,
             "dating_id": null,
             "character_image": "illust_inven_char101202_18.png",
-            "skill_preview_image": null,
+            "skill_preview_image": "illust_skill_char101202_18.png",
             "release_date": "2023-06-22",
             "gender": "male",
             "costume_id": "062702",
@@ -6761,7 +6761,7 @@
             "assets": {
                 "head_image": "icon_char101202_18.png",
                 "character_image": "illust_inven_char101202_18.png",
-                "skill_image": null
+                "skill_image": "illust_skill_char101202_18.png"
             }
         },
         {
@@ -6776,7 +6776,7 @@
             "standing": true,
             "dating_id": null,
             "character_image": "illust_inven_char101301_61.png",
-            "skill_preview_image": null,
+            "skill_preview_image": "illust_skill_char101301_61.png",
             "release_date": "2023-06-22",
             "gender": "female",
             "costume_id": "062801",
@@ -6801,7 +6801,7 @@
             "assets": {
                 "head_image": "icon_char101301_59.png",
                 "character_image": "illust_inven_char101301_61.png",
-                "skill_image": null
+                "skill_image": "illust_skill_char101301_61.png"
             }
         },
         {
@@ -6812,11 +6812,11 @@
             "character": "Emma",
             "costume": "School Queen",
             "is_collab": false,
-            "cutscene": false,
+            "cutscene": true,
             "standing": true,
             "dating_id": null,
             "character_image": "illust_inven_char101302_19.png",
-            "skill_preview_image": null,
+            "skill_preview_image": "illust_skill_char101302_19.png",
             "release_date": "2023-06-22",
             "gender": "female",
             "costume_id": "062802",
@@ -6841,7 +6841,7 @@
             "assets": {
                 "head_image": "icon_char101302_19.png",
                 "character_image": "illust_inven_char101302_19.png",
-                "skill_image": null
+                "skill_image": "illust_skill_char101302_19.png"
             }
         },
         {
@@ -6852,11 +6852,11 @@
             "character": "Carlson",
             "costume": "The Mercenary Knight",
             "is_collab": false,
-            "cutscene": false,
+            "cutscene": true,
             "standing": true,
             "dating_id": null,
             "character_image": "illust_inven_char103201_31.png",
-            "skill_preview_image": null,
+            "skill_preview_image": "illust_skill_char103201_31.png",
             "release_date": "2023-06-22",
             "gender": "male",
             "costume_id": "064701",
@@ -6881,7 +6881,7 @@
             "assets": {
                 "head_image": "icon_char103201_22.png",
                 "character_image": "illust_inven_char103201_31.png",
-                "skill_image": null
+                "skill_image": "illust_skill_char103201_31.png"
             }
         },
         {
@@ -6892,11 +6892,11 @@
             "character": "Rigenette",
             "costume": "Little Hunter",
             "is_collab": false,
-            "cutscene": false,
+            "cutscene": true,
             "standing": true,
             "dating_id": null,
             "character_image": "illust_inven_char103401_33.png",
-            "skill_preview_image": null,
+            "skill_preview_image": "illust_skill_char103401_33.png",
             "release_date": "2023-06-22",
             "gender": "female",
             "costume_id": "064901",
@@ -6921,7 +6921,7 @@
             "assets": {
                 "head_image": "icon_char103401_24.png",
                 "character_image": "illust_inven_char103401_33.png",
-                "skill_image": null
+                "skill_image": "illust_skill_char103401_33.png"
             }
         },
         {
@@ -6932,11 +6932,11 @@
             "character": "Beatrice",
             "costume": "The Mighty Warrior of the Tribe",
             "is_collab": false,
-            "cutscene": false,
+            "cutscene": true,
             "standing": true,
             "dating_id": null,
             "character_image": "illust_inven_char103501_34.png",
-            "skill_preview_image": null,
+            "skill_preview_image": "illust_skill_char103501_34.png",
             "release_date": "2023-06-22",
             "gender": "female",
             "costume_id": "065001",
@@ -6961,7 +6961,7 @@
             "assets": {
                 "head_image": "icon_char103501_25.png",
                 "character_image": "illust_inven_char103501_34.png",
-                "skill_image": null
+                "skill_image": "illust_skill_char103501_34.png"
             }
         },
         {
@@ -7380,7 +7380,7 @@
             "standing": true,
             "dating_id": null,
             "character_image": "illust_inven_char021101_215.png",
-            "skill_preview_image": null,
+            "skill_preview_image": "illust_skill_char021101_215.png",
             "release_date": "2026-09-10",
             "gender": "female",
             "costume_id": "021101",
@@ -7405,7 +7405,7 @@
             "assets": {
                 "head_image": "icon_char021101_218.png",
                 "character_image": "illust_inven_char021101_215.png",
-                "skill_image": null
+                "skill_image": "illust_skill_char021101_215.png"
             }
         },
         {
@@ -7524,11 +7524,11 @@
             "character": "Ren Yamashiro",
             "costume": "Role Reversal",
             "is_collab": true,
-            "cutscene": false,
+            "cutscene": true,
             "standing": true,
             "dating_id": null,
             "character_image": "illust_inven_char021391_219.png",
-            "skill_preview_image": null,
+            "skill_preview_image": "illust_skill_char021391_219.png",
             "release_date": "2026-09-23",
             "gender": "female",
             "costume_id": "021391",
@@ -7553,7 +7553,7 @@
             "assets": {
                 "head_image": "icon_char021391_222.png",
                 "character_image": "illust_inven_char021391_219.png",
-                "skill_image": null
+                "skill_image": "illust_skill_char021391_219.png"
             }
         },
         {
@@ -7565,7 +7565,7 @@
             "standing": false,
             "dating_id": null,
             "character_image": "illust_inven_char004302_225.png",
-            "skill_preview_image": null,
+            "skill_preview_image": "illust_skill_char004302_225.png",
             "release_date": "2026-10-08",
             "gender": "female",
             "costume_id": "004302",
@@ -7590,7 +7590,7 @@
             "assets": {
                 "head_image": "icon_char004302_231.png",
                 "character_image": "illust_inven_char004302_225.png",
-                "skill_image": null
+                "skill_image": "illust_skill_char004302_225.png"
             }
         },
         {
@@ -7602,7 +7602,7 @@
             "standing": false,
             "dating_id": null,
             "character_image": "illust_inven_char004192_227.png",
-            "skill_preview_image": null,
+            "skill_preview_image": "illust_skill_char004192_227.png",
             "release_date": "2026-10-08",
             "gender": "female",
             "costume_id": "004192",
@@ -7627,7 +7627,7 @@
             "assets": {
                 "head_image": "icon_char004192_233.png",
                 "character_image": "illust_inven_char004192_227.png",
-                "skill_image": null
+                "skill_image": "illust_skill_char004192_227.png"
             }
         }
     ],
