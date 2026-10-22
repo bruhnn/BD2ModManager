@@ -1,5 +1,5 @@
 {
-    "version": "0.0.30",
+    "version": "0.0.31",
     "characters": [
         {
             "id": "000708",
@@ -7629,6 +7629,43 @@
                 "character_image": "illust_inven_char004192_227.png",
                 "skill_image": "illust_skill_char004192_227.png"
             }
+        },
+        {
+            "id": "067902",
+            "character": "Aquila",
+            "costume": "Sealed Desires",
+            "is_collab": false,
+            "cutscene": true,
+            "standing": true,
+            "dating_id": "22",
+            "character_image": "illust_inven_char067902_226.png",
+            "skill_preview_image": "illust_skill_char067902_226.png",
+            "release_date": "2026-10-22",
+            "gender": "female",
+            "costume_id": "067902",
+            "character_id": 679,
+            "character_name": {
+                "en": "Aquila",
+                "cn": "阿奇拉",
+                "jp": "アクィラ",
+                "tw": "阿奇拉",
+                "kr": "아킬라"
+            },
+            "costume_name": {
+                "en": "Sealed Desires",
+                "cn": "被封印的欲望",
+                "jp": "封印されし欲望",
+                "tw": "封印的欲望",
+                "kr": "봉인된 욕망"
+            },
+            "skin_type": "normal",
+            "grade": 5,
+            "element": "fire",
+            "assets": {
+                "head_image": "icon_char067902_232.png",
+                "character_image": "illust_inven_char067902_226.png",
+                "skill_image": "illust_skill_char067902_226.png"
+            }
         }
     ],
     "dating": {
@@ -7652,6 +7689,7 @@
         "18": "000396",
         "19": "067104",
         "20": "061302",
-        "21": "065193"
+        "21": "065193",
+        "22": "067902"
     }
 }
