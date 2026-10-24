@@ -573,6 +573,7 @@
                 "title": "모드 없음",
                 "description": "이 캐릭터에 대한 인덱스에 사용 가능한 모드가 없습니다."
             },
+            "compareAll": "모두 비교",
             "previewMod": "모드 미리보기"
         }
     },

@@ -64,58 +64,67 @@ pub fn disable_mods(
 }
 
 #[tauri::command]
-pub async fn preview_mod(
+pub async fn preview_mods(
     app_handle: AppHandle,
     state: tauri::State<'_, AppState>,
-    mod_name: String,
+    mod_names: Vec<String>,
 ) -> Result<(), AppError> {
     let mod_manager_handle = state.mod_manager.clone();
 
     let result = tauri::async_runtime::spawn_blocking(move || -> Result<(), AppError> {
         let mod_manager = mod_manager_handle.lock().unwrap();
-        let _mod: BD2Mod = mod_manager
-            .get_mod_by_name(&mod_name)
-            .ok_or_else(|| PreviewError::ModNotFound {
+        let mods = mod_names.iter().map(|mod_name| {
+            mod_manager.get_mod_by_name(mod_name).ok_or_else(|| PreviewError::ModNotFound {
                 mod_name: mod_name.clone(),
-            })?;
+            })
+        }).collect::<Result<Vec<_>, _>>()?;
         drop(mod_manager);
 
-        // check if the mod has errors, like it is a zip file that is not extracted, or a folder that is missing required files, but for example it is only missing modfile there is no problem
-        // BD2ModError
-        if _mod.errors.iter().any(|e| {
-            !matches!(
-                e,
-                BD2ModError::MissingModfile|BD2ModError::Unmanaged|BD2ModError::UnmanagedButInStaging
-            )
-        }) {
-            return Err(PreviewError::ModHasErrors {
-                mod_name: mod_name.clone(),
-            })?;
-        }
-
-        let path_buf = PathBuf::from(&_mod.path);
-
-        if !path_buf.exists() {
-            return Err(PreviewError::ModNotFound {
-                mod_name: mod_name.clone(),
-            })?;
-        }
-
-        if is_texture_mod(&path_buf) {
-            return Ok(preview_image(app_handle, &path_buf)?);
-        }
-
-        if let Some(mod_preview_exe) = get_mod_preview_path(&app_handle) {
-            std::process::Command::new(mod_preview_exe)
-                .arg(&path_buf)
-                .spawn()
-                .map_err(|err| match err.kind() {
-                    ErrorKind::NotFound => PreviewError::ModPreviewNotFound,
-                    _ => PreviewError::PreviewFailed {
-                        reason: err.to_string(),
-                    },
+        let mut paths = Vec::new();
+        for _mod in &mods {
+            // check if the mod has errors, like it is a zip file that is not extracted, or a folder that is missing required files, but for example it is only missing modfile there is no problem
+            // BD2ModError
+            if _mod.errors.iter().any(|e| {
+                !matches!(
+                    e,
+                    BD2ModError::MissingModfile|BD2ModError::Unmanaged|BD2ModError::UnmanagedButInStaging
+                )
+            }) {
+                return Err(PreviewError::ModHasErrors {
+                    mod_name: _mod.name.clone(),
                 })?;
+            }
+
+            let path_buf = PathBuf::from(&_mod.path);
+
+            if !path_buf.exists() {
+                return Err(PreviewError::ModNotFound {
+                    mod_name: _mod.name.clone(),
+                })?;
+            }
+
+            if mods.len() == 1 && is_texture_mod(&path_buf) {
+                return Ok(preview_image(app_handle, &path_buf)?);
+            }
+
+            paths.push(path_buf);
         }
+
+        if paths.is_empty() {
+            return Ok(());
+        }
+
+        let mod_preview_exe = get_mod_preview_path(&app_handle)
+            .ok_or(PreviewError::ModPreviewNotFound)?;
+        std::process::Command::new(mod_preview_exe)
+            .args(&paths)
+            .spawn()
+            .map_err(|err| match err.kind() {
+                ErrorKind::NotFound => PreviewError::ModPreviewNotFound,
+                _ => PreviewError::PreviewFailed {
+                    reason: err.to_string(),
+                },
+            })?;
 
         Ok(())
     })

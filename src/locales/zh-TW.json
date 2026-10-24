@@ -573,6 +573,7 @@
                 "title": "未找到模組",
                 "description": "該角色在索引中沒有可用的模組。"
             },
+            "compareAll": "比較全部",
             "previewMod": "預覽模組"
         }
     },

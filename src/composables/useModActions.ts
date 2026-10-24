@@ -75,7 +75,7 @@ export function useModActions() {
     function previewMod(mod: BD2Mod) {
         loggingStore.logDebug(`Previewing mod: ${mod.name}`);
 
-        modsStore.previewMod(mod.name).then(() => {
+        modsStore.previewMods([mod.name]).then(() => {
             loggingStore.logDebug(`Mod previewed successfully: ${mod.name}`);
         }).catch((error) => {
             // errors that can happen: just some errors like no permission to open the file, or the file doesn't exist anymore, or the file is not a valid mod file

@@ -214,8 +214,8 @@ export const useModsStore = defineStore('mods', () => {
             throw error
         }
     }
-    async function previewMod(modName: string): Promise<undefined> {
-        return invoke("preview_mod", { modName })
+    async function previewMods(modNames: string[]): Promise<void> {
+        return invoke("preview_mods", { modNames })
     }
 
     async function installModFromZip(path: string): Promise<BD2Mod> {
@@ -364,7 +364,7 @@ export const useModsStore = defineStore('mods', () => {
         applyPreviewModChanges,
         enableMods,
         disableMods,
-        previewMod,
+        previewMods,
         installModFromZip,
         installModFromFolder,
         syncMods,

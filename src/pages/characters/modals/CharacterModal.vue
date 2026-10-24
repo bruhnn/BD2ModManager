@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { X, Calendar, Eye, Tag } from '@lucide/vue';
+import { X, Calendar, Eye, Tag, Columns3 } from '@lucide/vue';
 
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { Tab, TabGroup, TabList, TabPanels, TabPanel } from '@headlessui/vue';
 
@@ -35,6 +35,7 @@ const props = defineProps<{
 }>();
 
 const modsStore = useModsStore();
+const isOpeningPreview = ref(false);
 
 const costumeIds = computed((): string[] => {
     const id = props.selectedCostume?.id;
@@ -63,8 +64,8 @@ const installedMods = computed(() => {
 
 const modsByType = computed(() => {
     const grouped = {
-        Cutscene: [] as BD2Mod[],
         Standing: [] as BD2Mod[],
+        Cutscene: [] as BD2Mod[],
         Dating: [] as BD2Mod[]
     };
     installedMods.value.forEach(mod => {
@@ -80,9 +81,11 @@ const enabledModsCount = computed(() =>
     installedMods.value.filter(mod => mod.enabled).length
 );
 
-async function openPreviewMod(mod: BD2Mod) {
-    modsStore.previewMod(mod.name).then(() => {
-        loggingStore.logDebug("Mod previewed successfully:", mod.name);
+async function openPreviewMod(mod: BD2Mod | BD2Mod[]) {
+    if (isOpeningPreview.value) return;
+    isOpeningPreview.value = true;
+    modsStore.previewMods(Array.isArray(mod) ? mod.map(entry => entry.name) : [mod.name]).then(() => {
+        loggingStore.logDebug("Mod preview opened successfully");
     }).catch((error) => {
         let errorMsg = getErrorMessage(t, error);
         notificationStore.add({
@@ -93,6 +96,8 @@ async function openPreviewMod(mod: BD2Mod) {
             duration: 5000
         });
         loggingStore.logError("Error previewing mod:", error);
+    }).finally(() => {
+        isOpeningPreview.value = false;
     });
 }
 
@@ -174,45 +179,45 @@ const charName = computed(() => {
             </div>
 
             <div class="flex flex-col min-h-0 flex-1">
-                <TabGroup>
-                    <TabList class="flex shrink-0 items-center gap-1 px-2 py-2 border-b border-border-default" as="div">
-                        <Tab v-slot="{ selected }" key="modsTab" as="template">
-                            <button class="px-4 py-1.5 text-sm rounded-sm transition-colors outline-none cursor-pointer hover:bg-state-hover"
+                <TabGroup :key="costumeIds.join(',')">
+                    <TabList class="flex flex-wrap shrink-0 items-center gap-1 px-3 py-2 border-b border-border-default" as="div">
+                        <Tab v-for="(mods, type) in modsByType" :key="type" v-slot="{ selected }" as="template">
+                            <button class="flex items-center gap-2 px-3 py-2 text-sm rounded-sm transition-colors cursor-pointer hover:bg-state-hover"
                                 :class="selected ? 'bg-accent! text-text-on-accent font-medium' : 'text-text-secondary hover:text-text-primary'">
-                                {{ $t('charactersTab.characterModal.modsTab') }}
+                                {{ $t(`charactersTab.modTypes.${type.toLowerCase()}`) }}
+                                <span class="text-xs opacity-80">{{ mods.length }}</span>
                             </button>
                         </Tab>
                     </TabList>
 
-                    <TabPanels as="div" class="overflow-y-auto h-100">
-                        <TabPanel key="modsPanel">
-                            <div>
-                                <div v-if="installedMods.length === 0" class="text-center py-12 px-4 text-text-secondary">
+                    <TabPanels as="div" class="min-h-0">
+                        <TabPanel v-for="(mods, type) in modsByType" :key="type" class="flex flex-col h-100">
+                            <div class="flex items-center justify-between gap-3 px-4 py-3 border-b border-border-default shrink-0">
+                                <span class="text-xs text-text-secondary">
+                                    {{ $t('charactersTab.characterModal.enabledMods') }}: {{ mods.filter(m => m.enabled).length }}/{{ mods.length }}
+                                </span>
+                                <Button :icon="Columns3" :label="$t('charactersTab.characterModal.compareAll')"
+                                    :disabled="isOpeningPreview || mods.length === 0" @click="openPreviewMod(mods)" />
+                            </div>
+                            <div class="overflow-y-auto min-h-0 flex-1">
+                                <div v-if="mods.length === 0" class="text-center py-12 px-4 text-text-secondary">
                                     <p class="text-sm font-medium mb-1">{{ $t('charactersTab.characterModal.noModsFound.title') }}</p>
                                     <p class="text-xs text-text-secondary">{{ $t('charactersTab.characterModal.noModsFound.description') }}</p>
                                 </div>
                                 <template v-else>
-                                    <div v-for="(mods, type) in modsByType" :key="type" v-show="mods.length > 0">
-                                        <div class="flex items-center justify-between px-4 py-2 bg-surface-dialog border-b border-border-default top-0 z-10">
-                                            <span class="text-xs font-medium text-text-secondary uppercase tracking-wide">
-                                                {{ $t(`charactersTab.modTypes.${type.toLowerCase()}`) }}
-                                            </span>
-                                            <span class="text-xs text-text-secondary">{{ mods.filter(m => m.enabled).length }}/{{ mods.length }}</span>
-                                        </div>
-
-                                        <label v-for="mod in mods" :key="mod.name"
-                                            class="flex items-center gap-3 px-4 py-2.5 border-b border-border-default cursor-pointer hover:bg-state-hover transition-colors"
-                                            :class="{ 'bg-surface-dialog': !mod.enabled }">
+                                        <div v-for="mod in mods" :key="mod.name"
+                                            class="flex items-center gap-3 px-4 py-3 border-b border-border-default hover:bg-state-hover transition-colors">
                                             <Checkbox :model-value="mod.enabled" @update:model-value="toggleMod(mod)" :disabled="modsStore.isSyncing" class="shrink-0" />
-                                            <button @click.stop="openPreviewMod(mod)" :aria-label="$t('charactersTab.characterModal.previewMod')">
-                                                <Eye class="w-6 h-6 cursor-pointer hover:text-text-primary! transition-colors active:scale-95 text-text-secondary" />
-                                            </button>
                                             <div class="flex-1 min-w-0">
                                                 <p class="text-sm truncate" :class="mod.enabled ? 'text-text-primary' : 'text-text-secondary'">{{ mod.name }}</p>
                                                 <p v-if="mod.author" class="text-xs text-text-secondary mt-0.5">{{ mod.author }}</p>
                                             </div>
-                                        </label>
-                                    </div>
+                                            <button @click="openPreviewMod(mod)" :disabled="isOpeningPreview"
+                                                class="p-1.5 shrink-0 cursor-pointer text-text-secondary hover:text-text-primary transition-colors disabled:opacity-50"
+                                                :aria-label="$t('charactersTab.characterModal.previewMod')">
+                                                <Eye class="w-5 h-5" />
+                                            </button>
+                                        </div>
                                 </template>
                             </div>
                         </TabPanel>

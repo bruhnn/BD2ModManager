@@ -198,7 +198,7 @@ pub fn run() {
             mods::commands::sync_mods,
             mods::commands::unsync_mods,
             mods::commands::is_sync_needed,
-            mods::commands::preview_mod,
+            mods::commands::preview_mods,
             // profiles
             profiles::commands::get_profiles,
             profiles::commands::switch_profile,

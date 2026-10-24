@@ -594,6 +594,7 @@
                 "title": "No Mods Found",
                 "description": "There are no mods available in the index for this character."
             },
+            "compareAll": "Compare all",
             "previewMod": "Preview Mod"
         }
     },

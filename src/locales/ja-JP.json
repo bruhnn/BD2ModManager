@@ -573,6 +573,7 @@
                 "title": "Modが見つかりません",
                 "description": "このキャラクターのインデックスに利用可能なModはありません。"
             },
+            "compareAll": "すべて比較",
             "previewMod": "MODをプレビュー"
         }
     },
