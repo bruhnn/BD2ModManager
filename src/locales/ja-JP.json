@@ -997,6 +997,7 @@
     },
     "errors": {
         "ModInstallError": {
+            "ModTooBig": "このMODはサイズ上限の100 MBを超えています。",
             "ModContainsSymlink": "このMODにはシンボリックリンクまたはジャンクション「{path}」が含まれています。インストールする前に実際のファイルに置き換えてください。"
         },
         "ModSyncError": {

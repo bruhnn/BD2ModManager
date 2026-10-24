@@ -1047,6 +1047,7 @@
             "StorageFull": "Not enough disk space."
         },
         "ModInstallError": {
+            "ModTooBig": "This mod exceeds the 100 MB size limit.",
             "ModContainsSymlink": "This mod contains a symbolic link or junction: “{path}”. Replace it with the actual files before installing.",
             "ModAlreadyExists": "A mod with this name already exists.",
             "PathNotFound": "The selected mod path was not found.",

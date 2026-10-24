@@ -997,6 +997,7 @@
     },
     "errors": {
         "ModInstallError": {
+            "ModTooBig": "此模组超过了 100 MB 的大小限制。",
             "ModContainsSymlink": "此模组包含符号链接或目录联接：“{path}”。请先将其替换为实际文件，再进行安装。"
         },
         "ModSyncError": {

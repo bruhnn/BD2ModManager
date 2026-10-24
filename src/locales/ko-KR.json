@@ -997,6 +997,7 @@
     },
     "errors": {
         "ModInstallError": {
+            "ModTooBig": "이 모드는 크기 제한인 100 MB를 초과합니다.",
             "ModContainsSymlink": "이 모드에는 심볼릭 링크 또는 정션이 포함되어 있습니다: “{path}”. 설치하기 전에 실제 파일로 교체해 주세요."
         },
         "ModSyncError": {

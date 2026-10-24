@@ -311,3 +311,8 @@ pub fn get_directory_size(path: &PathBuf) -> Result<u64, std::io::Error> {
 
     Ok(size)
 }
+
+pub fn get_file_size(path: &PathBuf) -> Result<u64, std::io::Error> {
+    let size = fs::metadata(path)?.len();
+    Ok(size)
+}

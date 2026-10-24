@@ -3,7 +3,7 @@ use std::{fs::File, path::PathBuf};
 use zip::ZipArchive;
 use std::os::windows::fs::MetadataExt;
 
-use crate::utils::files::ensure_dir_exists;
+use crate::utils::files::{ensure_dir_exists, get_directory_size, get_file_size};
 
 // [TODO] merge NotAMod and MissingModFile
 #[derive(thiserror::Error, Debug)]
@@ -29,6 +29,8 @@ pub enum ModInstallError {
     MissingModFile,
     #[error("multiple mods found in the archive")]
     MultipleModsFound,
+    #[error("mod is above 100mb")]
+    ModTooBig,
     #[error("I/O error: {0}")]
     Io(#[from] std::io::Error), // PermissionDenied, DiskFull, etc.
 }
@@ -52,6 +54,7 @@ impl serde::Serialize for ModInstallError {
             ModInstallError::InvalidArchive => ("InvalidArchive".to_string(), None),
             ModInstallError::MissingModFile => ("MissingModFile".to_string(), None),
             ModInstallError::MultipleModsFound => ("MultipleModsFound".to_string(), None),
+            ModInstallError::ModTooBig => ("ModTooBig".to_string(), None),
             ModInstallError::NotAMod { path } => ("NotAMod".to_string(), Some(json!({ "path": path })))
         };
 
@@ -135,6 +138,11 @@ pub fn install_zip_mod(
     staging_directory: &PathBuf,
 ) -> Result<PathBuf, ModInstallError> {
     info!("Installing mod from ZIP: {:?}", path);
+
+    if get_file_size(path)?  > 100 * 1024 * 1024 { // if mod is above 100mb
+        error!("Mod is above 100MB.");
+        return Err(ModInstallError::ModTooBig);
+    }
 
     let mod_name = path
         .file_stem()
@@ -233,6 +241,10 @@ pub fn install_folder_mod(
         return Err(ModInstallError::ModAlreadyExists {
             mod_name: mod_name.clone(),
         });
+    }
+
+    if get_directory_size(path)?  > 100 * 1024 * 1024 { // if mod is above 100mb
+        return Err(ModInstallError::ModTooBig);
     }
 
     std::fs::create_dir_all(&final_mod_folder)?;

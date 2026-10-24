@@ -997,6 +997,7 @@
     },
     "errors": {
         "ModInstallError": {
+            "ModTooBig": "此模組超過了 100 MB 的大小限制。",
             "ModContainsSymlink": "此模組包含符號連結或目錄接合點：「{path}」。請先將其替換為實際檔案，再進行安裝。"
         },
         "ModSyncError": {
