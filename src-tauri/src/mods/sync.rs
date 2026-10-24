@@ -1051,15 +1051,30 @@ pub fn sync_mods<R: tauri::Runtime>(
                         })?;
 
                         match method {
-                            SyncMethod::Copy => sync_dirs(&source, &destination)
-                                .map(|_| ())
-                                .map_err(|error| match error {
-                                    ModSyncError::Io(source) => ModSyncError::CopyFailed {
-                                        mod_name: action.mod_name.clone(),
-                                        source,
-                                    },
-                                    error => error,
-                                }),
+                            SyncMethod::Copy => {
+                                match sync_dirs(&source, &destination) {
+                                    Ok(_) => Ok(()),
+                                    Err(error) => {
+                                        error!("Failed to copy mod {}: {}", action.mod_name, error);
+
+                                        // remove the partial copy
+                                        remove_mod_path(&destination).map_err(|source| {
+                                            ModSyncError::RemovalFailed {
+                                                path: destination.to_string_lossy().to_string(),
+                                                source,
+                                            }
+                                        })?;
+
+                                        Err(match error {
+                                            ModSyncError::Io(source) => ModSyncError::CopyFailed {
+                                                mod_name: action.mod_name.clone(),
+                                                source,
+                                            },
+                                            error => error,
+                                        })
+                                    }
+                                }
+                            }
                             SyncMethod::Symlink => {
                                 let source = source.canonicalize()?;
 
