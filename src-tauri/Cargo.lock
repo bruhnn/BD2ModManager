@@ -4,7 +4,7 @@ version = 4
 
 [[package]]
 name = "BD2ModManager"
-version = "4.2.0"
+version = "4.3.0-beta.1"
 dependencies = [
  "anyhow",
  "chrono",
