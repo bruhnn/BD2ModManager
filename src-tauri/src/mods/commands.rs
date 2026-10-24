@@ -25,13 +25,17 @@ pub async fn discover_mods(
             &get_game_dir(&config),
             config.search_mods_recursively,
         )
+        .map_err(|error| {
+            error!("Failed to discover staging mods: {}", error);
+            AppError::Unknown(error.to_string())
+        })
     })
     .await;
 
     result.map_err(|error| {
         error!("Discover mods task panicked: {:?}", error);
         AppError::Unknown(format!("{:?}", error))
-    })
+    })?
 }
 
 #[tauri::command]

@@ -8,6 +8,7 @@ pub struct BD2ModManager {
     pub profile_manager: ProfileManager,
     pub cached_mods: HashMap<String, BD2Mod>,
     pub metadata_store: ModMetadataStore,
+    discovery_failed: bool,
 }
 
 impl BD2ModManager {
@@ -16,6 +17,7 @@ impl BD2ModManager {
             profile_manager,
             cached_mods: HashMap::new(),
             metadata_store,
+            discovery_failed: true,
         }
     }
 
@@ -24,13 +26,15 @@ impl BD2ModManager {
         staging_dir: &PathBuf,
         game_dir: &Option<PathBuf>,
         recursive: bool,
-    ) -> Vec<BD2Mod> {
+    ) -> std::io::Result<Vec<BD2Mod>> {
         info!(
             "Searching for mods on staging directory ({:?})",
             staging_dir
         );
 
-        let mut mods_found: Vec<BD2Mod> = mods::discover::discover_staging_mods(staging_dir, recursive);
+        // keep the cached list if staging cannot be read
+        self.discovery_failed = true;
+        let mut mods_found = mods::discover::discover_staging_mods(staging_dir, recursive)?;
         let unmanaged_mods = if let Some(game_dir) = game_dir {
             mods::discover::discover_unmanaged_mods(game_dir, &mut mods_found)
         } else {
@@ -57,7 +61,8 @@ impl BD2ModManager {
         // set mods enabled states with the active proifle
         self.sync_mods_with_profiles();
 
-        self.get_mods()
+        self.discovery_failed = false;
+        Ok(self.get_mods())
     }
 
     fn sync_mods_with_profiles(&mut self) {
@@ -204,7 +209,7 @@ impl BD2ModManager {
     ) -> Result<BD2Mod, ModInstallError> {
         let mod_path = mods::install::install_mod(&path, staging_dir)?;
 
-        let (is_mod, error) = mods::discover::analyze_mod_path(&mod_path);
+        let (is_mod, error) = mods::discover::analyze_mod_path(&mod_path)?;
         if is_mod {
             let mut new_mod = mods::discover::create_mod(staging_dir, &mod_path, error);
             let mod_name = new_mod.name.clone();
@@ -228,6 +233,10 @@ impl BD2ModManager {
         method: SyncMethod,
         remove_unmanaged_mods: bool,
     ) -> Result<SyncResult, ModSyncError> {
+        if self.discovery_failed {
+            return Err(std::io::Error::other("Staging discovery failed. Refresh mods before syncing.").into());
+        }
+
         let mods: Vec<&BD2Mod> = self
         .cached_mods
         .values()

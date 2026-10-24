@@ -2,7 +2,7 @@ use log::{debug, info, warn};
 use rayon::prelude::*;
 use walkdir::WalkDir;
 use std::{
-    collections::HashMap, ffi::OsStr, fs::{self, read_dir}, path::Path, sync::Arc, time::Instant,
+    collections::HashMap, ffi::OsStr, fs::{self, read_dir}, io, path::Path, sync::Arc, time::Instant,
 };
 
 use crate::{
@@ -31,10 +31,11 @@ fn is_textures_folder(path: &Path) -> bool {
 }
 
 impl ModAnalysis {
-    fn analyze_entry(&mut self, entry: &fs::DirEntry) {
+    fn analyze_entry(&mut self, entry: &fs::DirEntry) -> io::Result<()> {
         let path = entry.path();
+        let metadata = fs::metadata(&path)?;
 
-        if path.is_file() {
+        if metadata.is_file() {
             if let Some(ext) = path.extension().and_then(OsStr::to_str) {
                 match ext.to_ascii_lowercase().as_str() {
                     "modfile" => self.has_modfile = true,
@@ -44,11 +45,12 @@ impl ModAnalysis {
                     _ => {}
                 }
             }
-        } else if path.is_dir() {
+        } else if metadata.is_dir() {
             if is_textures_folder(&path) {
                 self.has_textures_folder = true;
             }
         }
+        Ok(())
     }
 
     fn determine_mod_status(&self) -> (bool, Option<BD2ModError>) {
@@ -78,34 +80,24 @@ impl ModAnalysis {
     }
 }
 
-pub fn analyze_mod_path(path: &Path) -> (bool, Option<BD2ModError>) {
-    if path.is_file() {
-        return if is_archive(path) {
+pub fn analyze_mod_path(path: &Path) -> io::Result<(bool, Option<BD2ModError>)> {
+    if fs::metadata(path)?.is_file() {
+        return Ok(if is_archive(path) {
             (true, Some(BD2ModError::ArchiveNotExtracted))
         } else if has_extension(path, MOD_EXTENSIONS) {
             (true, Some(BD2ModError::ShouldBeInFolder))
         } else {
             (false, None)
-        };
+        });
     }
 
     let mut analysis = ModAnalysis::default();
 
-    match read_dir(path) {
-        Ok(entries) => {
-            entries
-                .filter_map(|e| {
-                    e.map_err(|err| warn!("Failed to read entry in {:?}: {}", path, err))
-                        .ok()
-                })
-                .for_each(|entry| analysis.analyze_entry(&entry));
-        }
-        Err(e) => {
-            warn!("Failed to read directory {:?}: {}", path, e);
-        }
+    for entry in read_dir(path)? {
+        analysis.analyze_entry(&entry?)?;
     }
 
-    analysis.determine_mod_status()
+    Ok(analysis.determine_mod_status())
 }
 
 pub fn create_mod(staging_directory: &Path, path: &Path, error: Option<BD2ModError>) -> BD2Mod {
@@ -132,84 +124,67 @@ pub fn create_mod(staging_directory: &Path, path: &Path, error: Option<BD2ModErr
     }
 }
 
-fn discover_mods_recursive(dir: &Path, staging_directory: &Path, depth: usize) -> Vec<BD2Mod> {
+fn discover_mods_recursive(dir: &Path, staging_directory: &Path, depth: usize) -> io::Result<Vec<BD2Mod>> {
     if depth >= MAX_DEPTH {
         warn!(
             "Max depth ({}) reached at {:?}, stopping recursion",
             MAX_DEPTH, dir
         );
-        return Vec::new();
+        return Err(io::Error::other(format!("Mod search reached the depth limit at {}", dir.display())));
     }
 
     let staging_dir = Arc::new(staging_directory.to_path_buf());
 
-    match fs::read_dir(dir) {
-        Ok(entries) => entries
-            .filter_map(|e| {
-                e.map_err(|err| warn!("Failed to read entry in {:?}: {}", dir, err))
-                    .ok()
-            })
+    let mods = fs::read_dir(dir)?
             .par_bridge()
-            .filter(|entry| !is_textures_folder(&entry.path()))
-            .flat_map(|entry| {
+            .map(|entry| -> io::Result<Vec<BD2Mod>> {
+                let entry = entry?;
                 let path = entry.path();
-                let (is_mod, error) = analyze_mod_path(&path);
+                if is_textures_folder(&path) {
+                    return Ok(Vec::new());
+                }
+                let (is_mod, error) = analyze_mod_path(&path)?;
                 debug!("(is_mod = {:?}) {:?} -> error = {:?}", is_mod, path, error);
                 if is_mod {
-                    vec![create_mod(&staging_dir, &path, error)]
-                } else if path.is_dir() {
+                    Ok(vec![create_mod(&staging_dir, &path, error)])
+                } else if fs::metadata(&path)?.is_dir() {
                     discover_mods_recursive(&path, &staging_dir, depth + 1)
                 } else {
                     warn!("Path {:?} not valid! {:?}", path, error);
-                    Vec::new()
+                    Ok(Vec::new())
                 }
             })
-            .collect(),
-        Err(e) => {
-            warn!("Failed to read directory {:?}: {}", dir, e);
-            Vec::new()
-        }
-    }
+            .collect::<io::Result<Vec<_>>>()?;
+    Ok(mods.into_iter().flatten().collect())
 }
 
-pub fn discover_staging_mods(staging_directory: &Path, recursive: bool) -> Vec<BD2Mod> {
+pub fn discover_staging_mods(staging_directory: &Path, recursive: bool) -> io::Result<Vec<BD2Mod>> {
     let start: Instant = Instant::now();
 
     let mods: Vec<BD2Mod> = if recursive {
-        discover_mods_recursive(staging_directory, staging_directory, 0)
+        discover_mods_recursive(staging_directory, staging_directory, 0)?
     } else {
-        match fs::read_dir(staging_directory) {
-            Ok(entries) => entries
-                .filter_map(|e| {
-                    e.map_err(|err| {
-                        warn!("Failed to read entry in {:?}: {}", staging_directory, err)
-                    })
-                    .ok()
-                })
+        fs::read_dir(staging_directory)?
                 .par_bridge()
-                .filter_map(|entry| {
+                .map(|entry| -> io::Result<Option<BD2Mod>> {
+                    let entry = entry?;
                     let path = entry.path();
-                    let (is_mod, error) = analyze_mod_path(&path);
+                    let (is_mod, error) = analyze_mod_path(&path)?;
                     debug!("(is_mod = {:?}) {:?} -> error = {:?}", is_mod, path, error);
                     if is_mod {
-                        Some(create_mod(staging_directory, &path, error))
+                        Ok(Some(create_mod(staging_directory, &path, error)))
                     } else {
-                        None
+                        Ok(None)
                     }
                 })
-                .collect(),
-            Err(e) => {
-                warn!(
-                    "Failed to read staging directory {:?}: {}",
-                    staging_directory, e
-                );
-                Vec::new()
-            }
-        }
+                .collect::<io::Result<Vec<_>>>()?
+                .into_iter()
+                .flatten()
+                .collect()
     };
 
     info!("discover_staging_mods() took {:?}", start.elapsed());
-    mods
+    Ok(mods)
 }
 
 
@@ -288,7 +263,13 @@ pub fn discover_unmanaged_mods(game_directory: &Path, staging_mods: &mut [BD2Mod
         }
 
         if entry.file_type().is_symlink() {
-            let (is_mod, error) = analyze_mod_path(&path);
+            let (is_mod, error) = match analyze_mod_path(&path) {
+                Ok(result) => result,
+                Err(error) => {
+                    warn!("Failed to read mod {:?}: {}", path, error);
+                    continue;
+                }
+            };
 
             if is_mod {
                 let mut _mod = create_mod(&game_mods_path, &path, error);
@@ -303,7 +284,14 @@ pub fn discover_unmanaged_mods(game_directory: &Path, staging_mods: &mut [BD2Mod
             continue;
         }
 
-        let (is_mod, error) = analyze_mod_path(&path);
+        let (is_mod, error) = match analyze_mod_path(&path) {
+            Ok(result) => result,
+            Err(error) => {
+                warn!("Failed to read mod {:?}: {}", path, error);
+                entries.skip_current_dir();
+                continue;
+            }
+        };
 
         if is_mod {
             let mut _mod = create_mod(
