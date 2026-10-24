@@ -939,10 +939,16 @@ pub fn sync_mods<R: tauri::Runtime>(
     let total_mods_count = actions.len();
     let mut synced_count = 0;
     let execution_started = Instant::now();
+    let mut failed_removals: HashMap<String, Arc<ModSyncError>> = HashMap::new();
 
     for (index, action) in actions.iter().enumerate() {
         let (result_status, result_error) = {
             match &action.action {
+                SyncAction::Add(_) | SyncAction::Replace(_)
+                    if failed_removals.contains_key(&action.mod_name) => {
+                    // keep the old destination until it can be removed
+                    (SyncStatus::Failed, Some(Arc::clone(&failed_removals[&action.mod_name])))
+                }
                 SyncAction::Add(_) => {
                     let result = (|| -> Result<(), ModSyncError> {
                         let source = staging_directory.join(&action.mod_name);
@@ -1009,7 +1015,14 @@ pub fn sync_mods<R: tauri::Runtime>(
                     let game_mod_path = game_mods_path.join(&action.game_folder);
                     match remove_mod_path(&game_mod_path) {
                         Ok(()) => (SyncStatus::Removed, None),
-                        Err(error) => (SyncStatus::Failed, Some(Arc::new(ModSyncError::Io(error)))),
+                        Err(source) => {
+                            let error = Arc::new(ModSyncError::RemovalFailed {
+                                path: game_mod_path.to_string_lossy().to_string(),
+                                source,
+                            });
+                            failed_removals.insert(action.mod_name.clone(), Arc::clone(&error));
+                            (SyncStatus::Failed, Some(error))
+                        }
                     }
                 }
                 SyncAction::Replace(_) => {
