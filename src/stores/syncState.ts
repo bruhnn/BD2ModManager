@@ -43,13 +43,13 @@ export const useSyncStateStore = defineStore("syncState", () => {
   function setupEvents() {
     syncEvents.clearEvents()
 
-    syncEvents.onStart((event) => {
+    return Promise.all([syncEvents.onStart((event) => {
       resetToDefault()
       status.value = SyncStatus.SYNCING
       syncType.value = event.type
 
       console.log(event)
-    })
+    }),
     syncEvents.onProgress((event) => {
         const syncedMod: SyncedMod = {
           status: event.status,
@@ -63,7 +63,7 @@ export const useSyncStateStore = defineStore("syncState", () => {
         lastSyncedMod.value = syncedMod
         syncedMods.value.push(syncedMod)
 
-    })
+    }),
     syncEvents.onEnd((event) => {
       console.log("onEnd", event)
       progress.total = event.total
@@ -80,12 +80,14 @@ export const useSyncStateStore = defineStore("syncState", () => {
       lastSyncedMod.value = null
 
       console.log(status.value)
-    })
+    })])
   }
 
-  setupEvents()
+  const ready = setupEvents()
+  ready.catch(() => {})
 
   return {
+    ready,
     type: readonly(syncType),
     lastSyncedMod: readonly(lastSyncedMod),
     status: readonly(status),

@@ -79,9 +79,9 @@ export function getSyncErrorMessage(
 }
 
 interface SyncEventHandlers {
-    onStart: (callback: (event: SyncStartEvent) => void) => void
-    onProgress: (callback: (event: SyncProgressEvent) => void) => void
-    onEnd: (callback: (event: SyncEndEvent) => void) => void
+    onStart: (callback: (event: SyncStartEvent) => void) => Promise<void>
+    onProgress: (callback: (event: SyncProgressEvent) => void) => Promise<void>
+    onEnd: (callback: (event: SyncEndEvent) => void) => Promise<void>
     clearEvents: () => void
 }
 
@@ -99,6 +99,7 @@ export function useModSyncEvents(): SyncEventHandlers {
                 unlistenFns.value.push(unlisten)
             } catch (error) {
                 loggingStore.logError(`Failed to listen to ${eventName}:`, error)
+                throw error
             }
         }
     }

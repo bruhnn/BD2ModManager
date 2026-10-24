@@ -11,6 +11,7 @@ import { useNotificationStore } from './notification';
 import { getErrorMessage } from '../utils/errors';
 import { useI18n } from 'vue-i18n';
 import { SyncResult } from '../composables/useModSyncEvents';
+import { useSyncStateStore } from './syncState';
 
 export type BD2ModType =
     | { type: 'Standing'; id: string }
@@ -269,6 +270,7 @@ export const useModsStore = defineStore('mods', () => {
 
         isSyncing.value = true;
         try {
+            await useSyncStateStore().ready
             let result = await invoke<SyncResult>("sync_mods", { removeUnmanagedMods })
             
             return result
@@ -299,6 +301,7 @@ export const useModsStore = defineStore('mods', () => {
 
         isSyncing.value = true;
         try {
+            await useSyncStateStore().ready
             let result = await invoke<SyncResult>("unsync_mods", { removeUnmanagedMods })
             
             return result
