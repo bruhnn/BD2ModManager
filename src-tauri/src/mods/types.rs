@@ -19,7 +19,7 @@ pub enum BD2ModType {
     Cutscene { id: String },
     Scene { id: String },
     NPC { id: String },
-    Dating { id: String },
+    Dating { id: String, real_id: String },
     Minigame { id: Option<String> },
 }
 

@@ -5,7 +5,8 @@ use crate::mods::{BD2Mod, BD2ModType};
 pub fn detect_conflicts(mods: &mut HashMap<String, BD2Mod>) {
     let mut conflict_map: HashMap<BD2ModType, Vec<String>> = HashMap::new();
 
-    for (name, bd2_mod) in mods.iter() {
+    for (name, bd2_mod) in mods.iter_mut() {
+        bd2_mod.conflicts_with.clear();
         if let Some(ref mod_type) = bd2_mod.mod_type {
             conflict_map
                 .entry(mod_type.clone())
@@ -19,6 +20,7 @@ pub fn detect_conflicts(mods: &mut HashMap<String, BD2Mod>) {
     for (_mod_type, names) in conflict_map.iter() {
         if names.len() > 1 {
             // Each mod conflicts with all others of the same type + id
+            // Dating also compares real_id, so different parts don't conflict
             for name in names {
                 let mut conflict_with = names.clone();
                 conflict_with.retain(|n| n != name);

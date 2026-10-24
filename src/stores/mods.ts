@@ -19,7 +19,7 @@ export type BD2ModType =
     | { type: 'Cutscene'; id: string }
     | { type: 'Scene'; id: string }
     | { type: 'NPC'; id: string }
-    | { type: 'Dating'; id: string }
+    | { type: 'Dating'; id: string; real_id: string }
     | { type: 'Minigame' };
 
 export interface BD2Mod {

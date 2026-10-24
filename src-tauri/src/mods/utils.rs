@@ -51,7 +51,10 @@ pub fn get_mod_type(folder_path: &Path) -> Option<BD2ModType> {
                                 return match *mod_type_str {
                                     "Standing" => Some(BD2ModType::Standing { id: mod_id }),
                                     "Cutscene" => Some(BD2ModType::Cutscene { id: mod_id }),
-                                    "Dating" => Some(BD2ModType::Dating { id: mod_id }),
+                                    "Dating" => Some(BD2ModType::Dating {
+                                        id: mod_id,
+                                        real_id: filename_lower[prefix.len()..filename_lower.len() - 8].to_string(),
+                                    }),
                                     "Scene" => Some(BD2ModType::Scene { id: mod_id }),
                                     "NPC" => Some(BD2ModType::NPC { id: mod_id }),
                                     _ => None,
