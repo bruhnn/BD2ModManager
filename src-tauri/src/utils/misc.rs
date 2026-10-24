@@ -159,7 +159,7 @@ pub fn get_game_asset(app_handle: &AppHandle, character_ids: &[&str], category: 
 
     #[cfg(debug_assertions)]
     for id in character_ids {
-        let url = format!("http://localhost:1420/characters/{}/{}.png", category, id);
+        let url = format!("http://localhost:1421/characters/{}/{}.png", category, id);
         if let Ok(resp) = reqwest::blocking::get(&url) {
             if resp.status().is_success() {
                 if let Ok(bytes) = resp.bytes() {
