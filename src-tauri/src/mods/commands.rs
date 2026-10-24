@@ -164,7 +164,7 @@ pub async fn sync_mods(
     let mod_manager_handle = state.mod_manager.clone();
 
     let result = tauri::async_runtime::spawn_blocking(move || {
-        let config = config_handle.lock().unwrap();
+        let config = config_handle.lock().unwrap().clone();
         let mut mod_manager = mod_manager_handle.lock().unwrap();
 
         let sync_method = match config.sync_method.as_str() {
@@ -237,8 +237,8 @@ pub fn is_sync_needed(
     _app_handle: tauri::AppHandle,
     state: tauri::State<'_, AppState>,
 ) -> Result<bool, AppError> {
+    let config = state.config.lock().unwrap().clone();
     let mod_manager = state.mod_manager.lock().unwrap();
-    let config = state.config.lock().unwrap();
     let game_dir = config
         .game_directory
         .clone()
