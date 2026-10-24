@@ -1,10 +1,11 @@
-import { reactive, readonly, toRef } from "vue"
+import { computed, reactive, readonly, toRef } from "vue"
 import { useI18n } from "vue-i18n"
 import { Channel, invoke } from "@tauri-apps/api/core"
 import { useNotificationStore } from "../stores/notification"
 import { useLoggingStore } from "../stores/logging"
 import { getErrorMessage } from "../utils/errors"
 import { useCharactersStore } from "../stores/characters"
+import { useModsStore } from "../stores/mods"
 
 export interface AppUpdateAvailable {
     versionAvailable: string,
@@ -133,6 +134,7 @@ const state = reactive({
     modPreview: null as ModPreviewState | null,
     gameData: null as GameDataState | null
 })
+export const isInstallingAppUpdate = computed(() => state.app?.status === UpdateStatus.Installing)
 const appUpdate = toRef(state, "app")
 const modPreviewUpdate = toRef(state, "modPreview")
 const gameDataUpdate = toRef(state, "gameData")
@@ -262,6 +264,7 @@ export function useUpdater() {
     // installer only
     async function installAppUpdate() {
         if (state.app?.status !== UpdateStatus.Downloaded) return
+        if (useModsStore().isSyncing) return
 
         let update = state.app.update
 

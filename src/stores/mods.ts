@@ -12,6 +12,7 @@ import { getErrorMessage } from '../utils/errors';
 import { useI18n } from 'vue-i18n';
 import { SyncResult } from '../composables/useModSyncEvents';
 import { useSyncStateStore } from './syncState';
+import { isInstallingAppUpdate } from '../composables/useUpdater';
 
 export type BD2ModType =
     | { type: 'Standing'; id: string }
@@ -258,6 +259,7 @@ export const useModsStore = defineStore('mods', () => {
     }
 
     async function syncMods(removeUnmanagedMods: boolean = false): Promise<SyncResult | undefined> {
+        if (isInstallingAppUpdate.value) return
         if (isSyncing.value) {
             // add to queue or just log?
             // raise an error?
@@ -292,6 +294,7 @@ export const useModsStore = defineStore('mods', () => {
     }
 
     async function unsyncMods(removeUnmanagedMods: boolean = false): Promise<SyncResult | undefined> {
+        if (isInstallingAppUpdate.value) return
         if (isSyncing.value) {
             loggingStore.logDebug("Sync in progress, skipping unsync.");
             return;

@@ -65,7 +65,9 @@ onMounted(async () => {
 
   const currentWindow = getCurrentWindow()
 
-  unlistenClose = await currentWindow.listen("tauri://close-requested", async () => {
+  unlistenClose = await currentWindow.onCloseRequested(async (event) => {
+    event.preventDefault()
+    if (modsStore.isSyncing) return
     if (!modsStore.isSyncNeeded) {
       currentWindow.destroy()
       return
@@ -78,7 +80,7 @@ onMounted(async () => {
       rejectButton: { label: t('common.actions.cancel') },
     })
 
-    if (result.confirmed) currentWindow.destroy()
+    if (result.confirmed && !modsStore.isSyncing) currentWindow.destroy()
   })
 
   await initialize()
