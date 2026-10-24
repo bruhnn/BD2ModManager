@@ -332,6 +332,12 @@ export const useModsStore = defineStore('mods', () => {
         return mods
     }
 
+    function applyPreviewModChanges(mods: BD2Mod[]) {
+        updateMods(mods)
+        debouncedSync()
+        checkIsSyncNeeded().catch(error => loggingStore.logError("Failed to check if sync is needed:", error))
+    }
+
     // events
     listen<BD2Mod[]>("mods-changed", async () => {
         notificationStore.add({
@@ -349,6 +355,7 @@ export const useModsStore = defineStore('mods', () => {
         isSyncing: readonly(isSyncing),
         isSyncNeeded: readonly(isSyncNeeded),
         discoverMods,
+        applyPreviewModChanges,
         enableMods,
         disableMods,
         previewMod,

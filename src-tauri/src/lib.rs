@@ -4,6 +4,7 @@ use std::sync::{Arc, Mutex};
 use tauri::{http, Manager};
 
 mod state;
+mod ipc;
 
 pub mod config;
 pub mod errors;
@@ -173,6 +174,7 @@ pub fn run() {
             }
 
             app.manage(app_state);
+            app.manage(ipc::PreviewIpc::default());
             app.manage(PendingUpdate(std::sync::Mutex::new(None)));
 
             // move data to appdata
@@ -181,6 +183,8 @@ pub fn run() {
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
+            ipc::start_preview_ipc,
+            ipc::publish_preview_mods,
             // mods
             mods::commands::discover_mods,
             mods::commands::get_mods,

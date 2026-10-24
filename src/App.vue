@@ -9,6 +9,7 @@ import { useSettingsStore } from "./stores/settings"
 import { useModsStore } from "./stores/mods"
 
 import { useAppInitializer } from "./composables/useAppInit"
+import { usePreviewIpc } from "./composables/usePreviewIpc"
 import { provideHeader } from "./composables/useHeader"
 import { useDev } from "./composables/useDev.ts"
 import { useConfirm } from "./plugins/ConfirmService"
@@ -33,6 +34,7 @@ const { initialize } = useAppInitializer()
 
 const confirm = useConfirm()
 const modsStore = useModsStore()
+usePreviewIpc()
 
 const { isDev } = useDev()
 
