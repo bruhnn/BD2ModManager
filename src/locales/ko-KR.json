@@ -929,6 +929,20 @@
                         "label": "모드 미리보기 자동 업데이트",
                         "description": "애플리케이션 시작 시 BD2ModPreview 업데이트를 자동으로 확인하고, 새 버전이 있으면 업데이트합니다."
                     },
+                    "updateChannel": {
+                        "label": "업데이트 채널",
+                        "placeholder": "업데이트 채널 선택",
+                        "options": {
+                            "stable": {
+                                "label": "안정 버전",
+                                "description": "안정 버전만 받습니다."
+                            },
+                            "beta": {
+                                "label": "베타 버전",
+                                "description": "베타 버전으로 새로운 기능을 미리 사용해 보세요. 오류가 있거나 일부 기능이 작동하지 않을 수 있습니다."
+                            }
+                        }
+                    },
                     "status": {
                         "updateAvailable": "업데이트 v{version}을(를) 사용할 수 있습니다."
                     },

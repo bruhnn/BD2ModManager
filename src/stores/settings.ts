@@ -13,6 +13,7 @@ interface Settings {
     searchModsRecursively: boolean,
     syncMethod?: string,
     checkForAppUpdates: boolean,
+    updateChannel: string,
     autoUpdateModPreview: boolean,
     autoUpdateGameData: boolean,
     skipUpdateVersion?: string | null,

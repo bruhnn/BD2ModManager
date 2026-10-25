@@ -6,6 +6,7 @@ import { useLoggingStore } from "../stores/logging"
 import { getErrorMessage } from "../utils/errors"
 import { useCharactersStore } from "../stores/characters"
 import { useModsStore } from "../stores/mods"
+import { useSettingsStore } from "../stores/settings"
 
 export interface AppUpdateAvailable {
     versionAvailable: string,
@@ -105,7 +106,7 @@ interface GameDataResource {
     }
 }
 
-type AppUpdateState = | null
+export type AppUpdateState = | null
     | { status: UpdateStatus.CheckingForUpdates }
     | { status: UpdateStatus.UpdateAvailable, update: AppUpdateAvailable }
     | { status: UpdateStatus.Downloading, update: AppUpdateAvailable, progress: DownloadProgress }
@@ -144,6 +145,7 @@ export function useUpdater() {
     const loggingStore = useLoggingStore()
     const notificationStore = useNotificationStore()
     const charactersStore = useCharactersStore()
+    const settingsStore = useSettingsStore()
 
 
     // installer and portable
@@ -164,6 +166,7 @@ export function useUpdater() {
 
         try {
             const result = await invoke<AppUpdateAvailable | null>('check_for_app_update', {
+                updateChannel: settingsStore.settings.updateChannel
             })
 
             loggingStore.logDebug("Update check result:", result)

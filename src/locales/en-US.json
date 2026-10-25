@@ -958,6 +958,20 @@
                         "label": "Auto-Update Mod Preview",
                         "description": "Enable this option to automatically check for updates for BD2ModPreview when the application starts and update it if a new version is available."
                     },
+                    "updateChannel": {
+                        "label": "Update Channel",
+                        "placeholder": "Select an update channel",
+                        "options": {
+                            "stable": {
+                                "label": "Stable",
+                                "description": "Receive stable releases only."
+                            },
+                            "beta": {
+                                "label": "Beta",
+                                "description": "Try new features early with beta releases. These versions may contain bugs or cause features to stop working."
+                            }
+                        }
+                    },
                     "status": {
                         "updateAvailable": "Update v{version} is available."
                     },

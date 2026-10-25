@@ -929,6 +929,20 @@
                         "label": "自动更新模组预览",
                         "description": "启用此选项后，应用程序启动时将自动检查 BD2ModPreview 的更新，并在有新版本时自动更新。"
                     },
+                    "updateChannel": {
+                        "label": "更新渠道",
+                        "placeholder": "选择更新渠道",
+                        "options": {
+                            "stable": {
+                                "label": "稳定版",
+                                "description": "仅接收稳定版更新。"
+                            },
+                            "beta": {
+                                "label": "测试版",
+                                "description": "通过测试版提前体验新功能。这些版本可能存在错误，或导致部分功能无法正常使用。"
+                            }
+                        }
+                    },
                     "status": {
                         "updateAvailable": "更新 v{version} 可用。"
                     },

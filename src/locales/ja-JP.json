@@ -929,6 +929,20 @@
                         "label": "MODプレビューを自動更新",
                         "description": "起動時にBD2ModPreviewの更新を自動で確認し、新バージョンがあれば更新します。"
                     },
+                    "updateChannel": {
+                        "label": "更新チャンネル",
+                        "placeholder": "更新チャンネルを選択",
+                        "options": {
+                            "stable": {
+                                "label": "安定版",
+                                "description": "安定版のみを受け取ります。"
+                            },
+                            "beta": {
+                                "label": "ベータ版",
+                                "description": "ベータ版で新機能をいち早く試せます。不具合が含まれたり、一部の機能が動作しなくなったりする場合があります。"
+                            }
+                        }
+                    },
                     "status": {
                         "updateAvailable": "アップデート v{version} が利用可能です。"
                     },

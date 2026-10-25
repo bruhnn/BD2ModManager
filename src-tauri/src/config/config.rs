@@ -19,10 +19,9 @@ pub struct AppConfig {
     pub check_for_app_updates: bool,
     pub auto_download_game_data: bool,
     pub auto_update_mod_preview: bool,
-    pub manifest_url: String,
-    pub releases_url: String,
     pub skip_update_version: Option<String>,
     pub is_first_launch: bool,
+    pub update_channel: String
 }
 
 #[derive(Deserialize, Serialize, Debug, Clone)]
@@ -37,12 +36,11 @@ pub struct PartialAppConfig {
     pub check_for_app_updates: Option<bool>,
     pub auto_download_game_data: Option<bool>,
     pub auto_update_mod_preview: Option<bool>,
-    pub manifest_url: Option<String>,
-    pub releases_url: Option<String>,
     pub skip_update_version: Option<String>,
     pub auto_sync_mods: Option<bool>,
     pub auto_sync_mods_delay: Option<u64>,
     pub is_first_launch: Option<bool>,
+    pub update_channel: Option<String>
 }
 
 impl AppConfig {
@@ -74,11 +72,8 @@ impl AppConfig {
         if let Some(auto_update_mod_preview) = partial.auto_update_mod_preview {
             self.auto_update_mod_preview = auto_update_mod_preview;
         }
-        if let Some(manifest_url) = partial.manifest_url {
-            self.manifest_url = manifest_url;
-        }
-        if let Some(releases_url) = partial.releases_url {
-            self.releases_url = releases_url;
+        if let Some(update_channel) = partial.update_channel {
+            self.update_channel = update_channel;
         }
         if let Some(skip_update_version) = partial.skip_update_version {
             self.skip_update_version = Some(skip_update_version);
@@ -107,12 +102,11 @@ impl Default for AppConfig {
             check_for_app_updates: true,
             auto_download_game_data: true,
             auto_update_mod_preview: true,
-            manifest_url: "https://raw.githubusercontent.com/bruhnn/BD2ModManager/refs/heads/main/src/manifest_v2.json".into(),
-            releases_url: "https://api.github.com/repos/bruhnn/BD2ModManager/releases".into(),
             skip_update_version: None,
             auto_sync_mods: false,
             auto_sync_mods_delay: 3000,
             is_first_launch: true,
+            update_channel: "stable".into()
         }
     }
 }
@@ -129,12 +123,11 @@ impl Default for PartialAppConfig {
             check_for_app_updates: None,
             auto_download_game_data: None,
             auto_update_mod_preview: None,
-            manifest_url: None,
-            releases_url: None,
             skip_update_version: None,
             auto_sync_mods: None,
             auto_sync_mods_delay: None,
             is_first_launch: None,
+            update_channel: None
         }
     }
 }

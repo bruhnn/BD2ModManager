@@ -14,6 +14,7 @@ import Section from '../Section.vue'
 
 import Checkbox from '../../../components/common/Checkbox.vue'
 import Button from '../../../components/common/Button.vue'
+import Select from '../../../components/common/Select.vue'
 
 
 const notificationStore = useNotificationStore()
@@ -21,11 +22,19 @@ const settingsStore = useSettingsStore()
 const { t } = useI18n()
 
 const {
+  appUpdate,
   modPreviewUpdate,
   checkForAppUpdate,
   checkForModPreviewUpdate,
   downloadAndInstallModPreview,
 } = useUpdater()
+
+const shouldDisable = computed(() => {
+  return appUpdate.value?.status === UpdateStatus.CheckingForUpdates
+    || appUpdate.value?.status === UpdateStatus.Downloading
+    || appUpdate.value?.status === UpdateStatus.Downloaded
+    || appUpdate.value?.status === UpdateStatus.Installing
+})
 
 const settings = computed(() => settingsStore.settings)
 const modPreviewVersion = ref<string | null>(null)
@@ -34,8 +43,8 @@ onMounted(async () => {
   modPreviewVersion.value = await invoke<string | null>('get_mod_preview_version')
 })
 
-function onCheckForAppUpdates(value: boolean) {
-  settingsStore.saveSettings({ checkForAppUpdates: value })
+async function onCheckForAppUpdates(value: boolean) {
+  await settingsStore.saveSettings({ checkForAppUpdates: value })
 
   if (value) {
     checkForAppUpdate()
@@ -44,6 +53,12 @@ function onCheckForAppUpdates(value: boolean) {
 
 function onAutoUpdateModPreview(value: boolean) {
   settingsStore.saveSettings({ autoUpdateModPreview: value })
+}
+
+async function onUpdateChannelChanged(value: string) {
+  await settingsStore.saveSettings({ updateChannel: value })
+
+  checkForAppUpdate()
 }
 
 async function checkModPreviewUpdates() {
@@ -88,6 +103,20 @@ watch(modPreviewUpdate, (update) => {
             :label="$t('settingsTab.updates.sections.updates.autoUpdateModPreview.label')"
             :description="$t('settingsTab.updates.sections.updates.autoUpdateModPreview.description')"
           />
+
+          <div class="grid grid-cols-3 items-center gap-4">
+            <label class="min-w-0 text-text-primary text-sm font-normal">
+              {{ $t("settingsTab.updates.sections.updates.updateChannel.label") }}
+              <p class="text-xs text-text-secondary mt-1 font-normal">
+                {{ $t(`settingsTab.updates.sections.updates.updateChannel.options.${settings.updateChannel}.description`) }}
+              </p>
+            </label>
+
+            <Select :model-value="settings.updateChannel" :disabled="shouldDisable" :options="[
+              {label: $t('settingsTab.updates.sections.updates.updateChannel.options.stable.label'), value: 'stable'},
+              {label: $t('settingsTab.updates.sections.updates.updateChannel.options.beta.label'), value: 'beta'}
+            ]" :placeholder="$t('settingsTab.updates.sections.updates.updateChannel.placeholder')" option-label="label" option-value="value" class="col-span-2" @update:model-value="onUpdateChannelChanged" />
+          </div>
         </div>
 
         <div class="flex items-center justify-between">

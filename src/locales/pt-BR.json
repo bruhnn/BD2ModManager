@@ -929,6 +929,20 @@
                         "label": "Atualizar Mod Preview Automaticamente",
                         "description": "Ative esta opção para verificar automaticamente atualizações do BD2ModPreview ao iniciar o aplicativo e atualizá-lo caso uma nova versão esteja disponível."
                     },
+                    "updateChannel": {
+                        "label": "Canal de Atualizações",
+                        "placeholder": "Selecione um canal de atualizações",
+                        "options": {
+                            "stable": {
+                                "label": "Estável",
+                                "description": "Receba apenas versões estáveis."
+                            },
+                            "beta": {
+                                "label": "Beta",
+                                "description": "Experimente novidades antecipadamente com versões beta. Essas versões podem conter erros ou fazer com que recursos parem de funcionar."
+                            }
+                        }
+                    },
                     "status": {
                         "updateAvailable": "A atualização v{version} está disponível."
                     },

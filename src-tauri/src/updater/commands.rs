@@ -38,6 +38,7 @@ mod portable {
 
     pub(super) async fn fetch_app_latest_version(
         app: &AppHandle,
+        channel: &str
     ) -> Result<(Version, String, Vec<String>), String> {
         let current_version = get_app_version(&app);
         let client = reqwest::Client::builder()
@@ -51,6 +52,7 @@ mod portable {
             .header("X-Manager-Version", current_version)
             .header("X-Manager-Platform", std::env::consts::OS)
             .header("X-Manager-Portable", "true")
+            .header("X-Manager-Channel", channel)
             .send()
             .await
             .map_err(|e| format!("Request failed: {e}"))?
@@ -297,11 +299,17 @@ pub async fn update_game_data(app_handle: AppHandle, on_event: Channel<GameDataE
 #[tauri::command]
 pub async fn check_for_app_update(
     app_handle: AppHandle,
+    update_channel: Option<String>,
     dev_return_version: Option<String>,
 ) -> AppUpdateResult<Option<AppUpdateMetadata>> {
     let _ = dev_return_version;
 
-    match portable::fetch_app_latest_version(&app_handle).await {
+    let channel: &str = match update_channel.as_deref() {
+        Some("beta") => "beta",
+        _ => "stable"
+    };
+
+    match portable::fetch_app_latest_version(&app_handle, channel).await {
         Ok((latest_version, download_url, changelog)) => {
             let local_version = get_app_version(&app_handle);
             let local_ver = semver::Version::parse(&local_version)
@@ -328,9 +336,15 @@ pub async fn check_for_app_update(
 pub async fn check_for_app_update(
     app_handle: AppHandle,
     pending_update: State<'_, PendingUpdate>,
+    update_channel: Option<String>,
     dev_return_version: Option<String>,
 ) -> AppUpdateResult<Option<AppUpdateMetadata>> {
     let _ = dev_return_version;
+
+    let channel = match update_channel.as_deref() {
+        Some("beta") => "beta",
+        _ => "stable",
+    };
 
     use reqwest::header::{HeaderMap, HeaderValue};
     use tauri_plugin_updater::UpdaterExt;
@@ -339,6 +353,7 @@ pub async fn check_for_app_update(
     headers.insert("X-Manager-Version", HeaderValue::from_str(&get_app_version(&app_handle)).unwrap());
     headers.insert("X-Manager-Platform", HeaderValue::from_str(std::env::consts::OS).unwrap());
     headers.insert("X-Manager-Portable", HeaderValue::from_static("false"));
+    headers.insert("X-Manager-Channel", HeaderValue::from_static(channel));
 
     let update = app_handle
         .updater_builder()
