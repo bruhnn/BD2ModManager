@@ -211,17 +211,26 @@ onUnmounted(() => {
                         <Tooltip class="min-w-0" placement="bottom"
                             :text="allCredits[creditIndex]?.type === 'creator' ? $t('titlebar.credits.creator_tooltip') : allCredits[creditIndex]?.type === 'supporter' ? $t('titlebar.credits.supporter_tooltip', { platform: ({
                                 afdian: 'AfDian',
-                                kofi: 'Ko-Fi',
+                                kofi: 'Ko-fi',
                                 github: 'GitHub',
                             } as Record<string, string>)[allCredits[creditIndex]?.platform]}) : $t('titlebar.credits.bug_reports_tooltip')"
-                            :background-color="allCredits[creditIndex]?.platform === 'afdian' ? '#946CE6' : '#24292f'"
+                            :background-color="allCredits[creditIndex]?.platform === 'afdian' ? '#946CE6' : allCredits[creditIndex]?.platform === 'kofi' ? '#FF6433' : '#24292f'"
                             text-color="#ffffff">
                             <template #icon>
                                 <AfDianIcon v-if="allCredits[creditIndex]?.platform === 'afdian'"
                                     class="w-5 h-5 shrink-0" color="currentColor" />
+                                <KofiIcon v-else-if="allCredits[creditIndex]?.platform === 'kofi'"
+                                    class="w-5 h-5 shrink-0" />
                                 <GithubIcon v-else class="w-4 h-4 shrink-0" />
                             </template>
-                            <span tabindex="0" class="truncate max-w-64
+                            <span tabindex="0" class="truncate max-w-64"
+                                :class="{ 'cursor-pointer': allCredits[creditIndex]?.type === 'creator' }"
+                                @click="allCredits[creditIndex]?.type === 'creator' && handleOpenGithubUser()">
+                                <span class="shrink-0 text-text-primary">
+                                    {{ allCredits[creditIndex]?.type === 'creator' ? $t('titlebar.credits.creator') : $t('titlebar.credits.thanks') }}
+                                </span>
+                                {{ ' ' }}
+                                <span class="shrink-0
                                 bg-linear-to-r
                                 bg-size-[200%_100%]
                                 bg-clip-text text-transparent
@@ -229,15 +238,10 @@ onUnmounted(() => {
                                 transition-colors" :class="[
                                     allCredits[creditIndex]?.platform === 'afdian'
                                         ? 'from-[#946CE6] via-[#B79AF5] to-[#946CE6] hover:via-[#C8B2F8]'
-                                        : 'from-accent via-accent/60 to-accent hover:via-accent/80',
-
-                                    { 'cursor-pointer': allCredits[creditIndex]?.type === 'creator' }
-                                ]" @click="allCredits[creditIndex]?.type === 'creator' && handleOpenGithubUser()">
-                                <span class="shrink-0 text-text-primary">
-                                    {{ allCredits[creditIndex]?.type === 'creator' ? $t('titlebar.credits.creator') : $t('titlebar.credits.thanks') }}
-                                </span>
-                                {{ ' ' }}
-                                <span class="shrink-0"> {{ allCredits[creditIndex]?.name }}</span>
+                                    : allCredits[creditIndex]?.platform === 'kofi'
+                                        ? 'from-[#FF6433] via-[#FFA05A] to-[#FF6433] hover:via-[#FFD96E]'
+                                        : 'from-accent via-accent/60 to-accent hover:via-accent/80'
+                                ]"> {{ allCredits[creditIndex]?.name }}</span>
                             </span>
                         </Tooltip>
                     </span>
