@@ -104,8 +104,8 @@ Creates shortcuts instead of copying files.
 ### Characters Page (v4.0.1)
 ![Characters Page](./screenshots/characters_page_v401.png)
 
-### Mod Preview (BD2ModPreview)
-![Mod Preview](./screenshots/bd2modpreview.png)
+### Mod Preview (BD2ModPreview v1.0.0)
+![Mod Preview](./screenshots/bd2modpreview_v100v2.png)
 
 ---
 
@@ -114,14 +114,7 @@ Creates shortcuts instead of copying files.
 If you enjoy the mod manager and want to support development, you can support me here:
 
 - Ko-Fi: https://ko-fi.com/bruhnn
-- 🇨🇳: https://afdian.com/a/bruhnn
-
----
-## 🧰 Community & Related Projects  
-
-- [**Brown Dust II Mod Manager (by kxdekxde)**](https://codeberg.org/kxdekxde/browndust2-mod-manager) – An alternative mod manager for Brown Dust 2
-- [**BD2 Live2D Viewer (by jelosus2)**](https://jelosus2.github.io/BD2-L2D-Viewer) – Website to preview character animations
-- [**BDroid_X (by Ark-Repoleved)**](https://github.com/Ark-Repoleved/BDroid_X) - Brown Dust II Mod Manager for Android
+- Afdian (🇨🇳): https://afdian.com/a/bruhnn
 
 ## ❓ FAQ
 
