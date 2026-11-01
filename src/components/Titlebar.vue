@@ -200,8 +200,8 @@ onUnmounted(() => {
     <div class="grid min-h-10 h-10 shrink-0 sticky grid-cols-[minmax(0,1fr)_auto] select-none overflow-hidden transition-[max-height] duration-300 ease-out bg-surface-app border-b border-border-subtle"
         data-tauri-drag-region>
         <div class="flex min-w-0 items-center gap-2.5 overflow-hidden px-2 py-1" data-tauri-drag-region>
-            <span class="font-bold text-lg select-none whitespace-nowrap" data-tauri-drag-region>
-                Mod Manager
+            <span class="font-bold text-base select-none whitespace-nowrap" data-tauri-drag-region>
+                BD2ModManager
             </span>
             <span class="text-xs font-semibold flex min-w-0 gap-1 items-center whitespace-nowrap">
                 <Heart class="w-3.5 h-3.5 shrink-0 mr-1 text-accent" />
