@@ -211,20 +211,41 @@ enum SyncType {
     Unsync,
 }
 
-pub(crate) fn remove_mod_path(path: &Path) -> io::Result<()> {
+pub(crate) fn remove_mod_path(path: &Path, staging_directory: &Path) -> io::Result<()> {
     let metadata = match fs::symlink_metadata(path) {
         Ok(metadata) => metadata,
         Err(error) if error.kind() == io::ErrorKind::NotFound => return Ok(()),
         Err(error) => return Err(error),
     };
+
+    // resolve the parent, not the link we're removing
+    let path = std::path::absolute(path)?;
+    let parent = path.parent().ok_or_else(|| {
+        io::Error::new(io::ErrorKind::PermissionDenied, "Cannot remove a filesystem root")
+    })?;
+    let destination = PathBuf::from(parent.canonicalize()?.join(path.file_name().unwrap()).to_string_lossy().to_lowercase());
+    let staging_directory = std::path::absolute(staging_directory)?;
+    let parent = staging_directory.ancestors().find(|parent| parent.exists()).ok_or_else(|| {
+        io::Error::new(io::ErrorKind::NotFound, "Staging directory parent was not found")
+    })?;
+    let staging = PathBuf::from(parent.canonicalize()?.join(staging_directory.strip_prefix(parent).unwrap()).to_string_lossy().to_lowercase());
+    let staging_path = PathBuf::from(staging_directory.to_string_lossy().to_lowercase());
+    let removal_path = PathBuf::from(path.to_string_lossy().to_lowercase());
+
+    if destination.starts_with(&staging) || staging.starts_with(&destination)
+        || removal_path.starts_with(&staging_path) || staging_path.starts_with(&removal_path)
+    {
+        return Err(io::Error::new(io::ErrorKind::PermissionDenied, "Cannot remove the staging directory or its contents"));
+    }
+
     if metadata.file_attributes() & 0x10 != 0 {
         if metadata.file_attributes() & 0x400 != 0 {
-            fs::remove_dir(path)
+            fs::remove_dir(&path)
         } else {
-            fs::remove_dir_all(path)
+            fs::remove_dir_all(&path)
         }
     } else {
-        fs::remove_file(path)
+        fs::remove_file(&path)
     }
 }
 
@@ -967,13 +988,13 @@ pub fn sync_mods<R: tauri::Runtime>(
 
                         match method {
                             SyncMethod::Copy => {
-                                match sync_dirs(&source, &destination) {
+                                match sync_dirs(&source, &destination, staging_directory) {
                                     Ok(_) => Ok(()),
                                     Err(error) => {
                                         error!("Failed to copy mod {}: {}", action.mod_name, error);
 
                                         // remove the partial copy
-                                        remove_mod_path(&destination).map_err(|source| {
+                                        remove_mod_path(&destination, staging_directory).map_err(|source| {
                                             ModSyncError::RemovalFailed {
                                                 path: destination.to_string_lossy().to_string(),
                                                 source,
@@ -1013,7 +1034,7 @@ pub fn sync_mods<R: tauri::Runtime>(
                 SyncAction::Remove(_) => {
                     // remove
                     let game_mod_path = game_mods_path.join(&action.game_folder);
-                    match remove_mod_path(&game_mod_path) {
+                    match remove_mod_path(&game_mod_path, staging_directory) {
                         Ok(()) => (SyncStatus::Removed, None),
                         Err(source) => {
                             let error = Arc::new(ModSyncError::RemovalFailed {
@@ -1043,7 +1064,7 @@ pub fn sync_mods<R: tauri::Runtime>(
                             }
                         }
 
-                        remove_mod_path(&destination).map_err(|source| {
+                        remove_mod_path(&destination, staging_directory).map_err(|source| {
                             ModSyncError::RemovalFailed {
                                 path: destination.to_string_lossy().to_string(),
                                 source,
@@ -1052,13 +1073,13 @@ pub fn sync_mods<R: tauri::Runtime>(
 
                         match method {
                             SyncMethod::Copy => {
-                                match sync_dirs(&source, &destination) {
+                                match sync_dirs(&source, &destination, staging_directory) {
                                     Ok(_) => Ok(()),
                                     Err(error) => {
                                         error!("Failed to copy mod {}: {}", action.mod_name, error);
 
                                         // remove the partial copy
-                                        remove_mod_path(&destination).map_err(|source| {
+                                        remove_mod_path(&destination, staging_directory).map_err(|source| {
                                             ModSyncError::RemovalFailed {
                                                 path: destination.to_string_lossy().to_string(),
                                                 source,
@@ -1312,7 +1333,7 @@ pub fn unsync_mods<R: tauri::Runtime>(
             debug!("Removing mod at path: {:?}", path);
 
             let (status, error) = match check_mod_parents(&path, &game_mods_path).and_then(|()| {
-                remove_mod_path(&path).map_err(|source| ModSyncError::RemovalFailed {
+                remove_mod_path(&path, staging_directory).map_err(|source| ModSyncError::RemovalFailed {
                     path: path.to_string_lossy().to_string(),
                     source,
                 })

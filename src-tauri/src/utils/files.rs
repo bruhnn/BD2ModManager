@@ -122,7 +122,7 @@ pub fn dirs_match(src: &Path, dst: &Path) -> Result<bool, ModSyncError> {
     Ok(true)
 }
 
-pub fn sync_dirs(src: &Path, dst: &Path) -> Result<bool, ModSyncError> {
+pub fn sync_dirs(src: &Path, dst: &Path, staging_directory: &Path) -> Result<bool, ModSyncError> {
     let metadata = fs::symlink_metadata(src)?;
 
     // FILE_ATTRIBUTE_REPARSE_POINT
@@ -144,7 +144,7 @@ pub fn sync_dirs(src: &Path, dst: &Path) -> Result<bool, ModSyncError> {
     }
     match fs::symlink_metadata(dst) {
         Ok(metadata) if metadata.file_attributes() & 0x400 != 0 || !metadata.is_dir() => {
-            crate::mods::sync::remove_mod_path(dst)?;
+            crate::mods::sync::remove_mod_path(dst, staging_directory)?;
             updated = true;
         }
         Ok(_) => {},
@@ -172,13 +172,13 @@ pub fn sync_dirs(src: &Path, dst: &Path) -> Result<bool, ModSyncError> {
         }
 
         if metadata.is_dir() {
-            if sync_dirs(&src_path, &dst_path)? {
+            if sync_dirs(&src_path, &dst_path, staging_directory)? {
                 updated = true;
             }
         } else {
             match fs::symlink_metadata(&dst_path) {
                 Ok(metadata) if metadata.file_attributes() & 0x400 != 0 || metadata.is_dir() => {
-                    crate::mods::sync::remove_mod_path(&dst_path)?;
+                    crate::mods::sync::remove_mod_path(&dst_path, staging_directory)?;
                     updated = true;
                 }
                 Ok(_) => {},
@@ -210,7 +210,7 @@ pub fn sync_dirs(src: &Path, dst: &Path) -> Result<bool, ModSyncError> {
         let src_path = src.join(entry.file_name());
 
         if !src_path.exists() {
-            crate::mods::sync::remove_mod_path(&dst_path)?;
+            crate::mods::sync::remove_mod_path(&dst_path, staging_directory)?;
             updated = true;
         }
     }
