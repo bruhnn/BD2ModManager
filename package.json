@@ -37,7 +37,7 @@
     "tailwindcss": "^4.2.1",
     "vite-svg-loader": "^5.1.0",
     "vue": "^3.5.29",
-    "vue-i18n": "^11.2.8",
+    "vue-i18n": "^11.4.14",
     "vue-router": "^5.0.3"
   },
   "devDependencies": {
