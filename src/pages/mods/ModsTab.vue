@@ -166,9 +166,9 @@ function handleUpdateModAuthor(mods: BD2Mod[]) {
 function handleRenameMod(mod: BD2Mod) {
   loggingStore.logDebug("Renaming mod:", mod.name);
   renameModModal.value?.open({
-    modName: mod.name,
+    modName: mod.displayName,
     onSave: (newName: string) => {
-      if (newName === mod.name) {
+      if (newName === mod.displayName) {
         return;
       }
       loggingStore.logDebug(`Change name  of mod "${mod.name}" to "${newName}" ${typeof newName}`);
