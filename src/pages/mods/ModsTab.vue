@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Folder, FolderMinus, FolderPlus, FolderSync, RefreshCcw } from "@lucide/vue";
+import { Folder, FolderMinus, FolderPlus, FolderSync, Info, RefreshCcw, X } from "@lucide/vue";
 
 import { computed, defineComponent, h, onActivated, onDeactivated, reactive, ref, useTemplateRef, watch } from "vue";
 import { watchDebounced } from "@vueuse/core";
@@ -68,6 +68,14 @@ const {
 } = useModSync()
 
 const isRefreshing = ref(false)
+const unmanagedNoticeDismissed = ref(false)
+const hasUnmanagedMods = computed(() => modsStore.extendedMods.some(mod =>
+  mod.errors.includes('Unmanaged') || mod.errors.includes('UnmanagedButInStaging')
+))
+
+watch(hasUnmanagedMods, (hasUnmanaged) => {
+  if (!hasUnmanaged) unmanagedNoticeDismissed.value = false
+})
 
 const debouncedSearchQuery = ref('');
 
@@ -490,6 +498,35 @@ useHeader({
 
     <div class="shrink-0 mb-2">
       <ModsHeader v-model:filters="filters" />
+    </div>
+
+    <div v-if="hasUnmanagedMods && !unmanagedNoticeDismissed"
+      class="flex items-center justify-between gap-2 shrink-0 mb-2 px-3 py-1 rounded-md bg-surface-panel text-text-secondary text-sm">
+      <Popover placement="bottom-start">
+        <template #trigger="{ open, close, isOpen }">
+          <button type="button" class="flex items-center gap-2 py-1 text-left hover:text-text-primary cursor-pointer"
+            :aria-expanded="isOpen" @mouseenter="open" @mouseleave="close" @focus="open" @blur="close" @keydown.esc="close">
+            <Info class="size-4 shrink-0" />
+            {{ t('modsTab.unmanagedNotice.message') }}
+          </button>
+        </template>
+        <template #default="{ close }">
+          <div class="w-96 max-w-[calc(100vw-2rem)] p-4 rounded-md border border-border-default bg-surface-popover text-sm text-text-secondary"
+            @keydown.esc="close">
+            <div class="flex items-center justify-between gap-3 mb-3">
+              <span class="font-semibold text-text-primary">{{ t('modsTab.unmanagedNotice.title') }}</span>
+            </div>
+            <div class="space-y-3">
+              <section v-for="section in ['meaning', 'backup', 'inside', 'outside']" :key="section">
+                <h4 class="font-medium text-text-primary mb-1">{{ t(`modsTab.unmanagedNotice.${section}Title`) }}</h4>
+                <p>{{ t(`modsTab.unmanagedNotice.${section}`) }}</p>
+              </section>
+            </div>
+          </div>
+        </template>
+      </Popover>
+      <button type="button" class="p-1 rounded hover:bg-state-hover hover:text-text-primary cursor-pointer"
+        :aria-label="t('common.actions.close')" @click="unmanagedNoticeDismissed = true"><X class="size-4" /></button>
     </div>
 
     <div class="flex-1 overflow-hidden min-h-0 mb-2">
