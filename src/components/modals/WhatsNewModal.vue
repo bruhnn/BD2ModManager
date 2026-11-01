@@ -10,7 +10,7 @@ const { isOpen, closeModal } = globalModals.whatsNew
 
 const versions = [
     {
-        version: '4.3.0',
+        version: '4.3.0-beta.2',
         highlights: [
             {
                 title: 'whatsNew.release430.syncTitle',
