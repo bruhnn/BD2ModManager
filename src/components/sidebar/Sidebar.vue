@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Bolt, Component, Play, Puzzle, Settings, Users } from '@lucide/vue';
+import { Bolt, ChevronRight, Component, Play, Puzzle, Settings, Users } from '@lucide/vue';
 
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
@@ -17,6 +17,7 @@ import NavigationSection from './NavigationSection.vue'
 import NavigationButton from './NavigationButton.vue';
 import MultiButton from '../common/MultiButton.vue';
 import Select from '../common/Select.vue';
+import { globalModals } from '../../composables/useGlobalModals.ts';
 
 const { t } = useI18n()
 const notificationStore = useNotificationStore()
@@ -97,6 +98,13 @@ function onProfileSelected(profile_id: string) {
         <span class="flex-1" />
 
         <!-- <span class="border border-border-subtle h-px w-full"></span> -->
+        <div class="mx-2 flex">
+            <button class="bg-transparent text-sm text-text-secondary cursor-pointer flex w-full items-center justify-between gap-1 px-2 py-2 rounded-md hover:bg-state-hover transition-all duration-150 ease-in-out"
+            @click="globalModals.whatsNew.showModal()">
+                {{ $t("whatsNew.title") }}
+                <ChevronRight class="w-4 h-4 text-text-secondary inline-block" />
+            </button>
+        </div>
          
         <div class="m-2 flex flex-col gap-1">
             <MultiButton :label="$t('sidebar.actions.launchGame')" :icon="Play" variant="primary" size="lg"

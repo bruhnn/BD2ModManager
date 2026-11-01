@@ -44,11 +44,13 @@ function createModal<T = void>(options?: { force?: boolean }) {
     console.log(`showModal called for modal id: ${id.toString()}, activeModal: ${activeModal.value?.toString()}`)
 
     if (activeModal.value === id) {
+      console.log(`Modal with id: ${id.toString()} is already active. Updating params.`)
       params.value = value ?? null
       return
     }
 
     if (activeModal.value !== null) {
+      console.log(`Another modal is active (id: ${activeModal.value.toString()}). Queueing modal with id: ${id.toString()}`)
       if (options?.force) {
         const queuedIndex = queue.findIndex((item) => item.id === id)
         if (queuedIndex !== -1) queue.splice(queuedIndex, 1)
@@ -88,4 +90,5 @@ export const globalModals = {
     onRetry?: () => boolean | Promise<boolean>
   }>(),
   // conflict: createModal<{ mod?: BD2ModExtended }>(),
+  whatsNew: createModal()
 }

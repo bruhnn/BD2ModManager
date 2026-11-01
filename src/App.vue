@@ -24,6 +24,7 @@ import ModsDeleteFailedModal from "./components/modals/ModsDeleteFailedModal.vue
 import ConfirmationDialog from "./components/common/ConfirmationDialog.vue"
 import SyncModal from "./components/modals/SyncModal.vue"
 import LogsModal from "./components/modals/LogsModal.vue"
+import WhatsNewModal from "./components/modals/WhatsNewModal.vue"
 
 const { t, locale } = useI18n()
 
@@ -128,6 +129,7 @@ onUnmounted(() => {
     <UpdateAvailableModal />
     <SyncModal />
     <LogsModal />
+    <WhatsNewModal />
     <ModsDeleteFailedModal />
 
   </main>
