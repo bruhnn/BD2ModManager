@@ -248,10 +248,9 @@ pub fn is_sync_needed(
 ) -> Result<bool, AppError> {
     let config = state.config.lock().unwrap().clone();
     let mod_manager = state.mod_manager.lock().unwrap();
-    let game_dir = config
-        .game_directory
-        .clone()
-        .ok_or(AppError::GameDirectoryNotSet)?;
+    let Some(game_dir) = config.game_directory.clone() else {
+        return Ok(false);
+    };
     let game_dir = PathBuf::from(game_dir);
     let staging_dir = get_staging_dir(&config);
     let sync_method = match config.sync_method.as_str() {
