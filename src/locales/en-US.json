@@ -1039,6 +1039,14 @@
         }
     },
     "errors": {
+        "ModPreviewUpdateError": {
+            "InstallFailed": "Could not install the downloaded update. Close BD2ModPreview if it is open, then retry. {reason}",
+            "CheckFailed": "Failed to check for Mod Preview updates. {reason}",
+            "ReleaseFileNotFound": "The release does not contain BD2ModPreview.exe.",
+            "InstallationPathNotFound": "Could not find the Mod Preview installation path.",
+            "DownloadFailed": "Failed to download Mod Preview. {reason}",
+            "SaveFailed": "Failed to save Mod Preview to \"{path}\". {reason}"
+        },
         "AppError": {
             "GameDirectoryNotSet": "Game directory is not set. Please set it in the settings.",
             "SyncMethodInvalid": "Invalid sync method: {method}",

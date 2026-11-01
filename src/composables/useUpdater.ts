@@ -290,7 +290,9 @@ export function useUpdater() {
     async function checkForModPreviewUpdate(downloadAndInstall?: boolean) {
         loggingStore.logDebug("Checking for mod preview update...")
 
-        if (state.modPreview?.status === UpdateStatus.CheckingForUpdates) {
+        if (state.modPreview?.status === UpdateStatus.CheckingForUpdates
+            || state.modPreview?.status === UpdateStatus.Downloading
+            || state.modPreview?.status === UpdateStatus.Updating) {
             loggingStore.logDebug("Update check for mod preview already in progress.")
             return null
         }

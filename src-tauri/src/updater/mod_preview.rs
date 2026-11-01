@@ -13,6 +13,8 @@ pub enum ModPreviewUpdateError {
     InstallationPathNotFound,
     #[error("failed to download Mod Preview: {reason}")]
     DownloadFailed { reason: String },
+    #[error("failed to install Mod Preview: {source}")]
+    InstallFailed { source: std::io::Error },
     #[error("failed to save Mod Preview to '{path}': {source}")]
     SaveFailed {
         path: String,
@@ -38,6 +40,10 @@ impl Serialize for ModPreviewUpdateError {
             ModPreviewUpdateError::DownloadFailed { reason } => {
                 ("DownloadFailed", Some(json!({ "reason": reason })))
             }
+            ModPreviewUpdateError::InstallFailed { source } => (
+                "InstallFailed",
+                Some(json!({ "kind": format!("{:?}", source.kind()) })),
+            ),
             ModPreviewUpdateError::SaveFailed { path, source } => (
                 "SaveFailed",
                 Some(json!({
@@ -47,7 +53,8 @@ impl Serialize for ModPreviewUpdateError {
             ),
         };
 
-        let mut state = serializer.serialize_struct("ModPreviewUpdateError", 3)?;
+        let mut state = serializer.serialize_struct("ModPreviewUpdateError", 4)?;
+        state.serialize_field("parent", "ModPreviewUpdateError")?;
         state.serialize_field("type", type_)?;
         state.serialize_field("details", &details)?;
         state.serialize_field("message", &self.to_string())?;
@@ -58,6 +65,7 @@ impl Serialize for ModPreviewUpdateError {
 pub struct ModPreviewUpdate {
     pub version: String,
     pub download_url: String,
+    pub digest: Option<String>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -70,6 +78,7 @@ struct GitHubRelease {
 struct GitHubAsset {
     name: String,
     browser_download_url: String,
+    digest: Option<String>,
 }
 
 const RELEASES_URL: &str = "https://api.github.com/repos/bruhnn/BD2ModPreview/releases/latest";
@@ -103,7 +112,7 @@ pub fn get_mod_preview_version(app_handle: tauri::AppHandle) -> Option<String> {
     None
 }
 
-async fn get_latest_mod_preview_version() -> Result<(Version, String), ModPreviewUpdateError> {
+async fn get_latest_mod_preview_version() -> Result<(Version, String, Option<String>), ModPreviewUpdateError> {
     let client = reqwest::Client::new();
 
     let release: GitHubRelease = client
@@ -134,14 +143,14 @@ async fn get_latest_mod_preview_version() -> Result<(Version, String), ModPrevie
             reason: format!("invalid remote version: {e}"),
         })?;
 
-    Ok((version, asset.browser_download_url.clone()))
+    Ok((version, asset.browser_download_url.clone(), asset.digest.clone()))
 }
 
 pub async fn check_for_update(
     app_handle: &tauri::AppHandle,
 ) -> Result<Option<ModPreviewUpdate>, ModPreviewUpdateError> {
     let local_version = get_mod_preview_version(app_handle.clone());
-    let (latest_version, download_url) = get_latest_mod_preview_version().await?;
+    let (latest_version, download_url, digest) = get_latest_mod_preview_version().await?;
 
     log::info!(
         "Mod preview update check; local: {}, latest: {}",
@@ -165,5 +174,6 @@ pub async fn check_for_update(
     Ok(Some(ModPreviewUpdate {
         version: latest_version.to_string(),
         download_url,
+        digest,
     }))
 }

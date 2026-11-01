@@ -1010,6 +1010,14 @@
         }
     },
     "errors": {
+        "ModPreviewUpdateError": {
+            "InstallFailed": "ダウンロードした更新をインストールできませんでした。BD2ModPreview が開いている場合は閉じてから再試行してください。{reason}",
+            "CheckFailed": "Mod Preview の更新確認に失敗しました。{reason}",
+            "ReleaseFileNotFound": "リリースに BD2ModPreview.exe がありません。",
+            "InstallationPathNotFound": "Mod Preview のインストール先が見つかりません。",
+            "DownloadFailed": "Mod Preview のダウンロードに失敗しました。{reason}",
+            "SaveFailed": "Mod Preview を「{path}」に保存できませんでした。{reason}"
+        },
         "ModInstallError": {
             "ModTooBig": "このMODはサイズ上限の100 MBを超えています。",
             "ModContainsSymlink": "このMODにはシンボリックリンクまたはジャンクション「{path}」が含まれています。インストールする前に実際のファイルに置き換えてください。"

@@ -1010,6 +1010,14 @@
         }
     },
     "errors": {
+        "ModPreviewUpdateError": {
+            "InstallFailed": "无法安装已下载的更新。如果 BD2ModPreview 已打开，请关闭后重试。{reason}",
+            "CheckFailed": "检查 Mod Preview 更新失败。{reason}",
+            "ReleaseFileNotFound": "此版本不包含 BD2ModPreview.exe。",
+            "InstallationPathNotFound": "找不到 Mod Preview 安装路径。",
+            "DownloadFailed": "下载 Mod Preview 失败。{reason}",
+            "SaveFailed": "无法将 Mod Preview 保存到“{path}”。{reason}"
+        },
         "ModInstallError": {
             "ModTooBig": "此模组超过了 100 MB 的大小限制。",
             "ModContainsSymlink": "此模组包含符号链接或目录联接：“{path}”。请先将其替换为实际文件，再进行安装。"

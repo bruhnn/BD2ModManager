@@ -168,91 +168,87 @@ pub async fn check_for_mod_preview_update(
     Ok(None)
 }
 
+static MOD_PREVIEW_DOWNLOAD: tokio::sync::Mutex<()> = tokio::sync::Mutex::const_new(());
+
 #[tauri::command]
 pub async fn download_mod_preview(
     app_handle: AppHandle,
     on_event: Channel<DownloadEvent>,
 ) -> Result<bool, ModPreviewUpdateError> {
+    use futures_util::StreamExt;
+    use sha2::{Digest, Sha256};
 
+    let _download = MOD_PREVIEW_DOWNLOAD.lock().await;
+    let Some(update) = updater::mod_preview::check_for_update(&app_handle).await? else {
+        return Ok(false);
+    };
+    let dest_path = get_mod_preview_path(&app_handle)
+        .ok_or(ModPreviewUpdateError::InstallationPathNotFound)?;
+    let download_path = dest_path.with_extension("exe.download");
+    let expected_hash = update.digest.as_deref()
+        .and_then(|digest| digest.strip_prefix("sha256:"))
+        .ok_or_else(|| ModPreviewUpdateError::CheckFailed {
+            reason: "The release does not provide a SHA-256 hash".into(),
+        })?;
 
-    let result = updater::mod_preview::check_for_update(&app_handle).await;
-
-    match result {
-        Ok(Some(update)) => {
-            let dest_path = get_mod_preview_path(&app_handle)
-                .ok_or(ModPreviewUpdateError::InstallationPathNotFound)?;
-
-            if let Some(parent) = dest_path.parent() {
-                tokio::fs::create_dir_all(parent).await.map_err(|source| {
-                    ModPreviewUpdateError::SaveFailed {
-                        path: parent.to_string_lossy().into_owned(),
-                        source,
-                    }
-                })?;
+    if let Some(parent) = dest_path.parent() {
+        tokio::fs::create_dir_all(parent).await.map_err(|source| {
+            ModPreviewUpdateError::SaveFailed {
+                path: parent.to_string_lossy().into_owned(), source,
             }
-
-            let client = reqwest::Client::new();
-            let response = client
-                .get(&update.download_url)
-                .header("User-Agent", "BD2ModManager")
-                .send()
-                .await
-                .map_err(|e| ModPreviewUpdateError::DownloadFailed {
-                    reason: e.to_string(),
-                })?;
-
-            if !response.status().is_success() {
-                return Err(ModPreviewUpdateError::DownloadFailed {
-                    reason: format!("server returned HTTP {}", response.status()),
-                });
-            }
-
-            let total_size = response.content_length();
-
-            let _ = on_event.send(DownloadEvent::Started { total_size });
-
-            let mut file = tokio::fs::File::create(&dest_path)
-                .await
-                .map_err(|source| ModPreviewUpdateError::SaveFailed {
-                    path: dest_path.to_string_lossy().into_owned(),
-                    source,
-                })?;
-
-            let mut stream = response.bytes_stream();
-            use futures_util::StreamExt;
-
-            while let Some(chunk) = stream.next().await {
-                let chunk = chunk.map_err(|e| ModPreviewUpdateError::DownloadFailed {
-                    reason: e.to_string(),
-                })?;
-
-                file.write_all(&chunk).await.map_err(|source| {
-                    ModPreviewUpdateError::SaveFailed {
-                        path: dest_path.to_string_lossy().into_owned(),
-                        source,
-                    }
-                })?;
-
-                let _ = on_event.send(DownloadEvent::Progress {
-                    chunk_length: chunk.len(),
-                });
-            }
-
-            file.flush()
-                .await
-                .map_err(|source| ModPreviewUpdateError::SaveFailed {
-                    path: dest_path.to_string_lossy().into_owned(),
-                    source,
-                })?;
-
-            let _ = on_event.send(DownloadEvent::Finished);
-            Ok(true)
-        }
-
-        Ok(None) => Ok(false),
-
-        Err(err) => Err(err),
+        })?;
     }
+
+    // use a completed download
+    let download_matches = match tokio::fs::read(&download_path).await {
+        Ok(bytes) => format!("{:x}", Sha256::digest(&bytes)).eq_ignore_ascii_case(expected_hash),
+        Err(error) if error.kind() == std::io::ErrorKind::NotFound => false,
+        Err(source) => return Err(ModPreviewUpdateError::SaveFailed {
+            path: download_path.to_string_lossy().into_owned(), source,
+        }),
+    };
+
+    if !download_matches {
+        let response = reqwest::Client::new()
+            .get(&update.download_url)
+            .header("User-Agent", "BD2ModManager")
+            .send().await
+            .and_then(|response| response.error_for_status())
+            .map_err(|error| ModPreviewUpdateError::DownloadFailed {
+                reason: error.to_string(),
+            })?;
+        let _ = on_event.send(DownloadEvent::Started { total_size: response.content_length() });
+        let mut file = tokio::fs::File::create(&download_path).await
+            .map_err(|source| ModPreviewUpdateError::SaveFailed {
+                path: download_path.to_string_lossy().into_owned(), source,
+            })?;
+        let mut hash = Sha256::new();
+        let mut stream = response.bytes_stream();
+        while let Some(chunk) = stream.next().await {
+            let chunk = chunk.map_err(|error| ModPreviewUpdateError::DownloadFailed {
+                reason: error.to_string(),
+            })?;
+            file.write_all(&chunk).await.map_err(|source| ModPreviewUpdateError::SaveFailed {
+                path: download_path.to_string_lossy().into_owned(), source,
+            })?;
+            hash.update(&chunk);
+            let _ = on_event.send(DownloadEvent::Progress { chunk_length: chunk.len() });
+        }
+        file.flush().await.map_err(|source| ModPreviewUpdateError::SaveFailed {
+            path: download_path.to_string_lossy().into_owned(), source,
+        })?;
+        drop(file);
+        if !format!("{:x}", hash.finalize()).eq_ignore_ascii_case(expected_hash) {
+            return Err(ModPreviewUpdateError::DownloadFailed {
+                reason: "The downloaded file does not match the release hash".into(),
+            });
+        }
+    }
+
+    tokio::fs::rename(&download_path, &dest_path).await
+        .map_err(|source| ModPreviewUpdateError::InstallFailed { source })?;
+    let _ = on_event.send(DownloadEvent::Finished);
+    Ok(true)
 }
 
 
