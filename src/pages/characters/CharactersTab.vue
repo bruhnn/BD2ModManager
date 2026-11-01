@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Grid3X3, List, RefreshCcw, FolderPlus } from '@lucide/vue';
+import { Grid3X3, List, RefreshCcw, FolderPlus, PanelLeftClose, PanelLeftOpen, X } from '@lucide/vue';
 
 import { computed, defineComponent, h, nextTick, onActivated, onDeactivated, onMounted, reactive, ref, watch } from 'vue';
 import { useLocalStorage } from '@vueuse/core';
@@ -41,9 +41,9 @@ const totalModsCount = computed(() => modsStore.extendedMods.length)
 const enabledModsCount = computed(() => modsStore.extendedMods.filter(mod => mod.enabled && !mod.errors.length).length)
 
 const viewMode = useLocalStorage('characters-view-mode', 'grid') // 'grid' or 'list'
+const filtersHidden = useLocalStorage('characters-filters-hidden', false)
 
-const userFilters = reactive({
-    searchQuery: '',
+const defaultFilters = {
     sortBy: 'a-z',
     cutscene: 'any',
     standing: 'any',
@@ -55,6 +55,22 @@ const userFilters = reactive({
     releasePeriod: 'all',
     onlyCharactersWithMods: false,
     onlyCharactersWithoutMods: false
+}
+
+// sort order and filters are remembered between sessions, the search text is not
+const savedFilters = useLocalStorage('characters-filters', { ...defaultFilters }, { mergeDefaults: true })
+const filterKeys = Object.keys(defaultFilters) as (keyof typeof defaultFilters)[]
+
+const userFilters = reactive({
+    ...Object.fromEntries(filterKeys.map(key => [key,
+        typeof savedFilters.value?.[key] === typeof defaultFilters[key]
+            ? savedFilters.value[key] : defaultFilters[key]
+    ])) as typeof defaultFilters,
+    searchQuery: ''
+})
+
+watch(() => filterKeys.map(key => userFilters[key]), () => {
+    savedFilters.value = Object.fromEntries(filterKeys.map(key => [key, userFilters[key]])) as typeof defaultFilters
 })
 
 
@@ -87,6 +103,73 @@ const modStatusOptions = computed(() => [
     { label: t('charactersTab.filters.modStatus.options.enabled'), value: 'enabled' },
     { label: t('charactersTab.filters.modStatus.options.disabled'), value: 'disabled' }
 ]);
+
+// reset remembered values that no longer exist (for example after an update)
+if (viewMode.value !== 'grid' && viewMode.value !== 'list') viewMode.value = 'grid'
+if (!sortOptions.value.some(option => option.value === userFilters.sortBy)) {
+    userFilters.sortBy = defaultFilters.sortBy
+}
+if (!releasePeriodOptions.value.some(option => option.value === userFilters.releasePeriod)) {
+    userFilters.releasePeriod = defaultFilters.releasePeriod
+}
+for (const key of ['cutscene', 'standing', 'dating'] as const) {
+    if (!modStatusOptions.value.some(option => option.value === userFilters[key])) {
+        userFilters[key] = defaultFilters[key]
+    }
+}
+
+type FilterKey = keyof typeof defaultFilters | 'searchQuery'
+
+// the sort order is not a filter, it is not listed here
+const activeFilters = computed(() => {
+    const active: { key: FilterKey, label: string }[] = []
+    const optionLabel = (options: { label: string, value: string }[], value: string) =>
+        options.find(option => option.value === value)?.label ?? value
+
+    if (userFilters.searchQuery) {
+        active.push({
+            key: 'searchQuery',
+            label: t('charactersTab.filters.activeSearch', { query: userFilters.searchQuery })
+        })
+    }
+
+    for (const [key, label] of [['cutscene', 'hasCutscene'], ['standing', 'hasStanding'], ['dating', 'hasDating']] as const) {
+        if (userFilters[key] !== defaultFilters[key]) {
+            active.push({
+                key,
+                label: `${t('charactersTab.filters.modStatus.' + label)}: ${optionLabel(modStatusOptions.value, userFilters[key])}`
+            })
+        }
+    }
+
+    for (const key of ['hideMenCharacters', 'hideWomenCharacters', 'onlyCharactersWithMods', 'onlyCharactersWithoutMods', 'onlyCollabCharacters'] as const) {
+        if (userFilters[key]) {
+            active.push({ key, label: t('charactersTab.filters.extraFilters.' + key) })
+        }
+    }
+
+    if (userFilters.releasePeriod !== defaultFilters.releasePeriod) {
+        active.push({
+            key: 'releasePeriod',
+            label: `${t('charactersTab.filters.releasePeriod.title')}: ${optionLabel(releasePeriodOptions.value, userFilters.releasePeriod)}`
+        })
+    }
+
+    return active
+})
+
+function removeFilter(key: FilterKey) {
+    if (key === 'searchQuery') {
+        userFilters.searchQuery = ''
+    } else {
+        Object.assign(userFilters, { [key]: defaultFilters[key] })
+    }
+}
+
+// clears the search and all filters, keeps the sort order
+function clearFilters() {
+    Object.assign(userFilters, defaultFilters, { sortBy: userFilters.sortBy, searchQuery: '' })
+}
 
 const showCostumeModal = ref(false);
 const selectedCostume = ref<Character | null>(null);
@@ -333,6 +416,14 @@ useHeader({
         })
     ),
     buttons: [
+        { render: () => h(Button, {
+            variant: 'text',
+            label: t(filtersHidden.value ? 'charactersTab.filters.show' : 'charactersTab.filters.hide'),
+            icon: filtersHidden.value ? PanelLeftOpen : PanelLeftClose,
+            'aria-controls': 'characters-filters',
+            'aria-expanded': !filtersHidden.value,
+            onClick: () => { filtersHidden.value = !filtersHidden.value }
+        }) },
         { icon: RefreshCcw, label: t('common.actions.refreshMods'), action: refreshData },
         { render: () => h(AddModMenu) }
     ]
@@ -377,13 +468,39 @@ watch(() => route.query.characterId, (newCharacterId) => {
 
 <template>
     <div class="flex flex-row w-full h-full p-4 py-2 gap-4 bg-surface-app overflow-hidden">
-        <div class="flex-1 min-h-0 overflow-hidden">
-            <CharacterList v-if="viewMode == 'list'" :items="charactersList" @openModDetails="openCostumeDetails" />
-            <CharacterGrid v-else :items="charactersGrid" @openModDetails="openCostumeDetails" />
+        <div class="flex-1 min-h-0 flex flex-col gap-2.5 overflow-hidden">
+            <div
+                class="flex flex-row flex-wrap items-center gap-1.5 min-h-[30px] px-2 py-1.5 bg-surface-panel rounded-md border border-border-default">
+                <span v-if="!activeFilters.length" class="text-xs text-text-secondary">
+                    {{ t('charactersTab.filters.noActiveFilters') }}
+                </span>
+
+                <span v-for="filter in activeFilters" :key="filter.key"
+                    class="inline-flex items-center gap-1 pl-2 pr-[3px] py-0.5 text-xs rounded bg-state-hover text-text-primary">
+                    {{ filter.label }}
+                    <button type="button"
+                        class="flex items-center justify-center size-6 shrink-0 rounded-[3px] text-text-secondary hover:bg-surface-input hover:text-text-primary cursor-pointer"
+                        :aria-label="t('charactersTab.filters.removeFilter', { filter: filter.label })"
+                        @click="removeFilter(filter.key)">
+                        <X :size="13" aria-hidden="true" />
+                    </button>
+                </span>
+
+                <button v-if="activeFilters.length" type="button"
+                    class="ml-auto cursor-pointer text-xs text-text-secondary underline hover:text-text-primary"
+                    @click="clearFilters">
+                    {{ t('charactersTab.filters.clearAll') }}
+                </button>
+            </div>
+
+            <div class="flex-1 min-h-0 overflow-hidden">
+                <CharacterList v-if="viewMode == 'list'" :items="charactersList" @openModDetails="openCostumeDetails" />
+                <CharacterGrid v-else :items="charactersGrid" @openModDetails="openCostumeDetails" />
+            </div>
         </div>
 
-        <div
-            class="flex overflow-y-auto flex-col gap-2.5 items-start justify-start w-full max-w-[20%] min-w-50 p-2 bg-surface-panel rounded-md border border-border-default">
+        <div v-if="!filtersHidden" id="characters-filters"
+            class="flex overflow-y-auto flex-col gap-2.5 items-start justify-start w-full max-w-70 min-w-50 p-2 bg-surface-panel rounded-md border border-border-default">
             <h1 class="text-lg font-bold text-text-primary flex flex-row justify-between items-center w-full">
                 {{ t('charactersTab.filters.title') }}
                 <div class="flex gap-1">
@@ -456,6 +573,12 @@ watch(() => route.query.characterId, (newCharacterId) => {
                         t('charactersTab.filters.releasePeriod.title') }}</label>
                     <Select v-model="userFilters.releasePeriod" :options="releasePeriodOptions" />
                 </div>
+
+                <Button class="w-full" :disabled="!activeFilters.length"
+                    :label="activeFilters.length
+                        ? t('charactersTab.filters.clearWithCount', { count: activeFilters.length })
+                        : t('charactersTab.filters.clear')"
+                    @click="clearFilters" />
             </div>
         </div>
 
