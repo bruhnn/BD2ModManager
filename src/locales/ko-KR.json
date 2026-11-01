@@ -202,6 +202,18 @@
         }
     },
     "modsTab": {
+        "unmanagedNotice": {
+            "message": "관리되지 않는 모드가 있습니다",
+            "title": "관리되지 않는 모드",
+            "meaningTitle": "무슨 뜻인가요?",
+            "meaning": "게임 폴더에 있지만 BD2MM이 관리하지 않는 모드입니다. 일반 동기화에서는 변경하지 않습니다.",
+            "backupTitle": "먼저 백업하세요",
+            "backup": "삭제하기 전에 보관할 미관리 모드를 백업하는 것을 권장합니다.",
+            "insideTitle": "BD2MM 폴더 내부",
+            "inside": "동기화 메뉴에서 ‘동기화 및 미관리 모드 제거’를 선택하세요. BD2MM 내부의 미관리 모드를 제거합니다. 스테이징에 있는 활성화된 정상 모드는 다시 설치되어 관리 대상이 됩니다.",
+            "outsideTitle": "BD2MM 폴더 외부",
+            "outside": "이 옵션은 BD2MM 외부의 모드를 제거하지 않습니다. 게임 모드 폴더에서 직접 제거하세요."
+        },
         "title": "모드",
         "subtitle": "{totalModsCount}개 중 {enabledModsCount}개 모드 활성화됨",
         "actions": {
@@ -493,6 +505,15 @@
         "subtitle": "{totalModsCount}개 중 {enabledModsCount}개 모드 활성화됨",
         "charactersNotFound": "캐릭터를 찾을 수 없습니다.",
         "filters": {
+            "show": "필터 표시",
+            "hide": "필터 숨기기",
+            "noActiveFilters": "적용된 필터 없음",
+            "removeFilter": "필터 제거: {filter}",
+            "clearAll": "모두 지우기",
+            "noResults": "이 필터에 맞는 캐릭터가 없습니다.",
+            "clear": "필터 지우기",
+            "activeSearch": "검색: {query}",
+            "clearWithCount": "필터 지우기 ({count})",
             "title": "필터",
             "searchPlaceholder": "캐릭터 검색...",
             "sortBy": {

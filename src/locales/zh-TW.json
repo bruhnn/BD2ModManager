@@ -202,6 +202,18 @@
         }
     },
     "modsTab": {
+        "unmanagedNotice": {
+            "message": "存在未受管理的模組",
+            "title": "未受管理的模組",
+            "meaningTitle": "這是什麼意思？",
+            "meaning": "這些模組位於遊戲資料夾中，但不受 BD2MM 管理。一般同步不會變更它們。",
+            "backupTitle": "請先備份",
+            "backup": "建議在移除前備份您想保留的未受管理模組。",
+            "insideTitle": "BD2MM 資料夾內",
+            "inside": "在同步選單中選擇「同步並移除未受管理模組」。這會移除 BD2MM 內的未受管理模組。暫存資料夾中已啟用且有效的副本會重新安裝，並成為受管理模組。",
+            "outsideTitle": "BD2MM 資料夾外",
+            "outside": "此選項不會移除 BD2MM 外的模組。請從遊戲模組資料夾中手動移除它們。"
+        },
         "title": "模組",
         "subtitle": "{totalModsCount} 個模組中已啟用 {enabledModsCount} 個",
         "actions": {
@@ -493,6 +505,15 @@
         "subtitle": "{totalModsCount} 個模組中已啟用 {enabledModsCount} 個",
         "charactersNotFound": "找不到角色。",
         "filters": {
+            "show": "顯示篩選",
+            "hide": "隱藏篩選",
+            "noActiveFilters": "未啟用篩選",
+            "removeFilter": "移除篩選：{filter}",
+            "clearAll": "清除全部",
+            "noResults": "沒有符合這些篩選條件的角色。",
+            "clear": "清除篩選",
+            "activeSearch": "搜尋：{query}",
+            "clearWithCount": "清除篩選（{count}）",
             "title": "篩選",
             "searchPlaceholder": "搜尋角色...",
             "sortBy": {

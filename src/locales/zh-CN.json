@@ -202,6 +202,18 @@
         }
     },
     "modsTab": {
+        "unmanagedNotice": {
+            "message": "存在未托管的模组",
+            "title": "未托管的模组",
+            "meaningTitle": "这是什么意思？",
+            "meaning": "这些模组位于游戏文件夹中，但不受 BD2MM 管理。普通同步不会更改它们。",
+            "backupTitle": "请先备份",
+            "backup": "建议在移除前备份您想保留的未托管模组。",
+            "insideTitle": "BD2MM 文件夹内",
+            "inside": "在同步菜单中选择“同步并移除未托管模组”。这会移除 BD2MM 内的未托管模组。暂存文件夹中已启用且有效的副本会重新安装，并成为托管模组。",
+            "outsideTitle": "BD2MM 文件夹外",
+            "outside": "此选项不会移除 BD2MM 外的模组。请从游戏模组文件夹中手动移除它们。"
+        },
         "title": "模组",
         "subtitle": "已启用 {enabledModsCount} / {totalModsCount} 个模组",
         "actions": {
@@ -493,6 +505,15 @@
         "subtitle": "已启用 {enabledModsCount} / {totalModsCount} 个模组",
         "charactersNotFound": "未找到角色。",
         "filters": {
+            "show": "显示筛选",
+            "hide": "隐藏筛选",
+            "noActiveFilters": "未启用筛选",
+            "removeFilter": "移除筛选：{filter}",
+            "clearAll": "清除全部",
+            "noResults": "没有符合这些筛选条件的角色。",
+            "clear": "清除筛选",
+            "activeSearch": "搜索：{query}",
+            "clearWithCount": "清除筛选（{count}）",
             "title": "筛选",
             "searchPlaceholder": "搜索角色...",
             "sortBy": {

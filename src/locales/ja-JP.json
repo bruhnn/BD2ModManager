@@ -202,6 +202,18 @@
         }
     },
     "modsTab": {
+        "unmanagedNotice": {
+            "message": "未管理のModがあります",
+            "title": "未管理のMod",
+            "meaningTitle": "どういう意味ですか？",
+            "meaning": "ゲームフォルダーにありますが、BD2MMが管理していないModです。通常の同期では変更されません。",
+            "backupTitle": "先にバックアップ",
+            "backup": "削除する前に、残しておきたい未管理のModをバックアップすることをおすすめします。",
+            "insideTitle": "BD2MMフォルダー内",
+            "inside": "同期メニューから「同期して未管理のModを削除」を選択します。BD2MM内の未管理のModが削除されます。ステージング内の有効で正常なModは再インストールされ、管理対象になります。",
+            "outsideTitle": "BD2MMフォルダー外",
+            "outside": "この操作ではBD2MM外のModは削除されません。ゲームのModフォルダーから手動で削除してください。"
+        },
         "title": "MOD",
         "subtitle": "{totalModsCount} 個中 {enabledModsCount} 個のMODが有効",
         "actions": {
@@ -493,6 +505,15 @@
         "subtitle": "{totalModsCount} 個中 {enabledModsCount} 個のMODが有効",
         "charactersNotFound": "キャラクターが見つかりません。",
         "filters": {
+            "show": "フィルターを表示",
+            "hide": "フィルターを非表示",
+            "noActiveFilters": "適用中のフィルターはありません",
+            "removeFilter": "フィルターを解除: {filter}",
+            "clearAll": "すべて解除",
+            "noResults": "この条件に一致するキャラクターはいません。",
+            "clear": "フィルターを解除",
+            "activeSearch": "検索: {query}",
+            "clearWithCount": "フィルターを解除 ({count})",
             "title": "フィルター",
             "searchPlaceholder": "キャラクターを検索...",
             "sortBy": {

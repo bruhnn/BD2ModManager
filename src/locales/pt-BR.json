@@ -202,6 +202,18 @@
         }
     },
     "modsTab": {
+        "unmanagedNotice": {
+            "message": "Você tem mods não gerenciados",
+            "title": "Mods não gerenciados",
+            "meaningTitle": "O que isso significa?",
+            "meaning": "Esses mods estão na pasta do jogo, mas não são gerenciados pelo BD2MM. A sincronização normal não os altera.",
+            "backupTitle": "Faça um backup primeiro",
+            "backup": "Recomendamos fazer um backup dos mods não gerenciados que deseja manter antes de removê-los.",
+            "insideTitle": "Dentro da pasta BD2MM",
+            "inside": "Escolha “Sincronizar e remover mods não gerenciados” no menu de sincronização. Isso remove os mods não gerenciados dentro de BD2MM. Cópias válidas e ativadas na pasta de staging são instaladas novamente e passam a ser gerenciadas.",
+            "outsideTitle": "Fora da pasta BD2MM",
+            "outside": "Essa opção não remove mods fora de BD2MM. Remova-os manualmente da pasta de mods do jogo."
+        },
         "title": "Mods",
         "subtitle": "{enabledModsCount} de {totalModsCount} mods ativados",
         "actions": {
@@ -493,6 +505,15 @@
         "subtitle": "{enabledModsCount} de {totalModsCount} mods ativados",
         "charactersNotFound": "Nenhum personagem encontrado.",
         "filters": {
+            "show": "Mostrar filtros",
+            "hide": "Ocultar filtros",
+            "noActiveFilters": "Nenhum filtro ativo",
+            "removeFilter": "Remover filtro: {filter}",
+            "clearAll": "Limpar tudo",
+            "noResults": "Nenhum personagem corresponde a esses filtros.",
+            "clear": "Limpar filtros",
+            "activeSearch": "Busca: {query}",
+            "clearWithCount": "Limpar filtros ({count})",
             "title": "Filtros",
             "searchPlaceholder": "Pesquisar personagens...",
             "sortBy": {

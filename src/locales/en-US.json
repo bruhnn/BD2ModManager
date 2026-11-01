@@ -220,6 +220,18 @@
         }
     },
     "modsTab": {
+        "unmanagedNotice": {
+            "message": "You have unmanaged mods",
+            "title": "Unmanaged mods",
+            "meaningTitle": "What does this mean?",
+            "meaning": "These mods are in the game folder but are not tracked by BD2MM. Normal sync leaves them unchanged.",
+            "backupTitle": "Back up first",
+            "backup": "We recommend backing up any unmanaged mods you want to keep before removing them.",
+            "insideTitle": "Inside the BD2MM folder",
+            "inside": "Choose “Sync and Remove Unmanaged Mods” from the Sync mods menu. This removes unmanaged mods inside BD2MM. Enabled, valid staging copies are installed again and become managed.",
+            "outsideTitle": "Outside the BD2MM folder",
+            "outside": "This option does not remove mods outside BD2MM. Remove those manually from the game mods folder."
+        },
         "title": "Mods",
         "subtitle": "{enabledModsCount} of {totalModsCount} mods enabled",
         "actions": {
@@ -514,6 +526,15 @@
         "subtitle": "{enabledModsCount} of {totalModsCount} mods enabled",
         "charactersNotFound": "No characters found.",
         "filters": {
+            "show": "Show filters",
+            "hide": "Hide filters",
+            "noActiveFilters": "No active filters",
+            "removeFilter": "Remove filter: {filter}",
+            "clearAll": "Clear all",
+            "noResults": "No characters match these filters.",
+            "clear": "Clear filters",
+            "activeSearch": "Search: {query}",
+            "clearWithCount": "Clear filters ({count})",
             "title": "Filters",
             "searchPlaceholder": "Search characters...",
             "sortBy": {
@@ -947,6 +968,16 @@
         },
         "updates": {
             "label": "Updates",
+            "version": "v{version}",
+            "unknown": "Unknown",
+            "downloadAndInstall": "Download and install",
+            "status": {
+                "upToDate": "Up to date",
+                "checking": "Checking for updates...",
+                "downloading": "Downloading...",
+                "downloadProgress": "Downloading {percent}%",
+                "installing": "Installing..."
+            },
             "sections": {
                 "updates": {
                     "title": "Application Updates",
