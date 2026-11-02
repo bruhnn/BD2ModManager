@@ -396,7 +396,8 @@ const contextMenuItems = computed<ContextMenuItem[]>(() => {
     return [
         {
             label: t('modsTab.modlist.contextMenu.refreshMods'),
-            key: 'refresh'
+            key: 'refresh',
+            shortcut: 'Ctrl+R'
         } as ContextMenuItem,
         {
             type: 'divider' as const,
@@ -451,6 +452,7 @@ const contextMenuItems = computed<ContextMenuItem[]>(() => {
         {
             label: isSingleSelection ? t('modsTab.modlist.contextMenu.deleteMod') : t('modsTab.modlist.contextMenu.deleteSelectedMods'),
             key: 'delete',
+            shortcut: 'Delete',
             show: !props.isSyncing && hasSelection
         } as ContextMenuItem,
         {
@@ -466,7 +468,7 @@ const contextMenuItems = computed<ContextMenuItem[]>(() => {
         {
             label: t('modsTab.modlist.contextMenu.previewMod'),
             key: 'preview',
-            shortcut: t('modsTab.modlist.contextMenu.previewModShortcut'),
+            shortcut: 'P',
             show: isSingleSelection
         } as ContextMenuItem,
     ].filter(item => item.show !== false)
@@ -543,10 +545,33 @@ function handleSelect(key: string) {
 }
 
 function handleKeyDown(event: KeyboardEvent) {
-    if ((event.ctrlKey || event.metaKey) && event.key === 'a') {
-        event.preventDefault();
-        rows.value.forEach(row => row.toggleSelected(true))
-        return;
+    const target = event.target as HTMLElement
+    if (event.defaultPrevented || event.isComposing || showDropdown.value ||
+        document.querySelector('[role="dialog"], [role="alertdialog"]') ||
+        target.closest('input, textarea, select, button, a, [contenteditable]:not([contenteditable="false"]), [role="combobox"]')) return
+
+    const key = event.key.toLowerCase()
+    if ((event.ctrlKey || event.metaKey) && !event.altKey && !event.shiftKey && key === 'a') {
+        event.preventDefault()
+        if (!event.repeat) rows.value.forEach(row => row.toggleSelected(true))
+        return
+    }
+    if (event.ctrlKey || event.metaKey || event.altKey || event.shiftKey) return
+    if (![' ', 'delete', 'p'].includes(key)) return
+
+    event.preventDefault()
+    if (event.repeat || props.isSyncing || !selectedMods.value.length) return
+
+    if (key === ' ') {
+        const mods = selectedMods.value.filter(mod => mod.errors.every(error => error === 'UnmanagedButInStaging'))
+        if (!mods.length) return
+        const disabled = mods.filter(mod => !mod.enabled)
+        if (disabled.length) emit('enable-mods', disabled)
+        else emit('disable-mods', mods)
+    } else if (key === 'delete') {
+        handleSelect('delete')
+    } else if (selectedMods.value.length === 1) {
+        handleSelect('preview')
     }
 }
 

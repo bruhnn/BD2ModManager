@@ -2,7 +2,7 @@
 import { Folder, FolderMinus, FolderPlus, FolderSync, Info, RefreshCcw, X } from "@lucide/vue";
 
 import { computed, defineComponent, h, onActivated, onDeactivated, reactive, ref, useTemplateRef, watch } from "vue";
-import { watchDebounced } from "@vueuse/core";
+import { useEventListener, watchDebounced } from "@vueuse/core";
 import { useI18n } from "vue-i18n";
 
 import { listen } from "@tauri-apps/api/event";
@@ -67,6 +67,7 @@ const {
   unsyncMods
 } = useModSync()
 
+const isActive = ref(false)
 const isRefreshing = ref(false)
 const unmanagedNoticeDismissed = ref(false)
 const hasUnmanagedMods = computed(() => modsStore.extendedMods.some(mod =>
@@ -156,9 +157,20 @@ async function handleRefreshMods() {
   }
 
   isRefreshing.value = true
-  await modsStore.discoverMods()
-  isRefreshing.value = false
+  try {
+    await modsStore.discoverMods()
+  } finally {
+    isRefreshing.value = false
+  }
 }
+
+useEventListener(window, 'keydown', (event: KeyboardEvent) => {
+  if (!isActive.value || !(event.ctrlKey || event.metaKey) || event.key.toLowerCase() !== 'r') return
+  event.preventDefault()
+  if (event.repeat || event.isComposing || event.altKey || event.shiftKey || modsStore.isSyncing ||
+    document.querySelector('[role="dialog"], [role="alertdialog"]')) return
+  void handleRefreshMods().catch(error => loggingStore.logError('Failed to refresh mods', error))
+})
 
 function handleUpdateModAuthor(mods: BD2Mod[]) {
   loggingStore.logDebug("Changing author for mods:", mods.map(m => m.name), "Current authors:", mods.map(m => m.author));
@@ -395,11 +407,13 @@ async function setupEventListeners() {
 }
 
 onActivated(async () => {
+  isActive.value = true
   loggingStore.logDebug("Mounting ModsTab, setting up event listeners");
   await setupEventListeners()
 })
 
 onDeactivated(() => {
+  isActive.value = false
   loggingStore.logDebug("Unmounting ModsTab, removing event listeners");
   unlistenFns.forEach((unlisten) => unlisten())
   unlistenFns = []
