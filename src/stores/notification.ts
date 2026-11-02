@@ -23,9 +23,10 @@ const DEFAULT_DURATION = {
 
 export const useNotificationStore = defineStore("notification", () => {
     const notifications = ref<Notification[]>([]);
+    let nextId = 0
 
     function add(notification: Omit<Notification, "id">) {
-        const id = Date.now()
+        const id = ++nextId
         const duration = notification.duration ?? DEFAULT_DURATION[notification.type]
         notifications.value.push({ ...notification, id, duration })
         return id
