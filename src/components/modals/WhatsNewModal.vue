@@ -25,6 +25,9 @@ const versions = [
             { title: 'whatsNew.release430.previewTitle', description: 'whatsNew.release430.previewDescription' }
         ],
         changelog: [
+            'whatsNew.release430.modShortcuts',
+            'whatsNew.release430.separateNotifications',
+            'whatsNew.release430.gameDataNotification',
             'whatsNew.release430.characterFilters',
             'whatsNew.release430.unmanagedNotice',
             'whatsNew.release430.previewDownloads',

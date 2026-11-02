@@ -5,6 +5,9 @@
         "changelog": "更新日志",
         "allReleases": "所有版本",
         "release430": {
+            "modShortcuts": "新增模组快捷键：空格启用或禁用选中的模组，Delete 删除所选模组，P 预览单个模组，Ctrl+R 刷新模组列表。",
+            "separateNotifications": "修复关闭一条通知或等待其自动消失时，其他通知也一同消失的问题。",
+            "gameDataNotification": "现在仅在下载了数据或缺失图片后显示游戏数据更新通知。",
             "characterFilters": "记住角色筛选、排序、视图模式和筛选面板的显示状态。可单独移除当前筛选或全部清除。",
             "unmanagedNotice": "新增可关闭的未管理模组提示，说明其含义及移除方法。",
             "previewDownloads": "BD2ModPreview 下载现在会在安装前进行验证，下载中断不会替换已安装的预览器。",

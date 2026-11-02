@@ -5,6 +5,9 @@
         "changelog": "更新紀錄",
         "allReleases": "所有版本",
         "release430": {
+            "modShortcuts": "新增模組快捷鍵：空白鍵啟用或停用選取的模組，Delete 刪除所選模組，P 預覽單一模組，Ctrl+R 重新整理模組清單。",
+            "separateNotifications": "修正關閉一則通知或等待其自動消失時，其他通知也一同消失的問題。",
+            "gameDataNotification": "現在僅在下載了資料或缺少的圖片後顯示遊戲資料更新通知。",
             "characterFilters": "記住角色篩選、排序、檢視模式和篩選面板的顯示狀態。可個別移除目前的篩選或全部清除。",
             "unmanagedNotice": "新增可關閉的未管理模組提示，說明其含義及移除方式。",
             "previewDownloads": "BD2ModPreview 下載現在會在安裝前驗證，下載中斷不會取代已安裝的預覽器。",

@@ -5,6 +5,9 @@
         "changelog": "변경 사항",
         "allReleases": "모든 릴리스",
         "release430": {
+            "modShortcuts": "모드 단축키 추가: Space로 선택한 모드 활성화 또는 비활성화, Delete로 삭제, P로 모드 하나 미리보기, Ctrl+R로 모드 목록 새로고침을 할 수 있습니다.",
+            "separateNotifications": "알림 하나를 닫거나 자동으로 사라질 때 다른 알림도 함께 사라지는 문제를 수정했습니다.",
+            "gameDataNotification": "이제 데이터 또는 누락된 이미지를 다운로드한 경우에만 게임 데이터 업데이트 알림이 표시됩니다.",
             "characterFilters": "캐릭터 필터, 정렬 순서, 보기 방식, 필터 패널 표시 상태를 기억합니다. 적용된 필터를 개별적으로 해제하거나 모두 지울 수 있습니다.",
             "unmanagedNotice": "관리되지 않는 모드에 대한 설명과 삭제 안내를 제공하는 닫을 수 있는 알림을 추가했습니다.",
             "previewDownloads": "이제 BD2ModPreview 다운로드를 설치 전에 검증합니다. 다운로드가 중단되어도 설치된 미리보기 프로그램은 교체되지 않습니다.",

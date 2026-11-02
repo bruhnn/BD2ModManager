@@ -5,6 +5,9 @@
         "changelog": "Alterações",
         "allReleases": "Todas as versões",
         "release430": {
+            "modShortcuts": "Adicionados atalhos para mods: Espaço para ativar ou desativar os mods selecionados, Delete para removê-los, P para visualizar um mod e Ctrl+R para atualizar a lista.",
+            "separateNotifications": "Corrigido um problema em que fechar uma notificação ou aguardar seu desaparecimento também ocultava outras notificações.",
+            "gameDataNotification": "A notificação de atualização dos dados do jogo agora aparece apenas quando dados ou imagens ausentes são baixados.",
             "characterFilters": "Os filtros de personagens, a ordenação, o modo de visualização e a visibilidade do painel são lembrados entre sessões. Remova filtros ativos individualmente ou limpe todos.",
             "unmanagedNotice": "Adicionado um aviso dispensável sobre mods não gerenciados, com explicações e orientações para removê-los.",
             "previewDownloads": "Os downloads do BD2ModPreview agora são verificados antes da instalação, evitando que um download interrompido substitua a prévia instalada.",

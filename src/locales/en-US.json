@@ -5,6 +5,9 @@
         "changelog": "Changelog",
         "allReleases": "All releases",
         "release430": {
+            "modShortcuts": "Added mod keyboard shortcuts: Space to enable or disable selected mods, Delete to remove them, P to preview one mod, and Ctrl+R to refresh the mod list.",
+            "separateNotifications": "Fixed closing or dismissing one notification also hiding other notifications.",
+            "gameDataNotification": "The game data update notification now appears only when data or missing images are downloaded.",
             "characterFilters": "Remember character filters, sort order, view mode, and filter panel visibility between sessions. Remove individual active filters or clear them all.",
             "unmanagedNotice": "Added a dismissible notice for unmanaged mods, with explanations and removal guidance.",
             "previewDownloads": "BD2ModPreview downloads are now checked before installation, so an interrupted download does not replace the installed previewer.",
