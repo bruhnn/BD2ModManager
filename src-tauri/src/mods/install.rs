@@ -75,7 +75,14 @@ fn find_mod_root(archive: &mut ZipArchive<File>) -> Result<String, ModInstallErr
             ModInstallError::InvalidArchive
         })?;
 
-        if file.name().ends_with(".modfile") {
+        if file
+            .name()
+            .map_err(|e| {
+                error!("Failed to read ZIP entry name: {:?}", e);
+                ModInstallError::InvalidArchive
+            })?
+            .ends_with(".modfile")
+        {
             if let Some(path) = file.enclosed_name() {
                 if let Some(parent) = path.parent() {
                     mod_roots.push(parent.to_string_lossy().to_string());

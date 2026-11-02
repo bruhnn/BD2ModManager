@@ -210,7 +210,7 @@ fn extract_zip<R: std::io::Read + std::io::Seek>(
         extracted_files.push(path.to_string_lossy().to_string());
         let outpath = dest_path.join(path);
 
-        if file.name().ends_with('/') {
+        if file.is_dir() {
             fs::create_dir_all(&outpath).map_err(ZipError::Io)?;
         } else {
             if let Some(parent) = outpath.parent() {
