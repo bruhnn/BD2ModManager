@@ -287,7 +287,7 @@ pub enum GameDataEvent {
 }
 
 #[tauri::command]
-pub async fn update_game_data(app_handle: AppHandle, on_event: Channel<GameDataEvent>) -> Result<(), GameDataUpdateError> {
+pub async fn update_game_data(app_handle: AppHandle, on_event: Channel<GameDataEvent>) -> Result<bool, GameDataUpdateError> {
     updater::game_data::update_characters(app_handle, on_event).await
 }
 

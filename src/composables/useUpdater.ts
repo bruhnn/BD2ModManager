@@ -527,7 +527,8 @@ export function useUpdater() {
         })
 
         try {
-            await invoke("update_game_data", { onEvent })
+            const updated = await invoke<boolean>("update_game_data", { onEvent })
+            if (!updated) return
 
             await charactersStore.loadCharacters()
 

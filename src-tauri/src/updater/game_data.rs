@@ -72,7 +72,7 @@ async fn download_missing_assets(
     app_handle: &tauri::AppHandle,
     characters: &serde_json::Value,
     on_event: &Channel<GameDataEvent>
-) -> Result<(), GameDataUpdateError> {
+) -> Result<bool, GameDataUpdateError> {
     let client = reqwest::Client::builder()
         .timeout(std::time::Duration::from_secs(15))
         .build()
@@ -162,7 +162,7 @@ async fn download_missing_assets(
 
     if total == 0 {
         info!("No character assets found to download");
-        return Ok(());
+        return Ok(false);
     }
 
     info!("Found {total} missing character assets, downloading...");
@@ -179,6 +179,7 @@ async fn download_missing_assets(
     });
 
     let mut current = 0;
+    let mut downloaded = false;
 
     for (character_id, must_download_standing, must_download_head) in
         characters_w_missing_assets.iter()
@@ -210,6 +211,7 @@ async fn download_missing_assets(
                         "standing asset for {character_id}: {e}"
                     ))
                 })?;
+                downloaded = true;
             } else {
                 warn!("Standing asset not found for {character_id} at URL: {standing_url}");
             }
@@ -251,6 +253,7 @@ async fn download_missing_assets(
                 .map_err(|e| {
                     GameDataUpdateError::SaveFailed(format!("head asset for {character_id}: {e}"))
                 })?;
+                downloaded = true;
             } else {
                 warn!("Head asset not found for {character_id} at URL: {head_url}");
             }
@@ -272,13 +275,13 @@ async fn download_missing_assets(
         }
     }
 
-    Ok(())
+    Ok(downloaded)
 }
 
 pub async fn update_characters(
     app_handle: tauri::AppHandle,
     on_event: Channel<GameDataEvent>,
-) -> Result<(), GameDataUpdateError> {
+) -> Result<bool, GameDataUpdateError> {
     let _ = on_event.send(GameDataEvent::Started);
 
     let _ = on_event.send(GameDataEvent::Updating {
@@ -346,7 +349,7 @@ pub async fn update_characters(
                 download: None,
             });
 
-            download_missing_assets(&app_handle, &local_characters, &on_event).await?;
+            let updated = download_missing_assets(&app_handle, &local_characters, &on_event).await?;
 
             info!("All character assets are present");
 
@@ -357,7 +360,7 @@ pub async fn update_characters(
 
             let _ = on_event.send(GameDataEvent::Finished);
 
-            return Ok(());
+            return Ok(updated);
         }
 
         info!("Updating characters: {local_version} -> {latest_version}");
@@ -417,5 +420,5 @@ pub async fn update_characters(
 
     let _ = on_event.send(GameDataEvent::Finished);
 
-    Ok(())
+    Ok(true)
 }
