@@ -142,6 +142,7 @@
                 }
             },
             "modPreviewUpdate": {
+                "retry": "Tentar novamente",
                 "updated": "BD2ModPreview v{version} atualizado",
                 "failed": "Falha ao atualizar o BD2ModPreview",
                 "noUpdateAvailable": "O BD2ModPreview está atualizado"

@@ -142,6 +142,7 @@
                 }
             },
             "modPreviewUpdate": {
+                "retry": "다시 시도",
                 "updated": "BD2ModPreview v{version} 업데이트 완료",
                 "failed": "BD2ModPreview 업데이트 실패",
                 "noUpdateAvailable": "BD2ModPreview가 최신 버전입니다"

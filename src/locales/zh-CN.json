@@ -142,6 +142,7 @@
                 }
             },
             "modPreviewUpdate": {
+                "retry": "重试",
                 "updated": "BD2ModPreview v{version} 已更新",
                 "failed": "BD2ModPreview 更新失败",
                 "noUpdateAvailable": "BD2ModPreview 已是最新版本"

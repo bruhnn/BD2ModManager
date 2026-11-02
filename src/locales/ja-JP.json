@@ -142,6 +142,7 @@
                 }
             },
             "modPreviewUpdate": {
+                "retry": "再試行",
                 "updated": "BD2ModPreview v{version}を更新しました",
                 "failed": "BD2ModPreviewの更新に失敗しました",
                 "noUpdateAvailable": "BD2ModPreviewは最新です"

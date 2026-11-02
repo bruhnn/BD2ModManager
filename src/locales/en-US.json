@@ -142,6 +142,7 @@
                 }
             },
             "modPreviewUpdate": {
+                "retry": "Retry",
                 "updated": {
                     "title": "BD2ModPreview v{version} updated"
                 },
