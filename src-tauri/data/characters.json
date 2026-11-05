@@ -1,5 +1,5 @@
 {
-    "version": "0.0.31",
+    "version": "0.0.32",
     "characters": [
         {
             "id": "000708",
@@ -7665,6 +7665,80 @@
                 "head_image": "icon_char067902_232.png",
                 "character_image": "illust_inven_char067902_226.png",
                 "skill_image": "illust_skill_char067902_226.png"
+            }
+        },
+        {
+            "id": "068001",
+            "character": "Valze",
+            "costume": "Night of Betrayal",
+            "is_collab": false,
+            "cutscene": true,
+            "standing": true,
+            "dating_id": null,
+            "character_image": "illust_inven_char068001_228.png",
+            "skill_preview_image": "illust_skill_char068001_228.png",
+            "release_date": "2026-11-05",
+            "gender": "female",
+            "costume_id": "068001",
+            "character_id": 680,
+            "character_name": {
+                "en": "Valze",
+                "cn": "斐杰",
+                "jp": "バルゼ",
+                "tw": "斐傑",
+                "kr": "발제"
+            },
+            "costume_name": {
+                "en": "Night of Betrayal",
+                "cn": "背叛之夜",
+                "jp": "叛逆の夜",
+                "tw": "背叛之夜",
+                "kr": "배반의 밤"
+            },
+            "skin_type": "normal",
+            "grade": 5,
+            "element": "dark",
+            "assets": {
+                "head_image": "icon_char068001_234.png",
+                "character_image": "illust_inven_char068001_228.png",
+                "skill_image": "illust_skill_char068001_228.png"
+            }
+        },
+        {
+            "id": "001297",
+            "character": "Liatris",
+            "costume": "Sweet Temptation",
+            "is_collab": false,
+            "cutscene": true,
+            "standing": true,
+            "dating_id": null,
+            "character_image": "illust_inven_char001297_229.png",
+            "skill_preview_image": "illust_skill_char001297_229.png",
+            "release_date": "2026-11-05",
+            "gender": "female",
+            "costume_id": "001297",
+            "character_id": 12,
+            "character_name": {
+                "en": "Liatris",
+                "cn": "莉亚特里斯",
+                "jp": "リアトリス",
+                "tw": "莉亞特里斯",
+                "kr": "리아트리스"
+            },
+            "costume_name": {
+                "en": "Sweet Temptation",
+                "cn": "甜蜜的诱惑",
+                "jp": "甘い誘惑",
+                "tw": "甜蜜的誘惑",
+                "kr": "달콤한 유혹"
+            },
+            "skin_type": "special",
+            "grade": 5,
+            "element": "fire",
+            "assets": {
+                "head_image": "icon_char001297_235.png",
+                "character_image": "illust_inven_char001297_229.png",
+                "skill_image": "illust_skill_char001297_229.png"
             }
         }
     ],
