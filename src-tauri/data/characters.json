@@ -2637,7 +2637,7 @@
             "is_collab": false,
             "cutscene": true,
             "standing": true,
-            "dating_id": "12",
+            "dating_id": null,
             "character_image": "illust_inven_char061402_101.png",
             "skill_preview_image": "illust_skill_char061402_101.png",
             "release_date": "2023-10-26",
