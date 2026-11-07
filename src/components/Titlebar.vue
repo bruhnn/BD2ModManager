@@ -165,7 +165,7 @@ async function fetchCredits() {
 }
 
 function rotateCredits() {
-    const delay = creditIndex.value === 0 ? 30000 : 5000
+    const delay = creditIndex.value === 0 ? 32000 : 8000
 
     creditsInterval = setTimeout(() => {
         if (creditsSinceZero.value === 3) {
