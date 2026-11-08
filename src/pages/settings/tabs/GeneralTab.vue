@@ -2,13 +2,24 @@
     setup
     lang="ts"
 >
+import { Folder, PenSquare, Plus, SquareArrowOutUpRight, Trash } from '@lucide/vue'
+import { computed, nextTick, ref, Teleport, useTemplateRef, watch } from 'vue'
 import { TabPanel } from '@headlessui/vue'
-import { computed, nextTick, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { Folder, SquareArrowOutUpRight } from '@lucide/vue'
+
 import { openPath } from '@tauri-apps/plugin-opener'
+import { appDataDir, join } from '@tauri-apps/api/path'
 import { open } from '@tauri-apps/plugin-dialog'
 
+import { useLoggingStore } from '../../../stores/logging'
+import { Language, useSettingsStore } from '../../../stores/settings'
+import { useNotificationStore } from '../../../stores/notification.ts'
+import { usePreferencesStore } from '../../../stores/preferences.ts'
+import { UserTheme, useThemesStore } from '../../../stores/themes.ts'
+import { useModsStore } from '../../../stores/mods'
+import { useConfirm } from '../../../plugins/ConfirmService.ts'
+
+import MultiButton from '../../../components/common/MultiButton.vue'
 import Checkbox from '../../../components/common/Checkbox.vue'
 import Section from '../Section.vue'
 import Select from '../../../components/common/Select.vue'
@@ -16,15 +27,14 @@ import Slider from '../../../components/common/Slider.vue'
 import Button from '../../../components/common/Button.vue'
 import Input from '../../../components/common/Input.vue'
 
-import { useLoggingStore } from '../../../stores/logging'
-import { Language, useSettingsStore } from '../../../stores/settings'
-import { useNotificationStore } from '../../../stores/notification.ts'
-import { usePreferencesStore } from '../../../stores/preferences.ts'
-import { useModsStore } from '../../../stores/mods'
+import ThemeEditorModal from './modals/ThemeEditorModal.vue'
 
 const settingsStore = useSettingsStore()
+const confirm = useConfirm()
+
 const modsStore = useModsStore()
 const preferencesStore = usePreferencesStore()
+const themesStore = useThemesStore()
 const notificationStore = useNotificationStore()
 
 const { t, availableLocales } = useI18n()
@@ -119,7 +129,7 @@ async function onThemeSelectClosed() {
 async function onThemeChanged(theme: string) {
     if (!theme) return
 
-    const isValidTheme = settingsStore.availableThemes.some((availableTheme) => availableTheme.value === theme)
+    const isValidTheme = themesStore.availableThemes.some((availableTheme) => availableTheme.value === theme)
 
     if (!isValidTheme) {
         logWarning(`Theme ${theme} is not in the list of available themes.`)
@@ -300,10 +310,53 @@ async function handleGameDirectoryBrowse() {
     }
 }
 
+const themeEditorModalRef = useTemplateRef("themeEditorModal")
+
+const themeMenuActions = computed(() => {
+    const name = themesStore.currentTheme ?? ''
+    const isUserTheme = themesStore.isCurrentThemeUserTheme
+    return [
+        ...(isUserTheme ? [{ label: t('settingsTab.general.sections.application.theme.actions.edit', { name }), icon: PenSquare, clicked: () => themeEditorModalRef.value?.openModal('editor') }] : []),
+        { label: t('settingsTab.general.sections.application.theme.actions.openFolder'), icon: Folder, clicked: openThemesFolder },
+        ...(isUserTheme ? [{ label: t('settingsTab.general.sections.application.theme.actions.delete', { name }), icon: Trash, danger: true, clicked: () => onThemeDelete(name) }] : []),
+    ]
+})
+
+async function openThemesFolder() {
+    await handleOpenFolder(await join(await appDataDir(), 'themes'))
+}
+
+// only close the editor after a successful save, so a failed save keeps the edits to show the errors
+async function onThemeSave(theme: UserTheme, originalName: string) {
+    const saved = themeEditorModalRef.value?.modalType === 'creator'
+        ? await themesStore.createUserTheme(theme)
+        : await themesStore.updateUserTheme(originalName, theme)
+
+    if (saved) themeEditorModalRef.value?.closeModal()
+}
+
+async function onThemeDelete(themeName: string) {
+    const result = await confirm.confirm({
+        title: t('settingsTab.general.sections.application.theme.deleteConfirmation.title'),
+        message: t('settingsTab.general.sections.application.theme.deleteConfirmation.message', { themeName }),
+        acceptButton: {
+            label: t('common.actions.delete'),
+            variant: "danger"
+        },
+        rejectButton: {
+            label: t('common.actions.cancel'),
+        }
+    })
+
+    if (result.confirmed) themesStore.deleteUserTheme(themeName)
+}
 
 </script>
 
 <template>
+    <Teleport to="body">
+        <ThemeEditorModal ref="themeEditorModal" @save="onThemeSave" />
+    </Teleport>
     <TabPanel>
         <div class="flex flex-col gap-8">
             <Section :title="$t('settingsTab.general.sections.application.title')">
@@ -313,11 +366,17 @@ async function handleGameDirectoryBrowse() {
                             {{ $t('settingsTab.general.sections.application.theme.label') }}
                         </label>
 
-                        <Select :model-value="settings.theme" :options="settingsStore.availableThemes"
-                            :placeholder="$t('settingsTab.general.sections.application.theme.placeholder')"
-                            option-label="label" option-value="value" class="col-span-2"
-                            @update:model-value="onThemeSelected" @close="onThemeSelectClosed" />
+                        <div class="flex min-w-0 items-center col-span-2 gap-1">
+                            <Select :model-value="settings.theme" :options="themesStore.availableThemes"
+                                :placeholder="$t('settingsTab.general.sections.application.theme.placeholder')"
+                                option-label="label" option-value="value" class="min-w-0 flex-1"
+                                @update:model-value="onThemeSelected" @close="onThemeSelectClosed" />
+
+                            <MultiButton :label="t('settingsTab.general.sections.application.theme.actions.new')" :icon="Plus"
+                                @click="themeEditorModalRef?.openModal('creator')" :actions="themeMenuActions" />
+                        </div>
                     </div>
+
 
                     <div class="grid grid-cols-3 items-center gap-4">
                         <label class="text-sm font-medium">
@@ -354,6 +413,7 @@ async function handleGameDirectoryBrowse() {
                                 class="whitespace-nowrap min-w-32" @click="handleGameDirectoryBrowse" />
 
                             <Button class="whitespace-nowrap" :icon="SquareArrowOutUpRight"
+                                :tooltip="$t('common.actions.openFolder')"
                                 :disabled="!settings.gameDirectory" @click="handleOpenFolder(settings.gameDirectory)" />
                         </div>
                     </div>
@@ -371,8 +431,7 @@ async function handleGameDirectoryBrowse() {
                             <Button :label="$t('common.actions.browse')" :icon="Folder" class="min-w-32"
                                 @click="handleStagingModsBrowse" />
 
-                            <Button :icon="SquareArrowOutUpRight" :disabled="!settings.stagingDirectory"
-                                @click="handleOpenFolder(settings.stagingDirectory)" />
+                            <Button :icon="SquareArrowOutUpRight" :tooltip="$t('common.actions.openFolder')" :disabled="!settings.stagingDirectory" @click="handleOpenFolder(settings.stagingDirectory)" />
                         </div>
                     </div>
                 </div>

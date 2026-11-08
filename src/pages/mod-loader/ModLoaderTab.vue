@@ -194,6 +194,7 @@ watch(() => settingsStore.settings.gameDirectory, async (newPath) => {
 
 useHeader({
     title: computed(() => t('modLoaderTab.title')),
+    subtitle: computed(() => t('modLoaderTab.subtitle')),
     buttons: [{
         label: computed(() => t('common.actions.refresh')),
         icon: RefreshCcw,

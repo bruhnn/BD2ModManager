@@ -83,13 +83,17 @@
     },
     "common": {
         "actions": {
+            "openFolder": "Open folder",
+            "gridView": "Grid view",
+            "listView": "List view",
             "refreshMods": "Refresh Mods",
             "cancel": "Cancel",
             "close": "Close",
             "refresh": "Refresh",
             "continue": "Continue",
             "browse": "Browse",
-            "save": "Save"
+            "save": "Save",
+            "delete": "Delete"
         },
         "modTypes": {
             "cutscene": "Cutscene",
@@ -814,6 +818,7 @@
     },
     "modLoaderTab": {
         "title": "Mod Loader",
+        "subtitle": "Install and manage BepInEx, BrownDustX and the Configuration Manager.",
         "status": {
             "installed": "Installed",
             "installedButOutdated": "Installed (Outdated)",
@@ -954,7 +959,56 @@
                     "title": "Application",
                     "theme": {
                         "label": "Theme",
-                        "placeholder": "Select a theme"
+                        "placeholder": "Select a theme",
+                        "deleteConfirmation": {
+                            "title": "Delete theme",
+                            "message": "Delete \"{themeName}\"? This removes its file and can't be undone."
+                        },
+                        "unknownAuthor": "Unknown",
+                        "actions": {
+                            "new": "New",
+                            "create": "Create theme",
+                            "edit": "Edit \"{name}\"",
+                            "delete": "Delete \"{name}\"",
+                            "openFolder": "Open themes folder"
+                        },
+                        "editor": {
+                            "createTitle": "Create theme",
+                            "editTitle": "Edit theme",
+                            "name": "Name",
+                            "namePlaceholder": "My theme",
+                            "author": "Author (optional)",
+                            "authorPlaceholder": "Your name",
+                            "reset": "Reset",
+                            "background": "Background",
+                            "groups": {
+                                "surfaces": "Surfaces",
+                                "texts": "Text",
+                                "borders": "Borders",
+                                "states": "States",
+                                "accent": "Accent",
+                                "mods": "Mod types",
+                                "statuses": "Status",
+                                "changelogs": "Changelog"
+                            },
+                            "errors": {
+                                "empty": "Enter a name.",
+                                "invalidChar": "Names can't contain \"{char}\".",
+                                "controlChar": "Names can't contain control characters.",
+                                "reserved": "\"{name}\" is reserved by Windows.",
+                                "trailing": "Names can't end with a dot or a space.",
+                                "tooLong": "Use 200 characters or fewer.",
+                                "taken": "A theme with this name already exists."
+                            }
+                        },
+                        "notifications": {
+                            "created": "Theme \"{name}\" created",
+                            "updated": "Theme \"{name}\" updated",
+                            "deleted": "Theme \"{name}\" deleted",
+                            "createFailed": "Couldn't create the theme",
+                            "updateFailed": "Couldn't update the theme",
+                            "deleteFailed": "Couldn't delete the theme"
+                        }
                     },
                     "language": {
                         "label": "Language",
@@ -1243,6 +1297,12 @@
             "ModHasErrors": "Mod \"{mod_name}\" contains errors and cannot be previewed",
             "ModPreviewNotFound": "Mod preview tool was not found. You can click 'Check for Updates' in settings to reinstall it.",
             "PreviewFailed": "Failed to preview mod: {reason}"
+        },
+        "ThemesError": {
+            "AlreadyExists": "A theme named \"{theme_name}\" already exists.",
+            "NotFound": "The theme \"{theme_name}\" was not found.",
+            "InvalidName": "Invalid theme name \"{theme_name}\" ({reason})",
+            "Json": "The theme file is not valid JSON (line {line}, column {column})."
         },
         "MigrateError": {
             "title": "Migration Failed",

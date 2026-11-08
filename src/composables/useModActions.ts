@@ -90,7 +90,7 @@ export function useModActions() {
                 duration: 5000
             })
 
-            loggingStore.logError(`An error occured while previewing the mod ${mod.name}: ${error}`);
+            loggingStore.logError(`An error occured while previewing the mod ${mod.name}: ${JSON.stringify(error)}`);
         })
     }
 

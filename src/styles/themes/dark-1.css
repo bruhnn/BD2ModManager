@@ -2,19 +2,19 @@
   [data-theme="dark-1"] {
     --surface-app: #12141d;
     --surface-panel: #1a1d28;
-    --surface-card: rgb(44, 49, 64);  
-    --surface-input: #252838;   
-    --surface-popover: rgb(25, 28, 39);
-    --surface-dialog: #1a1d28;
+    --surface-card: #212534;
+    --surface-input: #161924;
+    --surface-popover: #2f3446;
+    --surface-dialog: #1d2130;
 
     --text-primary: #e0e4eb;
-    --text-secondary: #747c90;
-    --text-muted: #565e74;      
+    --text-secondary: #8e96ac;
+    --text-muted: #6b738a;
     --text-on-accent: #ffffff;
 
-    --border-subtle: rgba(33, 37, 50, 0.9);
-    --border-default: #2c3140;
-    --border-strong: #3b4155;
+    --border-subtle: #232737;
+    --border-default: #303547;
+    --border-strong: #41475d;
     --border-focus: rgba(152, 129, 217, 0.2);
 
     --state-hover: #3b4155;

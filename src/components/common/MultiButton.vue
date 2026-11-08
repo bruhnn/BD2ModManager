@@ -15,6 +15,7 @@ const props = defineProps<{
     label: string
     icon?: any
     disabled?: boolean
+    danger?: boolean
     clicked: () => void
   }>
 }>()
@@ -78,13 +79,17 @@ const classList = computed(() => [
 
 
       <template #default="{ close }">
-        <div class="min-w-40 rounded-md border border-border-default bg-surface-popover">
-          <button v-for="(action, i) in actions" :key="i" type="button" :disabled="action.disabled" role="menuitem"
-            class="flex w-full font-medium items-center cursor-pointer gap-2 px-3 py-1.5 text-sm text-text-primary transition-colors hover:bg-state-hover disabled:pointer-events-none disabled:opacity-50"
-            @click="handleActionClick(close, action)">
-            <component v-if="action.icon" :is="action.icon" class="size-[1.1em] shrink-0 text-text-secondary" />
-            {{ action.label }}
-          </button>
+        <div class="min-w-40 rounded-md border border-border-default bg-surface-popover py-1">
+          <template v-for="(action, i) in actions" :key="i">
+            <div v-if="action.danger && i > 0" class="my-1 h-px bg-border-default" />
+            <button type="button" :disabled="action.disabled" role="menuitem"
+              class="flex w-full font-medium items-center cursor-pointer gap-2 px-3 py-1.5 text-sm transition-colors hover:bg-state-hover disabled:pointer-events-none disabled:opacity-50"
+              :class="action.danger ? 'text-error' : 'text-text-primary'" @click="handleActionClick(close, action)">
+              <component v-if="action.icon" :is="action.icon" class="size-[1.1em] shrink-0"
+                :class="action.danger ? 'text-error' : 'text-text-secondary'" />
+              {{ action.label }}
+            </button>
+          </template>
         </div>
       </template>
     </Popover>

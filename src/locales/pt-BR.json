@@ -83,13 +83,17 @@
     },
     "common": {
         "actions": {
+            "openFolder": "Abrir pasta",
+            "gridView": "Visualização em grade",
+            "listView": "Visualização em lista",
             "refreshMods": "Atualizar Mods",
             "cancel": "Cancelar",
             "close": "Fechar",
             "refresh": "Atualizar",
             "continue": "Continuar",
             "browse": "Procurar",
-            "save": "Salvar"
+            "save": "Salvar",
+            "delete": "Excluir"
         },
         "modTypes": {
             "cutscene": "Cutscene",
@@ -793,6 +797,7 @@
     },
     "modLoaderTab": {
         "title": "Carregador de mods",
+        "subtitle": "Instale e gerencie o BepInEx, o BrownDustX e o Configuration Manager.",
         "status": {
             "installed": "Instalado",
             "installedButOutdated": "Instalado (Desatualizado)",
@@ -929,7 +934,56 @@
                     "title": "Aplicativo",
                     "theme": {
                         "label": "Tema",
-                        "placeholder": "Selecione um tema"
+                        "placeholder": "Selecione um tema",
+                        "unknownAuthor": "Desconhecido",
+                        "actions": {
+                            "new": "Novo",
+                            "create": "Criar tema",
+                            "edit": "Editar \"{name}\"",
+                            "delete": "Excluir \"{name}\"",
+                            "openFolder": "Abrir pasta de temas"
+                        },
+                        "deleteConfirmation": {
+                            "title": "Excluir tema",
+                            "message": "Excluir \"{themeName}\"? O arquivo será removido e isso não pode ser desfeito."
+                        },
+                        "editor": {
+                            "createTitle": "Criar tema",
+                            "editTitle": "Editar tema",
+                            "name": "Nome",
+                            "namePlaceholder": "Meu tema",
+                            "author": "Autor (opcional)",
+                            "authorPlaceholder": "Seu nome",
+                            "reset": "Redefinir",
+                            "background": "Fundo",
+                            "groups": {
+                                "surfaces": "Superfícies",
+                                "texts": "Texto",
+                                "borders": "Bordas",
+                                "states": "Estados",
+                                "accent": "Destaque",
+                                "mods": "Tipos de mod",
+                                "statuses": "Status",
+                                "changelogs": "Registro de alterações"
+                            },
+                            "errors": {
+                                "empty": "Digite um nome.",
+                                "invalidChar": "O nome não pode conter \"{char}\".",
+                                "controlChar": "O nome não pode conter caracteres de controle.",
+                                "reserved": "\"{name}\" é um nome reservado do Windows.",
+                                "trailing": "O nome não pode terminar com ponto ou espaço.",
+                                "tooLong": "Use no máximo 200 caracteres.",
+                                "taken": "Já existe um tema com esse nome."
+                            }
+                        },
+                        "notifications": {
+                            "created": "Tema \"{name}\" criado",
+                            "updated": "Tema \"{name}\" atualizado",
+                            "deleted": "Tema \"{name}\" excluído",
+                            "createFailed": "Não foi possível criar o tema",
+                            "updateFailed": "Não foi possível atualizar o tema",
+                            "deleteFailed": "Não foi possível excluir o tema"
+                        }
                     },
                     "language": {
                         "label": "Idioma",
@@ -1138,6 +1192,12 @@
             "DirectoriesNested": "As pastas de staging e de mods do jogo se sobrepõem. Escolha pastas separadas antes de sincronizar.",
             "DestinationContainsSymlink": "O destino contém um link simbólico ou uma junção: “{path}”. Substitua essa pasta por uma pasta normal antes de sincronizar.",
             "ModContainsSymlink": "Este mod contém um link simbólico ou uma junção: “{path}”. Substitua pelo conteúdo real antes de sincronizar."
+        },
+        "ThemesError": {
+            "AlreadyExists": "Já existe um tema chamado \"{theme_name}\".",
+            "NotFound": "O tema \"{theme_name}\" não foi encontrado.",
+            "InvalidName": "Nome de tema inválido \"{theme_name}\" ({reason})",
+            "Json": "O arquivo do tema não é um JSON válido (linha {line}, coluna {column})."
         },
         "MigrateError": {
             "title": "Falha na migração",

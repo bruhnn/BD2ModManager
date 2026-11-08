@@ -83,13 +83,17 @@
     },
     "common": {
         "actions": {
+            "openFolder": "打开文件夹",
+            "gridView": "网格视图",
+            "listView": "列表视图",
             "refreshMods": "刷新模组",
             "cancel": "取消",
             "close": "关闭",
             "refresh": "刷新",
             "continue": "继续",
             "browse": "浏览",
-            "save": "保存"
+            "save": "保存",
+            "delete": "删除"
         },
         "modTypes": {
             "cutscene": "过场动画",
@@ -793,6 +797,7 @@
     },
     "modLoaderTab": {
         "title": "模组加载器",
+        "subtitle": "安装并管理 BepInEx、BrownDustX 和 Configuration Manager。",
         "status": {
             "installed": "已安装",
             "installedButOutdated": "已安装（版本过旧）",
@@ -929,7 +934,56 @@
                     "title": "应用程序",
                     "theme": {
                         "label": "主题",
-                        "placeholder": "选择主题"
+                        "placeholder": "选择主题",
+                        "unknownAuthor": "未知",
+                        "actions": {
+                            "new": "新建",
+                            "create": "创建主题",
+                            "edit": "编辑“{name}”",
+                            "delete": "删除“{name}”",
+                            "openFolder": "打开主题文件夹"
+                        },
+                        "deleteConfirmation": {
+                            "title": "删除主题",
+                            "message": "删除“{themeName}”？其文件将被移除，且无法撤销。"
+                        },
+                        "editor": {
+                            "createTitle": "创建主题",
+                            "editTitle": "编辑主题",
+                            "name": "名称",
+                            "namePlaceholder": "我的主题",
+                            "author": "作者（可选）",
+                            "authorPlaceholder": "你的名字",
+                            "reset": "重置",
+                            "background": "背景",
+                            "groups": {
+                                "surfaces": "表面",
+                                "texts": "文本",
+                                "borders": "边框",
+                                "states": "交互状态",
+                                "accent": "强调色",
+                                "mods": "Mod 类型",
+                                "statuses": "状态",
+                                "changelogs": "更新日志"
+                            },
+                            "errors": {
+                                "empty": "请输入名称。",
+                                "invalidChar": "名称不能包含“{char}”。",
+                                "controlChar": "名称不能包含控制字符。",
+                                "reserved": "“{name}”是 Windows 保留名称。",
+                                "trailing": "名称不能以句点或空格结尾。",
+                                "tooLong": "请使用 200 个字符以内。",
+                                "taken": "已存在同名主题。"
+                            }
+                        },
+                        "notifications": {
+                            "created": "已创建主题“{name}”",
+                            "updated": "已更新主题“{name}”",
+                            "deleted": "已删除主题“{name}”",
+                            "createFailed": "无法创建主题",
+                            "updateFailed": "无法更新主题",
+                            "deleteFailed": "无法删除主题"
+                        }
                     },
                     "language": {
                         "label": "语言",
@@ -1138,6 +1192,12 @@
             "DirectoriesNested": "暂存文件夹与游戏模组文件夹存在包含关系。同步前请选择互不包含的文件夹。",
             "DestinationContainsSymlink": "目标路径包含符号链接或目录联接：“{path}”。同步前请将其替换为普通文件夹。",
             "ModContainsSymlink": "此模组包含符号链接或目录联接：“{path}”。请先将其替换为实际文件，再进行同步。"
+        },
+        "ThemesError": {
+            "AlreadyExists": "名为“{theme_name}”的主题已存在。",
+            "NotFound": "未找到主题“{theme_name}”。",
+            "InvalidName": "无效的主题名称“{theme_name}”（{reason}）",
+            "Json": "主题文件不是有效的 JSON（第 {line} 行，第 {column} 列）。"
         },
         "MigrateError": {
             "title": "迁移失败",
