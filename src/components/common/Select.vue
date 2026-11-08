@@ -12,6 +12,7 @@ import {
     offset,
     shift,
     size as floatingSize,
+    autoUpdate,
     useFloating
 } from "@floating-ui/vue"
 
@@ -79,14 +80,22 @@ const selectedLabel = computed(() => {
         : props.placeholder
 })
 
+const isOpen = ref(false)
 const reference = useTemplateRef("reference")
 const floating = useTemplateRef("floating")
 
-const { floatingStyles } = useFloating(
+const { floatingStyles, isPositioned } = useFloating(
     reference,
     floating,
     {
         placement: "bottom-start",
+
+        // position with top/left so the enter transition doesn't animate the position
+        transform: false,
+
+        whileElementsMounted: autoUpdate,
+
+        open: isOpen,
 
         middleware: [
             offset(4),
@@ -167,11 +176,12 @@ const classList = computed(() => [
                 </span>
             </ListboxButton>
 
-            <transition enter-active-class="transition duration-200 ease-out" enter-from-class="opacity-0 scale-95"
-                enter-to-class="opacity-100 scale-100" leave-active-class="transition duration-150 ease-in"
+            <transition enter-active-class="transition-[opacity,scale] duration-200 ease-out" enter-from-class="opacity-0 scale-95"
+                enter-to-class="opacity-100 scale-100" leave-active-class="transition-[opacity,scale] duration-150 ease-in"
                 leave-from-class="opacity-100 scale-100" leave-to-class="opacity-0 scale-95"
-                @after-leave="handleClosed">
+                @before-enter="isOpen = true" @after-leave="isOpen = false; handleClosed()">
                 <ListboxOptions ref="floating" :style="floatingStyles"
+                    :class="{ 'invisible': !isPositioned }"
                     class="w-full min-h-0 z-9998 max-h-screen overflow-y-auto rounded-sm border border-border-default bg-surface-popover shadow-lg focus:outline-none">
                     <div v-if="options?.length == 0" class="text-text-secondary text-xs p-2 text-center">
                         {{
