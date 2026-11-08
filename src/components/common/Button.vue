@@ -1,8 +1,14 @@
 <script setup lang="ts">
 import { computed, MaybeRef } from 'vue'
 import type { Component } from 'vue';
+import type { Placement } from '@floating-ui/vue';
+import Tooltip from './Tooltip.vue'
+
+defineOptions({ inheritAttrs: false })
 
 const props = defineProps<{
+  tooltip?: string
+  tooltipPlacement?: Placement
   label?: MaybeRef<string>
   icon?: Component
   labelClass?: string
@@ -42,7 +48,14 @@ const classList = computed(() => [
 </script>
 
 <template>
-  <button v-bind="$attrs" @click="handleClick" :disabled="disabled" :class="classList">
+  <Tooltip v-if="tooltip" :text="tooltip" :placement="tooltipPlacement">
+    <button v-bind="$attrs" @click="handleClick" :disabled="disabled" :class="classList">
+      <component v-if="icon" :is="icon" :class="[iconClass, 'size-[1.1em]']" />
+      <span v-if="label" :class="[labelClass, 'truncate']">{{ label }}</span>
+      <slot />
+    </button>
+  </Tooltip>
+  <button v-else v-bind="$attrs" @click="handleClick" :disabled="disabled" :class="classList">
     <component v-if="icon" :is="icon" :class="[iconClass, 'size-[1.1em]']" />
     <span v-if="label" :class="[labelClass, 'truncate']">{{ label }}</span>
     <slot />
