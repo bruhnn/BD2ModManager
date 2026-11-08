@@ -796,6 +796,7 @@
     },
     "modLoaderTab": {
         "title": "Modローダー",
+        "subtitle": "BepInEx、BrownDustX、Configuration Managerをインストール・管理します。",
         "status": {
             "installed": "インストール済み",
             "installedButOutdated": "インストール済み（古いバージョン）",

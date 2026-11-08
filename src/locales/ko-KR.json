@@ -796,6 +796,7 @@
     },
     "modLoaderTab": {
         "title": "모드 로더",
+        "subtitle": "BepInEx, BrownDustX 및 Configuration Manager를 설치하고 관리합니다.",
         "status": {
             "installed": "설치됨",
             "installedButOutdated": "설치됨 (오래된 버전)",

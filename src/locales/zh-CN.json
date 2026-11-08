@@ -796,6 +796,7 @@
     },
     "modLoaderTab": {
         "title": "模组加载器",
+        "subtitle": "安装并管理 BepInEx、BrownDustX 和 Configuration Manager。",
         "status": {
             "installed": "已安装",
             "installedButOutdated": "已安装（版本过旧）",

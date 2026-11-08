@@ -817,6 +817,7 @@
     },
     "modLoaderTab": {
         "title": "Mod Loader",
+        "subtitle": "Install and manage BepInEx, BrownDustX and the Configuration Manager.",
         "status": {
             "installed": "Installed",
             "installedButOutdated": "Installed (Outdated)",

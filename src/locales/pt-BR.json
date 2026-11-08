@@ -796,6 +796,7 @@
     },
     "modLoaderTab": {
         "title": "Carregador de mods",
+        "subtitle": "Instale e gerencie o BepInEx, o BrownDustX e o Configuration Manager.",
         "status": {
             "installed": "Instalado",
             "installedButOutdated": "Instalado (Desatualizado)",
