@@ -316,9 +316,9 @@ const themeMenuActions = computed(() => {
     const name = themesStore.currentTheme ?? ''
     const isUserTheme = themesStore.isCurrentThemeUserTheme
     return [
-        ...(isUserTheme ? [{ label: t('settingsTab.general.sections.application.theme.actions.edit', { name }), icon: PenSquare, clicked: () => themeEditorModalRef.value?.openModal('editor') }] : []),
+        { label: t('settingsTab.general.sections.application.theme.actions.edit', { name }), icon: PenSquare, clicked: () => themeEditorModalRef.value?.openModal('editor'), disabled: !isUserTheme },
         { label: t('settingsTab.general.sections.application.theme.actions.openFolder'), icon: Folder, clicked: openThemesFolder },
-        ...(isUserTheme ? [{ label: t('settingsTab.general.sections.application.theme.actions.delete', { name }), icon: Trash, danger: true, clicked: () => onThemeDelete(name) }] : []),
+        { label: t('settingsTab.general.sections.application.theme.actions.delete', { name }), icon: Trash, danger: true, clicked: () => onThemeDelete(name), disabled: !isUserTheme },
     ]
 })
 
