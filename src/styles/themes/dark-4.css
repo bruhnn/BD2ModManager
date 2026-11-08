@@ -7,8 +7,8 @@
   --surface-panel:   #1c1c1c;
   --surface-card:    #222222;
   --surface-input:   #191919;
-  --surface-popover: #2a2a2a;
-  --surface-dialog:  #242424;
+  --surface-popover: #2f2f2f;
+  --surface-dialog:  #2a2a2a;
 
   
   --text-primary:   #e4e4e4;
@@ -23,7 +23,7 @@
   --border-focus:   rgba(91, 141, 191, 0.45);
 
   
-  --state-hover:    #262626;
+  --state-hover:    #343434;
   --state-active:   rgba(255, 255, 255, 0.05);
   --state-selected: rgba(91, 141, 191, 0.12);
 
