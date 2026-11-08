@@ -1,12 +1,10 @@
 use serde::Serializer;
 
 use crate::{
-    migrate::migrate::MigrateError,
-    mods::{
+    migrate::migrate::MigrateError, mods::{
         delete::ModDeleteError, install::ModInstallError, metadata::MetadataError,
         preview::PreviewError, rename::ModRenameError, sync::ModSyncError,
-    },
-    profiles::types::ProfileError,
+    }, profiles::types::ProfileError, themes::commands::ThemesError,
 };
 
 fn get_type_name<T>() -> &'static str {
@@ -66,6 +64,8 @@ pub enum AppError {
     Preview(#[from] PreviewError),
     #[error(transparent)]
     Migrate(#[from] MigrateError),
+    #[error(transparent)]
+    Themes(#[from] ThemesError),
 
     #[error("An unknown error occurred: {0}")]
     Unknown(String)
@@ -86,6 +86,7 @@ impl serde::Serialize for AppError {
             AppError::Metadata(_) => get_type_name::<MetadataError>(),
             AppError::Preview(_) => get_type_name::<PreviewError>(),
             AppError::Migrate(_) => get_type_name::<MigrateError>(),
+            AppError::Themes(_) => get_type_name::<ThemesError>(),
             AppError::GameDirectoryNotSet => get_type_name::<AppError>(),
             AppError::SyncMethodInvalid { method: _ } => get_type_name::<AppError>(),
             AppError::GameRunning => get_type_name::<AppError>(),
@@ -101,6 +102,7 @@ impl serde::Serialize for AppError {
             AppError::Metadata(err) => get_error_type(err),
             AppError::Preview(err) => get_error_type(err),
             AppError::Migrate(err) => get_error_type(err),
+            AppError::Themes(err) => get_error_type(err),
             AppError::GameDirectoryNotSet => "GameDirectoryNotSet".to_string(),
             AppError::SyncMethodInvalid { method: _ } => "SyncMethodInvalid".to_string(),
             AppError::GameRunning => "GameRunning".to_string(),
@@ -116,6 +118,7 @@ impl serde::Serialize for AppError {
             AppError::Metadata(err) => get_error_details(err),
             AppError::Preview(err) => get_error_details(err),
             AppError::Migrate(err) => get_error_details(err),
+            AppError::Themes(err) => get_error_details(err),
             AppError::GameDirectoryNotSet => serde_json::Value::Null,
             AppError::GameRunning => serde_json::Value::Null,
             AppError::SyncMethodInvalid { method } => serde_json::json!({ "method": method }),

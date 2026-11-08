@@ -92,7 +92,8 @@
             "refresh": "更新",
             "continue": "続行",
             "browse": "参照",
-            "save": "保存"
+            "save": "保存",
+            "delete": "削除"
         },
         "modTypes": {
             "cutscene": "カットシーン",
@@ -933,7 +934,56 @@
                     "title": "アプリケーション",
                     "theme": {
                         "label": "テーマ",
-                        "placeholder": "テーマを選択"
+                        "placeholder": "テーマを選択",
+                        "unknownAuthor": "不明",
+                        "actions": {
+                            "new": "新規",
+                            "create": "テーマを作成",
+                            "edit": "「{name}」を編集",
+                            "delete": "「{name}」を削除",
+                            "openFolder": "テーマフォルダーを開く"
+                        },
+                        "deleteConfirmation": {
+                            "title": "テーマを削除",
+                            "message": "「{themeName}」を削除しますか？ファイルが削除され、元に戻せません。"
+                        },
+                        "editor": {
+                            "createTitle": "テーマを作成",
+                            "editTitle": "テーマを編集",
+                            "name": "名前",
+                            "namePlaceholder": "マイテーマ",
+                            "author": "作者（任意）",
+                            "authorPlaceholder": "あなたの名前",
+                            "reset": "リセット",
+                            "background": "背景",
+                            "groups": {
+                                "surfaces": "サーフェス",
+                                "texts": "テキスト",
+                                "borders": "境界線",
+                                "states": "状態",
+                                "accent": "アクセント",
+                                "mods": "MODの種類",
+                                "statuses": "ステータス",
+                                "changelogs": "更新履歴"
+                            },
+                            "errors": {
+                                "empty": "名前を入力してください。",
+                                "invalidChar": "名前に「{char}」は使用できません。",
+                                "controlChar": "名前に制御文字は使用できません。",
+                                "reserved": "「{name}」はWindowsで予約されています。",
+                                "trailing": "名前の末尾にドットやスペースは使用できません。",
+                                "tooLong": "200文字以内で入力してください。",
+                                "taken": "同じ名前のテーマがすでに存在します。"
+                            }
+                        },
+                        "notifications": {
+                            "created": "テーマ「{name}」を作成しました",
+                            "updated": "テーマ「{name}」を更新しました",
+                            "deleted": "テーマ「{name}」を削除しました",
+                            "createFailed": "テーマを作成できませんでした",
+                            "updateFailed": "テーマを更新できませんでした",
+                            "deleteFailed": "テーマを削除できませんでした"
+                        }
                     },
                     "language": {
                         "label": "言語",
@@ -1142,6 +1192,12 @@
             "DirectoriesNested": "保存先とゲームのModフォルダーが重複しています。同期前に別々のフォルダーを選択してください。",
             "DestinationContainsSymlink": "同期先にシンボリックリンクまたはジャンクションがあります:「{path}」。同期前に通常のフォルダーに置き換えてください。",
             "ModContainsSymlink": "このMODにはシンボリックリンクまたはジャンクション「{path}」が含まれています。同期する前に実際のファイルに置き換えてください。"
+        },
+        "ThemesError": {
+            "AlreadyExists": "「{theme_name}」という名前のテーマはすでに存在します。",
+            "NotFound": "テーマ「{theme_name}」が見つかりません。",
+            "InvalidName": "無効なテーマ名「{theme_name}」（{reason}）",
+            "Json": "テーマファイルが有効なJSONではありません（{line}行目、{column}列目）。"
         },
         "MigrateError": {
             "title": "移行に失敗しました",

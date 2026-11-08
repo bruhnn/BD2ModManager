@@ -14,6 +14,7 @@ pub mod migrate;
 pub mod mods;
 pub mod profiles;
 pub mod updater;
+pub mod themes;
 pub mod utils;
 
 pub use state::AppState;
@@ -260,6 +261,11 @@ pub fn run() {
             migrate::commands::get_legacy_profiles,
             migrate::commands::import_legacy_profiles,
             migrate::commands::import_legacy_mod_authors,
+            // themes
+            themes::commands::get_user_themes,
+            themes::commands::create_user_theme,
+            themes::commands::update_user_theme,
+            themes::commands::delete_user_theme,
             // utils
             utils::commands::is_folder,
             utils::commands::path_exists,

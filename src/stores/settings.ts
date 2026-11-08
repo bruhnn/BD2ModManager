@@ -63,15 +63,6 @@ export const useSettingsStore = defineStore("settings", () => {
         return invoke<boolean>("validate_staging_path", { path })
     }
 
-    const availableThemes = ref([
-        { label: 'Dark 1', value: 'dark-1' },
-        { label: 'Dark 2', value: 'dark-2' },
-        { label: "Dark 3", value: "dark-3" },
-        { label: 'Dark 4', value: 'dark-4' },
-        { label: 'Light 1', value: 'light-1' },
-        { label: 'Light 2', value: 'light-2' },
-    ])
-
     return {
         settings: readonly(settings),
 
@@ -83,7 +74,5 @@ export const useSettingsStore = defineStore("settings", () => {
         locateGamePath,
         validateGamePath,
         validateStagingPath,
-        // themes
-        availableThemes: availableThemes,
     }
 })

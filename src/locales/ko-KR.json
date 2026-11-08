@@ -92,7 +92,8 @@
             "refresh": "새로고침",
             "continue": "계속",
             "browse": "찾아보기",
-            "save": "저장"
+            "save": "저장",
+            "delete": "삭제"
         },
         "modTypes": {
             "cutscene": "컷씬",
@@ -933,7 +934,56 @@
                     "title": "애플리케이션",
                     "theme": {
                         "label": "테마",
-                        "placeholder": "테마 선택"
+                        "placeholder": "테마 선택",
+                        "unknownAuthor": "알 수 없음",
+                        "actions": {
+                            "new": "새로 만들기",
+                            "create": "테마 만들기",
+                            "edit": "\"{name}\" 편집",
+                            "delete": "\"{name}\" 삭제",
+                            "openFolder": "테마 폴더 열기"
+                        },
+                        "deleteConfirmation": {
+                            "title": "테마 삭제",
+                            "message": "\"{themeName}\" 테마를 삭제할까요? 파일이 삭제되며 되돌릴 수 없습니다."
+                        },
+                        "editor": {
+                            "createTitle": "테마 만들기",
+                            "editTitle": "테마 편집",
+                            "name": "이름",
+                            "namePlaceholder": "내 테마",
+                            "author": "작성자 (선택)",
+                            "authorPlaceholder": "이름 입력",
+                            "reset": "초기화",
+                            "background": "배경",
+                            "groups": {
+                                "surfaces": "표면",
+                                "texts": "텍스트",
+                                "borders": "테두리",
+                                "states": "상호작용",
+                                "accent": "강조색",
+                                "mods": "모드 유형",
+                                "statuses": "상태",
+                                "changelogs": "변경 내역"
+                            },
+                            "errors": {
+                                "empty": "이름을 입력하세요.",
+                                "invalidChar": "이름에 \"{char}\"를 사용할 수 없습니다.",
+                                "controlChar": "이름에 제어 문자를 사용할 수 없습니다.",
+                                "reserved": "\"{name}\"은(는) Windows에서 예약된 이름입니다.",
+                                "trailing": "이름은 점이나 공백으로 끝날 수 없습니다.",
+                                "tooLong": "200자 이하로 입력하세요.",
+                                "taken": "같은 이름의 테마가 이미 있습니다."
+                            }
+                        },
+                        "notifications": {
+                            "created": "\"{name}\" 테마를 만들었습니다",
+                            "updated": "\"{name}\" 테마를 업데이트했습니다",
+                            "deleted": "\"{name}\" 테마를 삭제했습니다",
+                            "createFailed": "테마를 만들지 못했습니다",
+                            "updateFailed": "테마를 업데이트하지 못했습니다",
+                            "deleteFailed": "테마를 삭제하지 못했습니다"
+                        }
                     },
                     "language": {
                         "label": "언어",
@@ -1142,6 +1192,12 @@
             "DirectoriesNested": "모드 보관 폴더와 게임 모드 폴더가 겹칩니다. 동기화하기 전에 별도의 폴더를 선택하세요.",
             "DestinationContainsSymlink": "대상 경로에 심볼릭 링크 또는 정션이 있습니다: “{path}”. 동기화하기 전에 일반 폴더로 바꾸세요.",
             "ModContainsSymlink": "이 모드에는 심볼릭 링크 또는 정션이 포함되어 있습니다: “{path}”. 동기화하기 전에 실제 파일로 교체해 주세요."
+        },
+        "ThemesError": {
+            "AlreadyExists": "\"{theme_name}\" 테마가 이미 있습니다.",
+            "NotFound": "\"{theme_name}\" 테마를 찾을 수 없습니다.",
+            "InvalidName": "잘못된 테마 이름 \"{theme_name}\" ({reason})",
+            "Json": "테마 파일이 올바른 JSON이 아닙니다 ({line}행, {column}열)."
         },
         "MigrateError": {
             "title": "마이그레이션 실패",

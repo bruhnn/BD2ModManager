@@ -25,32 +25,43 @@ import ConfirmationDialog from "./components/common/ConfirmationDialog.vue"
 import SyncModal from "./components/modals/SyncModal.vue"
 import LogsModal from "./components/modals/LogsModal.vue"
 import WhatsNewModal from "./components/modals/WhatsNewModal.vue"
+import { useThemesStore } from "./stores/themes.ts"
+import { useLoggingStore } from "./stores/logging.ts"
 
 const { t, locale } = useI18n()
 
 const settingsStore = useSettingsStore()
+const themesStore = useThemesStore()
 const { settings } = storeToRefs(settingsStore)
 
 const { initialize } = useAppInitializer()
 
 const confirm = useConfirm()
 const modsStore = useModsStore()
-usePreviewIpc()
 
 const { isDev } = useDev()
 
 let unlistenClose: (() => void) | null = null
 
+usePreviewIpc()
 provideHeader()
 
 watch(
-  () => settings.value.theme,
-  (newTheme) => {
-    const theme = newTheme ?? "dark-1"
-    const validTheme = settingsStore.availableThemes.map(t => t.value).includes(theme)
-    document.documentElement.setAttribute("data-theme", validTheme ? theme : "dark-1")
+  () => [settings.value.theme, themesStore.availableThemes] as const,
+  ([theme]) => {
+    const html = document.documentElement
+    const valid = themesStore.availableThemes.some(t => t.value === theme)
+    html.setAttribute("data-theme", valid ? theme! : "dark-1")
+
+    // theme can be in the list but have no colors (not loaded, file removed, broken)
+    // Check that its colors exist before to not fuck with app colors
+    const styles = getComputedStyle(html)
+    if (!styles.getPropertyValue("--surface-app").trim() || !styles.getPropertyValue("--text-primary").trim()) {
+      useLoggingStore().logWarning(`Theme ${theme} has no colors, falling back to dark-1`)
+      html.setAttribute("data-theme", "dark-1")
+    }
   },
-  { immediate: true }
+  { immediate: true, deep: true, flush: "post" },
 )
 
 watch(

@@ -92,7 +92,8 @@
             "refresh": "重新整理",
             "continue": "繼續",
             "browse": "瀏覽",
-            "save": "儲存"
+            "save": "儲存",
+            "delete": "刪除"
         },
         "modTypes": {
             "cutscene": "過場動畫",
@@ -933,7 +934,56 @@
                     "title": "應用程式",
                     "theme": {
                         "label": "主題",
-                        "placeholder": "選取主題"
+                        "placeholder": "選取主題",
+                        "unknownAuthor": "未知",
+                        "actions": {
+                            "new": "新增",
+                            "create": "建立主題",
+                            "edit": "編輯「{name}」",
+                            "delete": "刪除「{name}」",
+                            "openFolder": "開啟主題資料夾"
+                        },
+                        "deleteConfirmation": {
+                            "title": "刪除主題",
+                            "message": "刪除「{themeName}」？其檔案將被移除，且無法復原。"
+                        },
+                        "editor": {
+                            "createTitle": "建立主題",
+                            "editTitle": "編輯主題",
+                            "name": "名稱",
+                            "namePlaceholder": "我的主題",
+                            "author": "作者（選填）",
+                            "authorPlaceholder": "你的名字",
+                            "reset": "重設",
+                            "background": "背景",
+                            "groups": {
+                                "surfaces": "表面",
+                                "texts": "文字",
+                                "borders": "邊框",
+                                "states": "互動狀態",
+                                "accent": "強調色",
+                                "mods": "Mod 類型",
+                                "statuses": "狀態",
+                                "changelogs": "更新日誌"
+                            },
+                            "errors": {
+                                "empty": "請輸入名稱。",
+                                "invalidChar": "名稱不能包含「{char}」。",
+                                "controlChar": "名稱不能包含控制字元。",
+                                "reserved": "「{name}」是 Windows 保留名稱。",
+                                "trailing": "名稱不能以句點或空格結尾。",
+                                "tooLong": "請使用 200 個字元以內。",
+                                "taken": "已存在同名主題。"
+                            }
+                        },
+                        "notifications": {
+                            "created": "已建立主題「{name}」",
+                            "updated": "已更新主題「{name}」",
+                            "deleted": "已刪除主題「{name}」",
+                            "createFailed": "無法建立主題",
+                            "updateFailed": "無法更新主題",
+                            "deleteFailed": "無法刪除主題"
+                        }
                     },
                     "language": {
                         "label": "語言",
@@ -1142,6 +1192,12 @@
             "DirectoriesNested": "暫存資料夾與遊戲模組資料夾存在包含關係。同步前請選擇互不包含的資料夾。",
             "DestinationContainsSymlink": "目標路徑包含符號連結或目錄連接：「{path}」。同步前請將其替換為一般資料夾。",
             "ModContainsSymlink": "此模組包含符號連結或目錄接合點：「{path}」。請先將其替換為實際檔案，再進行同步。"
+        },
+        "ThemesError": {
+            "AlreadyExists": "名為「{theme_name}」的主題已存在。",
+            "NotFound": "找不到主題「{theme_name}」。",
+            "InvalidName": "無效的主題名稱「{theme_name}」（{reason}）",
+            "Json": "主題檔案不是有效的 JSON（第 {line} 行，第 {column} 欄）。"
         },
         "MigrateError": {
             "title": "遷移失敗",
