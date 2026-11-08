@@ -83,6 +83,9 @@
     },
     "common": {
         "actions": {
+            "openFolder": "Open folder",
+            "gridView": "Grid view",
+            "listView": "List view",
             "refreshMods": "Refresh Mods",
             "cancel": "Cancel",
             "close": "Close",

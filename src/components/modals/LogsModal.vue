@@ -161,24 +161,24 @@ async function openLogsFolder() {
                     <!-- actions -->
                     <div class="flex gap-1">
                         <Button :icon="Trash2" size="sm" variant="text" class="w-7 justify-center! rounded-md! px-0!"
-                            :title="t('app.modals.logs.actions.clear')" :aria-label="t('app.modals.logs.actions.clear')"
+                            :tooltip="t('app.modals.logs.actions.clear')":aria-label="t('app.modals.logs.actions.clear')"
                             :disabled="loggingStore.logs.length === 0" @click="clearLogs" />
                         <Button :icon="ChevronsUp" size="sm" variant="text"
                             class="w-7 justify-center! rounded-md! px-0!"
-                            :title="t('app.modals.logs.actions.goToFirst')"
+                            :tooltip="t('app.modals.logs.actions.goToFirst')"
                             :aria-label="t('app.modals.logs.actions.goToFirst')" :disabled="filteredLogs.length === 0"
                             @click="scrollToFirst" />
                         <Button :icon="ChevronsDown" size="sm" variant="text"
-                            class="w-7 justify-center! rounded-md! px-0!" :title="t('app.modals.logs.actions.goToLast')"
+                            class="w-7 justify-center! rounded-md! px-0!" :tooltip="t('app.modals.logs.actions.goToLast')"
                             :aria-label="t('app.modals.logs.actions.goToLast')" :disabled="filteredLogs.length === 0"
                             @click="scrollToLast" />
                         <Button :icon="Copy" size="sm" variant="text" class="w-7 justify-center! rounded-md! px-0!"
-                            :title="t('app.modals.logs.actions.copyAll')"
+                            :tooltip="t('app.modals.logs.actions.copyAll')"
                             :aria-label="t('app.modals.logs.actions.copyAll')" :disabled="filteredLogs.length === 0"
                             @click="copyAll" />
                         <Button :icon="FolderOpen" size="sm" variant="text"
                             class="w-7 justify-center! rounded-md! px-0!"
-                            :title="t('app.modals.logs.actions.openFolder')"
+                            :tooltip="t('app.modals.logs.actions.openFolder')"
                             :aria-label="t('app.modals.logs.actions.openFolder')" @click="openLogsFolder" />
                     </div>
                 </div>

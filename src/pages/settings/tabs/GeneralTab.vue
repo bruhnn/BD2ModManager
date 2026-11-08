@@ -354,6 +354,7 @@ async function handleGameDirectoryBrowse() {
                                 class="whitespace-nowrap min-w-32" @click="handleGameDirectoryBrowse" />
 
                             <Button class="whitespace-nowrap" :icon="SquareArrowOutUpRight"
+                                :tooltip="$t('common.actions.openFolder')"
                                 :disabled="!settings.gameDirectory" @click="handleOpenFolder(settings.gameDirectory)" />
                         </div>
                     </div>
@@ -371,8 +372,7 @@ async function handleGameDirectoryBrowse() {
                             <Button :label="$t('common.actions.browse')" :icon="Folder" class="min-w-32"
                                 @click="handleStagingModsBrowse" />
 
-                            <Button :icon="SquareArrowOutUpRight" :disabled="!settings.stagingDirectory"
-                                @click="handleOpenFolder(settings.stagingDirectory)" />
+                            <Button :icon="SquareArrowOutUpRight" :tooltip="$t('common.actions.openFolder')" :disabled="!settings.stagingDirectory" @click="handleOpenFolder(settings.stagingDirectory)" />
                         </div>
                     </div>
                 </div>

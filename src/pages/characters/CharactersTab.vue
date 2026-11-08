@@ -504,12 +504,12 @@ watch(() => route.query.characterId, (newCharacterId) => {
             <h1 class="text-lg font-bold text-text-primary flex flex-row justify-between items-center w-full">
                 {{ t('charactersTab.filters.title') }}
                 <div class="flex gap-1">
-                    <Button @click="viewMode = 'grid'" :icon="Grid3X3" :icon-class="{
+                    <Button @click="viewMode = 'grid'" :icon="Grid3X3" :tooltip="$t('common.actions.gridView')":icon-class="{
                         'text-accent': viewMode === 'grid',
                         'text-text-primary': viewMode !== 'grid',
                         'text-xs': true
                     }" />
-                    <Button @click="viewMode = 'list'" :icon="List" :icon-class="{
+                    <Button @click="viewMode = 'list'" :icon="List" :tooltip="$t('common.actions.listView')":icon-class="{
                         'text-accent': viewMode === 'list',
                         'text-text-primary': viewMode !== 'list',
                         'text-xs': true

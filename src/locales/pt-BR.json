@@ -83,6 +83,9 @@
     },
     "common": {
         "actions": {
+            "openFolder": "Abrir pasta",
+            "gridView": "Visualização em grade",
+            "listView": "Visualização em lista",
             "refreshMods": "Atualizar Mods",
             "cancel": "Cancelar",
             "close": "Fechar",

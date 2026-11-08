@@ -83,6 +83,9 @@
     },
     "common": {
         "actions": {
+            "openFolder": "フォルダを開く",
+            "gridView": "グリッド表示",
+            "listView": "リスト表示",
             "refreshMods": "MODを更新",
             "cancel": "キャンセル",
             "close": "閉じる",

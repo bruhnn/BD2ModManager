@@ -83,6 +83,9 @@
     },
     "common": {
         "actions": {
+            "openFolder": "開啟資料夾",
+            "gridView": "網格檢視",
+            "listView": "清單檢視",
             "refreshMods": "重新整理模組",
             "cancel": "取消",
             "close": "關閉",

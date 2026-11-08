@@ -83,6 +83,9 @@
     },
     "common": {
         "actions": {
+            "openFolder": "打开文件夹",
+            "gridView": "网格视图",
+            "listView": "列表视图",
             "refreshMods": "刷新模组",
             "cancel": "取消",
             "close": "关闭",
