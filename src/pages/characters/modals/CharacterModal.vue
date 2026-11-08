@@ -192,12 +192,12 @@ const charName = computed(() => {
 
                     <TabPanels as="div" class="min-h-0">
                         <TabPanel v-for="(mods, type) in modsByType" :key="type" class="flex flex-col h-100">
-                            <div class="flex items-center justify-between gap-3 px-4 py-3 border-b border-border-default shrink-0">
-                                <span class="text-xs text-text-secondary">
+                            <div class="flex items-center justify-between gap-3 px-4 py-2 border-b border-border-default shrink-0">
+                                <span class="text-sm text-text-secondary font-semibold">
                                     {{ $t('charactersTab.characterModal.enabledMods') }}: {{ mods.filter(m => m.enabled).length }}/{{ mods.length }}
                                 </span>
                                 <Button :icon="Columns3" :label="$t('charactersTab.characterModal.compareAll')"
-                                    :disabled="isOpeningPreview || mods.length === 0" @click="openPreviewMod(mods)" />
+                                    :disabled="isOpeningPreview || mods.length === 0" @click="openPreviewMod(mods)" variant="text" />
                             </div>
                             <div class="overflow-y-auto min-h-0 flex-1">
                                 <div v-if="mods.length === 0" class="text-center py-12 px-4 text-text-secondary">
@@ -208,15 +208,15 @@ const charName = computed(() => {
                                         <div v-for="mod in mods" :key="mod.name"
                                             class="flex items-center gap-3 px-4 py-3 border-b border-border-default hover:bg-state-hover transition-colors">
                                             <Checkbox :model-value="mod.enabled" @update:model-value="toggleMod(mod)" :disabled="modsStore.isSyncing" class="shrink-0" />
+                                            <button @click="openPreviewMod(mod)" :disabled="isOpeningPreview"
+                                                class="w-5 h-5 flex items-center justify-center shrink-0 cursor-pointer text-text-secondary hover:text-text-primary transition-colors disabled:opacity-50"
+                                                :aria-label="$t('charactersTab.characterModal.previewMod')">
+                                                <Eye class="w-5 h-5 shrink-0" />
+                                            </button>
                                             <div class="flex-1 min-w-0">
                                                 <p class="text-sm truncate" :class="mod.enabled ? 'text-text-primary' : 'text-text-secondary'">{{ mod.name }}</p>
                                                 <p v-if="mod.author" class="text-xs text-text-secondary mt-0.5">{{ mod.author }}</p>
                                             </div>
-                                            <button @click="openPreviewMod(mod)" :disabled="isOpeningPreview"
-                                                class="p-1.5 shrink-0 cursor-pointer text-text-secondary hover:text-text-primary transition-colors disabled:opacity-50"
-                                                :aria-label="$t('charactersTab.characterModal.previewMod')">
-                                                <Eye class="w-5 h-5" />
-                                            </button>
                                         </div>
                                 </template>
                             </div>

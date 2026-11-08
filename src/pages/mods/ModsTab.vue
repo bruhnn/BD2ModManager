@@ -518,7 +518,7 @@ useHeader({
       class="flex items-center justify-between gap-2 shrink-0 mb-2 px-3 py-1 rounded-md bg-surface-panel text-text-secondary text-sm">
       <Popover placement="bottom-start">
         <template #trigger="{ open, close, isOpen }">
-          <button type="button" class="flex items-center gap-2 py-1 text-left hover:text-text-primary cursor-pointer"
+          <button type="button" class="flex items-center gap-2 py-1 text-left cursor-pointer hover:underline"
             :aria-expanded="isOpen" @mouseenter="open" @mouseleave="close" @focus="open" @blur="close" @keydown.esc="close">
             <Info class="size-4 shrink-0" />
             {{ t('modsTab.unmanagedNotice.message') }}
@@ -539,7 +539,7 @@ useHeader({
           </div>
         </template>
       </Popover>
-      <button type="button" class="p-1 rounded hover:bg-state-hover hover:text-text-primary cursor-pointer"
+      <button type="button" class="p-1 rounded hover:text-text-primary cursor-pointer"
         :aria-label="t('common.actions.close')" @click="unmanagedNoticeDismissed = true"><X class="size-4" /></button>
     </div>
 

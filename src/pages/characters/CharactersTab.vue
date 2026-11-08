@@ -470,24 +470,24 @@ watch(() => route.query.characterId, (newCharacterId) => {
     <div class="flex flex-row w-full h-full p-4 py-2 gap-4 bg-surface-app overflow-hidden">
         <div class="flex-1 min-h-0 flex flex-col gap-2.5 overflow-hidden">
             <div
-                class="flex flex-row flex-wrap items-center gap-1.5 min-h-[30px] px-2 py-1.5 bg-surface-panel rounded-md border border-border-default">
+                class="flex flex-row flex-wrap items-center gap-1.5 min-h-7.5 px-2 py-1.5 bg-surface-panel rounded-md border border-border-default">
                 <span v-if="!activeFilters.length" class="text-xs text-text-secondary">
                     {{ t('charactersTab.filters.noActiveFilters') }}
                 </span>
 
                 <span v-for="filter in activeFilters" :key="filter.key"
-                    class="inline-flex items-center gap-1 pl-2 pr-[3px] py-0.5 text-xs rounded bg-state-hover text-text-primary">
+                    class="inline-flex items-center gap-1 pl-2 pr-0.75py-0.5 text-xs rounded bg-state-hover text-text-primary">
                     {{ filter.label }}
                     <button type="button"
-                        class="flex items-center justify-center size-6 shrink-0 rounded-[3px] text-text-secondary hover:bg-surface-input hover:text-text-primary cursor-pointer"
+                        class="flex items-center justify-center size-6 shrink-0 rounded-[3px] text-text-secondary hover:text-text-primary transition-colors cursor-pointer"
                         :aria-label="t('charactersTab.filters.removeFilter', { filter: filter.label })"
                         @click="removeFilter(filter.key)">
-                        <X :size="13" aria-hidden="true" />
+                        <X :size="14" aria-hidden="true" />
                     </button>
                 </span>
 
                 <button v-if="activeFilters.length" type="button"
-                    class="ml-auto cursor-pointer text-xs text-text-secondary underline hover:text-text-primary"
+                    class="ml-auto cursor-pointer text-xs text-text-secondary underline hover:text-text-primary transition-colors"
                     @click="clearFilters">
                     {{ t('charactersTab.filters.clearAll') }}
                 </button>
