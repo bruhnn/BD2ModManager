@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Bolt, ChevronRight, Component, Play, Puzzle, Settings, Users } from '@lucide/vue';
 
-import { computed } from 'vue';
+import { computed, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import { invoke } from '@tauri-apps/api/core';
@@ -48,8 +48,8 @@ async function launchGame(vanilla: boolean = false) {
 }
 
 const headerImage = computed(() => {
-    if (import.meta.env.DEV) return `headers/header7.png`
-    return `headers/header${Math.floor(Math.random() * 7) + 1}.png`
+    if (import.meta.env.DEV) return `headers/header7.webp`
+    return `headers/header${Math.floor(Math.random() * 13) + 1}.webp`
 })
 
 const profilesStore = useProfilesStore()
@@ -63,17 +63,17 @@ function onProfileSelected(profile_id: string) {
         class="flex flex-col min-h-0 h-full gap-0 overflow-y-auto min-w-70 max-w-70 border-r border-border-subtle bg-surface-panel">
 
         <!-- header -->
-        <div class="h-32 flex items-center flex-col justify-center gap-1 relative overflow-hidden shrink-0">
-            <span class="font-cinzel font-bold text-xl">BROWNDUST II</span>
-            <span v-if="gameStore.gameVersion" class="text-xs font-semibold flex gap-2 items-center justify-center">
+        <div class="h-32 flex items-center flex-col justify-center gap-1 relative shrink-0 group-hover">
+            <span class="font-cinzel font-bold text-xl z-2">BROWNDUST II</span>
+            <span v-if="gameStore.gameVersion" class="text-xs font-semibold flex gap-2 items-center justify-center z-2">
                 Game v{{ gameStore.gameVersion }}
             </span>
             <img :src="headerImage"
-                class="absolute inset-0 w-full h-full object-cover opacity-35 mask-[linear-gradient(to_bottom,black_50%,transparent_100%)] pointer-events-none select-none" />
+                class="absolute top-0 inset-x-0 w-full h-48 object-cover opacity-60 group-hover:opacity-100 mask-[linear-gradient(to_bottom,black_0%,rgba(0,0,0,.6)_45%,rgba(0,0,0,.2)_75%,transparent_100%)] pointer-events-none select-none" />
         </div>
 
         <!-- navigation -->
-        <div>
+        <div class="relative">
             <NavigationSection :title="$t('sidebar.sections.navigation')">
                 <NavigationButton :icon="Component" :label="$t('sidebar.tabs.mods')" value="mods" />
                 <NavigationButton :icon="Users" :label="$t('sidebar.tabs.characters')" value="characters" />
@@ -86,7 +86,7 @@ function onProfileSelected(profile_id: string) {
         </div>
 
         <!-- profile section -->
-        <div>
+        <div class="relative">
             <NavigationSection :title="$t('sidebar.sections.currentProfile')">
                 <Select :model-value="profilesStore.activeProfileId"
                     :options="profilesStore.sortedProfiles.map(p => ({ label: p.name, value: p.id }))"
