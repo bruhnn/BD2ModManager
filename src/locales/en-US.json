@@ -329,7 +329,9 @@
             "openGameFolder": "Open Game Folder",
             "openGameModsFolder": "Open Game Mods Folder",
             "syncMods": "Sync Mods",
-            "unsyncMods": "Unsync Mods"
+            "unsyncMods": "Unsync Mods",
+            "syncModsAndRemoveUnmanaged": "Sync and Remove Unmanaged Mods",
+            "unsyncModsAndRemoveUnmanaged": "Unsync and Remove Unmanaged Mods"
         },
         "modLoader": {
             "status": {

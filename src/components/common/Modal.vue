@@ -52,8 +52,8 @@ defineEmits(["close"])
         <TransitionChild as="template" enter="ease-out duration-300" enter-from="opacity-0 scale-95"
           enter-to="opacity-100 scale-100" leave="ease-in duration-200" leave-from="opacity-100 scale-100"
           leave-to="opacity-0 scale-95">
-          <DialogPanel :class="[
-            'flex w-[85vw] min-w-0 flex-col rounded-xl overflow-hidden bg-surface-dialog border border-border-default max-h-[85vh]',
+          <DialogPanel tabindex="0" :class="[
+            'outline-none flex w-[85vw] min-w-0 flex-col rounded-xl overflow-hidden bg-surface-dialog border border-border-default max-h-[85vh]',
             sizeClass,
             $attrs.class
           ]">

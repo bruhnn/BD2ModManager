@@ -310,6 +310,8 @@
             "openModsFolder": "Abrir Pasta de Mods",
             "syncMods": "Sincronizar Mods",
             "unsyncMods": "Dessincronizar Mods",
+            "syncModsAndRemoveUnmanaged": "Sincronizar e Remover Mods Não Gerenciados",
+            "unsyncModsAndRemoveUnmanaged": "Dessincronizar e Remover Mods Não Gerenciados",
             "openGameFolder": "Abrir Pasta do Jogo",
             "openGameModsFolder": "Abrir Pasta de Mods do Jogo"
         },

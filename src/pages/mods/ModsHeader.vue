@@ -73,7 +73,7 @@ function getModTypeClass(modType: string) {
         <div class="flex items-stretch">
             <!-- Search -->
             <div class="flex flex-1 gap-2">
-                <Popover placement="bottom-start" trigger="hover">
+                <Popover placement="bottom-start">
                     <template #trigger="{ isOpen, open, close }">
                         <Button :icon="Filter":label="$t('modsTab.header.actions.filters')"
                             @click="isOpen ? close() : open()" />

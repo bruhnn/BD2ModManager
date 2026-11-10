@@ -310,6 +310,8 @@
             "openModsFolder": "모드 폴더 열기",
             "syncMods": "모드 동기화",
             "unsyncMods": "모드 동기화 해제",
+            "syncModsAndRemoveUnmanaged": "동기화 및 관리되지 않는 모드 제거",
+            "unsyncModsAndRemoveUnmanaged": "동기화 해제 및 관리되지 않는 모드 제거",
             "openGameFolder": "게임 폴더 열기",
             "openGameModsFolder": "게임 Mod 폴더 열기"
         },

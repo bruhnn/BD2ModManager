@@ -578,10 +578,10 @@ useHeader({
           ]" />
 
         <MultiButton variant="default" :disabled="modsStore.isSyncing" :label="$t('modsTab.actions.unsyncMods')" :icon="FolderMinus" @click="() => unsyncMods()" :actions="[
-          { label: $t('modsTab.actions.unsyncModsAndRemoveUnmanaged', 'Unsync and Remove Unmanaged Mods',), icon: FolderMinus, clicked: () => unsyncMods(true), disabled: modsStore.isSyncing },
+          { label: $t('modsTab.actions.unsyncModsAndRemoveUnmanaged'), icon: FolderMinus, clicked: () => unsyncMods(true), disabled: modsStore.isSyncing },
         ]" />
         <MultiButton :variant="modsStore.isSyncNeeded? 'primary': 'default'" :disabled="modsStore.isSyncing" :class="{'animate-pulse-2 hover:animate-none transition-colors': modsStore.isSyncNeeded}" :label="$t('modsTab.actions.syncMods')" :icon="FolderSync" @click="syncMods()" :actions="[
-          { label: t('modsTab.actions.syncModsAndRemoveUnmanaged', 'Sync and Remove Unmanaged Mods'), icon: FolderSync, clicked: () => syncMods(true), disabled: modsStore.isSyncing },
+          { label: t('modsTab.actions.syncModsAndRemoveUnmanaged'), icon: FolderSync, clicked: () => syncMods(true), disabled: modsStore.isSyncing },
         ]" />
       </div>
     </div>

@@ -310,6 +310,8 @@
             "openModsFolder": "開啟模組資料夾",
             "syncMods": "同步模組",
             "unsyncMods": "取消同步模組",
+            "syncModsAndRemoveUnmanaged": "同步並移除未管理的模組",
+            "unsyncModsAndRemoveUnmanaged": "取消同步並移除未管理的模組",
             "openGameFolder": "開啟遊戲資料夾",
             "openGameModsFolder": "開啟遊戲 Mod 資料夾"
         },

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Bolt, ChevronRight, Component, Play, Puzzle, Settings, Users } from '@lucide/vue';
 
-import { computed, onMounted } from 'vue';
+import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import { invoke } from '@tauri-apps/api/core';

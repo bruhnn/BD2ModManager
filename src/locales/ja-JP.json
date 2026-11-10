@@ -310,6 +310,8 @@
             "openModsFolder": "MODフォルダを開く",
             "syncMods": "MODを同期",
             "unsyncMods": "MODの同期を解除",
+            "syncModsAndRemoveUnmanaged": "同期して未管理のMODを削除",
+            "unsyncModsAndRemoveUnmanaged": "同期を解除して未管理のMODを削除",
             "openGameFolder": "ゲームフォルダを開く",
             "openGameModsFolder": "ゲームの Mod フォルダを開く"
         },
