@@ -586,6 +586,17 @@
                 "labels": {
                     "modName": "模组名称"
                 }
+            },
+            "conflicts": {
+                "title": "冲突的模组",
+                "subtitle": "{count} 个角色启用了多个模组。",
+                "searchPlaceholder": "搜索角色...",
+                "noResults": "未找到角色。",
+                "empty": "没有启用的冲突模组。",
+                "sceneLabel": "场景 {id}",
+                "hint": "点击模组仅保留该模组。使用复选框或 Ctrl+点击可保留多个。",
+                "apply": "应用更改 | 应用 {count} 项更改 | 应用 {count} 项更改",
+                "applyAndSync": "应用并同步"
             }
         }
     },

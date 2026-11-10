@@ -586,6 +586,17 @@
                 "labels": {
                     "modName": "모드 이름"
                 }
+            },
+            "conflicts": {
+                "title": "충돌하는 모드",
+                "subtitle": "{count}명의 캐릭터에 활성화된 모드가 둘 이상 있습니다.",
+                "searchPlaceholder": "캐릭터 검색...",
+                "noResults": "캐릭터를 찾을 수 없습니다.",
+                "empty": "활성화된 충돌 모드가 없습니다.",
+                "sceneLabel": "씬 {id}",
+                "hint": "모드를 클릭하면 그 모드만 유지합니다. 여러 개를 유지하려면 체크박스나 Ctrl+클릭을 사용하세요.",
+                "apply": "변경 사항 적용 | 변경 사항 {count}개 적용 | 변경 사항 {count}개 적용",
+                "applyAndSync": "적용 후 동기화"
             }
         }
     },

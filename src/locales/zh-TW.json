@@ -586,6 +586,17 @@
                 "labels": {
                     "modName": "模組名稱"
                 }
+            },
+            "conflicts": {
+                "title": "衝突的模組",
+                "subtitle": "{count} 個角色啟用了多個模組。",
+                "searchPlaceholder": "搜尋角色...",
+                "noResults": "找不到角色。",
+                "empty": "沒有啟用的衝突模組。",
+                "sceneLabel": "場景 {id}",
+                "hint": "點擊模組僅保留該模組。使用核取方塊或 Ctrl+點擊可保留多個。",
+                "apply": "套用變更 | 套用 {count} 項變更 | 套用 {count} 項變更",
+                "applyAndSync": "套用並同步"
             }
         }
     },

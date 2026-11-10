@@ -428,7 +428,7 @@
                 "success": {
                     "title": "Mods Synced",
                     "message": "Your mods have been successfully synced with the game folder.",
-                    "details" :"View details"
+                    "details": "View details"
                 },
                 "error": {
                     "title": "Sync Failed"
@@ -607,6 +607,17 @@
                 "labels": {
                     "modName": "Mod Name"
                 }
+            },
+            "conflicts": {
+                "title": "Conflicting Mods",
+                "subtitle": "{count} character has more than one enabled mod. | {count} characters have more than one enabled mod.",
+                "searchPlaceholder": "Search characters...",
+                "noResults": "No characters found.",
+                "empty": "No conflicting mods are enabled.",
+                "sceneLabel": "Scene {id}",
+                "hint": "Click a mod to keep only it. Use the checkbox or Ctrl+click to keep more than one.",
+                "apply": "Apply Changes | Apply {count} Change | Apply {count} Changes",
+                "applyAndSync": "Apply & Sync"
             }
         }
     },
