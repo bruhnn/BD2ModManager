@@ -586,6 +586,17 @@
                 "labels": {
                     "modName": "MOD名"
                 }
+            },
+            "conflicts": {
+                "title": "競合しているMOD",
+                "subtitle": "{count}人のキャラクターに複数の有効なMODがあります。",
+                "searchPlaceholder": "キャラクターを検索...",
+                "noResults": "キャラクターが見つかりません。",
+                "empty": "競合している有効なMODはありません。",
+                "sceneLabel": "シーン {id}",
+                "hint": "クリックでそのMODだけを残します。複数残すにはチェックボックスかCtrl+クリックを使用します。",
+                "apply": "変更を適用 | {count}件の変更を適用 | {count}件の変更を適用",
+                "applyAndSync": "適用して同期"
             }
         }
     },

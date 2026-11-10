@@ -22,38 +22,7 @@ export function useModSync() {
 
     // const isSyncing = computed(() => modsStore.isSyncing)
 
-    async function syncMods(removeUnmanagedMods: boolean = false) {
-        loggingStore.logDebug(`Syncing mods [confirmation skipped = ${skipSyncConfirmation.value}, remove unmanaged mods = ${removeUnmanagedMods}]`);
-
-        if (modsStore.isSyncing) {
-            loggingStore.logDebug("Mod sync already in progress.");
-            return
-        }
-
-        const hasConflicts = modsStore.extendedMods.some(mod => mod.conflictingMods.length > 0)
-
-        if (hasConflicts && !skipSyncConflictsModal.value) {
-            // loggingStore.logDebug("Mod conflicts detected. Showing conflict modal.");
-            // globalModals.conflict.showModal()
-            // return
-
-            const { confirmed } = await confirm.confirm({
-                title: t('modsTab.confirmations.syncMods.titleWithConflicts'),
-                message: t('modsTab.confirmations.syncMods.messageWithConflicts'),
-                acceptButton: {
-                label: t('modsTab.confirmations.syncMods.actions.syncAnyway'),
-                },
-                rejectButton: {
-                label: t('common.actions.cancel'),
-                },
-            })
-
-            if (!confirmed) {
-                loggingStore.logDebug("User cancelled sync due to conflicts.");
-                return
-            }
-        }
-
+        async function doSync(removeUnmanagedMods: boolean) {
         // because we dont remove the other mods like before we dont need to ask for confirmation anymore
 
         // if (!skipSyncConfirmation.value) {
@@ -167,6 +136,26 @@ export function useModSync() {
             return
         }
 
+    }
+    
+    async function syncMods(removeUnmanagedMods: boolean = false) {
+        loggingStore.logDebug(`Syncing mods [confirmation skipped = ${skipSyncConfirmation.value}, remove unmanaged mods = ${removeUnmanagedMods}]`);
+
+        if (modsStore.isSyncing) {
+            loggingStore.logDebug("Mod sync already in progress.");
+            return
+        }
+
+        const hasConflicts = modsStore.extendedMods.some(mod => mod.conflictingMods.length > 0)
+
+        if (hasConflicts && !skipSyncConflictsModal.value) {
+            loggingStore.logDebug("Mod conflicts detected. Showing conflict modal.");
+            // the modal calls onSync when the user picks "Sync Anyway" or "Apply & Sync"
+            globalModals.conflict.showModal({ onSync: () => doSync(removeUnmanagedMods) })
+            return
+        }
+
+        await doSync(removeUnmanagedMods)
     }
 
     async function unsyncMods(removeUnmanagedMods: boolean = false) {

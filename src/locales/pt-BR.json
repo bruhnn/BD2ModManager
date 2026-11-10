@@ -586,6 +586,17 @@
                 "labels": {
                     "modName": "Nome do Mod"
                 }
+            },
+            "conflicts": {
+                "title": "Mods em Conflito",
+                "subtitle": "{count} personagem tem mais de um mod ativado. | {count} personagens têm mais de um mod ativado.",
+                "searchPlaceholder": "Pesquisar personagens...",
+                "noResults": "Nenhum personagem encontrado.",
+                "empty": "Nenhum mod em conflito está ativado.",
+                "sceneLabel": "Cena {id}",
+                "hint": "Clique em um mod para manter só ele. Use a caixa de seleção ou Ctrl+clique para manter mais de um.",
+                "apply": "Aplicar Alterações | Aplicar {count} Alteração | Aplicar {count} Alterações",
+                "applyAndSync": "Aplicar e Sincronizar"
             }
         }
     },

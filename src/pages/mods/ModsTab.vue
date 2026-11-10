@@ -32,6 +32,7 @@ import { useModActions } from "../../composables/useModActions.ts";
 import { useModDelete } from "../../composables/useModDelete.ts";
 import { useModInstall } from "../../composables/useModInstall.ts";
 import { useModSync } from "../../composables/useModSync.ts";
+import { globalModals } from "../../composables/useGlobalModals.ts";
 
 let unlistenFns: Array<() => void> = []
 
@@ -198,12 +199,7 @@ function handleRenameMod(mod: BD2Mod) {
 }
 
 function handleShowModConflicts(mod: BD2Mod) {
-  // filters.searchQuery = `"${mod.name}", "${mod.conflictsWith.join(', ')}"`;
-  // const names = [mod.name, ...mod.conflictsWith]
-  // filters.searchQuery = names.map(n => `"${n}"`).join(', ')
-  filters.searchQuery = `conflictsWith:"${mod.name}"`;
-  // searhc by id?
-  // show modal?
+  globalModals.conflict.showModal({ mod: modsStore.extendedMods.find(m => m.name === mod.name) })
 }
 
 async function handleOpenModFolder(mod: BD2Mod) {
