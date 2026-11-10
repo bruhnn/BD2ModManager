@@ -18,7 +18,7 @@
             "multipartDating": "Corrigida a detecção de conflitos em mods de encontros com partes separadas.",
             "modSizeLimit": "Mods maiores que 100 MB agora são recusados durante a instalação.",
             "compareMods": "Adicionado “Comparar todos” na janela do personagem para visualizar mods lado a lado.",
-            "characterTypeTabs": "Adicionadas abas Standing, Cutscene e Dating na janela do personagem.",
+            "characterTypeTabs": "Adicionadas abas Standing, Cutscene e Encontros na janela do personagem.",
             "previewModToggle": "Agora é possível ativar e desativar mods diretamente no BD2ModPreview quando conectado ao gerenciador.",
             "autoSyncDelay": "Adicionado atraso ajustável para sincronização automática nas Configurações.",
             "removeMissingProfileMods": "Adicionado o botão “Remover ausentes” para limpar entradas de mods ausentes do perfil selecionado (issue #91, contribuição de {'@'}SuuKomura).",
@@ -99,7 +99,7 @@
             "cutscene": "Cutscene",
             "standing": "Standing",
             "scene": "Cena",
-            "dating": "Date",
+            "dating": "Encontros",
             "npc": "NPC",
             "minigame": "Minijogo"
         },
@@ -620,7 +620,7 @@
                 "title": "Status do Mod",
                 "hasCutscene": "Tem Mod de Cutscene",
                 "hasStanding": "Tem Mod de Standing",
-                "hasDating": "Tem Mod de Date",
+                "hasDating": "Tem Mod de Encontros",
                 "options": {
                     "any": "Qualquer",
                     "enabled": "Ativado",
@@ -661,7 +661,7 @@
         "modTypes": {
             "cutscene": "Cutscene",
             "standing": "Standing",
-            "dating": "Date",
+            "dating": "Encontros",
             "states": {
                 "enabled": "Ativado",
                 "disabled": "Desativado"
@@ -1071,7 +1071,7 @@
                     },
                     "enableColors": {
                         "label": "Ativar Cores para Tipos de Mod",
-                        "description": "Aplicar uma cor por tipo de mod (standing, cutscene, date, etc.)."
+                        "description": "Aplicar uma cor por tipo de mod (standing, cutscene, encontros, etc.)."
                     }
                 }
             }

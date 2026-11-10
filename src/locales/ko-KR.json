@@ -15,10 +15,10 @@
             "updateChannels": "설정에서 안정 버전과 베타 버전 업데이트를 선택할 수 있습니다.",
             "renameDisplayName": "모드 이름을 변경할 때 이름만 표시하고 스테이징 하위 폴더는 유지합니다.",
             "stagingProtection": "동기화 중 스테이징 폴더나 내부 폴더가 삭제되지 않도록 보호 기능을 추가했습니다.",
-            "multipartDating": "여러 부분으로 나뉜 데이트 모드의 충돌 감지를 수정했습니다.",
+            "multipartDating": "여러 부분으로 나뉜 데이팅 모드의 충돌 감지를 수정했습니다.",
             "modSizeLimit": "설치 시 100 MB를 초과하는 모드는 거부됩니다.",
             "compareMods": "캐릭터 창에 모드를 나란히 미리 볼 수 있는 “모두 비교”를 추가했습니다.",
-            "characterTypeTabs": "캐릭터 창에 스탠딩, 컷신, 데이트 탭을 추가했습니다.",
+            "characterTypeTabs": "캐릭터 창에 스탠딩, 컷씬, 데이팅 탭을 추가했습니다.",
             "previewModToggle": "매니저에 연결하면 BD2ModPreview에서 직접 모드를 활성화하거나 비활성화할 수 있습니다.",
             "autoSyncDelay": "설정에 자동 동기화 지연 시간 조절 기능을 추가했습니다.",
             "removeMissingProfileMods": "선택한 프로필에서 존재하지 않는 모드 항목을 정리하는 “누락된 항목 제거” 버튼을 추가했습니다(이슈 #91, {'@'}SuuKomura 기여).",
@@ -99,7 +99,7 @@
             "cutscene": "컷씬",
             "standing": "스탠딩",
             "scene": "씬",
-            "dating": "데이트",
+            "dating": "데이팅",
             "npc": "NPC",
             "minigame": "미니게임"
         },
@@ -620,7 +620,7 @@
                 "title": "모드 상태",
                 "hasCutscene": "컷씬 모드 있음",
                 "hasStanding": "스탠딩 모드 있음",
-                "hasDating": "데이트 모드 있음",
+                "hasDating": "데이팅 모드 있음",
                 "options": {
                     "any": "전체",
                     "enabled": "활성화됨",
@@ -661,7 +661,7 @@
         "modTypes": {
             "cutscene": "컷씬",
             "standing": "스탠딩",
-            "dating": "데이트",
+            "dating": "데이팅",
             "states": {
                 "enabled": "활성화됨",
                 "disabled": "비활성화됨"
@@ -1071,7 +1071,7 @@
                     },
                     "enableColors": {
                         "label": "모드 유형 색상 활성화",
-                        "description": "모드 유형별로 색상을 적용합니다 (스탠딩, 컷씬, 데이트 등)."
+                        "description": "모드 유형별로 색상을 적용합니다 (스탠딩, 컷씬, 데이팅 등)."
                     }
                 }
             }
