@@ -4,7 +4,7 @@ use log::info;
 #[cfg(windows)]
 use log::warn;
 
-use crate::AppState;
+use crate::{errors::AppError, AppState};
 
 fn get_game_path(state: &AppState) -> Option<PathBuf> {
     let config = state.config.lock().unwrap();
@@ -109,44 +109,42 @@ pub fn get_characters(app_handle: tauri::AppHandle) -> Result<serde_json::Value,
 
 #[cfg(windows)]
 #[tauri::command]
-pub fn launch_game(state: tauri::State<AppState>, vanilla: bool) -> Result<(), String> {
-    let game_path = get_game_path(&state).ok_or("Game path not set")?;
+pub fn launch_game(state: tauri::State<AppState>, vanilla: bool) -> Result<(), AppError> {
+    let game_path = get_game_path(&state).ok_or(AppError::GameDirectoryNotSet)?;
 
     let exe_path = game_path.join("BrownDust II.exe");
 
     if !exe_path.exists() {
-        return Err("Game executable not found".to_string());
+        return Err(AppError::GameExecutableNotFound {
+            path: exe_path.to_string_lossy().to_string(),
+        });
     }
 
+    let mut command = std::process::Command::new(exe_path);
     if vanilla {
-        std::process::Command::new(exe_path)
-            .args(["--doorstop-enable", "false", "--doorstop-enabled", "false"])
-            .spawn()
-            .map_err(|e| e.to_string())?;
-    } else {
-        std::process::Command::new(exe_path)
-            .spawn()
-            .map_err(|e| e.to_string())?;
+        command.args(["--doorstop-enable", "false", "--doorstop-enabled", "false"]);
     }
+    command
+        .spawn()
+        .map_err(|e| AppError::GameLaunchFailed { reason: e.to_string() })?;
 
     Ok(())
 }
 
 #[cfg(not(windows))]
 #[tauri::command]
-pub fn launch_game(state: tauri::State<AppState>, vanilla: bool) -> Result<(), String> {
+pub fn launch_game(state: tauri::State<AppState>, vanilla: bool) -> Result<(), AppError> {
     if vanilla {
         // TODO: launchers can't pass --doorstop-enable false; needs another way to turn BepInEx off
-        return Err("Launching without mods is not supported on Linux yet".into());
+        return Err(AppError::LaunchWithoutModsUnsupported);
     }
 
-    let game_path = get_game_path(&state).ok_or("Game path not set")?;
+    let game_path = get_game_path(&state).ok_or(AppError::GameDirectoryNotSet)?;
 
-    let entry = locate::faugus::entry_for(&game_path)
-        .ok_or("No launcher found for this game folder. Launch the game from your launcher.")?;
+    let entry = locate::faugus::entry_for(&game_path).ok_or(AppError::GameLauncherNotFound)?;
 
     info!("Launching {:?} through {:?} ({})", game_path, entry.app, entry.game_id);
-    locate::faugus::launch(&entry).map_err(|e| format!("Failed to launch Faugus: {e}"))
+    locate::faugus::launch(&entry).map_err(|e| AppError::GameLaunchFailed { reason: e.to_string() })
 }
 
 #[tauri::command]

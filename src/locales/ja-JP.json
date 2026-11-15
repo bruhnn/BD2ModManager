@@ -1232,6 +1232,10 @@
             "GameDirectoryNotSet": "ゲームディレクトリが設定されていません。設定で指定してください。",
             "SyncMethodInvalid": "無効な同期方式：{method}",
             "GameRunning": "ゲームはすでに実行中です。",
+            "GameExecutableNotFound": "ゲームの実行ファイルが \"{path}\" に見つかりません。",
+            "GameLauncherNotFound": "このゲームフォルダーに対応するランチャーが見つかりません。ランチャーからゲームを起動してください。",
+            "LaunchWithoutModsUnsupported": "このシステムではMODなしでの起動にまだ対応していません。",
+            "GameLaunchFailed": "ゲームの起動に失敗しました: {reason}",
             "Unknown": "予期しないエラーが発生しました。詳細はログを確認してください。"
         },
         "ModInstallError": {

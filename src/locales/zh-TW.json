@@ -1232,6 +1232,10 @@
             "GameDirectoryNotSet": "未設定遊戲目錄，請在設定中設定。",
             "SyncMethodInvalid": "無效的同步方式：{method}",
             "GameRunning": "遊戲已在執行中。",
+            "GameExecutableNotFound": "在 \"{path}\" 找不到遊戲執行檔。",
+            "GameLauncherNotFound": "找不到此遊戲資料夾對應的啟動器。請從你的啟動器啟動遊戲。",
+            "LaunchWithoutModsUnsupported": "此系統尚不支援不載入 MOD 啟動。",
+            "GameLaunchFailed": "啟動遊戲失敗：{reason}",
             "Unknown": "發生未預期的錯誤。請查看記錄以了解詳情。"
         },
         "ModInstallError": {

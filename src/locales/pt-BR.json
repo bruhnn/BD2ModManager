@@ -1232,6 +1232,10 @@
             "GameDirectoryNotSet": "O diretório do jogo não está definido. Por favor, defina-o nas configurações.",
             "SyncMethodInvalid": "Método de sincronização inválido: {method}",
             "GameRunning": "O jogo já está em execução.",
+            "GameExecutableNotFound": "O executável do jogo não foi encontrado em \"{path}\".",
+            "GameLauncherNotFound": "Nenhum launcher foi encontrado para esta pasta do jogo. Abra o jogo pelo seu launcher.",
+            "LaunchWithoutModsUnsupported": "Iniciar sem mods ainda não é suportado neste sistema.",
+            "GameLaunchFailed": "Falha ao iniciar o jogo: {reason}",
             "Unknown": "Ocorreu um erro inesperado. Verifique os logs para mais detalhes."
         },
         "ModInstallError": {

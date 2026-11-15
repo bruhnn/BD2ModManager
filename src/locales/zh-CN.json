@@ -1232,6 +1232,10 @@
             "GameDirectoryNotSet": "未设置游戏目录，请在设置中配置。",
             "SyncMethodInvalid": "无效的同步方式：{method}",
             "GameRunning": "游戏已在运行。",
+            "GameExecutableNotFound": "在 \"{path}\" 未找到游戏可执行文件。",
+            "GameLauncherNotFound": "未找到此游戏文件夹对应的启动器。请从你的启动器启动游戏。",
+            "LaunchWithoutModsUnsupported": "此系统暂不支持不加载 MOD 启动。",
+            "GameLaunchFailed": "启动游戏失败：{reason}",
             "Unknown": "发生意外错误。请查看日志了解详情。"
         },
         "ModInstallError": {
