@@ -9,7 +9,6 @@ use std::{
 
 use log::{debug, error, info, warn};
 use serde::{Deserialize, Serialize};
-use std::os::windows::fs::MetadataExt;
 use tauri::{AppHandle, Emitter};
 use tempfile::NamedTempFile;
 use walkdir::WalkDir;
@@ -21,7 +20,7 @@ use crate::{
     },
 };
 
-use crate::utils::files::{get_available_size, sync_dirs};
+use crate::utils::files::{get_available_size, sync_dirs, is_link};
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Copy)]
 pub enum SyncMethod {
@@ -238,14 +237,29 @@ pub(crate) fn remove_mod_path(path: &Path, staging_directory: &Path) -> io::Resu
         return Err(io::Error::new(io::ErrorKind::PermissionDenied, "Cannot remove the staging directory or its contents"));
     }
 
-    if metadata.file_attributes() & 0x10 != 0 {
-        if metadata.file_attributes() & 0x400 != 0 {
-            fs::remove_dir(&path)
+    #[cfg(windows)]
+    {
+        use std::os::windows::fs::MetadataExt;
+        // FILE_ATTRIBUTE_DIRECTORY
+        if metadata.file_attributes() & 0x10 != 0 {
+            if is_link(&metadata) {
+                fs::remove_dir(&path)
+            } else {
+                fs::remove_dir_all(&path)
+            }
         } else {
-            fs::remove_dir_all(&path)
+            fs::remove_file(&path)
         }
-    } else {
-        fs::remove_file(&path)
+    }
+
+    // symlinks unix (even to directories) are removed without following them
+    #[cfg(not(windows))]
+    {
+        if !is_link(&metadata) && metadata.is_dir() {
+            fs::remove_dir_all(&path)
+        } else {
+            fs::remove_file(&path)
+        }
     }
 }
 
@@ -259,7 +273,7 @@ fn get_sync_directory(
         .take_while(|parent| parent.starts_with(game_directory))
     {
         match fs::symlink_metadata(parent) {
-            Ok(metadata) if metadata.file_attributes() & 0x400 != 0 => {
+            Ok(metadata) if is_link(&metadata) => {
                 return Err(ModSyncError::DestinationContainsSymlink {
                     path: parent.to_string_lossy().to_string(),
                 });
@@ -302,6 +316,20 @@ fn get_sync_directory(
     Ok(game_mods_path)
 }
 
+// resolves a staging mod folder that may be a symlink/junction
+// a link that resolves into (or above) the game's mods folder is refused, because
+// syncing would then remove or overwrite the very files the link points at
+pub fn resolve_mod_source(source: &Path, game_mods_path: &Path) -> Result<PathBuf, ModSyncError> {
+    let source = source.canonicalize()?;
+    let game_mods = game_mods_path.parent().unwrap_or(game_mods_path).canonicalize()?;
+    let resolved = PathBuf::from(source.to_string_lossy().to_lowercase());
+    let game_mods = PathBuf::from(game_mods.to_string_lossy().to_lowercase());
+    if resolved.starts_with(&game_mods) || game_mods.starts_with(&resolved) {
+        return Err(ModSyncError::DirectoriesNested);
+    }
+    Ok(source)
+}
+
 fn check_mod_parents(destination: &Path, root: &Path) -> Result<(), ModSyncError> {
     for parent in destination
         .ancestors()
@@ -309,7 +337,7 @@ fn check_mod_parents(destination: &Path, root: &Path) -> Result<(), ModSyncError
         .take_while(|parent| parent.starts_with(root))
     {
         match fs::symlink_metadata(parent) {
-            Ok(metadata) if metadata.file_attributes() & 0x400 != 0 => {
+            Ok(metadata) if is_link(&metadata) => {
                 return Err(ModSyncError::DestinationContainsSymlink {
                     path: parent.to_string_lossy().to_string(),
                 });
@@ -653,7 +681,8 @@ pub fn get_sync_actions(
 
                     let (unchanged, reason) = match method {
                         SyncMethod::Copy => {
-                            (dirs_match(&mod_entry.path, &destination)?, "filesDiffer")
+                            // resolve a linked mod folder; links inside it are still rejected
+                            (dirs_match(&mod_entry.path.canonicalize()?, &destination)?, "filesDiffer")
                         }
                         SyncMethod::Symlink => {
                             if destination.is_symlink() {
@@ -709,7 +738,7 @@ pub fn get_sync_actions(
                 if *method == SyncMethod::Symlink {
                     Some(0)
                 } else {
-                    match get_directory_size(&mod_entry.path) {
+                    match mod_entry.path.canonicalize().and_then(|path| get_directory_size(&path)) {
                         Ok(size) => Some(size),
                         Err(error) => {
                             action = SyncAction::Failed(Arc::new(error.into()));
@@ -972,14 +1001,16 @@ pub fn sync_mods<R: tauri::Runtime>(
                 }
                 SyncAction::Add(_) => {
                     let result = (|| -> Result<(), ModSyncError> {
-                        let source = staging_directory.join(&action.mod_name);
+                        // The mod folder itself may be a symlink or junction
+                        // links inside the mod are still rejected below
+                        let source = resolve_mod_source(&staging_directory.join(&action.mod_name), &game_mods_path)?;
                         let destination = game_mods_path.join(&action.game_folder);
 
                         // check if the mod on staging contains symlinks
                         for entry in WalkDir::new(&source).follow_links(false) {
                             let entry = entry.map_err(io::Error::from)?;
 
-                            if fs::symlink_metadata(entry.path())?.file_attributes() & 0x400 != 0 {
+                            if is_link(&fs::symlink_metadata(entry.path())?) {
                                 return Err(ModSyncError::ModContainsSymlink {
                                     path: entry.path().to_string_lossy().to_string(),
                                 });
@@ -1014,7 +1045,7 @@ pub fn sync_mods<R: tauri::Runtime>(
                             SyncMethod::Symlink => {
                                 let source = source.canonicalize()?;
 
-                                std::os::windows::fs::symlink_dir(&source, &destination).map_err(
+                                crate::utils::files::symlink_dir(&source, &destination).map_err(
                                     |source| ModSyncError::SymlinkFailed {
                                         mod_name: action.mod_name.clone(),
                                         source,
@@ -1050,14 +1081,16 @@ pub fn sync_mods<R: tauri::Runtime>(
                     // remove and add
 
                     let replace_result = (|| -> Result<(), ModSyncError> {
-                        let source = staging_directory.join(&action.mod_name);
+                        // The mod folder itself may be a symlink/junction: resolve it once.
+                        // Links inside the mod are still rejected below.
+                        let source = resolve_mod_source(&staging_directory.join(&action.mod_name), &game_mods_path)?;
                         let destination = game_mods_path.join(&action.game_folder);
 
                         // check if the mod on staging contains symlinks
                         for entry in WalkDir::new(&source).follow_links(false) {
                             let entry = entry.map_err(io::Error::from)?;
 
-                            if fs::symlink_metadata(entry.path())?.file_attributes() & 0x400 != 0 {
+                            if is_link(&fs::symlink_metadata(entry.path())?) {
                                 return Err(ModSyncError::ModContainsSymlink {
                                     path: entry.path().to_string_lossy().to_string(),
                                 });
@@ -1099,7 +1132,7 @@ pub fn sync_mods<R: tauri::Runtime>(
                             SyncMethod::Symlink => {
                                 let source = source.canonicalize()?;
 
-                                std::os::windows::fs::symlink_dir(&source, &destination).map_err(
+                                crate::utils::files::symlink_dir(&source, &destination).map_err(
                                     |source| ModSyncError::SymlinkFailed {
                                         mod_name: action.mod_name.clone(),
                                         source,

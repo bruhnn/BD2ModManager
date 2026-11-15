@@ -23,6 +23,17 @@ struct ModAnalysis {
     has_textures_folder: bool,
 }
 
+fn links_to_drive_root(path: &Path) -> bool {
+    let is_link = fs::symlink_metadata(path)
+        .map(|metadata| crate::utils::files::is_link(&metadata))
+        .unwrap_or(false);
+    is_link
+        && path
+            .canonicalize()
+            .map(|target| target.parent().is_none())
+            .unwrap_or(false)
+}
+
 fn is_textures_folder(path: &Path) -> bool {
     path.file_name()
         .and_then(OsStr::to_str)
@@ -94,7 +105,11 @@ pub fn analyze_mod_path(path: &Path) -> io::Result<(bool, Option<BD2ModError>)> 
     let mut analysis = ModAnalysis::default();
 
     for entry in read_dir(path)? {
-        analysis.analyze_entry(&entry?)?;
+        let entry = entry?;
+        // avoid broken symlink/junction inside a mod not to fail the whole scan, just skip it and log a warning
+        if let Err(e) = analysis.analyze_entry(&entry) {
+            warn!("Skipping unreadable path {:?}: {}", entry.path(), e);
+        }
     }
 
     Ok(analysis.determine_mod_status())
@@ -143,11 +158,29 @@ fn discover_mods_recursive(dir: &Path, staging_directory: &Path, depth: usize) -
                 if is_textures_folder(&path) {
                     return Ok(Vec::new());
                 }
-                let (is_mod, error) = analyze_mod_path(&path)?;
+
+                // add this check to avoid scanning the whole drive if a symlink/junction points to it
+                // it would be a disaster
+                if links_to_drive_root(&path) {
+                    warn!("Skipping {:?}: it links to a whole drive. ", path);
+                    return Ok(Vec::new());
+                }
+
+                let (is_mod, error) = match analyze_mod_path(&path) {
+                    Ok(result) => result,
+                    Err(e) => {
+                        // skip paths we can't read (ex. a symlink/junction whose target was moved or deleted)
+                        // so one broken entry doesn't fail the whole mod list
+                        warn!("Skipping unreadable path {:?}: {}", path, e);
+                        return Ok(Vec::new());
+                    }
+                };
+
                 debug!("(is_mod = {:?}) {:?} -> error = {:?}", is_mod, path, error);
+
                 if is_mod {
                     Ok(vec![create_mod(&staging_dir, &path, error)])
-                } else if fs::metadata(&path)?.is_dir() {
+                } else if fs::metadata(&path).map(|m| m.is_dir()).unwrap_or(false) {
                     discover_mods_recursive(&path, &staging_dir, depth + 1)
                 } else {
                     warn!("Path {:?} not valid! {:?}", path, error);
@@ -169,7 +202,20 @@ pub fn discover_staging_mods(staging_directory: &Path, recursive: bool) -> io::R
                 .map(|entry| -> io::Result<Option<BD2Mod>> {
                     let entry = entry?;
                     let path = entry.path();
-                    let (is_mod, error) = analyze_mod_path(&path)?;
+
+                    if links_to_drive_root(&path) {
+                        warn!("Skipping {:?}: it links to a whole drive", path);
+                        return Ok(None);
+                    }
+
+                    let (is_mod, error) = match analyze_mod_path(&path) {
+                        Ok(result) => result,
+                        Err(e) => {
+                            warn!("Skipping unreadable path {:?}: {}", path, e);
+                            return Ok(None);
+                        }
+                    };
+                    
                     debug!("(is_mod = {:?}) {:?} -> error = {:?}", is_mod, path, error);
                     if is_mod {
                         Ok(Some(create_mod(staging_directory, &path, error)))

@@ -7,11 +7,33 @@ use std::{
 use sha2::{Digest, Sha256};
 use walkdir::WalkDir;
 use std::time::SystemTime;
-use std::os::windows::fs::MetadataExt;
-use std::os::windows::ffi::OsStrExt;
-use windows_sys::Win32::Storage::FileSystem::GetDiskFreeSpaceExW;
 
 use crate::mods::{install::ModInstallError, sync::ModSyncError};
+
+/// symlinks = true, and on Windows for any reparse point symlinks or junctions
+pub fn is_link(metadata: &fs::Metadata) -> bool {
+    #[cfg(windows)]
+    {
+        use std::os::windows::fs::MetadataExt;
+        // FILE_ATTRIBUTE_REPARSE_POINT
+        metadata.file_attributes() & 0x400 != 0
+    }
+    #[cfg(not(windows))]
+    {
+        metadata.file_type().is_symlink()
+    }
+}
+
+pub fn symlink_dir(original: &Path, link: &Path) -> io::Result<()> {
+    #[cfg(windows)]
+    {
+        std::os::windows::fs::symlink_dir(original, link)
+    }
+    #[cfg(not(windows))]
+    {
+        std::os::unix::fs::symlink(original, link)
+    }
+}
 
 pub fn has_extension(path: &Path, extensions: &[&str]) -> bool {
     if let Some(ext) = path.extension() {
@@ -53,7 +75,7 @@ pub fn copy_dir_all(src: &Path, dst: &Path) -> Result<(), ModInstallError> {
     let metadata = fs::symlink_metadata(src)?;
 
     // FILE_ATTRIBUTE_REPARSE_POINT
-    if metadata.file_attributes() & 0x400 != 0 {
+    if is_link(&metadata) {
         return Err(ModInstallError::ModContainsSymlink {
             path: src.to_string_lossy().to_string(),
         });
@@ -70,7 +92,7 @@ pub fn copy_dir_all(src: &Path, dst: &Path) -> Result<(), ModInstallError> {
 
         let metadata = fs::symlink_metadata(&entry_path)?;
 
-        if metadata.file_attributes() & 0x400 != 0 {
+        if is_link(&metadata) {
             return Err(ModInstallError::ModContainsSymlink {
                 path: entry_path.to_string_lossy().to_string(),
             });
@@ -88,7 +110,7 @@ pub fn copy_dir_all(src: &Path, dst: &Path) -> Result<(), ModInstallError> {
 
 pub fn dirs_match(src: &Path, dst: &Path) -> Result<bool, ModSyncError> {
     let source = fs::symlink_metadata(src)?;
-    if source.file_attributes() & 0x400 != 0 {
+    if is_link(&source) {
         return Err(ModSyncError::ModContainsSymlink {
             path: src.to_string_lossy().to_string(),
         });
@@ -98,7 +120,7 @@ pub fn dirs_match(src: &Path, dst: &Path) -> Result<bool, ModSyncError> {
         Err(error) if error.kind() == io::ErrorKind::NotFound => return Ok(false),
         Err(error) => return Err(error.into()),
     };
-    if destination.file_attributes() & 0x400 != 0 || source.is_dir() != destination.is_dir() {
+    if is_link(&destination) || source.is_dir() != destination.is_dir() {
         return Ok(false);
     }
     if !source.is_dir() {
@@ -126,7 +148,7 @@ pub fn sync_dirs(src: &Path, dst: &Path, staging_directory: &Path) -> Result<boo
     let metadata = fs::symlink_metadata(src)?;
 
     // FILE_ATTRIBUTE_REPARSE_POINT
-    if metadata.file_attributes() & 0x400 != 0 {
+    if is_link(&metadata) {
         return Err(ModSyncError::ModContainsSymlink {
             path: src.to_string_lossy().to_string(),
         });
@@ -143,7 +165,7 @@ pub fn sync_dirs(src: &Path, dst: &Path, staging_directory: &Path) -> Result<boo
         return Err(ModSyncError::DirectoriesNested);
     }
     match fs::symlink_metadata(dst) {
-        Ok(metadata) if metadata.file_attributes() & 0x400 != 0 || !metadata.is_dir() => {
+        Ok(metadata) if is_link(&metadata) || !metadata.is_dir() => {
             crate::mods::sync::remove_mod_path(dst, staging_directory)?;
             updated = true;
         }
@@ -165,7 +187,7 @@ pub fn sync_dirs(src: &Path, dst: &Path, staging_directory: &Path) -> Result<boo
 
         let metadata = fs::symlink_metadata(&src_path)?;
 
-        if metadata.file_attributes() & 0x400 != 0 {
+        if is_link(&metadata) {
             return Err(ModSyncError::ModContainsSymlink {
                 path: src_path.to_string_lossy().to_string(),
             });
@@ -177,7 +199,7 @@ pub fn sync_dirs(src: &Path, dst: &Path, staging_directory: &Path) -> Result<boo
             }
         } else {
             match fs::symlink_metadata(&dst_path) {
-                Ok(metadata) if metadata.file_attributes() & 0x400 != 0 || metadata.is_dir() => {
+                Ok(metadata) if is_link(&metadata) || metadata.is_dir() => {
                     crate::mods::sync::remove_mod_path(&dst_path, staging_directory)?;
                     updated = true;
                 }
@@ -273,7 +295,11 @@ pub fn cleanup_empty_dirs(game_path: &PathBuf, file_list: &[String]) {
 }
 
 
+#[cfg(windows)]
 pub fn get_available_size(path: &PathBuf) -> Result<u64, std::io::Error> {
+    use std::os::windows::ffi::OsStrExt;
+    use windows_sys::Win32::Storage::FileSystem::GetDiskFreeSpaceExW;
+
     let path: Vec<u16> = path
     .as_os_str()
     .encode_wide()
@@ -296,6 +322,21 @@ pub fn get_available_size(path: &PathBuf) -> Result<u64, std::io::Error> {
     }
 
     Ok(available_space)
+}
+
+#[cfg(unix)]
+pub fn get_available_size(path: &PathBuf) -> Result<u64, std::io::Error> {
+    use std::os::unix::ffi::OsStrExt;
+
+    let c_path = std::ffi::CString::new(path.as_os_str().as_bytes())
+        .map_err(|e| io::Error::new(io::ErrorKind::InvalidInput, e))?;
+    let mut stat: libc::statvfs = unsafe { std::mem::zeroed() };
+
+    if unsafe { libc::statvfs(c_path.as_ptr(), &mut stat) } != 0 {
+        return Err(std::io::Error::last_os_error());
+    }
+
+    Ok(stat.f_bavail as u64 * stat.f_frsize as u64)
 }
 
 pub fn get_directory_size(path: &PathBuf) -> Result<u64, std::io::Error> {
