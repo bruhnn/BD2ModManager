@@ -21,7 +21,7 @@
             "characterTypeTabs": "Added Standing, Cutscene, and Dating tabs in the character modal",
             "previewModToggle": "Added support for enabling and disabling mods directly from BD2ModPreview when connected to the manager",
             "autoSyncDelay": "Added adjustable auto-sync delay in Settings",
-            "removeMissingProfileMods": "Added \"Remove Missing\" button to clean missing mod entries from the selected profile (issue #91, contributed by {'@'}SuuKomura)",
+            "removeMissingProfileMods": "Added \"Remove Missing\" button to clean missing mod entries from the selected profile (issue #91, contributed by SuuKomura)",
             "activeDownloads": "Added Active Downloads panel to view download progress",
             "diskSpaceCheck": "Added available disk space check before syncing",
             "titlebarCredits": "Added supporter and contributor credits to the titlebar",

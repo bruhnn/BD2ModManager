@@ -21,7 +21,7 @@
             "characterTypeTabs": "캐릭터 창에 스탠딩, 컷씬, 데이팅 탭을 추가했습니다.",
             "previewModToggle": "매니저에 연결하면 BD2ModPreview에서 직접 모드를 활성화하거나 비활성화할 수 있습니다.",
             "autoSyncDelay": "설정에 자동 동기화 지연 시간 조절 기능을 추가했습니다.",
-            "removeMissingProfileMods": "선택한 프로필에서 존재하지 않는 모드 항목을 정리하는 “누락된 항목 제거” 버튼을 추가했습니다(이슈 #91, {'@'}SuuKomura 기여).",
+            "removeMissingProfileMods": "선택한 프로필에서 존재하지 않는 모드 항목을 정리하는 “누락된 항목 제거” 버튼을 추가했습니다(이슈 #91, SuuKomura 기여).",
             "activeDownloads": "다운로드 진행 상황을 확인할 수 있는 진행 중인 다운로드 패널을 추가했습니다.",
             "diskSpaceCheck": "동기화 전에 디스크 여유 공간을 확인하도록 했습니다.",
             "titlebarCredits": "제목 표시줄에 후원자와 기여자 크레딧을 추가했습니다.",
@@ -150,13 +150,23 @@
             },
             "modPreviewUpdate": {
                 "retry": "다시 시도",
-                "updated": "BD2ModPreview v{version} 업데이트 완료",
-                "failed": "BD2ModPreview 업데이트 실패",
-                "noUpdateAvailable": "BD2ModPreview가 최신 버전입니다"
+                "updated": {
+                    "title": "BD2ModPreview v{version} 업데이트 완료"
+                },
+                "failed": {
+                    "title": "BD2ModPreview 업데이트 실패"
+                },
+                "noUpdateAvailable": {
+                    "title": "BD2ModPreview가 최신 버전입니다"
+                }
             },
             "gameDataUpdate": {
-                "updated": "게임 데이터 업데이트 완료",
-                "failed": "게임 데이터 업데이트 실패"
+                "updated": {
+                    "title": "게임 데이터 업데이트 완료"
+                },
+                "failed": {
+                    "title": "게임 데이터 업데이트 실패"
+                }
             }
         },
         "modals": {
@@ -235,7 +245,8 @@
         "appUpdate": {
             "checking": "업데이트 확인 중...",
             "available": "업데이트 가능: v{version}",
-            "downloaded": "v{version} 준비 완료! 클릭하여 업데이트 적용"
+            "downloaded": "v{version} 준비 완료! 클릭하여 업데이트 적용",
+            "updating": "v{version}(으)로 업데이트 중..."
         },
         "sync": {
             "applying": "적용 중: {modName}",
@@ -247,6 +258,13 @@
             "logs": "로그",
             "kofi": "Ko-Fi로 지원하기",
             "afdian": "Afdian으로 지원하기"
+        },
+        "credits": {
+            "creator": "제작",
+            "thanks": "도움",
+            "creator_tooltip": "제작자: \\@bruhnn",
+            "supporter_tooltip": "{platform} 후원자",
+            "bug_reports_tooltip": "GitHub 버그 제보 및 제안"
         }
     },
     "sidebar": {
@@ -376,8 +394,10 @@
                 "messageWithConflicts": "일부 모드가 서로 충돌합니다. 충돌이 해결되기 전까지 게임이 실행되지 않을 수 있습니다.",
                 "actions": {
                     "sync": "동기화",
-                    "syncAnyway": "그래도 동기화"
-                }
+                    "syncAnyway": "그래도 동기화",
+                    "syncAndRemoveUnmanaged": "동기화 후 관리되지 않는 모드 삭제"
+                },
+                "messageWithRemoveUnmanaged": "게임 폴더의 모드를 동기화하고 BD2MM 안의 관리되지 않는 모드를 모두 삭제합니다. 이 작업은 되돌릴 수 없습니다."
             },
             "unsyncMods": {
                 "title": "모드 동기화를 해제하시겠습니까?",
@@ -387,7 +407,7 @@
                 }
             },
             "deleteMod": {
-                "title": "모드를 삭제하시겠습니까? | 선택한 모드를 삭제하시겠습니까?",
+                "title": "모드를 삭제하시겠습니까? | 모드 {count}개를 삭제하시겠습니까?",
                 "message": "모드 \"{modName}\"을(를) 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다. | 선택한 {count}개의 모드를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.",
                 "actions": {
                     "delete": "삭제"
@@ -398,7 +418,7 @@
             "syncMods": {
                 "skippedUnmanaged": {
                     "title": "일부 모드를 건너뛰었습니다",
-                    "message": "관리되지 않는 모드 {count}개는 변경되지 않았습니다. 교체하거나 삭제하려면 “{action}”를 선택하세요."
+                    "message": "관리되지 않는 모드 {count}개는 변경되지 않았습니다. 교체하거나 삭제하려면 “{action}”를 선택하세요. | 관리되지 않는 모드 {count}개는 변경되지 않았습니다. 교체하거나 삭제하려면 “{action}”를 선택하세요."
                 },
                 "completedWithErrors": {
                     "title": "동기화가 완료되었지만 오류가 있습니다",
@@ -407,7 +427,8 @@
                 },
                 "success": {
                     "title": "모드 동기화 완료",
-                    "message": "모드가 게임 폴더와 성공적으로 동기화되었습니다."
+                    "message": "모드가 게임 폴더와 성공적으로 동기화되었습니다.",
+                    "details": "자세히 보기"
                 },
                 "error": {
                     "title": "동기화 실패"
@@ -416,7 +437,7 @@
             "unsyncMods": {
                 "skippedUnmanaged": {
                     "title": "일부 모드를 건너뛰었습니다",
-                    "message": "관리되지 않는 모드 {count}개는 변경되지 않았습니다. 삭제하려면 “{action}”를 선택하세요.",
+                    "message": "관리되지 않는 모드 {count}개는 변경되지 않았습니다. 삭제하려면 “{action}”를 선택하세요. | 관리되지 않는 모드 {count}개는 변경되지 않았습니다. 삭제하려면 “{action}”를 선택하세요.",
                     "action": "동기화 해제 및 관리되지 않는 모드 삭제"
                 },
                 "completedWithErrors": {
@@ -538,7 +559,7 @@
         "modals": {
             "modsDeleteFailed": {
                 "title": "일부 모드를 삭제하지 못했습니다",
-                "subtitle": "모드 {count}개를 삭제하지 못했습니다.",
+                "subtitle": "모드 {count}개를 삭제하지 못했습니다. | 모드 {count}개를 삭제하지 못했습니다.",
                 "actions": {
                     "retry": "재시도"
                 }
@@ -589,7 +610,7 @@
             },
             "conflicts": {
                 "title": "충돌하는 모드",
-                "subtitle": "{count}명의 캐릭터에 활성화된 모드가 둘 이상 있습니다.",
+                "subtitle": "{count}명의 캐릭터에 활성화된 모드가 둘 이상 있습니다. | {count}명의 캐릭터에 활성화된 모드가 둘 이상 있습니다.",
                 "searchPlaceholder": "캐릭터 검색...",
                 "noResults": "캐릭터를 찾을 수 없습니다.",
                 "empty": "활성화된 충돌 모드가 없습니다.",
@@ -719,7 +740,7 @@
             "cleanMissingMods": {
                 "success": {
                     "title": "프로필 정리 완료",
-                    "message": "\"{profileName}\"에서 없는 모드 {count}개를 제거했습니다."
+                    "message": "\"{profileName}\"에서 없는 모드를 찾지 못했습니다. | \"{profileName}\"에서 없는 모드 {count}개를 제거했습니다. | \"{profileName}\"에서 없는 모드 {count}개를 제거했습니다."
                 },
                 "error": {
                     "title": "프로필 정리 실패"
@@ -940,6 +961,10 @@
                 "gameDirectoryUpdated": {
                     "title": "게임 폴더 업데이트 완료",
                     "message": "게임 폴더가 {path}(으)로 변경되었습니다."
+                },
+                "invalidStagingDirectory": {
+                    "title": "잘못된 스테이징 폴더",
+                    "message": "BrownDustX/mods와 다른 폴더를 선택하세요. 두 폴더 중 어느 쪽도 다른 쪽을 포함할 수 없습니다."
                 }
             },
             "sections": {
@@ -1026,7 +1051,11 @@
                     },
                     "autoSyncMods": {
                         "label": "모드 자동 동기화",
-                        "description": "모드를 활성화하거나 비활성화할 때 게임 폴더에 자동으로 동기화합니다."
+                        "description": "모드를 활성화하거나 비활성화할 때 게임 폴더에 자동으로 동기화합니다.",
+                        "delay": {
+                            "label": "자동 동기화 지연",
+                            "description": "모드를 자동으로 동기화하기 전에 기다리는 시간입니다."
+                        }
                     },
                     "syncMethod": {
                         "label": "동기화 방식",
@@ -1123,6 +1152,16 @@
                         "update": "업데이트"
                     }
                 }
+            },
+            "version": "v{version}",
+            "unknown": "알 수 없음",
+            "downloadAndInstall": "다운로드 및 설치",
+            "status": {
+                "upToDate": "최신 버전입니다",
+                "checking": "업데이트 확인 중...",
+                "downloading": "다운로드 중...",
+                "downloadProgress": "다운로드 중 {percent}%",
+                "installing": "설치 중..."
             }
         },
         "experimental": {
@@ -1189,9 +1228,23 @@
             "DownloadFailed": "Mod Preview 다운로드에 실패했습니다. {reason}",
             "SaveFailed": "Mod Preview를 \"{path}\"에 저장하지 못했습니다. {reason}"
         },
+        "AppError": {
+            "GameDirectoryNotSet": "게임 디렉토리가 설정되지 않았습니다. 설정에서 지정해 주세요.",
+            "SyncMethodInvalid": "잘못된 동기화 방식: {method}",
+            "GameRunning": "게임이 이미 실행 중입니다.",
+            "Unknown": "예기치 않은 오류가 발생했습니다. 자세한 내용은 로그를 확인해 주세요."
+        },
         "ModInstallError": {
             "ModTooBig": "이 모드는 크기 제한인 100 MB를 초과합니다.",
-            "ModContainsSymlink": "이 모드에는 심볼릭 링크 또는 정션이 포함되어 있습니다: “{path}”. 설치하기 전에 실제 파일로 교체해 주세요."
+            "ModContainsSymlink": "이 모드에는 심볼릭 링크 또는 정션이 포함되어 있습니다: “{path}”. 설치하기 전에 실제 파일로 교체해 주세요.",
+            "ModAlreadyExists": "같은 이름의 모드가 이미 있습니다.",
+            "PathNotFound": "선택한 모드 경로를 찾을 수 없습니다.",
+            "InvalidName": "선택한 경로에 올바른 모드 이름이 없습니다.",
+            "UnsupportedFormat": "지원하지 않는 압축 형식입니다. .zip, .rar, .7z만 지원합니다.",
+            "InvalidArchive": "압축 파일이 손상되었거나 읽을 수 없습니다.",
+            "MissingModFile": "올바른 모드가 아닌 것 같습니다(.modfile이 없습니다).",
+            "MultipleModsFound": "여러 개의 .modfile이 발견되었습니다. 모드가 하나만 있는지 확인해 주세요.",
+            "NotAMod": "선택한 파일 또는 폴더는 올바른 BrownDustX 모드가 아닙니다."
         },
         "ModSyncError": {
             "ManifestCorrupt": "동기화 매니페스트가 손상되었습니다. {reason}",
@@ -1243,7 +1296,59 @@
         },
         "invalidMod": "선택한 파일 또는 폴더가 유효한 BrownDustX 모드가 아닙니다.",
         "invalidFormat": "지원되지 않는 모드 형식입니다. 유효한 모드 파일 또는 폴더를 선택해 주세요.",
-        "unsupportedFormat": "지원되지 않는 파일 형식입니다. 유효한 모드 파일 또는 폴더를 선택해 주세요."
+        "unsupportedFormat": "지원되지 않는 파일 형식입니다. 유효한 모드 파일 또는 폴더를 선택해 주세요.",
+        "Io": {
+            "NotFound": "파일 또는 폴더가 존재하지 않습니다.",
+            "PermissionDenied": "액세스가 거부되었습니다.",
+            "AlreadyExists": "해당 파일 또는 폴더가 이미 있습니다.",
+            "DirectoryNotEmpty": "폴더가 비어 있지 않습니다.",
+            "NotADirectory": "폴더가 필요하지만 파일이 있습니다.",
+            "IsADirectory": "파일이 필요하지만 폴더가 있습니다.",
+            "InvalidInput": "이 작업에 대한 입력이 올바르지 않습니다.",
+            "InvalidData": "파일에 잘못된 데이터가 있습니다.",
+            "TimedOut": "작업 시간이 초과되었습니다.",
+            "WriteZero": "디스크에 데이터를 쓰지 못했습니다.",
+            "UnexpectedEof": "파일이 예기치 않게 끝났습니다(손상되었을 수 있습니다).",
+            "OutOfMemory": "메모리가 부족합니다.",
+            "StorageFull": "디스크 공간이 부족합니다."
+        },
+        "ModDeleteError": {
+            "ModNotFound": "모드를 찾을 수 없습니다",
+            "PathNotFound": "경로가 없거나 삭제되었습니다"
+        },
+        "ModRenameError": {
+            "ModNotFound": "모드 \"{mod_name}\"을(를) 찾을 수 없습니다",
+            "PathNotFound": "경로가 없거나 삭제되었습니다",
+            "InvalidName": "잘못된 모드 이름 \"{name}\" ({reason})",
+            "ModAlreadyExists": "\"{mod_name}\" 모드가 이미 있습니다"
+        },
+        "ProfileError": {
+            "ProfileNotFound": "프로필 \"{profile_id}\"을(를) 찾을 수 없습니다",
+            "ProfileAlreadyExists": "\"{profile_name}\" 프로필이 이미 있습니다",
+            "InvalidName": "잘못된 프로필 이름 \"{profile_name}\" ({reason})",
+            "AlreadyActive": "프로필 \"{profile_name}\"이(가) 이미 활성화되어 있습니다",
+            "CannotDeleteActive": "프로필 \"{profile_name}\"은(는) 활성화되어 있어 삭제할 수 없습니다",
+            "CannotDeleteDefault": "기본 프로필은 삭제할 수 없습니다",
+            "NoActiveProfile": "활성 프로필이 설정되지 않았습니다",
+            "LoadFailed": "프로필을 불러오지 못했습니다: {reason}",
+            "SaveFailed": "프로필 \"{profile_name}\"을(를) 저장하지 못했습니다: {reason}",
+            "CreateFailed": "프로필 \"{profile_name}\"을(를) 만들지 못했습니다: {reason}",
+            "SerializeFailed": "프로필 \"{profile_name}\"을(를) 직렬화하지 못했습니다",
+            "UpdateFailed": "프로필 \"{profile_name}\"을(를) 업데이트하지 못했습니다: {reason}",
+            "DeleteFailed": "프로필 \"{profile_name}\"을(를) 삭제하지 못했습니다: {reason}",
+            "ProfilesDirectoryNotFound": "프로필 폴더 \"{path}\"을(를) 찾을 수 없습니다"
+        },
+        "MetadataError": {
+            "Load": "모드 메타데이터를 불러오지 못했습니다: {reason}",
+            "Save": "모드 메타데이터를 저장하지 못했습니다: {reason}",
+            "Serialize": "모드 메타데이터를 직렬화하지 못했습니다"
+        },
+        "PreviewError": {
+            "ModNotFound": "모드 \"{mod_name}\"을(를) 찾을 수 없습니다",
+            "ModHasErrors": "모드 \"{mod_name}\"에 오류가 있어 미리 볼 수 없습니다",
+            "ModPreviewNotFound": "모드 미리보기 도구를 찾을 수 없습니다. 설정에서 '업데이트 확인'을 클릭하면 다시 설치할 수 있습니다.",
+            "PreviewFailed": "모드 미리보기에 실패했습니다: {reason}"
+        }
     },
     "modErrors": {
         "missingTextures": "모드 폴더 안에 'textures'라는 이름의 폴더를 만들어야 합니다.",
@@ -1252,6 +1357,7 @@
         "shouldBeInFolder": "이 모드는 폴더 안에 있어야 합니다. 모드와 같은 이름의 폴더를 만들고 모드 파일을 그 안으로 이동해 주세요.",
         "missingAtlasFile": "이 모드에 아틀라스 파일이 없습니다.",
         "unmanaged": "이 모드는 게임 폴더에 있지만 BD2MM에서 관리하지 않습니다. 여기서는 활성화하거나 비활성화할 수 없습니다.",
-        "noDescription": "설명이 없습니다."
+        "noDescription": "설명이 없습니다.",
+        "unmanagedButInStaging": "이 모드는 이미 게임 폴더에 있지만 BD2MM으로 설치되지 않았기 때문에, 활성화해도 동기화로 변경되지 않습니다. 교체하려면 \"동기화 후 관리되지 않는 모드 삭제\"를 사용하세요."
     }
 }

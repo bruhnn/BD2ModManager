@@ -21,7 +21,7 @@
             "characterTypeTabs": "キャラクター画面に立ち絵、カットシーン、デートのタブを追加しました。",
             "previewModToggle": "マネージャーに接続すると、BD2ModPreviewから直接MODを有効・無効にできるようになりました。",
             "autoSyncDelay": "設定に自動同期の待ち時間を調整する項目を追加しました。",
-            "removeMissingProfileMods": "選択中のプロファイルから存在しないMODの登録を削除する「見つからないMODを削除」ボタンを追加しました（Issue #91、{'@'}SuuKomuraによる貢献）。",
+            "removeMissingProfileMods": "選択中のプロファイルから存在しないMODの登録を削除する「見つからないMODを削除」ボタンを追加しました（Issue #91、SuuKomuraによる貢献）。",
             "activeDownloads": "ダウンロードの進行状況を確認できるパネルを追加しました。",
             "diskSpaceCheck": "同期前にディスクの空き容量を確認するようにしました。",
             "titlebarCredits": "タイトルバーに支援者と貢献者のクレジットを追加しました。",
@@ -150,13 +150,23 @@
             },
             "modPreviewUpdate": {
                 "retry": "再試行",
-                "updated": "BD2ModPreview v{version}を更新しました",
-                "failed": "BD2ModPreviewの更新に失敗しました",
-                "noUpdateAvailable": "BD2ModPreviewは最新です"
+                "updated": {
+                    "title": "BD2ModPreview v{version}を更新しました"
+                },
+                "failed": {
+                    "title": "BD2ModPreviewの更新に失敗しました"
+                },
+                "noUpdateAvailable": {
+                    "title": "BD2ModPreviewは最新です"
+                }
             },
             "gameDataUpdate": {
-                "updated": "ゲームデータを更新しました",
-                "failed": "ゲームデータの更新に失敗しました"
+                "updated": {
+                    "title": "ゲームデータを更新しました"
+                },
+                "failed": {
+                    "title": "ゲームデータの更新に失敗しました"
+                }
             }
         },
         "modals": {
@@ -235,7 +245,8 @@
         "appUpdate": {
             "checking": "更新を確認中...",
             "available": "アップデートあり：v{version}",
-            "downloaded": "v{version} の準備ができました！クリックして適用"
+            "downloaded": "v{version} の準備ができました！クリックして適用",
+            "updating": "v{version} に更新中..."
         },
         "sync": {
             "applying": "適用中：{modName}",
@@ -247,6 +258,13 @@
             "logs": "ログ",
             "kofi": "Ko-Fiでサポート",
             "afdian": "Afdianでサポート"
+        },
+        "credits": {
+            "creator": "作者",
+            "thanks": "協力",
+            "creator_tooltip": "作者: \\@bruhnn",
+            "supporter_tooltip": "{platform} のサポーター",
+            "bug_reports_tooltip": "GitHub での不具合報告と提案"
         }
     },
     "sidebar": {
@@ -376,8 +394,10 @@
                 "messageWithConflicts": "一部のMODが互いに競合しています。競合が解決されるまでゲームが起動しない場合があります。",
                 "actions": {
                     "sync": "同期",
-                    "syncAnyway": "このまま同期"
-                }
+                    "syncAnyway": "このまま同期",
+                    "syncAndRemoveUnmanaged": "同期して管理対象外を削除"
+                },
+                "messageWithRemoveUnmanaged": "ゲームフォルダー内のMODを同期し、BD2MM内の管理対象外のMODをすべて削除します。この操作は元に戻せません。"
             },
             "unsyncMods": {
                 "title": "MODの同期を解除しますか？",
@@ -387,7 +407,7 @@
                 }
             },
             "deleteMod": {
-                "title": "MODを削除しますか？ | 選択したMODを削除しますか？",
+                "title": "MODを削除しますか？ | {count}件のMODを削除しますか？",
                 "message": "MOD「{modName}」を削除してもよろしいですか？この操作は元に戻せません。 | これら {count} 個のMODを削除してもよろしいですか？この操作は元に戻せません。",
                 "actions": {
                     "delete": "削除"
@@ -398,7 +418,7 @@
             "syncMods": {
                 "skippedUnmanaged": {
                     "title": "一部のMODがスキップされました",
-                    "message": "管理対象外のMOD {count} 個は変更されませんでした。置き換えまたは削除するには「{action}」を選択してください。"
+                    "message": "管理対象外のMOD {count} 個は変更されませんでした。置き換えまたは削除するには「{action}」を選択してください。 | 管理対象外のMOD {count} 個は変更されませんでした。置き換えまたは削除するには「{action}」を選択してください。"
                 },
                 "completedWithErrors": {
                     "title": "同期が完了しましたが、エラーがあります",
@@ -407,7 +427,8 @@
                 },
                 "success": {
                     "title": "MODを同期しました",
-                    "message": "MODがゲームフォルダに正常に同期されました。"
+                    "message": "MODがゲームフォルダに正常に同期されました。",
+                    "details": "詳細を表示"
                 },
                 "error": {
                     "title": "同期に失敗しました"
@@ -416,7 +437,7 @@
             "unsyncMods": {
                 "skippedUnmanaged": {
                     "title": "一部のModがスキップされました",
-                    "message": "管理対象外のMod {count}件は変更されませんでした。削除するには「{action}」を選択してください。",
+                    "message": "管理対象外のMod {count}件は変更されませんでした。削除するには「{action}」を選択してください。 | 管理対象外のMod {count}件は変更されませんでした。削除するには「{action}」を選択してください。",
                     "action": "同期解除して管理対象外のModを削除"
                 },
                 "completedWithErrors": {
@@ -538,7 +559,7 @@
         "modals": {
             "modsDeleteFailed": {
                 "title": "一部のMODを削除できませんでした",
-                "subtitle": "{count}件のMODを削除できませんでした。",
+                "subtitle": "{count}件のMODを削除できませんでした。 | {count}件のMODを削除できませんでした。",
                 "actions": {
                     "retry": "再試行"
                 }
@@ -589,7 +610,7 @@
             },
             "conflicts": {
                 "title": "競合しているMOD",
-                "subtitle": "{count}人のキャラクターに複数の有効なMODがあります。",
+                "subtitle": "{count}人のキャラクターに複数の有効なMODがあります。 | {count}人のキャラクターに複数の有効なMODがあります。",
                 "searchPlaceholder": "キャラクターを検索...",
                 "noResults": "キャラクターが見つかりません。",
                 "empty": "競合している有効なMODはありません。",
@@ -719,7 +740,7 @@
             "cleanMissingMods": {
                 "success": {
                     "title": "プロフィールを整理しました",
-                    "message": "「{profileName}」から存在しないModを{count}件削除しました。"
+                    "message": "「{profileName}」に存在しないMODは見つかりませんでした。 | 「{profileName}」から存在しないMODを{count}件削除しました。 | 「{profileName}」から存在しないMODを{count}件削除しました。"
                 },
                 "error": {
                     "title": "プロフィールの整理に失敗しました"
@@ -940,6 +961,10 @@
                 "gameDirectoryUpdated": {
                     "title": "ゲームフォルダーを更新しました",
                     "message": "ゲームフォルダーを{path}に更新しました。"
+                },
+                "invalidStagingDirectory": {
+                    "title": "ステージングフォルダーが無効です",
+                    "message": "BrownDustX/mods とは別のフォルダーを選択してください。どちらのフォルダーも、もう一方を含むことはできません。"
                 }
             },
             "sections": {
@@ -1026,7 +1051,11 @@
                     },
                     "autoSyncMods": {
                         "label": "MODを自動同期",
-                        "description": "MODを有効・無効にした際にゲームフォルダへ自動的に同期します。"
+                        "description": "MODを有効・無効にした際にゲームフォルダへ自動的に同期します。",
+                        "delay": {
+                            "label": "自動同期の待機時間",
+                            "description": "MODを自動同期するまでの待機時間。"
+                        }
                     },
                     "syncMethod": {
                         "label": "同期方式",
@@ -1123,6 +1152,16 @@
                         "update": "更新"
                     }
                 }
+            },
+            "version": "v{version}",
+            "unknown": "不明",
+            "downloadAndInstall": "ダウンロードしてインストール",
+            "status": {
+                "upToDate": "最新です",
+                "checking": "更新を確認中...",
+                "downloading": "ダウンロード中...",
+                "downloadProgress": "ダウンロード中 {percent}%",
+                "installing": "インストール中..."
             }
         },
         "experimental": {
@@ -1189,9 +1228,23 @@
             "DownloadFailed": "Mod Preview のダウンロードに失敗しました。{reason}",
             "SaveFailed": "Mod Preview を「{path}」に保存できませんでした。{reason}"
         },
+        "AppError": {
+            "GameDirectoryNotSet": "ゲームディレクトリが設定されていません。設定で指定してください。",
+            "SyncMethodInvalid": "無効な同期方式：{method}",
+            "GameRunning": "ゲームはすでに実行中です。",
+            "Unknown": "予期しないエラーが発生しました。詳細はログを確認してください。"
+        },
         "ModInstallError": {
             "ModTooBig": "このMODはサイズ上限の100 MBを超えています。",
-            "ModContainsSymlink": "このMODにはシンボリックリンクまたはジャンクション「{path}」が含まれています。インストールする前に実際のファイルに置き換えてください。"
+            "ModContainsSymlink": "このMODにはシンボリックリンクまたはジャンクション「{path}」が含まれています。インストールする前に実際のファイルに置き換えてください。",
+            "ModAlreadyExists": "同じ名前のMODがすでに存在します。",
+            "PathNotFound": "選択したMODのパスが見つかりません。",
+            "InvalidName": "選択したパスは有効なMOD名ではありません。",
+            "UnsupportedFormat": "対応していない圧縮形式です。.zip、.rar、.7z のみ対応しています。",
+            "InvalidArchive": "圧縮ファイルが破損しているか、読み込めません。",
+            "MissingModFile": "有効なMODではないようです（.modfile が見つかりません）。",
+            "MultipleModsFound": "複数の .modfile が見つかりました。MODが1つだけ含まれていることを確認してください。",
+            "NotAMod": "選択したファイルまたはフォルダーは有効なBrownDustX MODではありません。"
         },
         "ModSyncError": {
             "ManifestCorrupt": "同期マニフェストが破損しています。{reason}",
@@ -1243,7 +1296,59 @@
         },
         "invalidMod": "選択したファイルまたはフォルダは有効なBrownDustX MODではありません。",
         "invalidFormat": "サポートされていないMOD形式です。有効なMODファイルまたはフォルダを選択してください。",
-        "unsupportedFormat": "サポートされていないファイル形式です。有効なMODファイルまたはフォルダを選択してください。"
+        "unsupportedFormat": "サポートされていないファイル形式です。有効なMODファイルまたはフォルダを選択してください。",
+        "Io": {
+            "NotFound": "ファイルまたはフォルダーが存在しません。",
+            "PermissionDenied": "アクセスが拒否されました。",
+            "AlreadyExists": "そのファイルまたはフォルダーはすでに存在します。",
+            "DirectoryNotEmpty": "フォルダーが空ではありません。",
+            "NotADirectory": "フォルダーが必要ですが、ファイルが見つかりました。",
+            "IsADirectory": "ファイルが必要ですが、フォルダーが見つかりました。",
+            "InvalidInput": "この操作の入力が無効です。",
+            "InvalidData": "ファイルに無効なデータが含まれています。",
+            "TimedOut": "操作がタイムアウトしました。",
+            "WriteZero": "ディスクへの書き込みに失敗しました。",
+            "UnexpectedEof": "ファイルが途中で終わっています（破損している可能性があります）。",
+            "OutOfMemory": "メモリが不足しています。",
+            "StorageFull": "ディスクの空き容量が不足しています。"
+        },
+        "ModDeleteError": {
+            "ModNotFound": "MODが見つかりません",
+            "PathNotFound": "パスが存在しないか、削除されています"
+        },
+        "ModRenameError": {
+            "ModNotFound": "MOD「{mod_name}」が見つかりません",
+            "PathNotFound": "パスが存在しないか、削除されています",
+            "InvalidName": "無効なMOD名「{name}」（{reason}）",
+            "ModAlreadyExists": "「{mod_name}」という名前のMODはすでに存在します"
+        },
+        "ProfileError": {
+            "ProfileNotFound": "プロファイル「{profile_id}」が見つかりません",
+            "ProfileAlreadyExists": "「{profile_name}」という名前のプロファイルはすでに存在します",
+            "InvalidName": "無効なプロファイル名「{profile_name}」（{reason}）",
+            "AlreadyActive": "プロファイル「{profile_name}」はすでに有効です",
+            "CannotDeleteActive": "プロファイル「{profile_name}」は有効なため削除できません",
+            "CannotDeleteDefault": "デフォルトのプロファイルは削除できません",
+            "NoActiveProfile": "有効なプロファイルが設定されていません",
+            "LoadFailed": "プロファイルの読み込みに失敗しました: {reason}",
+            "SaveFailed": "プロファイル「{profile_name}」の保存に失敗しました: {reason}",
+            "CreateFailed": "プロファイル「{profile_name}」の作成に失敗しました: {reason}",
+            "SerializeFailed": "プロファイル「{profile_name}」のシリアライズに失敗しました",
+            "UpdateFailed": "プロファイル「{profile_name}」の更新に失敗しました: {reason}",
+            "DeleteFailed": "プロファイル「{profile_name}」の削除に失敗しました: {reason}",
+            "ProfilesDirectoryNotFound": "プロファイルフォルダー「{path}」が見つかりません"
+        },
+        "MetadataError": {
+            "Load": "MODのメタデータの読み込みに失敗しました: {reason}",
+            "Save": "MODのメタデータの保存に失敗しました: {reason}",
+            "Serialize": "MODのメタデータのシリアライズに失敗しました"
+        },
+        "PreviewError": {
+            "ModNotFound": "MOD「{mod_name}」が見つかりません",
+            "ModHasErrors": "MOD「{mod_name}」にエラーがあるため、プレビューできません",
+            "ModPreviewNotFound": "MODプレビューツールが見つかりません。設定の「更新を確認」をクリックすると再インストールできます。",
+            "PreviewFailed": "MODのプレビューに失敗しました: {reason}"
+        }
     },
     "modErrors": {
         "missingTextures": "MODフォルダ内に「textures」という名前のフォルダを作成する必要があります。",
@@ -1252,6 +1357,7 @@
         "shouldBeInFolder": "このMODはフォルダ内に配置する必要があります。MODと同じ名前のフォルダを作成し、MODファイルをその中に移動してください。",
         "missingAtlasFile": "このMODにはアトラスファイルがありません。",
         "unmanaged": "このMODはゲームフォルダ内にありますが、BD2MMでは管理されていません。ここでは有効化や無効化はできません。",
-        "noDescription": "説明はありません。"
+        "noDescription": "説明はありません。",
+        "unmanagedButInStaging": "このMODはすでにゲームフォルダーにありますが、BD2MMでインストールされたものではないため、有効にしても同期では変更されません。置き換えるには「同期して管理対象外を削除」を使用してください。"
     }
 }

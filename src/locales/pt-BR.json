@@ -21,7 +21,7 @@
             "characterTypeTabs": "Adicionadas abas Standing, Cutscene e Encontros na janela do personagem.",
             "previewModToggle": "Agora é possível ativar e desativar mods diretamente no BD2ModPreview quando conectado ao gerenciador.",
             "autoSyncDelay": "Adicionado atraso ajustável para sincronização automática nas Configurações.",
-            "removeMissingProfileMods": "Adicionado o botão “Remover ausentes” para limpar entradas de mods ausentes do perfil selecionado (issue #91, contribuição de {'@'}SuuKomura).",
+            "removeMissingProfileMods": "Adicionado o botão “Remover ausentes” para limpar entradas de mods ausentes do perfil selecionado (issue #91, contribuição de SuuKomura).",
             "activeDownloads": "Adicionado painel de downloads ativos para acompanhar o progresso dos downloads.",
             "diskSpaceCheck": "Adicionada verificação de espaço livre em disco antes da sincronização.",
             "titlebarCredits": "Adicionados créditos aos apoiadores e colaboradores na barra de título.",
@@ -150,13 +150,23 @@
             },
             "modPreviewUpdate": {
                 "retry": "Tentar novamente",
-                "updated": "BD2ModPreview v{version} atualizado",
-                "failed": "Falha ao atualizar o BD2ModPreview",
-                "noUpdateAvailable": "O BD2ModPreview está atualizado"
+                "updated": {
+                    "title": "BD2ModPreview v{version} atualizado"
+                },
+                "failed": {
+                    "title": "Falha ao atualizar o BD2ModPreview"
+                },
+                "noUpdateAvailable": {
+                    "title": "O BD2ModPreview está atualizado"
+                }
             },
             "gameDataUpdate": {
-                "updated": "Dados do jogo atualizados",
-                "failed": "Falha ao atualizar os dados do jogo"
+                "updated": {
+                    "title": "Dados do jogo atualizados"
+                },
+                "failed": {
+                    "title": "Falha ao atualizar os dados do jogo"
+                }
             }
         },
         "modals": {
@@ -235,7 +245,8 @@
         "appUpdate": {
             "checking": "Verificando atualizações...",
             "available": "Atualização disponível: v{version}",
-            "downloaded": "v{version} pronta! Clique para aplicar a atualização"
+            "downloaded": "v{version} pronta! Clique para aplicar a atualização",
+            "updating": "Atualizando para v{version}..."
         },
         "sync": {
             "applying": "Aplicando: {modName}",
@@ -247,6 +258,13 @@
             "logs": "Logs",
             "kofi": "Apoiar no Ko-Fi",
             "afdian": "Apoiar no Afdian"
+        },
+        "credits": {
+            "creator": "por",
+            "thanks": "agradecimentos a",
+            "creator_tooltip": "Criado por \\@bruhnn",
+            "supporter_tooltip": "Apoiador no {platform}",
+            "bug_reports_tooltip": "Relatos de bugs e sugestões no GitHub"
         }
     },
     "sidebar": {
@@ -376,8 +394,10 @@
                 "messageWithConflicts": "Alguns mods possuem conflitos entre si. O jogo pode falhar ao iniciar até que os conflitos sejam resolvidos.",
                 "actions": {
                     "sync": "Sincronizar",
-                    "syncAnyway": "Sincronizar Mesmo Assim"
-                }
+                    "syncAnyway": "Sincronizar Mesmo Assim",
+                    "syncAndRemoveUnmanaged": "Sincronizar e Remover Não Gerenciados"
+                },
+                "messageWithRemoveUnmanaged": "Isso irá sincronizar os mods na pasta do jogo e remover todos os mods não gerenciados dentro de BD2MM. Esta ação não pode ser desfeita."
             },
             "unsyncMods": {
                 "title": "Dessincronizar Mods?",
@@ -387,7 +407,7 @@
                 }
             },
             "deleteMod": {
-                "title": "Excluir Mod? | Excluir Mods Selecionados?",
+                "title": "Excluir Mod? | Excluir {count} Mods?",
                 "message": "Tem certeza que deseja excluir o mod \"{modName}\"? Esta ação não pode ser desfeita. | Tem certeza que deseja excluir esses {count} mods? Esta ação não pode ser desfeita.",
                 "actions": {
                     "delete": "Excluir"
@@ -407,7 +427,8 @@
                 },
                 "success": {
                     "title": "Mods Sincronizados",
-                    "message": "Seus mods foram sincronizados com sucesso na pasta do jogo."
+                    "message": "Seus mods foram sincronizados com sucesso na pasta do jogo.",
+                    "details": "Ver detalhes"
                 },
                 "error": {
                     "title": "Falha na Sincronização"
@@ -940,6 +961,10 @@
                 "gameDirectoryUpdated": {
                     "title": "Diretório do Jogo Atualizado",
                     "message": "O diretório do jogo foi atualizado para {path}."
+                },
+                "invalidStagingDirectory": {
+                    "title": "Pasta de preparo inválida",
+                    "message": "Escolha uma pasta separada de BrownDustX/mods. Nenhuma das pastas pode conter a outra."
                 }
             },
             "sections": {
@@ -1026,7 +1051,11 @@
                     },
                     "autoSyncMods": {
                         "label": "Sincronização Automática de Mods",
-                        "description": "Ative esta opção para sincronizar automaticamente os mods na pasta do jogo ao ativá-los ou desativá-los."
+                        "description": "Ative esta opção para sincronizar automaticamente os mods na pasta do jogo ao ativá-los ou desativá-los.",
+                        "delay": {
+                            "label": "Atraso da Sincronização Automática",
+                            "description": "Quanto tempo esperar antes de sincronizar os mods automaticamente."
+                        }
                     },
                     "syncMethod": {
                         "label": "Método de Sincronização",
@@ -1123,6 +1152,16 @@
                         "update": "Atualizar"
                     }
                 }
+            },
+            "version": "v{version}",
+            "unknown": "Desconhecida",
+            "downloadAndInstall": "Baixar e instalar",
+            "status": {
+                "upToDate": "Atualizado",
+                "checking": "Verificando atualizações...",
+                "downloading": "Baixando...",
+                "downloadProgress": "Baixando {percent}%",
+                "installing": "Instalando..."
             }
         },
         "experimental": {
@@ -1189,9 +1228,23 @@
             "DownloadFailed": "Falha ao baixar o Mod Preview. {reason}",
             "SaveFailed": "Falha ao salvar o Mod Preview em \"{path}\". {reason}"
         },
+        "AppError": {
+            "GameDirectoryNotSet": "O diretório do jogo não está definido. Por favor, defina-o nas configurações.",
+            "SyncMethodInvalid": "Método de sincronização inválido: {method}",
+            "GameRunning": "O jogo já está em execução.",
+            "Unknown": "Ocorreu um erro inesperado. Verifique os logs para mais detalhes."
+        },
         "ModInstallError": {
             "ModTooBig": "Este mod excede o limite de tamanho de 100 MB.",
-            "ModContainsSymlink": "Este mod contém um link simbólico ou uma junção: “{path}”. Substitua pelo conteúdo real antes de instalar."
+            "ModContainsSymlink": "Este mod contém um link simbólico ou uma junção: “{path}”. Substitua pelo conteúdo real antes de instalar.",
+            "ModAlreadyExists": "Já existe um mod com este nome.",
+            "PathNotFound": "O caminho do mod selecionado não foi encontrado.",
+            "InvalidName": "O caminho selecionado não tem um nome de mod válido.",
+            "UnsupportedFormat": "Formato de arquivo compactado não suportado. Apenas .zip, .rar e .7z são suportados.",
+            "InvalidArchive": "O arquivo compactado está corrompido ou ilegível.",
+            "MissingModFile": "Isso não parece ser um mod válido (nenhum .modfile encontrado).",
+            "MultipleModsFound": "Vários arquivos .modfile foram encontrados. Certifique-se de que apenas um mod está presente.",
+            "NotAMod": "O arquivo ou pasta selecionado não é um mod BrownDustX válido."
         },
         "ModSyncError": {
             "ManifestCorrupt": "O manifesto de sincronização está corrompido. {reason}",
@@ -1243,7 +1296,59 @@
         },
         "invalidMod": "O arquivo ou pasta selecionado não é um mod BrownDustX válido.",
         "invalidFormat": "Formato de mod não suportado. Por favor, selecione um arquivo ou pasta de mod válido.",
-        "unsupportedFormat": "Formato de arquivo não suportado. Por favor, selecione um arquivo ou pasta de mod válido."
+        "unsupportedFormat": "Formato de arquivo não suportado. Por favor, selecione um arquivo ou pasta de mod válido.",
+        "Io": {
+            "NotFound": "Esse arquivo ou pasta não existe.",
+            "PermissionDenied": "Acesso negado.",
+            "AlreadyExists": "Esse arquivo ou pasta já existe.",
+            "DirectoryNotEmpty": "A pasta não está vazia.",
+            "NotADirectory": "Era esperada uma pasta, mas foi encontrado um arquivo.",
+            "IsADirectory": "Era esperado um arquivo, mas foi encontrada uma pasta.",
+            "InvalidInput": "Entrada inválida para essa operação.",
+            "InvalidData": "O arquivo contém dados inválidos.",
+            "TimedOut": "A operação excedeu o tempo limite.",
+            "WriteZero": "Falha ao gravar dados no disco.",
+            "UnexpectedEof": "O arquivo terminou inesperadamente (pode estar corrompido).",
+            "OutOfMemory": "Memória insuficiente.",
+            "StorageFull": "Não há espaço suficiente no disco."
+        },
+        "ModDeleteError": {
+            "ModNotFound": "O mod não foi encontrado",
+            "PathNotFound": "O caminho não existe ou foi excluído"
+        },
+        "ModRenameError": {
+            "ModNotFound": "Mod \"{mod_name}\" não encontrado",
+            "PathNotFound": "O caminho não existe ou foi excluído",
+            "InvalidName": "Nome de mod inválido \"{name}\" ({reason})",
+            "ModAlreadyExists": "Já existe um mod chamado \"{mod_name}\""
+        },
+        "ProfileError": {
+            "ProfileNotFound": "O perfil \"{profile_id}\" não foi encontrado",
+            "ProfileAlreadyExists": "Já existe um perfil chamado \"{profile_name}\"",
+            "InvalidName": "Nome de perfil inválido \"{profile_name}\" ({reason})",
+            "AlreadyActive": "O perfil \"{profile_name}\" já está ativo",
+            "CannotDeleteActive": "O perfil \"{profile_name}\" não pode ser excluído porque está ativo",
+            "CannotDeleteDefault": "O perfil padrão não pode ser excluído",
+            "NoActiveProfile": "Nenhum perfil ativo definido",
+            "LoadFailed": "Falha ao carregar os perfis: {reason}",
+            "SaveFailed": "Falha ao salvar o perfil \"{profile_name}\": {reason}",
+            "CreateFailed": "Falha ao criar o perfil \"{profile_name}\": {reason}",
+            "SerializeFailed": "Falha ao serializar o perfil \"{profile_name}\"",
+            "UpdateFailed": "Falha ao atualizar o perfil \"{profile_name}\": {reason}",
+            "DeleteFailed": "Falha ao excluir o perfil \"{profile_name}\": {reason}",
+            "ProfilesDirectoryNotFound": "A pasta de perfis \"{path}\" não foi encontrada"
+        },
+        "MetadataError": {
+            "Load": "Falha ao carregar os metadados dos mods: {reason}",
+            "Save": "Falha ao salvar os metadados dos mods: {reason}",
+            "Serialize": "Falha ao serializar os metadados dos mods"
+        },
+        "PreviewError": {
+            "ModNotFound": "Mod \"{mod_name}\" não encontrado",
+            "ModHasErrors": "O mod \"{mod_name}\" contém erros e não pode ser visualizado",
+            "ModPreviewNotFound": "A ferramenta de pré-visualização de mods não foi encontrada. Você pode clicar em 'Verificar Atualizações' nas configurações para reinstalá-la.",
+            "PreviewFailed": "Falha ao pré-visualizar o mod: {reason}"
+        }
     },
     "modErrors": {
         "missingTextures": "Você precisa criar uma pasta chamada 'textures' dentro da pasta do mod.",
@@ -1252,6 +1357,7 @@
         "shouldBeInFolder": "Este mod deve estar dentro de uma pasta. Por favor, crie uma pasta com o mesmo nome do mod e mova o arquivo do mod para dentro dela.",
         "missingAtlasFile": "Este mod está sem o arquivo de atlas.",
         "unmanaged": "Este mod está na pasta do jogo, mas não é gerenciado pelo BD2MM. Não é possível ativá-lo ou desativá-lo por aqui.",
-        "noDescription": "Nenhuma descrição fornecida."
+        "noDescription": "Nenhuma descrição fornecida.",
+        "unmanagedButInStaging": "Este mod já está na pasta do jogo, mas não foi instalado pelo BD2MM, então a sincronização não o alterará mesmo se estiver ativado. Use \"Sincronizar e Remover Não Gerenciados\" para substituí-lo."
     }
 }

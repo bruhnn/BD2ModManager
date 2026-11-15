@@ -21,7 +21,7 @@
             "characterTypeTabs": "在角色視窗中新增立繪、過場動畫和約會分頁。",
             "previewModToggle": "連接管理器後，可直接在 BD2ModPreview 中啟用或停用模組。",
             "autoSyncDelay": "在設定中新增可調整的自動同步延遲。",
-            "removeMissingProfileMods": "新增「移除遺失項目」按鈕，用於清理所選設定檔中已不存在的模組紀錄（問題 #91，由 {'@'}SuuKomura 貢獻）。",
+            "removeMissingProfileMods": "新增「移除遺失項目」按鈕，用於清理所選設定檔中已不存在的模組紀錄（問題 #91，由 SuuKomura 貢獻）。",
             "activeDownloads": "新增進行中的下載面板，可查看下載進度。",
             "diskSpaceCheck": "同步前新增可用磁碟空間檢查。",
             "titlebarCredits": "在標題列中新增支持者和貢獻者致謝。",
@@ -150,13 +150,23 @@
             },
             "modPreviewUpdate": {
                 "retry": "重試",
-                "updated": "BD2ModPreview v{version} 已更新",
-                "failed": "BD2ModPreview 更新失敗",
-                "noUpdateAvailable": "BD2ModPreview 已是最新版本"
+                "updated": {
+                    "title": "BD2ModPreview v{version} 已更新"
+                },
+                "failed": {
+                    "title": "BD2ModPreview 更新失敗"
+                },
+                "noUpdateAvailable": {
+                    "title": "BD2ModPreview 已是最新版本"
+                }
             },
             "gameDataUpdate": {
-                "updated": "遊戲資料已更新",
-                "failed": "遊戲資料更新失敗"
+                "updated": {
+                    "title": "遊戲資料已更新"
+                },
+                "failed": {
+                    "title": "遊戲資料更新失敗"
+                }
             }
         },
         "modals": {
@@ -235,7 +245,8 @@
         "appUpdate": {
             "checking": "正在檢查更新...",
             "available": "有可用更新：v{version}",
-            "downloaded": "v{version} 已就緒！點擊以套用更新"
+            "downloaded": "v{version} 已就緒！點擊以套用更新",
+            "updating": "正在更新至 v{version}..."
         },
         "sync": {
             "applying": "正在套用：{modName}",
@@ -247,6 +258,13 @@
             "logs": "日誌",
             "kofi": "在 Ko-Fi 上支持",
             "afdian": "在愛發電上支持"
+        },
+        "credits": {
+            "creator": "作者",
+            "thanks": "感謝",
+            "creator_tooltip": "作者：\\@bruhnn",
+            "supporter_tooltip": "{platform} 支持者",
+            "bug_reports_tooltip": "在 GitHub 上的錯誤回報與建議"
         }
     },
     "sidebar": {
@@ -376,8 +394,10 @@
                 "messageWithConflicts": "部分模組之間存在衝突，在解決衝突之前遊戲可能無法啟動。",
                 "actions": {
                     "sync": "同步",
-                    "syncAnyway": "仍要同步"
-                }
+                    "syncAnyway": "仍要同步",
+                    "syncAndRemoveUnmanaged": "同步並移除未受管理的模組"
+                },
+                "messageWithRemoveUnmanaged": "此操作將同步遊戲資料夾中的模組，並移除 BD2MM 中所有未受管理的模組，且無法復原。"
             },
             "unsyncMods": {
                 "title": "取消同步模組？",
@@ -387,7 +407,7 @@
                 }
             },
             "deleteMod": {
-                "title": "刪除模組？ | 刪除所選模組？",
+                "title": "刪除模組？ | 刪除 {count} 個模組？",
                 "message": "確定要刪除模組「{modName}」嗎？此操作無法復原。 | 確定要刪除這 {count} 個模組嗎？此操作無法復原。",
                 "actions": {
                     "delete": "刪除"
@@ -398,7 +418,7 @@
             "syncMods": {
                 "skippedUnmanaged": {
                     "title": "已略過部分模組",
-                    "message": "{count} 個未受管理的模組保持不變。請選擇「{action}」以替換或移除它們。"
+                    "message": "{count} 個未受管理的模組保持不變。請選擇「{action}」以替換或移除它們。 | {count} 個未受管理的模組保持不變。請選擇「{action}」以替換或移除它們。"
                 },
                 "completedWithErrors": {
                     "title": "同步已完成，但發生錯誤",
@@ -407,7 +427,8 @@
                 },
                 "success": {
                     "title": "模組已同步",
-                    "message": "模組已成功與遊戲資料夾同步。"
+                    "message": "模組已成功與遊戲資料夾同步。",
+                    "details": "查看詳情"
                 },
                 "error": {
                     "title": "同步失敗"
@@ -416,7 +437,7 @@
             "unsyncMods": {
                 "skippedUnmanaged": {
                     "title": "部分模組已略過",
-                    "message": "{count} 個未受管理的模組保持不變。選擇「{action}」以刪除它們。",
+                    "message": "{count} 個未受管理的模組保持不變。選擇「{action}」以刪除它們。 | {count} 個未受管理的模組保持不變。選擇「{action}」以刪除它們。",
                     "action": "取消同步並刪除未受管理的模組"
                 },
                 "completedWithErrors": {
@@ -538,7 +559,7 @@
         "modals": {
             "modsDeleteFailed": {
                 "title": "部分模組刪除失敗",
-                "subtitle": "有 {count} 個模組無法刪除。",
+                "subtitle": "有 {count} 個模組無法刪除。 | 有 {count} 個模組無法刪除。",
                 "actions": {
                     "retry": "重試"
                 }
@@ -589,7 +610,7 @@
             },
             "conflicts": {
                 "title": "衝突的模組",
-                "subtitle": "{count} 個角色啟用了多個模組。",
+                "subtitle": "{count} 個角色啟用了多個模組。 | {count} 個角色啟用了多個模組。",
                 "searchPlaceholder": "搜尋角色...",
                 "noResults": "找不到角色。",
                 "empty": "沒有啟用的衝突模組。",
@@ -719,7 +740,7 @@
             "cleanMissingMods": {
                 "success": {
                     "title": "設定檔清理完成",
-                    "message": "已從「{profileName}」中移除 {count} 個遺失的模組紀錄。"
+                    "message": "在「{profileName}」中找不到遺失的模組。 | 已從「{profileName}」中移除 {count} 個遺失的模組紀錄。 | 已從「{profileName}」中移除 {count} 個遺失的模組紀錄。"
                 },
                 "error": {
                     "title": "設定檔清理失敗"
@@ -940,6 +961,10 @@
                 "gameDirectoryUpdated": {
                     "title": "遊戲目錄已更新",
                     "message": "遊戲目錄已更新為 {path}。"
+                },
+                "invalidStagingDirectory": {
+                    "title": "暫存資料夾無效",
+                    "message": "請選擇與 BrownDustX/mods 不同的資料夾，兩個資料夾不能互相包含。"
                 }
             },
             "sections": {
@@ -1026,7 +1051,11 @@
                     },
                     "autoSyncMods": {
                         "label": "自動同步模組",
-                        "description": "啟用此選項，在啟用或停用模組時自動將其同步至遊戲資料夾。"
+                        "description": "啟用此選項，在啟用或停用模組時自動將其同步至遊戲資料夾。",
+                        "delay": {
+                            "label": "自動同步延遲",
+                            "description": "自動同步模組前等待的時間。"
+                        }
                     },
                     "syncMethod": {
                         "label": "同步方式",
@@ -1123,6 +1152,16 @@
                         "update": "更新"
                     }
                 }
+            },
+            "version": "v{version}",
+            "unknown": "未知",
+            "downloadAndInstall": "下載並安裝",
+            "status": {
+                "upToDate": "已是最新版本",
+                "checking": "正在檢查更新...",
+                "downloading": "正在下載...",
+                "downloadProgress": "正在下載 {percent}%",
+                "installing": "正在安裝..."
             }
         },
         "experimental": {
@@ -1189,9 +1228,23 @@
             "DownloadFailed": "下載 Mod Preview 失敗。{reason}",
             "SaveFailed": "無法將 Mod Preview 儲存至「{path}」。{reason}"
         },
+        "AppError": {
+            "GameDirectoryNotSet": "未設定遊戲目錄，請在設定中設定。",
+            "SyncMethodInvalid": "無效的同步方式：{method}",
+            "GameRunning": "遊戲已在執行中。",
+            "Unknown": "發生未預期的錯誤。請查看記錄以了解詳情。"
+        },
         "ModInstallError": {
             "ModTooBig": "此模組超過了 100 MB 的大小限制。",
-            "ModContainsSymlink": "此模組包含符號連結或目錄接合點：「{path}」。請先將其替換為實際檔案，再進行安裝。"
+            "ModContainsSymlink": "此模組包含符號連結或目錄接合點：「{path}」。請先將其替換為實際檔案，再進行安裝。",
+            "ModAlreadyExists": "已存在同名模組。",
+            "PathNotFound": "找不到所選模組的路徑。",
+            "InvalidName": "所選路徑不是有效的模組名稱。",
+            "UnsupportedFormat": "不支援的壓縮格式。僅支援 .zip、.rar 和 .7z。",
+            "InvalidArchive": "壓縮檔已損毀或無法讀取。",
+            "MissingModFile": "這似乎不是有效的模組（找不到 .modfile）。",
+            "MultipleModsFound": "找到多個 .modfile 檔案。請確保只包含一個模組。",
+            "NotAMod": "所選檔案或資料夾不是有效的 BrownDustX 模組。"
         },
         "ModSyncError": {
             "ManifestCorrupt": "同步清單已損毀。{reason}",
@@ -1243,7 +1296,59 @@
         },
         "invalidMod": "所選檔案或資料夾不是有效的 BrownDustX 模組。",
         "invalidFormat": "不支援的模組格式，請選取有效的模組檔案或資料夾。",
-        "unsupportedFormat": "不支援的檔案格式，請選取有效的模組檔案或資料夾。"
+        "unsupportedFormat": "不支援的檔案格式，請選取有效的模組檔案或資料夾。",
+        "Io": {
+            "NotFound": "該檔案或資料夾不存在。",
+            "PermissionDenied": "存取遭拒。",
+            "AlreadyExists": "該檔案或資料夾已存在。",
+            "DirectoryNotEmpty": "資料夾不是空的。",
+            "NotADirectory": "需要資料夾，但找到的是檔案。",
+            "IsADirectory": "需要檔案，但找到的是資料夾。",
+            "InvalidInput": "該操作的輸入無效。",
+            "InvalidData": "檔案包含無效資料。",
+            "TimedOut": "操作逾時。",
+            "WriteZero": "無法將資料寫入磁碟。",
+            "UnexpectedEof": "檔案意外結束（可能已損毀）。",
+            "OutOfMemory": "記憶體不足。",
+            "StorageFull": "磁碟空間不足。"
+        },
+        "ModDeleteError": {
+            "ModNotFound": "找不到模組",
+            "PathNotFound": "路徑不存在或已被刪除"
+        },
+        "ModRenameError": {
+            "ModNotFound": "找不到模組「{mod_name}」",
+            "PathNotFound": "路徑不存在或已被刪除",
+            "InvalidName": "無效的模組名稱「{name}」（{reason}）",
+            "ModAlreadyExists": "名為「{mod_name}」的模組已存在"
+        },
+        "ProfileError": {
+            "ProfileNotFound": "找不到設定檔「{profile_id}」",
+            "ProfileAlreadyExists": "名為「{profile_name}」的設定檔已存在",
+            "InvalidName": "無效的設定檔名稱「{profile_name}」（{reason}）",
+            "AlreadyActive": "設定檔「{profile_name}」已在使用中",
+            "CannotDeleteActive": "設定檔「{profile_name}」正在使用中，無法刪除",
+            "CannotDeleteDefault": "無法刪除預設設定檔",
+            "NoActiveProfile": "未設定使用中的設定檔",
+            "LoadFailed": "載入設定檔失敗：{reason}",
+            "SaveFailed": "儲存設定檔「{profile_name}」失敗：{reason}",
+            "CreateFailed": "建立設定檔「{profile_name}」失敗：{reason}",
+            "SerializeFailed": "序列化設定檔「{profile_name}」失敗",
+            "UpdateFailed": "更新設定檔「{profile_name}」失敗：{reason}",
+            "DeleteFailed": "刪除設定檔「{profile_name}」失敗：{reason}",
+            "ProfilesDirectoryNotFound": "找不到設定檔目錄「{path}」"
+        },
+        "MetadataError": {
+            "Load": "載入模組中繼資料失敗：{reason}",
+            "Save": "儲存模組中繼資料失敗：{reason}",
+            "Serialize": "序列化模組中繼資料失敗"
+        },
+        "PreviewError": {
+            "ModNotFound": "找不到模組「{mod_name}」",
+            "ModHasErrors": "模組「{mod_name}」存在錯誤，無法預覽",
+            "ModPreviewNotFound": "找不到模組預覽工具。可在設定中點擊「檢查更新」重新安裝。",
+            "PreviewFailed": "預覽模組失敗：{reason}"
+        }
     },
     "modErrors": {
         "missingTextures": "您需要在模組資料夾內建立一個名為「textures」的資料夾。",
@@ -1252,6 +1357,7 @@
         "shouldBeInFolder": "此模組應放置在一個資料夾內，請建立一個與模組同名的資料夾，並將模組檔案移入其中。",
         "missingAtlasFile": "此模組缺少圖集檔案。",
         "unmanaged": "此模組位於遊戲資料夾中，但未由 BD2MM 管理，無法在此啟用或停用。",
-        "noDescription": "未提供描述。"
+        "noDescription": "未提供描述。",
+        "unmanagedButInStaging": "此模組已在遊戲資料夾中，但不是由 BD2MM 安裝的，因此即使啟用，同步也不會變更它。請使用「同步並移除未受管理的模組」來替換它。"
     }
 }
