@@ -1,9 +1,8 @@
 use log::{error, info};
 use std::{fs::File, path::PathBuf};
 use zip::ZipArchive;
-use std::os::windows::fs::MetadataExt;
 
-use crate::utils::files::{ensure_dir_exists, get_directory_size, get_file_size};
+use crate::utils::files::{ensure_dir_exists, get_directory_size, get_file_size, is_link};
 
 // [TODO] merge NotAMod and MissingModFile
 #[derive(thiserror::Error, Debug)]
@@ -114,7 +113,7 @@ fn find_mod_root_in_dir(dir: &PathBuf) -> Result<PathBuf, ModInstallError> {
         let metadata = std::fs::symlink_metadata(entry.path())?;
 
         // FILE_ATTRIBUTE_REPARSE_POINT
-        if metadata.file_attributes() & 0x400 != 0 {
+        if is_link(&metadata) {
             return Err(ModInstallError::ModContainsSymlink {
                 path: entry.path().to_string_lossy().to_string(),
             });

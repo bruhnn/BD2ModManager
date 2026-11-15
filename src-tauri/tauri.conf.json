@@ -41,7 +41,8 @@
     "targets": "all",
     "createUpdaterArtifacts": true,
     "icon": [
-      "icons/icon.ico"
+      "icons/icon.ico",
+      "icons/icon.png"
     ],
     "resources": {
       "resources/BD2ModPreview.exe": "resources/BD2ModPreview.exe"

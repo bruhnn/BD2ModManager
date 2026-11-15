@@ -1,6 +1,6 @@
 use std::{fs, path::PathBuf};
 use crate::{game::{game::{self, VersionResult}, installer::{self, is_bdx_archive, is_bepinex_archive, is_configmanager_archive}}, utils::path::get_characters_path};
-use winreg::{enums::HKEY_CURRENT_USER, RegKey};
+#[cfg(windows)]
 use log::{info, warn};
 
 use crate::AppState;
@@ -13,8 +13,18 @@ fn get_game_path(state: &AppState) -> Option<PathBuf> {
         .map(PathBuf::from)
 }
 
+#[cfg(not(windows))]
 #[tauri::command]
 pub fn locate_game() -> Option<Vec<String>> {
+    // TODO: locate the game inside Wine/Proton prefixes
+    None
+}
+
+#[cfg(windows)]
+#[tauri::command]
+pub fn locate_game() -> Option<Vec<String>> {
+    use winreg::{enums::HKEY_CURRENT_USER, RegKey};
+
     let hkcu = RegKey::predef(HKEY_CURRENT_USER);
 
     let Ok(parent_key) = hkcu.open_subkey(r"Software\Neowiz\Browndust2Starter") else {
