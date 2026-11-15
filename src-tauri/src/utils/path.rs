@@ -57,13 +57,18 @@ pub fn get_game_dir(config: &BD2Config) -> Option<PathBuf> {
     }
 }
 
+#[cfg(windows)]
+pub const MOD_PREVIEW_FILE: &str = "BD2ModPreview.exe";
+#[cfg(not(windows))]
+pub const MOD_PREVIEW_FILE: &str = "BD2ModPreview.AppImage";
+
 pub fn get_mod_preview_path(app: &AppHandle) -> Option<PathBuf> {
     if let Ok(path) = app
         .app_handle()
         .path()
         .resolve("tools", BaseDirectory::AppData)
     {
-        Some(path.join("BD2ModPreview.exe").to_path_buf())
+        Some(path.join(MOD_PREVIEW_FILE))
     } else {
         None
     }

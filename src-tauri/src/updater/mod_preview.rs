@@ -1,4 +1,5 @@
-use crate::utils::path::get_mod_preview_path;
+use crate::utils::path::{get_mod_preview_path, MOD_PREVIEW_FILE};
+#[cfg(windows)]
 use pelite::{FileMap, PeFile};
 use semver::Version;
 use serde::{Deserialize, Serialize};
@@ -7,7 +8,7 @@ use serde::{Deserialize, Serialize};
 pub enum ModPreviewUpdateError {
     #[error("failed to check for Mod Preview updates: {reason}")]
     CheckFailed { reason: String },
-    #[error("BD2ModPreview.exe was not found in the latest release")]
+    #[error("{MOD_PREVIEW_FILE} was not found in the latest release")]
     ReleaseFileNotFound,
     #[error("the Mod Preview installation path could not be found")]
     InstallationPathNotFound,
@@ -35,7 +36,9 @@ impl Serialize for ModPreviewUpdateError {
             ModPreviewUpdateError::CheckFailed { reason } => {
                 ("CheckFailed", Some(json!({ "reason": reason })))
             }
-            ModPreviewUpdateError::ReleaseFileNotFound => ("ReleaseFileNotFound", None),
+            ModPreviewUpdateError::ReleaseFileNotFound => {
+                ("ReleaseFileNotFound", Some(json!({ "file": MOD_PREVIEW_FILE })))
+            }
             ModPreviewUpdateError::InstallationPathNotFound => ("InstallationPathNotFound", None),
             ModPreviewUpdateError::DownloadFailed { reason } => {
                 ("DownloadFailed", Some(json!({ "reason": reason })))
@@ -83,6 +86,13 @@ struct GitHubAsset {
 
 const RELEASES_URL: &str = "https://api.github.com/repos/bruhnn/BD2ModPreview/releases/latest";
 
+
+// [TODO] find a better way to get the version
+#[cfg(not(windows))]
+pub fn version_file_path(exe_path: &std::path::Path) -> std::path::PathBuf {
+    exe_path.with_file_name(format!("{MOD_PREVIEW_FILE}.version"))
+}
+
 pub fn get_mod_preview_version(app_handle: tauri::AppHandle) -> Option<String> {
     let exe_path = get_mod_preview_path(&app_handle)?;
 
@@ -91,6 +101,15 @@ pub fn get_mod_preview_version(app_handle: tauri::AppHandle) -> Option<String> {
         return None;
     }
 
+    #[cfg(not(windows))]
+    {
+        let version = std::fs::read_to_string(version_file_path(&exe_path)).ok()?;
+        let version = version.trim();
+        if version.is_empty() { None } else { Some(version.to_string()) }
+    }
+
+    #[cfg(windows)]
+    {
     let file_map = FileMap::open(&exe_path).ok()?;
     let pe = PeFile::from_bytes(&file_map).ok()?;
     let resources = pe.resources().ok()?;
@@ -110,6 +129,7 @@ pub fn get_mod_preview_version(app_handle: tauri::AppHandle) -> Option<String> {
         exe_path
     );
     None
+    }
 }
 
 async fn get_latest_mod_preview_version() -> Result<(Version, String, Option<String>), ModPreviewUpdateError> {
@@ -135,7 +155,7 @@ async fn get_latest_mod_preview_version() -> Result<(Version, String, Option<Str
     let asset = release
         .assets
         .iter()
-        .find(|a| a.name == "BD2ModPreview.exe")
+        .find(|a| a.name == MOD_PREVIEW_FILE)
         .ok_or(ModPreviewUpdateError::ReleaseFileNotFound)?;
 
     let version =

@@ -1223,7 +1223,7 @@
         "ModPreviewUpdateError": {
             "InstallFailed": "Could not install the downloaded update. Close BD2ModPreview if it is open, then retry. {reason}",
             "CheckFailed": "Failed to check for Mod Preview updates. {reason}",
-            "ReleaseFileNotFound": "The release does not contain BD2ModPreview.exe.",
+            "ReleaseFileNotFound": "The release does not contain {file}.",
             "InstallationPathNotFound": "Could not find the Mod Preview installation path.",
             "DownloadFailed": "Failed to download Mod Preview. {reason}",
             "SaveFailed": "Failed to save Mod Preview to \"{path}\". {reason}"
