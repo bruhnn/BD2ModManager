@@ -13,16 +13,16 @@ import { open } from '@tauri-apps/plugin-dialog'
 import { useSettingsStore } from '../../stores/settings'
 import { useLoggingStore } from '../../stores/logging'
 import { globalModals } from '../../composables/useGlobalModals.ts'
+// import { useLocale } from '../../composables/useLocale.ts'
 
-import KofiIcon from '../icons/KofiIcon.vue'
-import AfDianIcon from '../icons/AfDianIcon.vue'
+// import KofiIcon from '../icons/KofiIcon.vue'
+// import AfDianIcon from '../icons/AfDianIcon.vue'
 import DiscordIcon from '../icons/DiscordIcon.vue'
 import RefinedGithub from '../../assets/icons/github.svg'
 
 import Button from '../common/Button.vue'
 import Input from '../common/Input.vue'
 import Modal from '../common/Modal.vue'
-import { useLocale } from '../../composables/useLocale.ts'
 
 const {
     isOpen,
@@ -34,9 +34,9 @@ const loggingStore = useLoggingStore()
 const settingsStore = useSettingsStore()
 const { settings } = storeToRefs(settingsStore)
 const { locateGamePath, validateGamePath, saveSettings } = settingsStore
-const {
-    isChineseLanguage
-} = useLocale()
+// const {
+//     isChineseLanguage
+// } = useLocale()
 
 const gamePathsFound = ref<string[]>([])
 const errorMessage = ref<string | null>(null)
@@ -110,15 +110,15 @@ watch(isOpen, async (isVisible) => {
 
 const GITHUB_URL = 'https://github.com/bruhnn/BD2ModManager'
 const DISCORD_URL = 'https://discord.gg/B3Aqz6tDG2'
-const KOFI_URL = 'https://ko-fi.com/bruhnn'
-const AFDIAN_URL = 'https://afdian.com/a/bruhnn'
+// const KOFI_URL = 'https://ko-fi.com/bruhnn'
+// const AFDIAN_URL = 'https://afdian.com/a/bruhnn'
 </script>
 
 <template>
     <Modal :show="isOpen" size="lg" @close="closeModal" :close-on-escape="false"
         :title="$t('app.modals.welcome.title')" :subtitle="$t('app.modals.welcome.subtitle')">
         <div class="w-full h-full flex flex-col gap-4 p-4">
-            <div v-if="!isChineseLanguage"
+            <!-- <div v-if="!isChineseLanguage"
                 class="flex items-center gap-3 p-3 rounded-md border border-orange-500/30 bg-orange-500/10 cursor-pointer hover:bg-orange-500/20 transition-colors"
                 @click="openUrl(KOFI_URL)">
                 <KofiIcon class="w-4 h-4 fill-orange-400 shrink-0" />
@@ -136,8 +136,7 @@ const AFDIAN_URL = 'https://afdian.com/a/bruhnn'
                     <p class="text-xs font-semibold text-purple-300">{{ $t('app.modals.welcome.supportBanner.title') }}</p>
                     <p class="text-xs text-purple-200/80">{{ $t('app.modals.welcome.supportBanner.message', { platform: 'AfDian' }) }}</p>
                 </div>
-            </div>
-
+            </div> -->
             <div class="flex items-center justify-ceter gap-2">
                 <span @click="openUrl(GITHUB_URL)"
                     class="text-sm flex items-center gap-1.5 text-text-primary bg-surface-card border border-border-default rounded-full px-3 py-1 hover:text-text-primary! hover:bg-state-hover! cursor-pointer transition-colors">
