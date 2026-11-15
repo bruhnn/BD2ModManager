@@ -116,7 +116,7 @@ pub async fn preview_mods(
 
         let mod_preview_exe = get_mod_preview_path(&app_handle)
             .ok_or(PreviewError::ModPreviewNotFound)?;
-        std::process::Command::new(mod_preview_exe)
+        crate::utils::process::host_command(mod_preview_exe)
             .args(&paths)
             .spawn()
             .map_err(|err| match err.kind() {

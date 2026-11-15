@@ -7,7 +7,7 @@ import { computed } from 'vue';
 import { PluginState, Status } from './types';
 import GithubIcon from '../../components/icons/GithubIcon.vue';
 import DiscordIcon from '../../components/icons/DiscordIcon.vue';
-import { openUrl } from '@tauri-apps/plugin-opener';
+import { openUrl } from '../../utils/opener';
 
 const props = defineProps<{
     label: string

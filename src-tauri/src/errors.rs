@@ -47,6 +47,17 @@ pub enum AppError {
     GameDirectoryNotSet,
     #[error("Sync method '{method}' is invalid")]
     SyncMethodInvalid { method: String },
+    #[cfg_attr(not(windows), allow(dead_code))]
+    #[error("Game executable not found at '{path}'")]
+    GameExecutableNotFound { path: String },
+    #[cfg_attr(windows, allow(dead_code))]
+    #[error("No launcher found for this game folder. Launch the game from your launcher.")]
+    GameLauncherNotFound,
+    #[cfg_attr(windows, allow(dead_code))]
+    #[error("Launching without mods is not supported on this system yet")]
+    LaunchWithoutModsUnsupported,
+    #[error("Failed to launch the game: {reason}")]
+    GameLaunchFailed { reason: String },
 
     #[error(transparent)]
     Install(#[from] ModInstallError),
@@ -90,6 +101,10 @@ impl serde::Serialize for AppError {
             AppError::GameDirectoryNotSet => get_type_name::<AppError>(),
             AppError::SyncMethodInvalid { method: _ } => get_type_name::<AppError>(),
             AppError::GameRunning => get_type_name::<AppError>(),
+            AppError::GameExecutableNotFound { .. }
+            | AppError::GameLauncherNotFound
+            | AppError::LaunchWithoutModsUnsupported
+            | AppError::GameLaunchFailed { .. } => get_type_name::<AppError>(),
             AppError::Unknown(_) => get_type_name::<AppError>(),
         };
         
@@ -106,6 +121,10 @@ impl serde::Serialize for AppError {
             AppError::GameDirectoryNotSet => "GameDirectoryNotSet".to_string(),
             AppError::SyncMethodInvalid { method: _ } => "SyncMethodInvalid".to_string(),
             AppError::GameRunning => "GameRunning".to_string(),
+            AppError::GameExecutableNotFound { .. } => "GameExecutableNotFound".to_string(),
+            AppError::GameLauncherNotFound => "GameLauncherNotFound".to_string(),
+            AppError::LaunchWithoutModsUnsupported => "LaunchWithoutModsUnsupported".to_string(),
+            AppError::GameLaunchFailed { .. } => "GameLaunchFailed".to_string(),
             AppError::Unknown(_) => "Unknown".to_string(),
         };
 
@@ -122,6 +141,10 @@ impl serde::Serialize for AppError {
             AppError::GameDirectoryNotSet => serde_json::Value::Null,
             AppError::GameRunning => serde_json::Value::Null,
             AppError::SyncMethodInvalid { method } => serde_json::json!({ "method": method }),
+            AppError::GameExecutableNotFound { path } => serde_json::json!({ "path": path }),
+            AppError::GameLauncherNotFound => serde_json::Value::Null,
+            AppError::LaunchWithoutModsUnsupported => serde_json::Value::Null,
+            AppError::GameLaunchFailed { reason } => serde_json::json!({ "reason": reason }),
             AppError::Unknown(_) => serde_json::Value::Null,
         };
 

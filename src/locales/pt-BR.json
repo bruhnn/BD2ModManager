@@ -1223,7 +1223,7 @@
         "ModPreviewUpdateError": {
             "InstallFailed": "Não foi possível instalar a atualização baixada. Feche o BD2ModPreview se estiver aberto e tente novamente. {reason}",
             "CheckFailed": "Falha ao verificar atualizações do Mod Preview. {reason}",
-            "ReleaseFileNotFound": "A versão não contém BD2ModPreview.exe.",
+            "ReleaseFileNotFound": "A versão não contém {file}.",
             "InstallationPathNotFound": "Não foi possível encontrar o caminho de instalação do Mod Preview.",
             "DownloadFailed": "Falha ao baixar o Mod Preview. {reason}",
             "SaveFailed": "Falha ao salvar o Mod Preview em \"{path}\". {reason}"
@@ -1232,6 +1232,10 @@
             "GameDirectoryNotSet": "O diretório do jogo não está definido. Por favor, defina-o nas configurações.",
             "SyncMethodInvalid": "Método de sincronização inválido: {method}",
             "GameRunning": "O jogo já está em execução.",
+            "GameExecutableNotFound": "O executável do jogo não foi encontrado em \"{path}\".",
+            "GameLauncherNotFound": "Nenhum launcher foi encontrado para esta pasta do jogo. Abra o jogo pelo seu launcher.",
+            "LaunchWithoutModsUnsupported": "Iniciar sem mods ainda não é suportado neste sistema.",
+            "GameLaunchFailed": "Falha ao iniciar o jogo: {reason}",
             "Unknown": "Ocorreu um erro inesperado. Verifique os logs para mais detalhes."
         },
         "ModInstallError": {

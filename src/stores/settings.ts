@@ -5,6 +5,18 @@ import { useLoggingStore } from "./logging";
 
 export type Language = "en" | "cn" | "jp" | "tw" | "kr"
 
+// mirrors LauncherEntry in game/locate.rs
+export interface LauncherEntry {
+    app: "faugus",
+    gameId: string,
+    flatpak: boolean,
+}
+// mirrors LocatedGame in game/locate.rs
+export interface LocatedGame {
+    path: string,
+    launcher: LauncherEntry | null,
+}
+
 interface Settings {
     theme?: string,
     language?: Language,
@@ -44,10 +56,9 @@ export const useSettingsStore = defineStore("settings", () => {
         })
     }
 
-    async function locateGamePath(): Promise<string[] | null> {
-        // [TODO] find on steam too
+    async function locateGamePath(): Promise<LocatedGame[] | null> {
         try {
-            const paths = await invoke<string[]>("locate_game");
+            const paths = await invoke<LocatedGame[] | null>("locate_game");
             return paths;
         } catch (err) {
             loggingStore.logError("Failed to locate game path", err);

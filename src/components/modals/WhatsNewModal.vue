@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
-import { openUrl } from '@tauri-apps/plugin-opener'
+import { openUrl } from '../../utils/opener'
 import { globalModals } from '../../composables/useGlobalModals'
 import Modal from '../common/Modal.vue'
 import Button from '../common/Button.vue'

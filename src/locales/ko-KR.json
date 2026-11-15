@@ -1223,7 +1223,7 @@
         "ModPreviewUpdateError": {
             "InstallFailed": "다운로드한 업데이트를 설치하지 못했습니다. BD2ModPreview가 열려 있다면 닫은 후 다시 시도하세요. {reason}",
             "CheckFailed": "Mod Preview 업데이트 확인에 실패했습니다. {reason}",
-            "ReleaseFileNotFound": "릴리스에 BD2ModPreview.exe가 없습니다.",
+            "ReleaseFileNotFound": "릴리스에 {file}가 없습니다.",
             "InstallationPathNotFound": "Mod Preview 설치 경로를 찾을 수 없습니다.",
             "DownloadFailed": "Mod Preview 다운로드에 실패했습니다. {reason}",
             "SaveFailed": "Mod Preview를 \"{path}\"에 저장하지 못했습니다. {reason}"
@@ -1232,6 +1232,10 @@
             "GameDirectoryNotSet": "게임 디렉토리가 설정되지 않았습니다. 설정에서 지정해 주세요.",
             "SyncMethodInvalid": "잘못된 동기화 방식: {method}",
             "GameRunning": "게임이 이미 실행 중입니다.",
+            "GameExecutableNotFound": "\"{path}\"에서 게임 실행 파일을 찾을 수 없습니다.",
+            "GameLauncherNotFound": "이 게임 폴더에 맞는 런처를 찾을 수 없습니다. 런처에서 게임을 실행해 주세요.",
+            "LaunchWithoutModsUnsupported": "이 시스템에서는 아직 모드 없이 실행을 지원하지 않습니다.",
+            "GameLaunchFailed": "게임 실행에 실패했습니다: {reason}",
             "Unknown": "예기치 않은 오류가 발생했습니다. 자세한 내용은 로그를 확인해 주세요."
         },
         "ModInstallError": {

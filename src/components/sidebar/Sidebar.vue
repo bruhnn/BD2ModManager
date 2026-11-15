@@ -18,6 +18,7 @@ import NavigationButton from './NavigationButton.vue';
 import MultiButton from '../common/MultiButton.vue';
 import Select from '../common/Select.vue';
 import { globalModals } from '../../composables/useGlobalModals.ts';
+import { getErrorMessage } from '../../utils/errors.ts';
 
 const { t } = useI18n()
 const notificationStore = useNotificationStore()
@@ -43,7 +44,7 @@ async function launchGame(vanilla: boolean = false) {
             notificationStore.add({ type: 'success', title: t('sidebar.notifications.launchGame.success.title'), duration: 3000 })
         }).catch((error) => {
             loggingStore.logError('Failed to launch game', error)
-            notificationStore.add({ type: 'error', title: t('sidebar.notifications.launchGame.error.title'), message: t('sidebar.notifications.launchGame.error.message'), duration: 5000 })
+            notificationStore.add({ type: 'error', title: t('sidebar.notifications.launchGame.error.title'), message: getErrorMessage(t, error) })
         })
 }
 

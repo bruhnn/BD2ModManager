@@ -1223,7 +1223,7 @@
         "ModPreviewUpdateError": {
             "InstallFailed": "Could not install the downloaded update. Close BD2ModPreview if it is open, then retry. {reason}",
             "CheckFailed": "Failed to check for Mod Preview updates. {reason}",
-            "ReleaseFileNotFound": "The release does not contain BD2ModPreview.exe.",
+            "ReleaseFileNotFound": "The release does not contain {file}.",
             "InstallationPathNotFound": "Could not find the Mod Preview installation path.",
             "DownloadFailed": "Failed to download Mod Preview. {reason}",
             "SaveFailed": "Failed to save Mod Preview to \"{path}\". {reason}"
@@ -1232,6 +1232,10 @@
             "GameDirectoryNotSet": "Game directory is not set. Please set it in the settings.",
             "SyncMethodInvalid": "Invalid sync method: {method}",
             "GameRunning": "The game is already running.",
+            "GameExecutableNotFound": "The game executable was not found at \"{path}\".",
+            "GameLauncherNotFound": "No launcher was found for this game folder. Launch the game from your launcher.",
+            "LaunchWithoutModsUnsupported": "Launching without mods is not supported on this system yet.",
+            "GameLaunchFailed": "Failed to launch the game: {reason}",
             "Unknown": "An unexpected error occurred. Check logs for more details."
         },
         "Io": {

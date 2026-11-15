@@ -10,7 +10,7 @@ import { refThrottled } from '@vueuse/core';
 import { useI18n } from 'vue-i18n';
 
 import { getCurrentWindow } from '@tauri-apps/api/window';
-import { openUrl } from '@tauri-apps/plugin-opener';
+import { openUrl } from '../utils/opener';
 
 import { SyncStatus, useSyncStateStore } from '../stores/syncState';
 import { useNotificationStore } from '../stores/notification';

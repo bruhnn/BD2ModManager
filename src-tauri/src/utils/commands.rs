@@ -25,6 +25,14 @@ pub fn is_portable() -> bool {
 }
 
 #[tauri::command]
+pub fn open_external(app: tauri::AppHandle, target: String) -> Result<(), crate::errors::AppError> {
+    crate::utils::process::open_external(&app, &target).map_err(|reason| {
+        log::error!("Failed to open {:?}: {}", target, reason);
+        crate::errors::AppError::Unknown(reason)
+    })
+}
+
+#[tauri::command]
 pub fn get_user_locale() -> String {
     get_locale().unwrap_or_else(|| String::from("en-US"))
 }

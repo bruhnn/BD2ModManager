@@ -33,12 +33,10 @@ uuid = { version = "1.18.0", features = ["v4"] }
 chrono = { version = "0.4.41", features = ["serde"] }
 tempfile = "3.21.0"
 tauri-plugin-store = "2"
-winreg = "0.55.0"
 tauri-plugin-dialog = "2"
 pelite = "0.10.0"
 zip = "9"
 sha2 = "0.10.9"
-windows-sys = { version = "0.61.0", features = ["Win32_System_Threading", "Win32_Security", "Win32_Security_Authorization", "Win32_Storage_FileSystem"] }
 tauri-plugin-shell = "2"
 anyhow = "1.0.99"
 reqwest = {version="0.12.23", features= ["json", "stream", "blocking"] }
@@ -57,8 +55,13 @@ percent-encoding = "2.3.2"
 rapidhash = "4.5.1"
 
 [target.'cfg(windows)'.dependencies]
+winreg = "0.55.0"
+windows-sys = { version = "0.61.0", features = ["Win32_System_Threading", "Win32_Security", "Win32_Security_Authorization", "Win32_Storage_FileSystem"] }
 webview2-com = "0.39.1"
 windows-core = "0.62.2"
+
+[target.'cfg(unix)'.dependencies]
+libc = "0.2"
 
 [target.'cfg(not(any(target_os = "android", target_os = "ios")))'.dependencies]
 tauri-plugin-single-instance = "2"

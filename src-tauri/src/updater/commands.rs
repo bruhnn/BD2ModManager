@@ -184,7 +184,7 @@ pub async fn download_mod_preview(
     };
     let dest_path = get_mod_preview_path(&app_handle)
         .ok_or(ModPreviewUpdateError::InstallationPathNotFound)?;
-    let download_path = dest_path.with_extension("exe.download");
+    let download_path = dest_path.with_file_name(format!("{}.download", crate::utils::path::MOD_PREVIEW_FILE));
     let expected_hash = update.digest.as_deref()
         .and_then(|digest| digest.strip_prefix("sha256:"))
         .ok_or_else(|| ModPreviewUpdateError::CheckFailed {
@@ -245,8 +245,20 @@ pub async fn download_mod_preview(
         }
     }
 
+    #[cfg(not(windows))]
+    {
+        use std::os::unix::fs::PermissionsExt;
+        tokio::fs::set_permissions(&download_path, std::fs::Permissions::from_mode(0o755)).await
+            .map_err(|source| ModPreviewUpdateError::InstallFailed { source })?;
+    }
+
     tokio::fs::rename(&download_path, &dest_path).await
         .map_err(|source| ModPreviewUpdateError::InstallFailed { source })?;
+
+    #[cfg(not(windows))]
+    tokio::fs::write(updater::mod_preview::version_file_path(&dest_path), &update.version).await
+        .map_err(|source| ModPreviewUpdateError::InstallFailed { source })?;
+
     let _ = on_event.send(DownloadEvent::Finished);
     Ok(true)
 }

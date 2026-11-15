@@ -7,7 +7,7 @@ import { useI18n } from "vue-i18n";
 
 import { listen } from "@tauri-apps/api/event";
 import { join } from "@tauri-apps/api/path";
-import { openPath } from "@tauri-apps/plugin-opener";
+import { openPath } from "../../utils/opener";
 import { invoke } from "@tauri-apps/api/core";
 
 import { useModsStore, BD2Mod } from "../../stores/mods";

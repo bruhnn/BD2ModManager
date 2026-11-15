@@ -1,9 +1,10 @@
 use std::{fs, path::PathBuf};
-use crate::{game::{game::{self, VersionResult}, installer::{self, is_bdx_archive, is_bepinex_archive, is_configmanager_archive}}, utils::path::get_characters_path};
-use winreg::{enums::HKEY_CURRENT_USER, RegKey};
-use log::{info, warn};
+use crate::{game::{game::{self, VersionResult}, installer::{self, is_bdx_archive, is_bepinex_archive, is_configmanager_archive}, locate::{self, LocatedGame}}, utils::path::get_characters_path};
+use log::info;
+#[cfg(windows)]
+use log::warn;
 
-use crate::AppState;
+use crate::{errors::AppError, AppState};
 
 fn get_game_path(state: &AppState) -> Option<PathBuf> {
     let config = state.config.lock().unwrap();
@@ -13,8 +14,20 @@ fn get_game_path(state: &AppState) -> Option<PathBuf> {
         .map(PathBuf::from)
 }
 
+#[cfg(not(windows))]
 #[tauri::command]
-pub fn locate_game() -> Option<Vec<String>> {
+pub fn locate_game() -> Option<Vec<LocatedGame>> {
+    // TODO: Steam, Lutris, and Wine prefixes
+    let found = locate::faugus::locate();
+    info!("found {} game path(s)", found.len());
+    if found.is_empty() { None } else { Some(found) }
+}
+
+#[cfg(windows)]
+#[tauri::command]
+pub fn locate_game() -> Option<Vec<LocatedGame>> {
+    use winreg::{enums::HKEY_CURRENT_USER, RegKey};
+
     let hkcu = RegKey::predef(HKEY_CURRENT_USER);
 
     let Ok(parent_key) = hkcu.open_subkey(r"Software\Neowiz\Browndust2Starter") else {
@@ -22,11 +35,12 @@ pub fn locate_game() -> Option<Vec<String>> {
         return None;
     };
 
-    let path_founds: Vec<String> = parent_key
+    let path_founds: Vec<LocatedGame> = parent_key
         .enum_keys()
         .flatten()
         .filter_map(|subkey_name| parent_key.open_subkey(subkey_name).ok())
         .filter_map(|key| key.get_value::<String, _>("path").ok())
+        .map(|path| LocatedGame { path, launcher: None })
         .collect();
 
     info!("found {} game path(s)", path_founds.len());
@@ -41,7 +55,7 @@ pub fn locate_game() -> Option<Vec<String>> {
 
 #[tauri::command]
 pub fn validate_game_path(path: String) -> bool {
-    PathBuf::from(&path).join("BrownDust II.exe").exists() && PathBuf::from(&path).join("BrownDust II_Data").exists()
+    locate::is_game_dir(&PathBuf::from(&path))
 }
 
 #[tauri::command]
@@ -93,28 +107,44 @@ pub fn get_characters(app_handle: tauri::AppHandle) -> Result<serde_json::Value,
     serde_json::from_str(&content).map_err(|e| e.to_string())
 }
 
+#[cfg(windows)]
 #[tauri::command]
-pub fn launch_game(state: tauri::State<AppState>, vanilla: bool) -> Result<(), String> {
-    let game_path = get_game_path(&state).ok_or("Game path not set")?;
+pub fn launch_game(state: tauri::State<AppState>, vanilla: bool) -> Result<(), AppError> {
+    let game_path = get_game_path(&state).ok_or(AppError::GameDirectoryNotSet)?;
 
     let exe_path = game_path.join("BrownDust II.exe");
 
     if !exe_path.exists() {
-        return Err("Game executable not found".to_string());
+        return Err(AppError::GameExecutableNotFound {
+            path: exe_path.to_string_lossy().to_string(),
+        });
     }
 
+    let mut command = std::process::Command::new(exe_path);
     if vanilla {
-        std::process::Command::new(exe_path)
-            .args(["--doorstop-enable", "false", "--doorstop-enabled", "false"])
-            .spawn()
-            .map_err(|e| e.to_string())?;
-    } else {
-        std::process::Command::new(exe_path)
-            .spawn()
-            .map_err(|e| e.to_string())?;
+        command.args(["--doorstop-enable", "false", "--doorstop-enabled", "false"]);
     }
+    command
+        .spawn()
+        .map_err(|e| AppError::GameLaunchFailed { reason: e.to_string() })?;
 
     Ok(())
+}
+
+#[cfg(not(windows))]
+#[tauri::command]
+pub fn launch_game(state: tauri::State<AppState>, vanilla: bool) -> Result<(), AppError> {
+    if vanilla {
+        // TODO: launchers can't pass --doorstop-enable false; needs another way to turn BepInEx off
+        return Err(AppError::LaunchWithoutModsUnsupported);
+    }
+
+    let game_path = get_game_path(&state).ok_or(AppError::GameDirectoryNotSet)?;
+
+    let entry = locate::faugus::entry_for(&game_path).ok_or(AppError::GameLauncherNotFound)?;
+
+    info!("Launching {:?} through {:?} ({})", game_path, entry.app, entry.game_id);
+    locate::faugus::launch(&entry).map_err(|e| AppError::GameLaunchFailed { reason: e.to_string() })
 }
 
 #[tauri::command]
