@@ -10,7 +10,7 @@ import { dirname } from '@tauri-apps/api/path'
 import { openUrl } from '@tauri-apps/plugin-opener'
 import { open } from '@tauri-apps/plugin-dialog'
 
-import { useSettingsStore } from '../../stores/settings'
+import { useSettingsStore, type LocatedGame } from '../../stores/settings'
 import { useLoggingStore } from '../../stores/logging'
 import { globalModals } from '../../composables/useGlobalModals.ts'
 // import { useLocale } from '../../composables/useLocale.ts'
@@ -38,7 +38,7 @@ const { locateGamePath, validateGamePath, saveSettings } = settingsStore
 //     isChineseLanguage
 // } = useLocale()
 
-const gamePathsFound = ref<string[]>([])
+const gamePathsFound = ref<LocatedGame[]>([])
 const errorMessage = ref<string | null>(null)
 const errorKey = ref(0)
 
@@ -173,12 +173,12 @@ const DISCORD_URL = 'https://discord.gg/B3Aqz6tDG2'
                     </div>
                     <div
                         class="w-full border rounded border-border-default bg-surface-card flex flex-col max-h-48 overflow-y-auto">
-                        <div v-for="path in gamePathsFound" :key="path"
+                        <div v-for="game in gamePathsFound" :key="game.path"
                             class="px-3 py-2 hover:bg-state-hover! active:bg-state-active! cursor-pointer flex items-center gap-2 rounded border border-transparent transition-colors"
-                            @click="handlePathSelected(path)">
-                            <Check v-if="path === settings.gameDirectory"
+                            @click="handlePathSelected(game.path)">
+                            <Check v-if="game.path === settings.gameDirectory"
                                 class="text-accent w-4 h-4 shrink-0" />
-                            <span class="text-text-primary text-sm font-mono truncate">{{ path }}</span>
+                            <span class="text-text-primary text-sm font-mono truncate">{{ game.path }}</span>
                         </div>
                     </div>
                 </div>

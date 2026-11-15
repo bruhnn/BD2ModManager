@@ -44,9 +44,6 @@
       "icons/icon.ico",
       "icons/icon.png"
     ],
-    "resources": {
-      "resources/BD2ModPreview.exe": "resources/BD2ModPreview.exe"
-    },
     "windows": {
       "nsis": {
         "installerHooks": "./windows/hooks.nsh"

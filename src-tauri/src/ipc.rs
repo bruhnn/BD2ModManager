@@ -241,9 +241,7 @@ mod mod_preview_ipc {
         Err("Preview IPC is only supported on Windows".into())
     }
 
-    pub fn publish_preview_mods(_app: AppHandle) {
-        // No-op
-    }
+    pub fn publish_preview_mods(_app: AppHandle) {}
 }
 
 #[tauri::command]
