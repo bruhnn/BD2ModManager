@@ -16,21 +16,34 @@ jobs:
   build:
     permissions:
       contents: write
-    runs-on: windows-latest
+    runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
         include:
           - name: installer
+            os: windows-latest
             argsWithoutMsi: --bundles nsis
           - name: portable
+            os: windows-latest
             args: --no-bundle --features portable
             uploadPlainBinary: true
             assetNamePattern: 'BD2ModManager-[version]-portable[ext]'
+          # AppImage gets the linux-x86_64 updater entry in latest.json
+          - name: linux
+            os: ubuntu-22.04
+            args: --bundles appimage,deb
 
     steps:
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref }}
+
+      - name: Install Linux system dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev build-essential curl wget file libxdo-dev libssl-dev libayatana-appindicator3-dev librsvg2-dev
 
       - uses: pnpm/action-setup@v4
         with:
@@ -45,7 +58,9 @@ jobs:
 
       - uses: swatinem/rust-cache@v2
 
+      # BD2ModPreview.exe is only bundled on Windows (tauri.windows.conf.json)
       - name: Download bundled tools
+        if: runner.os == 'Windows'
         run: pnpm download:modpreview
 
       - name: Install frontend dependencies
