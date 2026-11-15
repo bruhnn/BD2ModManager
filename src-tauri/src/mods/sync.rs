@@ -1450,15 +1450,32 @@ pub fn is_sync_needed(
     let manifest_path = game_directory.join(".bd2mm.json");
     let game_mods_path = game_directory.join("BepInEx/plugins/BrownDustX/mods/BD2MM");
 
+    // never synced: only needed if there's an enabled mod that sync would add
+    let has_mods_to_add = || {
+        staging_mods.iter().any(|mod_entry| {
+            mod_entry.enabled
+                && !mod_entry
+                    .errors
+                    .iter()
+                    .any(|error| !matches!(error, BD2ModError::UnmanagedButInStaging))
+        })
+    };
+
     if !game_mods_path.exists() {
-        debug!("Game mods path does not exist, is sync needed = true");
-        return true;
+        let needed = has_mods_to_add();
+        debug!("Game mods path does not exist, is sync needed = {}", needed);
+        return needed;
     }
 
     let manifest = match load_manifest(&manifest_path) {
         Ok(Some(m)) => m,
-        Ok(None) | Err(_) => {
-            debug!("Manifest cannot be loaded, is sync needed = true");
+        Ok(None) => {
+            let needed = has_mods_to_add();
+            debug!("No manifest yet (never synced), is sync needed = {}", needed);
+            return needed;
+        }
+        Err(error) => {
+            debug!("Manifest cannot be loaded: {}, is sync needed = true", error);
             return true;
         }
     };
