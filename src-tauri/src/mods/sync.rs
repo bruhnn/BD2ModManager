@@ -1198,6 +1198,8 @@ pub fn sync_mods<R: tauri::Runtime>(
         }
 
         if matches!(result_status, SyncStatus::Synced | SyncStatus::Removed) {
+            // was only set when the manifest was first created
+            manifest.method = method;
             manifest.synced_at = chrono::Utc::now();
 
             if let Err(source) = save_manifest(&manifest_path, manifest.clone()) {
