@@ -13,12 +13,14 @@ pub struct PreviewIpc {
 
 #[cfg(windows)]
 mod mod_preview_ipc {
-    use serde_json::{json};
-    use std::{time::Duration};
+    use super::PreviewIpc;
+    use serde_json::{json, Value};
+    use std::time::Duration;
     use tauri::{Emitter, Manager};
     use tokio::{
         io::{AsyncReadExt, AsyncWriteExt},
-        net::windows::named_pipe::{NamedPipeServer, ServerOptions}
+        net::windows::named_pipe::{NamedPipeServer, ServerOptions},
+        sync::watch,
     };
     
     fn snapshot(app: &tauri::AppHandle) -> Value {
