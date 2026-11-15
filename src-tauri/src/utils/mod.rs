@@ -2,6 +2,7 @@ pub mod data;
 pub mod files;
 pub mod misc;
 pub mod path;
+pub mod process;
 pub mod logs;
 pub mod commands;
 

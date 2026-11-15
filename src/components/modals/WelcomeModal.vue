@@ -7,7 +7,7 @@ import { storeToRefs } from 'pinia'
 import { useI18n } from 'vue-i18n'
 
 import { dirname } from '@tauri-apps/api/path'
-import { openUrl } from '@tauri-apps/plugin-opener'
+import { openUrl } from '../../utils/opener'
 import { open } from '@tauri-apps/plugin-dialog'
 
 import { useSettingsStore, type LocatedGame } from '../../stores/settings'

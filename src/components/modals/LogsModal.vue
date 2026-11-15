@@ -18,7 +18,7 @@ import { useI18n } from 'vue-i18n'
 import { useVirtualizer } from '@tanstack/vue-virtual'
 
 import { invoke } from '@tauri-apps/api/core'
-import { openPath } from '@tauri-apps/plugin-opener'
+import { openPath } from '../../utils/opener'
 
 import { useDev } from '../../composables/useDev.ts'
 import { LogLevel, LogSource, useLoggingStore } from '../../stores/logging'

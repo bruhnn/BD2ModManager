@@ -6,7 +6,7 @@ import { useLoggingStore } from '../../stores/logging';
 import { getErrorMessage } from '../../utils/errors';
 import { useLocalStorage } from '@vueuse/core';
 
-import { openUrl } from '@tauri-apps/plugin-opener';
+import { openUrl } from '../../utils/opener';
 
 import { globalModals } from '../../composables/useGlobalModals.ts';
 import { usePortable } from '../../composables/usePortable.ts';

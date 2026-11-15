@@ -48,7 +48,9 @@ fn game_dir_from_exe(exe: &str) -> Option<PathBuf> {
 #[cfg(not(windows))]
 pub mod faugus {
     use std::path::{Path, PathBuf};
-    use std::process::{Command, Stdio};
+    use std::process::Stdio;
+
+    use crate::utils::process::host_command;
 
     use log::{debug, warn};
 
@@ -134,11 +136,11 @@ pub mod faugus {
 
     pub fn launch(entry: &LauncherEntry) -> std::io::Result<()> {
         let mut command = if entry.flatpak {
-            let mut command = Command::new("flatpak");
+            let mut command = host_command("flatpak");
             command.args(["run", FLATPAK_ID]);
             command
         } else {
-            Command::new("faugus-launcher")
+            host_command("faugus-launcher")
         };
         let mut child = command
             .args(["--game", &entry.game_id])

@@ -3,7 +3,6 @@ use std::path::PathBuf;
 
 use log::error;
 use tauri::AppHandle;
-use tauri_plugin_opener::OpenerExt;
 
 #[derive(Debug, thiserror::Error)]
 pub enum PreviewError {
@@ -100,15 +99,10 @@ pub fn preview_image(app_handle: AppHandle, path: &PathBuf) -> Result<(), Previe
 
     if let Some(img) = img_path {
         let img_str = img.to_string_lossy().to_string();
-        app_handle
-            .opener()
-            .open_path(&img_str, None::<&str>)
-            .map_err(|e| {
-                error!("Failed to open preview image {:?}: {:?}", img_str, e);
-                PreviewError::PreviewFailed {
-                    reason: e.to_string(),
-                }
-            })?;
+        crate::utils::process::open_external(&app_handle, &img_str).map_err(|reason| {
+            error!("Failed to open preview image {:?}: {}", img_str, reason);
+            PreviewError::PreviewFailed { reason }
+        })?;
     }
 
     Ok(())

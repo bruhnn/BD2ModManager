@@ -7,7 +7,7 @@ import { computed, nextTick, ref, Teleport, useTemplateRef, watch } from 'vue'
 import { TabPanel } from '@headlessui/vue'
 import { useI18n } from 'vue-i18n'
 
-import { openPath } from '@tauri-apps/plugin-opener'
+import { openPath } from '../../../utils/opener'
 import { appDataDir, join } from '@tauri-apps/api/path'
 import { open } from '@tauri-apps/plugin-dialog'
 
