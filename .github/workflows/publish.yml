@@ -24,15 +24,17 @@ jobs:
           - name: installer
             os: windows-latest
             argsWithoutMsi: --bundles nsis
+            assetNamePattern: 'BD2ModManager_[version]-Windows[setup][ext]'
           - name: portable
             os: windows-latest
             args: --no-bundle --features portable
             uploadPlainBinary: true
-            assetNamePattern: 'BD2ModManager-[version]-portable[ext]'
+            assetNamePattern: 'BD2ModManager_[version]-Windows-portable[ext]'
           # AppImage gets the linux-x86_64 updater entry in latest.json
           - name: linux
             os: ubuntu-22.04
             args: --bundles appimage,deb
+            assetNamePattern: 'BD2ModManager_[version]-Linux[ext]'
 
     steps:
       - uses: actions/checkout@v4
