@@ -4,6 +4,20 @@
         "versionLabel": "Version",
         "changelog": "Changelog",
         "allReleases": "All releases",
+        "release440": {
+            "linuxTitle": "Linux support (beta)",
+            "linuxDescription": "BD2ModManager now runs on Linux as an AppImage or .deb. It keeps its settings in ~/.config and mods in ~/Games/BD2ModManager/mods.",
+            "themesTitle": "Custom themes",
+            "themesDescription": "Create your own themes in Settings, and you can even share them: each theme is a file, found with \"Open themes folder\".",
+            "conflictsTitle": "Choose which mod to keep",
+            "conflictsDescription": "When a character has more than one enabled mod, the new \"Conflicting Mods\" list shows them so you can pick the one to keep, then apply or apply and sync.",
+            "launchErrors": "Clearer, translated errors when the game can't be launched.",
+            "symlinkedStaging": "Mod folders in the staging folder can now be symlinks or junctions, and broken links are skipped instead of breaking the mod list (issue #107).",
+            "firstSync": "The app no longer asks to sync on first launch when no mods are enabled.",
+            "translations": "Added missing translations and fixed mod type names in Japanese, Korean, Portuguese and Chinese.",
+            "tooltips": "Action buttons now show tooltips.",
+            "dropdownPosition": "Fixed dropdowns opening from the wrong position."
+        },
         "release430": {
             "modShortcuts": "Added mod keyboard shortcuts: Space to enable or disable selected mods, Delete to remove them, P to preview one mod, and Ctrl+R to refresh the mod list.",
             "separateNotifications": "Fixed closing or dismissing one notification also hiding other notifications.",

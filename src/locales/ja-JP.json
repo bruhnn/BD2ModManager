@@ -4,6 +4,20 @@
         "versionLabel": "バージョン",
         "changelog": "変更履歴",
         "allReleases": "すべてのリリース",
+        "release440": {
+            "linuxTitle": "Linux対応（ベータ）",
+            "linuxDescription": "BD2ModManagerがLinuxでAppImageまたは.debとして動作するようになりました。設定は ~/.config、MODは ~/Games/BD2ModManager/mods に保存します。",
+            "themesTitle": "カスタムテーマ",
+            "themesDescription": "設定で独自のテーマを作成でき、共有することもできます。各テーマは「テーマフォルダーを開く」から見つかるファイルです。",
+            "conflictsTitle": "残すMODを選択",
+            "conflictsDescription": "1人のキャラクターに複数の有効なMODがある場合、新しい「競合しているMOD」一覧に表示されるので、残すMODを選んで適用、または適用して同期できます。",
+            "launchErrors": "ゲームを起動できないときのエラーが、わかりやすく翻訳されて表示されるようになりました。",
+            "symlinkedStaging": "ステージングフォルダー内のMODフォルダーにシンボリックリンクやジャンクションを使えるようになり、リンク切れはMOD一覧を壊さずにスキップされます（Issue #107）。",
+            "firstSync": "MODが有効になっていない場合、初回起動時に同期を求めなくなりました。",
+            "translations": "日本語・韓国語・ポルトガル語・中国語の不足していた翻訳を追加し、MODタイプ名を修正しました。",
+            "tooltips": "アクションボタンにツールチップを表示するようになりました。",
+            "dropdownPosition": "ドロップダウンが間違った位置から開く問題を修正しました。"
+        },
         "release430": {
             "modShortcuts": "MODのキーボードショートカットを追加：Spaceで選択したMODを有効化・無効化、Deleteで削除、Pで単一のMODをプレビュー、Ctrl+RでMOD一覧を更新できます。",
             "separateNotifications": "通知を閉じたときや自動で消えたときに、ほかの通知も消える問題を修正しました。",

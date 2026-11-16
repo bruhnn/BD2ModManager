@@ -4,6 +4,20 @@
         "versionLabel": "版本",
         "changelog": "更新紀錄",
         "allReleases": "所有版本",
+        "release440": {
+            "linuxTitle": "Linux 支援（測試版）",
+            "linuxDescription": "BD2ModManager 現在可以在 Linux 上以 AppImage 或 .deb 執行。設定儲存在 ~/.config，模組儲存在 ~/Games/BD2ModManager/mods。",
+            "themesTitle": "自訂主題",
+            "themesDescription": "在設定中建立自己的主題，甚至可以分享給他人：每個主題都是一個檔案，可透過「開啟主題資料夾」找到。",
+            "conflictsTitle": "選擇要保留的模組",
+            "conflictsDescription": "當一個角色啟用了多個模組時，新的「衝突的模組」清單會顯示它們，你可以選擇要保留的模組，然後套用或套用並同步。",
+            "launchErrors": "無法啟動遊戲時，會顯示更清楚的翻譯錯誤訊息。",
+            "symlinkedStaging": "暫存資料夾中的模組資料夾現在可以是符號連結或目錄連接，損壞的連結會被略過，而不會導致模組清單出錯（Issue #107）。",
+            "firstSync": "未啟用任何模組時，首次啟動不再提示同步。",
+            "translations": "補充了日文、韓文、葡萄牙文和中文中缺少的翻譯，並修正了模組類型名稱。",
+            "tooltips": "操作按鈕現在會顯示提示。",
+            "dropdownPosition": "修正了下拉選單從錯誤位置展開的問題。"
+        },
         "release430": {
             "modShortcuts": "新增模組快捷鍵：空白鍵啟用或停用選取的模組，Delete 刪除所選模組，P 預覽單一模組，Ctrl+R 重新整理模組清單。",
             "separateNotifications": "修正關閉一則通知或等待其自動消失時，其他通知也一同消失的問題。",

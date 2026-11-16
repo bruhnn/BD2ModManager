@@ -10,6 +10,22 @@ const { isOpen, closeModal } = globalModals.whatsNew
 
 const versions = [
     {
+        version: '4.4.0-beta.1',
+        highlights: [
+            { title: 'whatsNew.release440.linuxTitle', description: 'whatsNew.release440.linuxDescription' },
+            { title: 'whatsNew.release440.themesTitle', description: 'whatsNew.release440.themesDescription' },
+            { title: 'whatsNew.release440.conflictsTitle', description: 'whatsNew.release440.conflictsDescription' }
+        ],
+        changelog: [
+            'whatsNew.release440.launchErrors',
+            'whatsNew.release440.symlinkedStaging',
+            'whatsNew.release440.firstSync',
+            'whatsNew.release440.translations',
+            'whatsNew.release440.tooltips',
+            'whatsNew.release440.dropdownPosition'
+        ]
+    },
+    {
         version: '4.3.0',
         highlights: [
             {

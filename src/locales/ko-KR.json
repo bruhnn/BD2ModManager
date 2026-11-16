@@ -4,6 +4,20 @@
         "versionLabel": "버전",
         "changelog": "변경 사항",
         "allReleases": "모든 릴리스",
+        "release440": {
+            "linuxTitle": "Linux 지원 (베타)",
+            "linuxDescription": "BD2ModManager를 이제 Linux에서 AppImage 또는 .deb로 사용할 수 있습니다. 설정은 ~/.config에, 모드는 ~/Games/BD2ModManager/mods에 저장합니다.",
+            "themesTitle": "사용자 테마",
+            "themesDescription": "설정에서 나만의 테마를 만들 수 있고, 공유할 수도 있습니다. 각 테마는 \"테마 폴더 열기\"에서 찾을 수 있는 파일입니다.",
+            "conflictsTitle": "유지할 모드 선택",
+            "conflictsDescription": "한 캐릭터에 활성화된 모드가 둘 이상이면 새 \"충돌하는 모드\" 목록에 표시되어, 유지할 모드를 골라 적용하거나 적용 후 동기화할 수 있습니다.",
+            "launchErrors": "게임을 실행할 수 없을 때 더 명확하고 번역된 오류가 표시됩니다.",
+            "symlinkedStaging": "스테이징 폴더의 모드 폴더로 심볼릭 링크나 정션을 사용할 수 있으며, 끊어진 링크는 모드 목록을 망가뜨리지 않고 건너뜁니다 (이슈 #107).",
+            "firstSync": "활성화된 모드가 없으면 첫 실행 시 더 이상 동기화를 요청하지 않습니다.",
+            "translations": "일본어, 한국어, 포르투갈어, 중국어의 누락된 번역을 추가하고 모드 유형 이름을 수정했습니다.",
+            "tooltips": "작업 버튼에 툴팁이 표시됩니다.",
+            "dropdownPosition": "드롭다운이 잘못된 위치에서 열리는 문제를 수정했습니다."
+        },
         "release430": {
             "modShortcuts": "모드 단축키 추가: Space로 선택한 모드 활성화 또는 비활성화, Delete로 삭제, P로 모드 하나 미리보기, Ctrl+R로 모드 목록 새로고침을 할 수 있습니다.",
             "separateNotifications": "알림 하나를 닫거나 자동으로 사라질 때 다른 알림도 함께 사라지는 문제를 수정했습니다.",

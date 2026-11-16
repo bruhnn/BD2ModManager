@@ -4,6 +4,20 @@
         "versionLabel": "Versão",
         "changelog": "Alterações",
         "allReleases": "Todas as versões",
+        "release440": {
+            "linuxTitle": "Suporte a Linux (beta)",
+            "linuxDescription": "O BD2ModManager agora funciona no Linux como AppImage ou .deb. Ele guarda as configurações em ~/.config e os mods em ~/Games/BD2ModManager/mods.",
+            "themesTitle": "Temas personalizados",
+            "themesDescription": "Crie seus próprios temas nas Configurações, e você pode até compartilhá-los: cada tema é um arquivo, encontrado em \"Abrir pasta de temas\".",
+            "conflictsTitle": "Escolha qual mod manter",
+            "conflictsDescription": "Quando um personagem tem mais de um mod ativado, a nova lista \"Mods em Conflito\" mostra todos para você escolher qual manter e depois aplicar ou aplicar e sincronizar.",
+            "launchErrors": "Erros mais claros e traduzidos quando o jogo não pode ser iniciado.",
+            "symlinkedStaging": "As pastas de mods na pasta de preparo agora podem ser links simbólicos ou junções, e links quebrados são ignorados em vez de quebrar a lista de mods (issue #107).",
+            "firstSync": "O aplicativo não pede mais para sincronizar na primeira inicialização quando nenhum mod está ativado.",
+            "translations": "Adicionadas traduções que faltavam e corrigidos os nomes dos tipos de mod em japonês, coreano, português e chinês.",
+            "tooltips": "Os botões de ação agora mostram dicas.",
+            "dropdownPosition": "Corrigidos menus suspensos abrindo na posição errada."
+        },
         "release430": {
             "modShortcuts": "Adicionados atalhos para mods: Espaço para ativar ou desativar os mods selecionados, Delete para removê-los, P para visualizar um mod e Ctrl+R para atualizar a lista.",
             "separateNotifications": "Corrigido um problema em que fechar uma notificação ou aguardar seu desaparecimento também ocultava outras notificações.",

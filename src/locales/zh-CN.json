@@ -4,6 +4,20 @@
         "versionLabel": "版本",
         "changelog": "更新日志",
         "allReleases": "所有版本",
+        "release440": {
+            "linuxTitle": "Linux 支持（测试版）",
+            "linuxDescription": "BD2ModManager 现在可以在 Linux 上以 AppImage 或 .deb 运行。设置保存在 ~/.config，模组保存在 ~/Games/BD2ModManager/mods。",
+            "themesTitle": "自定义主题",
+            "themesDescription": "在设置中创建自己的主题，甚至可以分享给他人：每个主题都是一个文件，可通过“打开主题文件夹”找到。",
+            "conflictsTitle": "选择要保留的模组",
+            "conflictsDescription": "当一个角色启用了多个模组时，新的“冲突的模组”列表会显示它们，你可以选择要保留的模组，然后应用或应用并同步。",
+            "launchErrors": "无法启动游戏时，会显示更清晰的翻译错误信息。",
+            "symlinkedStaging": "暂存文件夹中的模组文件夹现在可以是符号链接或目录联接，损坏的链接会被跳过，而不会导致模组列表出错（Issue #107）。",
+            "firstSync": "未启用任何模组时，首次启动不再提示同步。",
+            "translations": "补充了日语、韩语、葡萄牙语和中文中缺失的翻译，并修正了模组类型名称。",
+            "tooltips": "操作按钮现在会显示提示。",
+            "dropdownPosition": "修复了下拉菜单从错误位置展开的问题。"
+        },
         "release430": {
             "modShortcuts": "新增模组快捷键：空格启用或禁用选中的模组，Delete 删除所选模组，P 预览单个模组，Ctrl+R 刷新模组列表。",
             "separateNotifications": "修复关闭一条通知或等待其自动消失时，其他通知也一同消失的问题。",
