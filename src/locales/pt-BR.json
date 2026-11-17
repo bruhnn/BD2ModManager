@@ -988,7 +988,8 @@
                 },
                 "invalidStagingDirectory": {
                     "title": "Pasta de preparo inválida",
-                    "message": "Escolha uma pasta separada de BrownDustX/mods. Nenhuma das pastas pode conter a outra."
+                    "message": "Escolha uma pasta separada de BrownDustX/mods. Nenhuma das pastas pode conter a outra.",
+                    "notFound": "Esta pasta não existe: {path}"
                 }
             },
             "sections": {
@@ -1058,9 +1059,16 @@
                 },
                 "directories": {
                     "title": "Diretórios",
+                    "found": "Encontrados",
+                    "recent": "Recentes",
+                    "noRecent": "Nenhuma pasta recente.",
+                    "invalid": "Inválido",
                     "gameDirectory": {
                         "label": "Diretório do Jogo",
-                        "placeholder": "Selecione o diretório do jogo"
+                        "placeholder": "Selecione o diretório do jogo",
+                        "autoDetect": "Detectar automaticamente",
+                        "notFound": "Nenhum caminho do jogo encontrado.",
+                        "searchHint": "Clique em Detectar automaticamente para procurar."
                     },
                     "modsDirectory": {
                         "label": "Diretório de Preparo dos Mods",

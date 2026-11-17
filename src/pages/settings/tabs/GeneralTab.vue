@@ -2,7 +2,7 @@
     setup
     lang="ts"
 >
-import { Folder, PenSquare, Plus, SquareArrowOutUpRight, Trash } from '@lucide/vue'
+import { Folder, PenSquare, Plus, RefreshCcw, SquareArrowOutUpRight, Trash } from '@lucide/vue'
 import { computed, nextTick, ref, Teleport, useTemplateRef, watch } from 'vue'
 import { TabPanel } from '@headlessui/vue'
 import { useI18n } from 'vue-i18n'
@@ -12,7 +12,7 @@ import { appDataDir, join } from '@tauri-apps/api/path'
 import { open } from '@tauri-apps/plugin-dialog'
 
 import { useLoggingStore } from '../../../stores/logging'
-import { Language, useSettingsStore } from '../../../stores/settings'
+import { Language, useSettingsStore, type LocatedGame, type StagingPathError } from '../../../stores/settings'
 import { useNotificationStore } from '../../../stores/notification.ts'
 import { usePreferencesStore } from '../../../stores/preferences.ts'
 import { UserTheme, useThemesStore } from '../../../stores/themes.ts'
@@ -22,6 +22,7 @@ import { useConfirm } from '../../../plugins/ConfirmService.ts'
 import MultiButton from '../../../components/common/MultiButton.vue'
 import Checkbox from '../../../components/common/Checkbox.vue'
 import Section from '../Section.vue'
+import PathMenuSection from '../PathMenuSection.vue'
 import Select from '../../../components/common/Select.vue'
 import Slider from '../../../components/common/Slider.vue'
 import Button from '../../../components/common/Button.vue'
@@ -244,15 +245,25 @@ async function handleStagingModsBrowse() {
         directory: true,
     })
 
-    if (folder && settingsStore) {
-        // validate
-        if (!(await settingsStore.validateStagingPath(folder))) {
-            logWarning(`Selected staging mods directory ${folder} is not valid.`)
+    if (folder) await setStagingDirectory(folder)
+}
+
+async function setStagingDirectory(folder: string) {
+    if (settingsStore) {
+        const error = await settingsStore.validateStagingPath(folder)
+
+        if (error) {
+            logWarning(`Selected staging mods directory ${folder} is not valid: ${error.kind}`)
+
+            const messages: Record<StagingPathError['kind'], string> = {
+                notFound: t('settingsTab.general.notifications.invalidStagingDirectory.notFound', { path: folder }),
+                overlapsGameMods: t('settingsTab.general.notifications.invalidStagingDirectory.message', { path: folder }),
+            }
 
             return notificationStore.add({
                 type: 'warn',
                 title: t('settingsTab.general.notifications.invalidStagingDirectory.title'),
-                message: t('settingsTab.general.notifications.invalidStagingDirectory.message', { path: folder }),
+                message: messages[error.kind],
             })
         }
 
@@ -278,7 +289,38 @@ async function handleGameDirectoryBrowse() {
         directory: true,
     })
 
-    if (folder && settingsStore) {
+    if (folder) await setGameDirectory(folder)
+}
+
+const foundGamePaths = ref<LocatedGame[] | null>(null)
+const invalidFoundGamePaths = ref<string[]>([])
+const isLocatingGame = ref(false)
+
+const foundGamePathList = computed(() => foundGamePaths.value?.map((game) => game.path) ?? [])
+
+const recentGamePaths = computed(() =>
+    (settings.value.recentGameDirectories ?? []).filter((path) => !foundGamePathList.value.includes(path))
+)
+
+const recentStagingPaths = computed(() =>
+    settings.value.recentStagingDirectories ?? []
+)
+
+async function findGamePaths() {
+    isLocatingGame.value = true
+    try {
+        const found = (await settingsStore.locateGamePath()) ?? []
+        const validity = await Promise.all(found.map((game) => settingsStore.validateGamePath(game.path)))
+
+        invalidFoundGamePaths.value = found.filter((_, i) => !validity[i]).map((game) => game.path)
+        foundGamePaths.value = found
+    } finally {
+        isLocatingGame.value = false
+    }
+}
+
+async function setGameDirectory(folder: string) {
+    if (settingsStore) {
         const isValid = await settingsStore.validateGamePath(folder)
 
         if (!isValid) {
@@ -409,8 +451,37 @@ async function onThemeDelete(themeName: string) {
                                 :placeholder="$t('settingsTab.general.sections.directories.gameDirectory.placeholder')"
                                 readonly />
 
-                            <Button :label="$t('common.actions.browse')" :icon="Folder"
-                                class="whitespace-nowrap min-w-32" @click="handleGameDirectoryBrowse" />
+                            <MultiButton :label="$t('common.actions.browse')" :icon="Folder" class="shrink-0"
+                                label-class="min-w-16" @click="handleGameDirectoryBrowse">
+                                <template #menu="{ close }">
+                                    <div class="flex flex-col w-96">
+                                        <button type="button" role="menuitem" :disabled="isLocatingGame"
+                                            class="flex w-full font-medium items-center cursor-pointer gap-2 px-3 py-1.5 text-sm text-text-primary transition-colors hover:bg-state-hover disabled:pointer-events-none disabled:opacity-50"
+                                            @click="findGamePaths">
+                                            <RefreshCcw class="size-[1.1em] shrink-0 text-text-secondary"
+                                                :class="{ 'animate-spin': isLocatingGame }" />
+                                            {{ $t('settingsTab.general.sections.directories.gameDirectory.autoDetect') }}
+                                        </button>
+
+                                        <div class="my-1 h-px bg-border-default" />
+
+                                        <PathMenuSection :title="$t('settingsTab.general.sections.directories.found')"
+                                            :paths="foundGamePathList" :invalid="invalidFoundGamePaths"
+                                            :current="settings.gameDirectory"
+                                            :empty-text="foundGamePaths === null
+                                                ? $t('settingsTab.general.sections.directories.gameDirectory.searchHint')
+                                                : $t('settingsTab.general.sections.directories.gameDirectory.notFound')"
+                                            @select="(path) => { close(); setGameDirectory(path) }" />
+
+                                        <div class="my-1 h-px bg-border-default" />
+
+                                        <PathMenuSection :title="$t('settingsTab.general.sections.directories.recent')"
+                                            :paths="recentGamePaths" :current="settings.gameDirectory"
+                                            :empty-text="$t('settingsTab.general.sections.directories.noRecent')"
+                                            @select="(path) => { close(); setGameDirectory(path) }" />
+                                    </div>
+                                </template>
+                            </MultiButton>
 
                             <Button class="whitespace-nowrap" :icon="SquareArrowOutUpRight"
                                 :tooltip="$t('common.actions.openFolder')"
@@ -428,8 +499,18 @@ async function onThemeDelete(themeName: string) {
                                 :placeholder="$t('settingsTab.general.sections.directories.modsDirectory.placeholder')"
                                 readonly />
 
-                            <Button :label="$t('common.actions.browse')" :icon="Folder" class="min-w-32"
-                                @click="handleStagingModsBrowse" />
+                            <MultiButton :label="$t('common.actions.browse')" :icon="Folder" class="shrink-0"
+                                label-class="min-w-16" @click="handleStagingModsBrowse">
+                                <template #menu="{ close }">
+                                    <div class="flex flex-col w-96">
+                                        <PathMenuSection :title="$t('settingsTab.general.sections.directories.recent')"
+                                            :paths="recentStagingPaths"
+                                            :current="settings.stagingDirectory"
+                                            :empty-text="$t('settingsTab.general.sections.directories.noRecent')"
+                                            @select="(path) => { close(); setStagingDirectory(path) }" />
+                                    </div>
+                                </template>
+                            </MultiButton>
 
                             <Button :icon="SquareArrowOutUpRight" :tooltip="$t('common.actions.openFolder')" :disabled="!settings.stagingDirectory" @click="handleOpenFolder(settings.stagingDirectory)" />
                         </div>

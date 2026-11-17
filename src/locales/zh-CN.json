@@ -988,7 +988,8 @@
                 },
                 "invalidStagingDirectory": {
                     "title": "暂存文件夹无效",
-                    "message": "请选择与 BrownDustX/mods 不同的文件夹，两个文件夹不能互相包含。"
+                    "message": "请选择与 BrownDustX/mods 不同的文件夹，两个文件夹不能互相包含。",
+                    "notFound": "此文件夹不存在：{path}"
                 }
             },
             "sections": {
@@ -1058,9 +1059,16 @@
                 },
                 "directories": {
                     "title": "目录",
+                    "found": "已找到",
+                    "recent": "最近",
+                    "noRecent": "没有最近的文件夹。",
+                    "invalid": "无效",
                     "gameDirectory": {
                         "label": "游戏目录",
-                        "placeholder": "选择您的游戏目录"
+                        "placeholder": "选择您的游戏目录",
+                        "autoDetect": "自动检测",
+                        "notFound": "未找到游戏路径。",
+                        "searchHint": "点击“自动检测”进行搜索。"
                     },
                     "modsDirectory": {
                         "label": "暂存模组目录",

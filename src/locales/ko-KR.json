@@ -988,7 +988,8 @@
                 },
                 "invalidStagingDirectory": {
                     "title": "잘못된 스테이징 폴더",
-                    "message": "BrownDustX/mods와 다른 폴더를 선택하세요. 두 폴더 중 어느 쪽도 다른 쪽을 포함할 수 없습니다."
+                    "message": "BrownDustX/mods와 다른 폴더를 선택하세요. 두 폴더 중 어느 쪽도 다른 쪽을 포함할 수 없습니다.",
+                    "notFound": "이 폴더가 존재하지 않습니다: {path}"
                 }
             },
             "sections": {
@@ -1058,9 +1059,16 @@
                 },
                 "directories": {
                     "title": "디렉토리",
+                    "found": "발견됨",
+                    "recent": "최근",
+                    "noRecent": "최근 폴더가 없습니다.",
+                    "invalid": "유효하지 않음",
                     "gameDirectory": {
                         "label": "게임 디렉토리",
-                        "placeholder": "게임 디렉토리 선택"
+                        "placeholder": "게임 디렉토리 선택",
+                        "autoDetect": "자동 감지",
+                        "notFound": "게임 경로를 찾을 수 없습니다.",
+                        "searchHint": "자동 감지를 클릭하여 검색하세요."
                     },
                     "modsDirectory": {
                         "label": "모드 스테이징 디렉토리",

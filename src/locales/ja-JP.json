@@ -988,7 +988,8 @@
                 },
                 "invalidStagingDirectory": {
                     "title": "ステージングフォルダーが無効です",
-                    "message": "BrownDustX/mods とは別のフォルダーを選択してください。どちらのフォルダーも、もう一方を含むことはできません。"
+                    "message": "BrownDustX/mods とは別のフォルダーを選択してください。どちらのフォルダーも、もう一方を含むことはできません。",
+                    "notFound": "このフォルダーは存在しません: {path}"
                 }
             },
             "sections": {
@@ -1058,9 +1059,16 @@
                 },
                 "directories": {
                     "title": "ディレクトリ",
+                    "found": "検出済み",
+                    "recent": "最近",
+                    "noRecent": "最近のフォルダーはありません。",
+                    "invalid": "無効",
                     "gameDirectory": {
                         "label": "ゲームディレクトリ",
-                        "placeholder": "ゲームディレクトリを選択"
+                        "placeholder": "ゲームディレクトリを選択",
+                        "autoDetect": "自動検出",
+                        "notFound": "ゲームパスが見つかりませんでした。",
+                        "searchHint": "「自動検出」をクリックして検索します。"
                     },
                     "modsDirectory": {
                         "label": "MODステージングディレクトリ",

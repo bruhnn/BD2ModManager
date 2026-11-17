@@ -11,7 +11,7 @@ const props = defineProps<{
   disabled?: boolean
   size?: 'sm' | 'md' | 'lg'
   variant?: 'primary' | 'default'
-  actions: Array<{
+  actions?: Array<{
     label: string
     icon?: any
     disabled?: boolean
@@ -29,7 +29,7 @@ function handleClick(event: MouseEvent) {
   emit('click', event)
 }
 
-function handleActionClick(close: () => void, action: (typeof props.actions)[number]) {
+function handleActionClick(close: () => void, action: NonNullable<typeof props.actions>[number]) {
   if (action.disabled) return
   close()
   action.clicked()
@@ -80,7 +80,8 @@ const classList = computed(() => [
 
       <template #default="{ close }">
         <div class="min-w-40 rounded-md border border-border-default bg-surface-popover py-1">
-          <template v-for="(action, i) in actions" :key="i">
+          <slot name="menu" :close="close" />
+          <template v-for="(action, i) in actions ?? []" :key="i">
             <div v-if="action.danger && i > 0" class="my-1 h-px bg-border-default" />
             <button type="button" :disabled="action.disabled" role="menuitem"
               class="flex w-full font-medium items-center cursor-pointer gap-2 px-3 py-1.5 text-sm transition-colors hover:bg-state-hover disabled:pointer-events-none disabled:opacity-50"

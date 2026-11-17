@@ -1,3 +1,5 @@
+use std::path::Path;
+
 use log::info;
 use serde::{Deserialize, Serialize};
 use tauri::AppHandle;
@@ -21,7 +23,9 @@ pub struct AppConfig {
     pub auto_update_mod_preview: bool,
     pub skip_update_version: Option<String>,
     pub is_first_launch: bool,
-    pub update_channel: String
+    pub update_channel: String,
+    pub recent_game_directories: Vec<String>,
+    pub recent_staging_directories: Vec<String>,
 }
 
 #[derive(Deserialize, Serialize, Debug, Clone)]
@@ -46,9 +50,11 @@ pub struct PartialAppConfig {
 impl AppConfig {
     pub fn merge_from(&mut self, partial: PartialAppConfig) {
         if let Some(game_directory) = partial.game_directory {
+            push_recent(&mut self.recent_game_directories, &game_directory);
             self.game_directory = Some(game_directory);
         }
         if let Some(staging_directory) = partial.staging_directory {
+            push_recent(&mut self.recent_staging_directories, &staging_directory);
             self.staging_directory = Some(staging_directory);
         }
         if let Some(language) = partial.language {
@@ -90,6 +96,15 @@ impl AppConfig {
     }
 }
 
+const MAX_RECENT_DIRECTORIES: usize = 5;
+
+// most recent first, without duplicates or folders that no longer exist
+fn push_recent(recent: &mut Vec<String>, path: &str) {
+    recent.retain(|p| !p.eq_ignore_ascii_case(path) && Path::new(p).is_dir());
+    recent.insert(0, path.to_string());
+    recent.truncate(MAX_RECENT_DIRECTORIES);
+}
+
 impl Default for AppConfig {
     fn default() -> Self {
         Self {
@@ -106,7 +121,9 @@ impl Default for AppConfig {
             auto_sync_mods: false,
             auto_sync_mods_delay: 3000,
             is_first_launch: true,
-            update_channel: "stable".into()
+            update_channel: "stable".into(),
+            recent_game_directories: Vec::new(),
+            recent_staging_directories: Vec::new(),
         }
     }
 }

@@ -5,17 +5,20 @@ import { useLoggingStore } from "./logging";
 
 export type Language = "en" | "cn" | "jp" | "tw" | "kr"
 
-// mirrors LauncherEntry in game/locate.rs
+// game/locate.rs
 export interface LauncherEntry {
     app: "faugus",
     gameId: string,
     flatpak: boolean,
 }
-// mirrors LocatedGame in game/locate.rs
+
 export interface LocatedGame {
     path: string,
     launcher: LauncherEntry | null,
 }
+
+//game/commands.rs
+export type StagingPathError = { kind: "notFound" } | { kind: "overlapsGameMods" }
 
 interface Settings {
     theme?: string,
@@ -32,6 +35,8 @@ interface Settings {
     autoSyncMods: boolean,
     autoSyncModsDelay: number,
     isFirstLaunch: boolean,
+    recentGameDirectories: string[],
+    recentStagingDirectories: string[],
 }
 
 export const useSettingsStore = defineStore("settings", () => {
@@ -70,8 +75,13 @@ export const useSettingsStore = defineStore("settings", () => {
         return invoke<boolean>("validate_game_path", { path })
     }
 
-    function validateStagingPath(path: string): Promise<boolean> {
-        return invoke<boolean>("validate_staging_path", { path })
+    async function validateStagingPath(path: string): Promise<StagingPathError | null> {
+        try {
+            await invoke("validate_staging_path", { path })
+            return null
+        } catch (err) {
+            return err as StagingPathError
+        }
     }
 
     return {

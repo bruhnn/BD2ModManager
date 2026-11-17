@@ -988,7 +988,8 @@
                 },
                 "invalidStagingDirectory": {
                     "title": "Invalid staging folder",
-                    "message": "Choose a folder separate from BrownDustX/mods. Neither folder can contain the other."
+                    "message": "Choose a folder separate from BrownDustX/mods. Neither folder can contain the other.",
+                    "notFound": "This folder doesn't exist: {path}"
                 }
             },
             "sections": {
@@ -1058,9 +1059,16 @@
                 },
                 "directories": {
                     "title": "Directories",
+                    "found": "Found",
+                    "recent": "Recent",
+                    "noRecent": "No recent folders.",
+                    "invalid": "Invalid",
                     "gameDirectory": {
                         "label": "Game Directory",
-                        "placeholder": "Select your game directory"
+                        "placeholder": "Select your game directory",
+                        "autoDetect": "Auto-detect",
+                        "notFound": "No game paths found.",
+                        "searchHint": "Click Auto-detect to search."
                     },
                     "modsDirectory": {
                         "label": "Staging Mods Directory",

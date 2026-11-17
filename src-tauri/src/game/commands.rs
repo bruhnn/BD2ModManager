@@ -1,6 +1,7 @@
 use std::{fs, path::PathBuf};
 use crate::{game::{game::{self, VersionResult}, installer::{self, is_bdx_archive, is_bepinex_archive, is_configmanager_archive}, locate::{self, LocatedGame}}, utils::path::get_characters_path};
 use log::info;
+use serde::Serialize;
 #[cfg(windows)]
 use log::warn;
 
@@ -58,13 +59,23 @@ pub fn validate_game_path(path: String) -> bool {
     locate::is_game_dir(&PathBuf::from(&path))
 }
 
+// why a staging folder was rejected; the frontend maps `kind` to a message
+#[derive(Serialize, thiserror::Error, Debug)]
+#[serde(tag = "kind", rename_all = "camelCase")]
+pub enum StagingPathError {
+    #[error("staging folder and its parents do not exist")]
+    NotFound,
+    #[error("staging folder overlaps BrownDustX/mods")]
+    OverlapsGameMods,
+}
+
 #[tauri::command]
 pub fn validate_staging_path(
     state: tauri::State<AppState>,
     path: PathBuf,
-) -> bool {
+) -> Result<(), StagingPathError> {
     let Some(game_directory) = get_game_path(&state) else {
-        return true;
+        return Ok(());
     };
 
     let mut paths = [
@@ -75,11 +86,11 @@ pub fn validate_staging_path(
     for path in &mut paths {
         // resolve the existing part of the path
         let Some(parent) = path.ancestors().find(|parent| parent.exists()) else {
-            return false;
+            return Err(StagingPathError::NotFound);
         };
 
         let Ok(resolved) = parent.canonicalize() else {
-            return false;
+            return Err(StagingPathError::NotFound);
         };
 
         let resolved = resolved.join(path.strip_prefix(parent).unwrap());
@@ -89,7 +100,11 @@ pub fn validate_staging_path(
     let staging = &paths[0];
     let game_mods = &paths[1];
 
-    !staging.starts_with(game_mods) && !game_mods.starts_with(staging)
+    if staging.starts_with(game_mods) || game_mods.starts_with(staging) {
+        return Err(StagingPathError::OverlapsGameMods);
+    }
+
+    Ok(())
 }
 
 #[tauri::command]

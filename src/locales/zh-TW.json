@@ -988,7 +988,8 @@
                 },
                 "invalidStagingDirectory": {
                     "title": "暫存資料夾無效",
-                    "message": "請選擇與 BrownDustX/mods 不同的資料夾，兩個資料夾不能互相包含。"
+                    "message": "請選擇與 BrownDustX/mods 不同的資料夾，兩個資料夾不能互相包含。",
+                    "notFound": "此資料夾不存在：{path}"
                 }
             },
             "sections": {
@@ -1058,9 +1059,16 @@
                 },
                 "directories": {
                     "title": "目錄",
+                    "found": "已找到",
+                    "recent": "最近",
+                    "noRecent": "沒有最近的資料夾。",
+                    "invalid": "無效",
                     "gameDirectory": {
                         "label": "遊戲目錄",
-                        "placeholder": "選取您的遊戲目錄"
+                        "placeholder": "選取您的遊戲目錄",
+                        "autoDetect": "自動偵測",
+                        "notFound": "找不到遊戲路徑。",
+                        "searchHint": "點擊「自動偵測」進行搜尋。"
                     },
                     "modsDirectory": {
                         "label": "模組暫存目錄",
