@@ -2,6 +2,7 @@
     "whatsNew": {
         "title": "Novidades",
         "versionLabel": "Versão",
+        "versionEnd": "Fim da versão {version}",
         "changelog": "Alterações",
         "allReleases": "Todas as versões",
         "release440": {

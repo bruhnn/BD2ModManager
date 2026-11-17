@@ -2,6 +2,7 @@
     "whatsNew": {
         "title": "更新內容",
         "versionLabel": "版本",
+        "versionEnd": "{version} 版本結束",
         "changelog": "更新紀錄",
         "allReleases": "所有版本",
         "release440": {

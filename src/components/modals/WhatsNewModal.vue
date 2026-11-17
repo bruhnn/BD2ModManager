@@ -135,6 +135,9 @@ const versions = [
                             <li v-for="item in release.changelog" :key="item">{{ t(item) }}</li>
                         </ul>
                     </section>
+                    <div class="version-end">
+                        <span>{{ t('whatsNew.versionEnd', { version: release.version }) }}</span>
+                    </div>
                 </div>
             </section>
         </div>
@@ -235,6 +238,24 @@ const versions = [
     display: flex;
     flex-direction: column;
     gap: 10px;
+}
+
+.version-end {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding-block: 8px;
+    color: var(--text-secondary);
+    font-size: 11px;
+    text-align: center;
+}
+
+.version-end::before,
+.version-end::after {
+    content: '';
+    flex: 1;
+    min-width: 16px;
+    border-top: 1px solid var(--border-strong);
 }
 
 .feature-title {

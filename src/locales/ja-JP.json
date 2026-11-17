@@ -2,6 +2,7 @@
     "whatsNew": {
         "title": "更新内容",
         "versionLabel": "バージョン",
+        "versionEnd": "{version} の更新情報はここまで",
         "changelog": "変更履歴",
         "allReleases": "すべてのリリース",
         "release440": {
