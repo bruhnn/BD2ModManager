@@ -362,13 +362,22 @@
                 "filters": "フィルター"
             },
             "advancedFilters": {
-                "title": "詳細フィルター",
-                "actions": {
-                    "onlyEnabledMods": "有効なMODのみ表示",
-                    "onlyDisabledMods": "無効なMODのみ表示",
-                    "onlyConflictsMods": "競合するMODのみ表示",
-                    "onlyErrorsMods": "エラーのあるMODのみ表示",
-                    "hideErrorsMods": "エラーMODを非表示"
+                "title": "フィルター",
+                "reset": "リセット",
+                "include": "含める",
+                "exclude": "除外",
+                "categories": {
+                    "status": "状態",
+                    "issues": "問題",
+                    "source": "ソース"
+                },
+                "options": {
+                    "enabled": "有効",
+                    "disabled": "無効",
+                    "conflicts": "競合",
+                    "errors": "エラー",
+                    "managed": "管理済み",
+                    "unmanaged": "管理外"
                 }
             }
         },

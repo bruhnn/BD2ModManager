@@ -362,13 +362,22 @@
                 "filters": "筛选"
             },
             "advancedFilters": {
-                "title": "高级筛选",
-                "actions": {
-                    "onlyEnabledMods": "仅显示已启用模组",
-                    "onlyDisabledMods": "仅显示已禁用模组",
-                    "onlyConflictsMods": "仅显示有冲突的模组",
-                    "onlyErrorsMods": "仅显示有错误的模组",
-                    "hideErrorsMods": "隐藏错误模组"
+                "title": "筛选",
+                "reset": "重置",
+                "include": "包含",
+                "exclude": "排除",
+                "categories": {
+                    "status": "状态",
+                    "issues": "问题",
+                    "source": "来源"
+                },
+                "options": {
+                    "enabled": "已启用",
+                    "disabled": "已禁用",
+                    "conflicts": "冲突",
+                    "errors": "错误",
+                    "managed": "已管理",
+                    "unmanaged": "未管理"
                 }
             }
         },

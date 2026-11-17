@@ -1,586 +1,670 @@
 <script setup lang="ts">
-import { Folder, FolderMinus, FolderPlus, FolderSync, Info, RefreshCcw, X } from "@lucide/vue";
+import { Folder, FolderMinus, FolderPlus, FolderSync, Info, RefreshCcw, X } from '@lucide/vue'
 
-import { computed, defineComponent, h, onActivated, onDeactivated, reactive, ref, useTemplateRef, watch } from "vue";
-import { useEventListener, watchDebounced } from "@vueuse/core";
-import { useI18n } from "vue-i18n";
+import { computed, defineComponent, h, onActivated, onDeactivated, reactive, ref, useTemplateRef, watch } from 'vue'
+import { useEventListener, watchDebounced } from '@vueuse/core'
+import { useI18n } from 'vue-i18n'
 
-import { listen } from "@tauri-apps/api/event";
-import { join } from "@tauri-apps/api/path";
-import { openPath } from "../../utils/opener";
-import { invoke } from "@tauri-apps/api/core";
+import { listen } from '@tauri-apps/api/event'
+import { join } from '@tauri-apps/api/path'
+import { openPath } from '../../utils/opener'
+import { invoke } from '@tauri-apps/api/core'
 
-import { useModsStore, BD2Mod } from "../../stores/mods";
-import { useSettingsStore } from "../../stores/settings";
-import { useLoggingStore } from "../../stores/logging";
-import { useNotificationStore } from '../../stores/notification';
+import { useModsStore, BD2Mod, BD2ModExtended } from '../../stores/mods'
+import { useSettingsStore } from '../../stores/settings'
+import { useLoggingStore } from '../../stores/logging'
+import { useNotificationStore } from '../../stores/notification'
 
-import { useHeader } from "../../composables/useHeader";
+import { useHeader } from '../../composables/useHeader'
 
-import Button from "../../components/common/Button.vue";
-import MultiButton from "../../components/common/MultiButton.vue";
-import Popover from "../../components/common/Popover.vue";
+import Button from '../../components/common/Button.vue'
+import MultiButton from '../../components/common/MultiButton.vue'
+import Popover from '../../components/common/Popover.vue'
 
-import UpdateAuthorModal from "./modals/UpdateAuthorModal.vue";
-import RenameModModal from "./modals/RenameModModal.vue";
+import UpdateAuthorModal from './modals/UpdateAuthorModal.vue'
+import RenameModModal from './modals/RenameModModal.vue'
 
-import ModsHeader from "./ModsHeader.vue";
-import Modlist from "./Modlist.vue";
+import ModsHeader from './ModsHeader.vue'
+import type { FilterKey } from './ModsHeader.vue'
+import Modlist from './Modlist.vue'
 
-import { useGameStore } from "../../stores/game.ts";
-import { useModActions } from "../../composables/useModActions.ts";
-import { useModDelete } from "../../composables/useModDelete.ts";
-import { useModInstall } from "../../composables/useModInstall.ts";
-import { useModSync } from "../../composables/useModSync.ts";
-import { globalModals } from "../../composables/useGlobalModals.ts";
+import { useGameStore } from '../../stores/game.ts'
+import { useModActions } from '../../composables/useModActions.ts'
+import { useModDelete } from '../../composables/useModDelete.ts'
+import { useModInstall } from '../../composables/useModInstall.ts'
+import { useModSync } from '../../composables/useModSync.ts'
+import { globalModals } from '../../composables/useGlobalModals.ts'
 
 let unlistenFns: Array<() => void> = []
 
-const updateAuthorModal = useTemplateRef("updateAuthorModal")
-const renameModModal = useTemplateRef("renameModModal")
+const updateAuthorModal = useTemplateRef('updateAuthorModal')
+const renameModModal = useTemplateRef('renameModModal')
 
-const { t } = useI18n();
+const { t } = useI18n()
 const loggingStore = useLoggingStore()
 const notificationStore = useNotificationStore()
 const modsStore = useModsStore()
 const settingsStore = useSettingsStore()
 const gameStore = useGameStore()
 
-const {
-  enableMods,
-  disableMods,
-  renameMod,
-  previewMod
-} = useModActions()
+const { enableMods, disableMods, renameMod, previewMod } = useModActions()
 
-const {
-  deleteMods
-} = useModDelete()
+const { deleteMods } = useModDelete()
 
-const {
-  installMod,
-  installFromZip,
-  installFromFolder
-} = useModInstall()
+const { installMod, installFromZip, installFromFolder } = useModInstall()
 
-const {
-  syncMods,
-  unsyncMods
-} = useModSync()
+const { syncMods, unsyncMods } = useModSync()
 
 const isActive = ref(false)
 const isRefreshing = ref(false)
 const unmanagedNoticeDismissed = ref(false)
-const hasUnmanagedMods = computed(() => modsStore.extendedMods.some(mod =>
-  mod.errors.includes('Unmanaged') || mod.errors.includes('UnmanagedButInStaging')
-))
+const hasUnmanagedMods = computed(() => modsStore.extendedMods.some((mod) => mod.errors.includes('Unmanaged') || mod.errors.includes('UnmanagedButInStaging')))
 
 watch(hasUnmanagedMods, (hasUnmanaged) => {
-  if (!hasUnmanaged) unmanagedNoticeDismissed.value = false
+    if (!hasUnmanaged) unmanagedNoticeDismissed.value = false
 })
 
-const debouncedSearchQuery = ref('');
+const debouncedSearchQuery = ref('')
 
 let filters = reactive({
-  searchQuery: '',
-  modTypes: [] as ("Standing" | "Cutscene" | "Scene" | "NPC" | "Dating" | "Minigame")[],
-  onlyEnabled: false,
-  onlyDisabled: false,
-  onlyConflicts: false,
-  onlyErrors: false,
-  hideErrors: false,
-});
+    searchQuery: '',
+    modTypes: [] as ('Standing' | 'Cutscene' | 'Scene' | 'NPC' | 'Dating' | 'Minigame')[],
+    include: [] as FilterKey[],
+    exclude: [] as FilterKey[],
+})
 
 const totalModsCount = computed(() => modsStore.extendedMods.length)
-const enabledModsCount = computed(() => modsStore.extendedMods.filter(mod => mod.enabled && !mod.errors.length).length)
+const enabledModsCount = computed(() => modsStore.extendedMods.filter((mod) => mod.enabled && !mod.errors.length).length)
+
+const FILTER_CATEGORIES: FilterKey[][] = [
+    ['enabled', 'disabled'],
+    ['conflicts', 'errors'],
+    ['managed', 'unmanaged'],
+]
+const UNMANAGED_ERRORS = ['Unmanaged', 'UnmanagedButInStaging']
+
+function modMatchesFilter(mod: BD2ModExtended, key: FilterKey): boolean {
+    switch (key) {
+        case 'enabled':
+            return mod.enabled
+        case 'disabled':
+            return !mod.enabled
+        case 'conflicts':
+            return mod.conflictingMods.length > 0
+        case 'errors':
+            return mod.errors.some((e) => !UNMANAGED_ERRORS.includes(e))
+        case 'managed':
+            return !mod.errors.some((e) => UNMANAGED_ERRORS.includes(e))
+        case 'unmanaged':
+            return mod.errors.some((e) => UNMANAGED_ERRORS.includes(e))
+    }
+}
+
+const filterCounts = computed(() => Object.fromEntries(FILTER_CATEGORIES.flat().map((key) => [key, modsStore.extendedMods.filter((mod) => modMatchesFilter(mod, key)).length])) as Record<FilterKey, number>)
 
 const filteredMods = computed(() => {
-  return modsStore.extendedMods.filter((mod) => {
-    const conflictMatch = debouncedSearchQuery.value.match(/conflictsWith:"([^"]+)"/i)
-    const conflictFilter = conflictMatch ? conflictMatch[1].toLowerCase() : null
+    return modsStore.extendedMods.filter((mod) => {
+        const conflictMatch = debouncedSearchQuery.value.match(/conflictsWith:"([^"]+)"/i)
+        const conflictFilter = conflictMatch ? conflictMatch[1].toLowerCase() : null
 
-    const cleanedQuery = debouncedSearchQuery.value.replace(/conflictsWith:"[^"]*"/i, '').trim()
+        const cleanedQuery = debouncedSearchQuery.value.replace(/conflictsWith:"[^"]*"/i, '').trim()
 
-    if (cleanedQuery) {
-      const queries = [...cleanedQuery.toLowerCase().matchAll(/"([^"]+)"|([^,]+)/g)]
-        .map(match => {
-          const raw = match[0].trim()
-          const isExact = raw.startsWith('"') && raw.endsWith('"')
-          return {
-            value: isExact ? raw.slice(1, -1) : raw,
-            exact: isExact
-          }
-        })
-        .filter(q => q.value.length > 0)
+        if (cleanedQuery) {
+            const queries = [...cleanedQuery.toLowerCase().matchAll(/"([^"]+)"|([^,]+)/g)]
+                .map((match) => {
+                    const raw = match[0].trim()
+                    const isExact = raw.startsWith('"') && raw.endsWith('"')
+                    return {
+                        value: isExact ? raw.slice(1, -1) : raw,
+                        exact: isExact,
+                    }
+                })
+                .filter((q) => q.value.length > 0)
 
-      const matchesAnyQuery = queries.some(({ value, exact }) => {
-        if (exact) {
-          return mod.name.toLowerCase() === value
+            const matchesAnyQuery = queries.some(({ value, exact }) => {
+                if (exact) {
+                    return mod.name.toLowerCase() === value
+                }
+                return (
+                    mod.name.toLowerCase().includes(value) || (mod.author && mod.author.toLowerCase().includes(value)) || (mod.character && `${mod.character.character.toLowerCase()} - ${mod.character.costume.toLowerCase()}`.includes(value))
+                )
+            })
+
+            if (!matchesAnyQuery) return false
         }
-        return mod.name.toLowerCase().includes(value) ||
-          (mod.author && mod.author.toLowerCase().includes(value)) ||
-          (mod.character && `${mod.character.character.toLowerCase()} - ${mod.character.costume.toLowerCase()}`.includes(value))
-      })
 
-      if (!matchesAnyQuery) return false
-    }
+        if (conflictFilter) {
+            if (mod.name.toLowerCase() !== conflictFilter && !mod.conflictsWith.map((c) => c.toLowerCase()).includes(conflictFilter)) {
+                return false
+            }
+        }
 
-    if (conflictFilter) {
-      if (
-        mod.name.toLowerCase() !== conflictFilter &&
-        !mod.conflictsWith.map(c => c.toLowerCase()).includes(conflictFilter)
-      ) {
-        return false
-      }
-    }
+        if (filters.modTypes.length > 0) {
+            if (!mod.modType) return false
+            if (!filters.modTypes.includes(mod.modType.type)) return false
+        }
 
-    if (filters.modTypes.length > 0) {
-      if (!mod.modType) return false
-      if (!filters.modTypes.includes(mod.modType.type)) return false
-    }
+        if (filters.exclude.some((key) => modMatchesFilter(mod, key))) return false
+        const failsInclude = FILTER_CATEGORIES.some((keys) => {
+            const included = keys.filter((key) => filters.include.includes(key))
+            return included.length > 0 && !included.some((key) => modMatchesFilter(mod, key))
+        })
+        if (failsInclude) return false
 
-    if (filters.onlyEnabled && !mod.enabled) return false
-    if (filters.onlyDisabled && mod.enabled) return false
-    if (filters.onlyErrors && mod.errors.length === 0) return false
-    if (filters.hideErrors && mod.errors.length > 0) return false
-    // mods with conflicts, a conflict is when the mod has at least one mod in its conflictsWith array that is also enabled
-    // if (filters.onlyConflicts && mod.conflictsWith.length === 0) return false
-    if (filters.onlyConflicts && mod.conflictingMods.length === 0) return false
-
-    return true
-  })
+        return true
+    })
 })
 
 async function handleRefreshMods() {
-  if (isRefreshing.value) {
-    loggingStore.logDebug("Refresh already in progress, skipping.");
-    return;
-  }
+    if (isRefreshing.value) {
+        loggingStore.logDebug('Refresh already in progress, skipping.')
+        return
+    }
 
-  isRefreshing.value = true
-  try {
-    await modsStore.discoverMods()
-  } finally {
-    isRefreshing.value = false
-  }
+    isRefreshing.value = true
+    try {
+        await modsStore.discoverMods()
+    } finally {
+        isRefreshing.value = false
+    }
 }
 
 useEventListener(window, 'keydown', (event: KeyboardEvent) => {
-  if (!isActive.value || !(event.ctrlKey || event.metaKey) || event.key.toLowerCase() !== 'r') return
-  event.preventDefault()
-  if (event.repeat || event.isComposing || event.altKey || event.shiftKey || modsStore.isSyncing ||
-    document.querySelector('[role="dialog"], [role="alertdialog"]')) return
-  void handleRefreshMods().catch(error => loggingStore.logError('Failed to refresh mods', error))
+    if (!isActive.value || !(event.ctrlKey || event.metaKey) || event.key.toLowerCase() !== 'r') return
+    event.preventDefault()
+    if (event.repeat || event.isComposing || event.altKey || event.shiftKey || modsStore.isSyncing || document.querySelector('[role="dialog"], [role="alertdialog"]')) return
+    void handleRefreshMods().catch((error) => loggingStore.logError('Failed to refresh mods', error))
 })
 
 function handleUpdateModAuthor(mods: BD2Mod[]) {
-  loggingStore.logDebug("Changing author for mods:", mods.map(m => m.name), "Current authors:", mods.map(m => m.author));
-  updateAuthorModal.value?.open({
-    mods: mods.map(m => ({ name: m.name, author: m.author || '' })),
-    onSave: (newAuthor: string) => {
-      loggingStore.logDebug(`Changing author for ${mods.length} mod(s) to "${newAuthor}"`);
-      modsStore.setModAuthor(mods.map(m => m.name), newAuthor);
-    }
-  });
+    loggingStore.logDebug(
+        'Changing author for mods:',
+        mods.map((m) => m.name),
+        'Current authors:',
+        mods.map((m) => m.author),
+    )
+    updateAuthorModal.value?.open({
+        mods: mods.map((m) => ({ name: m.name, author: m.author || '' })),
+        onSave: (newAuthor: string) => {
+            loggingStore.logDebug(`Changing author for ${mods.length} mod(s) to "${newAuthor}"`)
+            modsStore.setModAuthor(
+                mods.map((m) => m.name),
+                newAuthor,
+            )
+        },
+    })
 }
 
 function handleRenameMod(mod: BD2Mod) {
-  loggingStore.logDebug("Renaming mod:", mod.name);
-  renameModModal.value?.open({
-    modName: mod.displayName,
-    onSave: (newName: string) => {
-      if (newName === mod.displayName) {
-        return;
-      }
-      loggingStore.logDebug(`Change name  of mod "${mod.name}" to "${newName}" ${typeof newName}`);
-      renameMod(mod, newName);
-    }
-  });
+    loggingStore.logDebug('Renaming mod:', mod.name)
+    renameModModal.value?.open({
+        modName: mod.displayName,
+        onSave: (newName: string) => {
+            if (newName === mod.displayName) {
+                return
+            }
+            loggingStore.logDebug(`Change name  of mod "${mod.name}" to "${newName}" ${typeof newName}`)
+            renameMod(mod, newName)
+        },
+    })
 }
 
 function handleShowModConflicts(mod: BD2Mod) {
-  globalModals.conflict.showModal({ mod: modsStore.extendedMods.find(m => m.name === mod.name) })
+    globalModals.conflict.showModal({ mod: modsStore.extendedMods.find((m) => m.name === mod.name) })
 }
 
 async function handleOpenModFolder(mod: BD2Mod) {
-  loggingStore.logDebug("Opening mod folder:", mod.name);
+    loggingStore.logDebug('Opening mod folder:', mod.name)
 
-  const folderExists = await invoke("path_exists", { path: mod.path }).catch((error) => {
-    loggingStore.logError(`An error occurred while checking if mod folder exists for "${mod.name}":`, error);
-    return false;
-  });
-
-  if (!folderExists) {
-    notificationStore.add({
-      type: 'error',
-      closable: true,
-      title: t('modsTab.notifications.openModFolder.error.notFound.title'),
-      message: t('modsTab.notifications.openModFolder.error.notFound.message', { modName: mod.name }),
-      duration: 5000
+    const folderExists = await invoke('path_exists', { path: mod.path }).catch((error) => {
+        loggingStore.logError(`An error occurred while checking if mod folder exists for "${mod.name}":`, error)
+        return false
     })
-    return
-  }
 
-  // check if is a folder
-  const isFolder = await invoke("is_folder", { path: mod.path }).catch((error) => {
-    loggingStore.logError(`An error occurred while checking if mod path is a folder for "${mod.name}":`, error);
-    return false;
-  });
+    if (!folderExists) {
+        notificationStore.add({
+            type: 'error',
+            closable: true,
+            title: t('modsTab.notifications.openModFolder.error.notFound.title'),
+            message: t('modsTab.notifications.openModFolder.error.notFound.message', { modName: mod.name }),
+            duration: 5000,
+        })
+        return
+    }
 
-  if (!isFolder) {
-    notificationStore.add({
-      type: 'error',
-      closable: true,
-      title: t('modsTab.notifications.openModFolder.error.notDirectory.title'),
-      message: t('modsTab.notifications.openModFolder.error.notDirectory.message', { modName: mod.name }),
-      duration: 5000
+    // check if is a folder
+    const isFolder = await invoke('is_folder', { path: mod.path }).catch((error) => {
+        loggingStore.logError(`An error occurred while checking if mod path is a folder for "${mod.name}":`, error)
+        return false
     })
-    return
-  }
 
-  await openPath(mod.path)
+    if (!isFolder) {
+        notificationStore.add({
+            type: 'error',
+            closable: true,
+            title: t('modsTab.notifications.openModFolder.error.notDirectory.title'),
+            message: t('modsTab.notifications.openModFolder.error.notDirectory.message', { modName: mod.name }),
+            duration: 5000,
+        })
+        return
+    }
+
+    await openPath(mod.path)
 }
 
 async function handleOpenStagingModsFolder() {
-  let stagingDir = settingsStore.settings.stagingDirectory
+    let stagingDir = settingsStore.settings.stagingDirectory
 
-  loggingStore.logDebug("Opening staging mods folder: ", stagingDir);
+    loggingStore.logDebug('Opening staging mods folder: ', stagingDir)
 
-  if (!stagingDir) {
-    loggingStore.logError("Staging directory is not set.");
+    if (!stagingDir) {
+        loggingStore.logError('Staging directory is not set.')
 
-    return notificationStore.add({
-      type: "error",
-      closable: true,
-      title: t('modsTab.notifications.openStagingModsFolder.error.notSet.title'),
-      message: t('modsTab.notifications.openStagingModsFolder.error.notSet.message'),
-      duration: 5000
-    });
-  }
+        return notificationStore.add({
+            type: 'error',
+            closable: true,
+            title: t('modsTab.notifications.openStagingModsFolder.error.notSet.title'),
+            message: t('modsTab.notifications.openStagingModsFolder.error.notSet.message'),
+            duration: 5000,
+        })
+    }
 
-  const directoryExists = await invoke("path_exists", { path: stagingDir }).catch((error) => {
-    loggingStore.logError(`An error occurred while checking if staging directory exists:`, error);
-    return false;
-  });
-
-  if (!directoryExists) {
-    return notificationStore.add({
-      type: 'error',
-      closable: true,
-      title: t('modsTab.notifications.openStagingModsFolder.error.notFound.title'),
-      message: t('modsTab.notifications.openStagingModsFolder.error.notFound.message', { stagingDir }),
-      duration: 5000
+    const directoryExists = await invoke('path_exists', { path: stagingDir }).catch((error) => {
+        loggingStore.logError(`An error occurred while checking if staging directory exists:`, error)
+        return false
     })
-  }
 
-  await openPath(stagingDir);
+    if (!directoryExists) {
+        return notificationStore.add({
+            type: 'error',
+            closable: true,
+            title: t('modsTab.notifications.openStagingModsFolder.error.notFound.title'),
+            message: t('modsTab.notifications.openStagingModsFolder.error.notFound.message', { stagingDir }),
+            duration: 5000,
+        })
+    }
+
+    await openPath(stagingDir)
 }
 
 async function openGameFolder() {
-  const { gameDirectory } = settingsStore.settings
+    const { gameDirectory } = settingsStore.settings
 
-  loggingStore.logDebug("Opening game folder:", gameDirectory);
+    loggingStore.logDebug('Opening game folder:', gameDirectory)
 
-  if (!gameDirectory) {
-    loggingStore.logError("Game directory is not set.");
+    if (!gameDirectory) {
+        loggingStore.logError('Game directory is not set.')
 
-    notificationStore.add({
-      type: 'error',
-      closable: true,
-      title: t('modsTab.notifications.openGameFolder.error.notSet.title'),
-      message: t('modsTab.notifications.openGameFolder.error.notSet.message'),
-      duration: 5000
+        notificationStore.add({
+            type: 'error',
+            closable: true,
+            title: t('modsTab.notifications.openGameFolder.error.notSet.title'),
+            message: t('modsTab.notifications.openGameFolder.error.notSet.message'),
+            duration: 5000,
+        })
+        return
+    }
+
+    const directoryExists = await invoke<boolean>('path_exists', { path: gameDirectory }).catch((error) => {
+        loggingStore.logError('An error occurred while checking if game directory exists:', error)
+        return false
     })
-    return
-  }
 
-  const directoryExists = await invoke<boolean>("path_exists", { path: gameDirectory }).catch((error) => {
-    loggingStore.logError("An error occurred while checking if game directory exists:", error);
-    return false;
-  });
+    if (!directoryExists) {
+        notificationStore.add({
+            type: 'error',
+            closable: true,
+            title: t('modsTab.notifications.openGameFolder.error.notFound.title'),
+            message: t('modsTab.notifications.openGameFolder.error.notFound.message', { gameDirectory }),
+            duration: 5000,
+        })
+        return
+    }
 
-  if (!directoryExists) {
-    notificationStore.add({
-      type: 'error',
-      closable: true,
-      title: t('modsTab.notifications.openGameFolder.error.notFound.title'),
-      message: t('modsTab.notifications.openGameFolder.error.notFound.message', { gameDirectory }),
-      duration: 5000
+    const isFolder = await invoke<boolean>('is_folder', { path: gameDirectory }).catch((error) => {
+        loggingStore.logError('An error occurred while checking if game path is a folder:', error)
+        return false
     })
-    return
-  }
 
-  const isFolder = await invoke<boolean>("is_folder", { path: gameDirectory }).catch((error) => {
-    loggingStore.logError("An error occurred while checking if game path is a folder:", error);
-    return false;
-  });
+    if (!isFolder) {
+        notificationStore.add({
+            type: 'error',
+            closable: true,
+            title: t('modsTab.notifications.openGameFolder.error.notDirectory.title'),
+            message: t('modsTab.notifications.openGameFolder.error.notDirectory.message', { gameDirectory }),
+            duration: 5000,
+        })
+        return
+    }
 
-  if (!isFolder) {
-    notificationStore.add({
-      type: 'error',
-      closable: true,
-      title: t('modsTab.notifications.openGameFolder.error.notDirectory.title'),
-      message: t('modsTab.notifications.openGameFolder.error.notDirectory.message', { gameDirectory }),
-      duration: 5000
-    })
-    return
-  }
-
-  await openPath(gameDirectory)
+    await openPath(gameDirectory)
 }
 
 async function openGameModsFolder() {
-  const { gameDirectory } = settingsStore.settings
+    const { gameDirectory } = settingsStore.settings
 
-  if (!gameDirectory) {
-    loggingStore.logError("Game directory is not set.");
+    if (!gameDirectory) {
+        loggingStore.logError('Game directory is not set.')
 
-    notificationStore.add({
-      type: 'error',
-      closable: true,
-      title: t('modsTab.notifications.openGameModsFolder.error.gameDirectoryNotSet.title'),
-      message: t('modsTab.notifications.openGameModsFolder.error.gameDirectoryNotSet.message'),
-      duration: 5000
+        notificationStore.add({
+            type: 'error',
+            closable: true,
+            title: t('modsTab.notifications.openGameModsFolder.error.gameDirectoryNotSet.title'),
+            message: t('modsTab.notifications.openGameModsFolder.error.gameDirectoryNotSet.message'),
+            duration: 5000,
+        })
+        return
+    }
+
+    const gameModsDirectory = await join(gameDirectory, 'BepInEx', 'plugins', 'BrownDustX', 'mods')
+
+    loggingStore.logDebug('Opening game mods folder:', gameModsDirectory)
+
+    const directoryExists = await invoke<boolean>('path_exists', { path: gameModsDirectory }).catch((error) => {
+        loggingStore.logError('An error occurred while checking if game mods directory exists:', error)
+        return false
     })
-    return
-  }
 
-  const gameModsDirectory = await join(gameDirectory, 'BepInEx', 'plugins', 'BrownDustX', 'mods')
+    if (!directoryExists) {
+        notificationStore.add({
+            type: 'error',
+            closable: true,
+            title: t('modsTab.notifications.openGameModsFolder.error.notFound.title'),
+            message: t('modsTab.notifications.openGameModsFolder.error.notFound.message', { gameModsDirectory }),
+            duration: 5000,
+        })
+        return
+    }
 
-  loggingStore.logDebug("Opening game mods folder:", gameModsDirectory);
-
-  const directoryExists = await invoke<boolean>("path_exists", { path: gameModsDirectory }).catch((error) => {
-    loggingStore.logError("An error occurred while checking if game mods directory exists:", error);
-    return false;
-  });
-
-  if (!directoryExists) {
-    notificationStore.add({
-      type: 'error',
-      closable: true,
-      title: t('modsTab.notifications.openGameModsFolder.error.notFound.title'),
-      message: t('modsTab.notifications.openGameModsFolder.error.notFound.message', { gameModsDirectory }),
-      duration: 5000
+    const isFolder = await invoke<boolean>('is_folder', { path: gameModsDirectory }).catch((error) => {
+        loggingStore.logError('An error occurred while checking if game mods path is a folder:', error)
+        return false
     })
-    return
-  }
 
-  const isFolder = await invoke<boolean>("is_folder", { path: gameModsDirectory }).catch((error) => {
-    loggingStore.logError("An error occurred while checking if game mods path is a folder:", error);
-    return false;
-  });
+    if (!isFolder) {
+        notificationStore.add({
+            type: 'error',
+            closable: true,
+            title: t('modsTab.notifications.openGameModsFolder.error.notDirectory.title'),
+            message: t('modsTab.notifications.openGameModsFolder.error.notDirectory.message', { gameModsDirectory }),
+            duration: 5000,
+        })
+        return
+    }
 
-  if (!isFolder) {
-    notificationStore.add({
-      type: 'error',
-      closable: true,
-      title: t('modsTab.notifications.openGameModsFolder.error.notDirectory.title'),
-      message: t('modsTab.notifications.openGameModsFolder.error.notDirectory.message', { gameModsDirectory }),
-      duration: 5000
-    })
-    return
-  }
-
-  await openPath(gameModsDirectory)
+    await openPath(gameModsDirectory)
 }
 
 async function setupEventListeners() {
-  // remove existing listeners if any
-  unlistenFns.forEach((unlisten) => unlisten())
-  unlistenFns = []
+    // remove existing listeners if any
+    unlistenFns.forEach((unlisten) => unlisten())
+    unlistenFns = []
 
-  console.log("Setting up event listeners for ModsTab");
+    console.log('Setting up event listeners for ModsTab')
 
-  const unlistenDragDrop = await listen("tauri://drag-drop", async (event: any) => {
-    const paths = event.payload?.paths as string[]
+    const unlistenDragDrop = await listen('tauri://drag-drop', async (event: any) => {
+        const paths = event.payload?.paths as string[]
 
-    for (const path of paths) {
-      await installMod(path)
-    }
-  })
+        for (const path of paths) {
+            await installMod(path)
+        }
+    })
 
-  unlistenFns = [unlistenDragDrop]
+    unlistenFns = [unlistenDragDrop]
 }
 
 onActivated(async () => {
-  isActive.value = true
-  loggingStore.logDebug("Mounting ModsTab, setting up event listeners");
-  await setupEventListeners()
+    isActive.value = true
+    loggingStore.logDebug('Mounting ModsTab, setting up event listeners')
+    await setupEventListeners()
 })
 
 onDeactivated(() => {
-  isActive.value = false
-  loggingStore.logDebug("Unmounting ModsTab, removing event listeners");
-  unlistenFns.forEach((unlisten) => unlisten())
-  unlistenFns = []
+    isActive.value = false
+    loggingStore.logDebug('Unmounting ModsTab, removing event listeners')
+    unlistenFns.forEach((unlisten) => unlisten())
+    unlistenFns = []
 })
 
 watchDebounced(
-  () => filters.searchQuery,
-  (newValue) => {
-    debouncedSearchQuery.value = newValue;
-  },
-  { debounce: 50 }
-);
-
+    () => filters.searchQuery,
+    (newValue) => {
+        debouncedSearchQuery.value = newValue
+    },
+    { debounce: 50 },
+)
 
 // [TODO] should these watchers be in here?
-watch(() => settingsStore.settings.stagingDirectory, (newDir, oldDir) => {
-  loggingStore.logDebug("Staging directory changed from", oldDir, "to", newDir);
+watch(
+    () => settingsStore.settings.stagingDirectory,
+    (newDir, oldDir) => {
+        loggingStore.logDebug('Staging directory changed from', oldDir, 'to', newDir)
 
-  if (oldDir === null || oldDir === undefined) {
-    loggingStore.logDebug("Skipping initial settings load");
-    return;
-  }
+        if (oldDir === null || oldDir === undefined) {
+            loggingStore.logDebug('Skipping initial settings load')
+            return
+        }
 
-  if (newDir && newDir !== oldDir) {
-    loggingStore.logDebug("Staging directory changed, discovering mods...");
-    modsStore.discoverMods();
-  }
-});
+        if (newDir && newDir !== oldDir) {
+            loggingStore.logDebug('Staging directory changed, discovering mods...')
+            modsStore.discoverMods()
+        }
+    },
+)
 
-watch(() => settingsStore.settings.searchModsRecursively, (newValue, oldValue) => {
-  if (oldValue === null || oldValue === undefined) {
-    loggingStore.logDebug("Skipping initial searchModsRecursively load");
-    return;
-  }
+watch(
+    () => settingsStore.settings.searchModsRecursively,
+    (newValue, oldValue) => {
+        if (oldValue === null || oldValue === undefined) {
+            loggingStore.logDebug('Skipping initial searchModsRecursively load')
+            return
+        }
 
-  if (newValue !== oldValue) {
-    loggingStore.logDebug("Search recursively changed:", oldValue, "→", newValue);
-    modsStore.discoverMods();
-  }
-});
-
+        if (newValue !== oldValue) {
+            loggingStore.logDebug('Search recursively changed:', oldValue, '→', newValue)
+            modsStore.discoverMods()
+        }
+    },
+)
 
 const addModMenuItems = computed(() => [
-  { label: t('modsTab.actions.installFromZip'), clicked: installFromZip },
-  { label: t('modsTab.actions.installFromFolder'), clicked: installFromFolder }
+    { label: t('modsTab.actions.installFromZip'), clicked: installFromZip },
+    { label: t('modsTab.actions.installFromFolder'), clicked: installFromFolder },
 ])
 
 const AddModMenu = defineComponent({
-  setup() {
-    return () =>
-      h(Popover, {}, {
-        trigger: ({ toggle }: any) =>
-          h(Button, {
-            label: t('modsTab.actions.addMod'),
-            icon: FolderPlus,
-            variant: 'text',
-            onClick: toggle
-          }),
-        default: ({ close }: any) =>
-          h('ul', { class: 'bg-surface-popover border-border-default border rounded-md' }, addModMenuItems.value.map(item =>
-            h('li', { key: item.label },
-              h('button', {
-                class: 'w-full cursor-pointer text-left px-4 py-2 hover:bg-state-hover text-sm font-medium',
-                onClick: () => { item.clicked(); close() }
-              }, item.label)
+    setup() {
+        return () =>
+            h(
+                Popover,
+                {},
+                {
+                    trigger: ({ toggle }: any) =>
+                        h(Button, {
+                            label: t('modsTab.actions.addMod'),
+                            icon: FolderPlus,
+                            variant: 'text',
+                            onClick: toggle,
+                        }),
+                    default: ({ close }: any) =>
+                        h(
+                            'ul',
+                            { class: 'bg-surface-popover border-border-default border rounded-md' },
+                            addModMenuItems.value.map((item) =>
+                                h(
+                                    'li',
+                                    { key: item.label },
+                                    h(
+                                        'button',
+                                        {
+                                            class: 'w-full cursor-pointer text-left px-4 py-2 hover:bg-state-hover text-sm font-medium',
+                                            onClick: () => {
+                                                item.clicked()
+                                                close()
+                                            },
+                                        },
+                                        item.label,
+                                    ),
+                                ),
+                            ),
+                        ),
+                },
             )
-          ))
-      })
-  }
+    },
 })
 
 useHeader({
-  title: t('modsTab.title'),
-  subtitle: computed(() =>
-    t('modsTab.subtitle', {
-      enabledModsCount: enabledModsCount.value,
-      totalModsCount: totalModsCount.value
-    })
-  ),
-  buttons: [
-    {
-      icon: RefreshCcw,
-      label: t('common.actions.refreshMods'),
-      action: async () => {
-        await handleRefreshMods()
-      }
-    },
-    { render: () => h(AddModMenu) }
-  ]
+    title: t('modsTab.title'),
+    subtitle: computed(() =>
+        t('modsTab.subtitle', {
+            enabledModsCount: enabledModsCount.value,
+            totalModsCount: totalModsCount.value,
+        }),
+    ),
+    buttons: [
+        {
+            icon: RefreshCcw,
+            label: t('common.actions.refreshMods'),
+            action: async () => {
+                await handleRefreshMods()
+            },
+        },
+        { render: () => h(AddModMenu) },
+    ],
 })
 </script>
 <template>
-  <div class="flex flex-col h-full gap-0 select-none p-4 py-0 pb-2">
-    <UpdateAuthorModal ref="updateAuthorModal" />
-    <RenameModModal ref="renameModModal" />
+    <div class="flex flex-col h-full gap-0 select-none p-4 py-0 pb-2">
+        <UpdateAuthorModal ref="updateAuthorModal" />
+        <RenameModModal ref="renameModModal" />
 
-    <div class="shrink-0 mb-2">
-      <ModsHeader v-model:filters="filters" />
-    </div>
+        <div class="shrink-0 mb-2">
+            <ModsHeader
+                v-model:filters="filters"
+                :filter-counts="filterCounts"
+            />
+        </div>
 
-    <div v-if="hasUnmanagedMods && !unmanagedNoticeDismissed"
-      class="flex items-center justify-between gap-2 shrink-0 mb-2 px-3 py-1 rounded-md bg-surface-panel text-text-secondary text-sm">
-      <Popover placement="bottom-start">
-        <template #trigger="{ open, close, isOpen }">
-          <button type="button" class="flex items-center gap-2 py-1 text-left cursor-pointer hover:underline"
-            :aria-expanded="isOpen" @mouseenter="open" @mouseleave="close" @focus="open" @blur="close" @keydown.esc="close">
-            <Info class="size-4 shrink-0" />
-            {{ t('modsTab.unmanagedNotice.message') }}
-          </button>
-        </template>
-        <template #default="{ close }">
-          <div class="w-96 max-w-[calc(100vw-2rem)] p-4 rounded-md border border-border-default bg-surface-popover text-sm text-text-secondary"
-            @keydown.esc="close">
-            <div class="flex items-center justify-between gap-3 mb-3">
-              <span class="font-semibold text-text-primary">{{ t('modsTab.unmanagedNotice.title') }}</span>
+        <div
+            v-if="hasUnmanagedMods && !unmanagedNoticeDismissed"
+            class="flex items-center justify-between gap-2 shrink-0 mb-2 px-3 py-1 rounded-md bg-surface-panel text-text-secondary text-sm"
+        >
+            <Popover placement="bottom-start">
+                <template #trigger="{ open, close, isOpen }">
+                    <button
+                        type="button"
+                        class="flex items-center gap-2 py-1 text-left cursor-pointer hover:underline"
+                        :aria-expanded="isOpen"
+                        @mouseenter="open"
+                        @mouseleave="close"
+                        @focus="open"
+                        @blur="close"
+                        @keydown.esc="close"
+                    >
+                        <Info class="size-4 shrink-0" />
+                        {{ t('modsTab.unmanagedNotice.message') }}
+                    </button>
+                </template>
+                <template #default="{ close }">
+                    <div
+                        class="w-96 max-w-[calc(100vw-2rem)] p-4 rounded-md border border-border-default bg-surface-popover text-sm text-text-secondary"
+                        @keydown.esc="close"
+                    >
+                        <div class="flex items-center justify-between gap-3 mb-3">
+                            <span class="font-semibold text-text-primary">{{ t('modsTab.unmanagedNotice.title') }}</span>
+                        </div>
+                        <div class="space-y-3">
+                            <section
+                                v-for="section in ['meaning', 'backup', 'inside', 'outside']"
+                                :key="section"
+                            >
+                                <h4 class="font-medium text-text-primary mb-1">{{ t(`modsTab.unmanagedNotice.${section}Title`) }}</h4>
+                                <p>{{ t(`modsTab.unmanagedNotice.${section}`) }}</p>
+                            </section>
+                        </div>
+                    </div>
+                </template>
+            </Popover>
+            <button
+                type="button"
+                class="p-1 rounded hover:text-text-primary cursor-pointer"
+                :aria-label="t('common.actions.close')"
+                @click="unmanagedNoticeDismissed = true"
+            >
+                <X class="size-4" />
+            </button>
+        </div>
+
+        <div class="flex-1 overflow-hidden min-h-0 mb-2">
+            <Modlist
+                :mods="filteredMods"
+                :isSyncing="modsStore.isSyncing"
+                @refresh-mods="handleRefreshMods"
+                @enable-mods="enableMods"
+                @disable-mods="disableMods"
+                @change-mod-author="handleUpdateModAuthor"
+                @delete-mods="deleteMods"
+                @open-mod-folder="handleOpenModFolder"
+                @preview-mod="previewMod"
+                @rename-mod="handleRenameMod"
+                @show-mod-conflicts="handleShowModConflicts"
+            />
+        </div>
+
+        <div class="flex justify-between items-center shrink-0">
+            <div class="flex flex-col">
+                <span class="font-semibold">
+                    <template v-if="gameStore.browndustxVersion?.status == 'Installed'">
+                        {{ $t('modsTab.modLoader.status.installed', { version: gameStore.browndustxVersion.version }) }}
+                    </template>
+                    <template v-else-if="gameStore.browndustxVersion?.status == 'InstalledButOutdated'">
+                        {{ $t('modsTab.modLoader.status.installedButOutdated', { version: gameStore.browndustxVersion.version }) }}
+                    </template>
+                    <template v-else-if="!gameStore.browndustxVersion">
+                        {{ $t('modsTab.modLoader.status.gameNotFound') }}
+                    </template>
+                    <template v-else>
+                        {{ $t('modsTab.modLoader.status.notInstalled') }}
+                    </template>
+                </span>
+                <RouterLink
+                    to="/mod-loader"
+                    class="text-text-secondary text-xs hover:underline"
+                >
+                    {{ $t('modsTab.modLoader.navigation') }}
+                </RouterLink>
             </div>
-            <div class="space-y-3">
-              <section v-for="section in ['meaning', 'backup', 'inside', 'outside']" :key="section">
-                <h4 class="font-medium text-text-primary mb-1">{{ t(`modsTab.unmanagedNotice.${section}Title`) }}</h4>
-                <p>{{ t(`modsTab.unmanagedNotice.${section}`) }}</p>
-              </section>
+
+            <div class="flex gap-2 text-primary">
+                <MultiButton
+                    :label="$t('modsTab.actions.openModsFolder')"
+                    :icon="Folder"
+                    @click="handleOpenStagingModsFolder"
+                    :actions="[
+                        { label: t('modsTab.actions.openGameFolder'), clicked: openGameFolder, icon: Folder },
+                        { label: t('modsTab.actions.openGameModsFolder'), clicked: openGameModsFolder, icon: Folder },
+                    ]"
+                />
+
+                <MultiButton
+                    variant="default"
+                    :disabled="modsStore.isSyncing"
+                    :label="$t('modsTab.actions.unsyncMods')"
+                    :icon="FolderMinus"
+                    @click="() => unsyncMods()"
+                    :actions="[{ label: $t('modsTab.actions.unsyncModsAndRemoveUnmanaged'), icon: FolderMinus, clicked: () => unsyncMods(true), disabled: modsStore.isSyncing }]"
+                />
+                <MultiButton
+                    :variant="modsStore.isSyncNeeded ? 'primary' : 'default'"
+                    :disabled="modsStore.isSyncing"
+                    :class="{ 'animate-pulse-2 hover:animate-none transition-colors': modsStore.isSyncNeeded }"
+                    :label="$t('modsTab.actions.syncMods')"
+                    :icon="FolderSync"
+                    @click="syncMods()"
+                    :actions="[{ label: t('modsTab.actions.syncModsAndRemoveUnmanaged'), icon: FolderSync, clicked: () => syncMods(true), disabled: modsStore.isSyncing }]"
+                />
             </div>
-          </div>
-        </template>
-      </Popover>
-      <button type="button" class="p-1 rounded hover:text-text-primary cursor-pointer"
-        :aria-label="t('common.actions.close')" @click="unmanagedNoticeDismissed = true"><X class="size-4" /></button>
+        </div>
     </div>
-
-    <div class="flex-1 overflow-hidden min-h-0 mb-2">
-      <Modlist :mods="filteredMods" :isSyncing="modsStore.isSyncing" @refresh-mods="handleRefreshMods" @enable-mods="enableMods"
-        @disable-mods="disableMods" @change-mod-author="handleUpdateModAuthor" @delete-mods="deleteMods"
-        @open-mod-folder="handleOpenModFolder" @preview-mod="previewMod" @rename-mod="handleRenameMod" @show-mod-conflicts="handleShowModConflicts" />
-    </div>
-
-    <div class="flex justify-between items-center shrink-0">
-      <div class="flex flex-col">
-        <span class="font-semibold">
-          <template v-if="gameStore.browndustxVersion?.status == 'Installed'">
-            {{ $t("modsTab.modLoader.status.installed", { version: gameStore.browndustxVersion.version }) }}
-          </template>
-          <template v-else-if="gameStore.browndustxVersion?.status == 'InstalledButOutdated'">
-            {{ $t("modsTab.modLoader.status.installedButOutdated", { version: gameStore.browndustxVersion.version }) }}
-          </template>
-          <template v-else-if="!gameStore.browndustxVersion">
-            {{ $t("modsTab.modLoader.status.gameNotFound") }}
-          </template>
-          <template v-else>
-            {{ $t("modsTab.modLoader.status.notInstalled") }}
-          </template>
-        </span>
-        <RouterLink to="/mod-loader" class="text-text-secondary text-xs hover:underline">
-          {{ $t("modsTab.modLoader.navigation") }}
-        </RouterLink>
-      </div>
-
-      <div class="flex gap-2 text-primary">
-        <MultiButton :label="$t('modsTab.actions.openModsFolder')" :icon="Folder" @click="handleOpenStagingModsFolder"
-          :actions="[
-            { label: t('modsTab.actions.openGameFolder'), clicked: openGameFolder, icon: Folder },
-            { label: t('modsTab.actions.openGameModsFolder'), clicked: openGameModsFolder, icon: Folder }
-          ]" />
-
-        <MultiButton variant="default" :disabled="modsStore.isSyncing" :label="$t('modsTab.actions.unsyncMods')" :icon="FolderMinus" @click="() => unsyncMods()" :actions="[
-          { label: $t('modsTab.actions.unsyncModsAndRemoveUnmanaged'), icon: FolderMinus, clicked: () => unsyncMods(true), disabled: modsStore.isSyncing },
-        ]" />
-        <MultiButton :variant="modsStore.isSyncNeeded? 'primary': 'default'" :disabled="modsStore.isSyncing" :class="{'animate-pulse-2 hover:animate-none transition-colors': modsStore.isSyncNeeded}" :label="$t('modsTab.actions.syncMods')" :icon="FolderSync" @click="syncMods()" :actions="[
-          { label: t('modsTab.actions.syncModsAndRemoveUnmanaged'), icon: FolderSync, clicked: () => syncMods(true), disabled: modsStore.isSyncing },
-        ]" />
-      </div>
-    </div>
-  </div>
 </template>
 <style scoped></style>

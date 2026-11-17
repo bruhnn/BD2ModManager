@@ -362,13 +362,22 @@
                 "filters": "Filters"
             },
             "advancedFilters": {
-                "title": "Advanced Filters",
-                "actions": {
-                    "onlyEnabledMods": "Only Enabled Mods",
-                    "onlyDisabledMods": "Only Disabled Mods",
-                    "onlyConflictsMods": "Only Conflicts Mods",
-                    "onlyErrorsMods": "Only Errors Mods",
-                    "hideErrorsMods": "Hide Error Mods"
+                "title": "Filters",
+                "reset": "Reset",
+                "include": "Include",
+                "exclude": "Exclude",
+                "categories": {
+                    "status": "Status",
+                    "issues": "Issues",
+                    "source": "Source"
+                },
+                "options": {
+                    "enabled": "Enabled",
+                    "disabled": "Disabled",
+                    "conflicts": "Conflicts",
+                    "errors": "Errors",
+                    "managed": "Managed",
+                    "unmanaged": "Unmanaged"
                 }
             }
         },

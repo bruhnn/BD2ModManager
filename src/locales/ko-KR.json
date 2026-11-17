@@ -362,13 +362,22 @@
                 "filters": "필터"
             },
             "advancedFilters": {
-                "title": "고급 필터",
-                "actions": {
-                    "onlyEnabledMods": "활성화된 모드만 표시",
-                    "onlyDisabledMods": "비활성화된 모드만 표시",
-                    "onlyConflictsMods": "충돌 모드만 표시",
-                    "onlyErrorsMods": "오류 모드만 표시",
-                    "hideErrorsMods": "오류 모드 숨기기"
+                "title": "필터",
+                "reset": "초기화",
+                "include": "포함",
+                "exclude": "제외",
+                "categories": {
+                    "status": "상태",
+                    "issues": "문제",
+                    "source": "출처"
+                },
+                "options": {
+                    "enabled": "활성화됨",
+                    "disabled": "비활성화됨",
+                    "conflicts": "충돌",
+                    "errors": "오류",
+                    "managed": "관리됨",
+                    "unmanaged": "관리되지 않음"
                 }
             }
         },

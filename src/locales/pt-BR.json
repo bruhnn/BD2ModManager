@@ -362,13 +362,22 @@
                 "filters": "Filtros"
             },
             "advancedFilters": {
-                "title": "Filtros Avançados",
-                "actions": {
-                    "onlyEnabledMods": "Apenas Mods Ativados",
-                    "onlyDisabledMods": "Apenas Mods Desativados",
-                    "onlyConflictsMods": "Apenas Mods com Conflitos",
-                    "onlyErrorsMods": "Apenas Mods com Erros",
-                    "hideErrorsMods": "Ocultar Mods com Erros"
+                "title": "Filtros",
+                "reset": "Redefinir",
+                "include": "Incluir",
+                "exclude": "Excluir",
+                "categories": {
+                    "status": "Status",
+                    "issues": "Problemas",
+                    "source": "Origem"
+                },
+                "options": {
+                    "enabled": "Ativados",
+                    "disabled": "Desativados",
+                    "conflicts": "Conflitos",
+                    "errors": "Erros",
+                    "managed": "Gerenciados",
+                    "unmanaged": "Não gerenciados"
                 }
             }
         },
