@@ -144,6 +144,13 @@ pub fn dirs_match(src: &Path, dst: &Path) -> Result<bool, ModSyncError> {
     Ok(true)
 }
 
+fn copy_preserving_mtime(src: &Path, dst: &Path) -> io::Result<()> {
+    copy(src, dst)?;
+    let modified = fs::metadata(src)?.modified()?;
+    fs::File::options().write(true).open(dst)?.set_modified(modified)?;
+    Ok(())
+}
+
 pub fn sync_dirs(src: &Path, dst: &Path, staging_directory: &Path) -> Result<bool, ModSyncError> {
     let metadata = fs::symlink_metadata(src)?;
 
@@ -219,7 +226,7 @@ pub fn sync_dirs(src: &Path, dst: &Path, staging_directory: &Path) -> Result<boo
             };
 
             if needs_copy {
-                copy(&src_path, &dst_path)?;
+                copy_preserving_mtime(&src_path, &dst_path)?;
                 updated = true;
             }
         }
