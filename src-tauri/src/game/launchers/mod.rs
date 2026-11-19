@@ -11,6 +11,8 @@ mod heroic;
 #[cfg(not(windows))]
 mod lutris;
 #[cfg(not(windows))]
+mod plain_wine;
+#[cfg(not(windows))]
 mod steam;
 
 #[cfg_attr(windows, allow(dead_code))]
@@ -22,6 +24,7 @@ pub enum LauncherApp {
     Heroic,
     Bottles,
     Steam,
+    Wine,
 }
 
 #[cfg_attr(windows, allow(dead_code))]
@@ -47,7 +50,7 @@ mod linux {
 
     use log::debug;
 
-    use super::{bottles, faugus, heroic, lutris, steam, LauncherApp, LauncherEntry};
+    use super::{bottles, faugus, heroic, lutris, plain_wine, steam, LauncherApp, LauncherEntry};
     use crate::game::locate::{is_game_dir, LocatedGame};
     use crate::utils::process::host_command;
 
@@ -63,6 +66,7 @@ mod linux {
         &heroic::Heroic,
         &bottles::Bottles,
         &steam::Steam,
+        &plain_wine::PlainWine,
     ];
 
     fn all_entries() -> impl Iterator<Item = LauncherEntry> {
@@ -98,12 +102,14 @@ mod linux {
 
     pub fn entry_for(game_dir: &Path) -> Option<LauncherEntry> {
         let target = game_dir.canonicalize().ok()?;
-        all_entries().find(|entry| {
-            entry
-                .game_dir
-                .canonicalize()
-                .is_ok_and(|path| path == target)
-        })
+        all_entries()
+            .find(|entry| {
+                entry
+                    .game_dir
+                    .canonicalize()
+                    .is_ok_and(|path| path == target)
+            })
+            .or_else(|| plain_wine::entry_for(game_dir))
     }
 
     pub fn launch(entry: &LauncherEntry) -> std::io::Result<()> {
@@ -116,18 +122,12 @@ mod linux {
         launcher.launch(entry)
     }
 
-    pub(super) fn home() -> Option<PathBuf> {
-        std::env::var_os("HOME")
-            .filter(|home| !home.is_empty())
-            .map(PathBuf::from)
-    }
-
     pub(super) fn flatpak_dir(app_id: &str, kind: &str) -> Option<PathBuf> {
-        home().map(|home| home.join(".var/app").join(app_id).join(kind))
+        dirs::home_dir().map(|home| home.join(".var/app").join(app_id).join(kind))
     }
 
     pub(super) fn expand_home(path: &str) -> PathBuf {
-        match (path.strip_prefix("~/"), home()) {
+        match (path.strip_prefix("~/"), dirs::home_dir()) {
             (Some(rest), Some(home)) => home.join(rest),
             _ => PathBuf::from(path),
         }

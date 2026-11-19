@@ -2,7 +2,7 @@ use std::path::PathBuf;
 
 use log::warn;
 
-use super::{flatpak_run, spawn_detached, Launcher, LauncherApp, LauncherEntry};
+use super::{flatpak_dir, flatpak_run, spawn_detached, Launcher, LauncherApp, LauncherEntry};
 use crate::game::locate::game_dir_from_exe;
 use crate::utils::process::host_command;
 
@@ -11,18 +11,16 @@ const FLATPAK_ID: &str = "io.github.Faugus.faugus-launcher";
 pub struct Faugus;
 
 fn games_files() -> Vec<(PathBuf, bool)> {
-    let home = std::env::var_os("HOME").map(PathBuf::from);
-    let mut data_dirs = Vec::new();
-    if let Some(xdg) = std::env::var_os("XDG_DATA_HOME").filter(|v| !v.is_empty()) {
-        data_dirs.push((PathBuf::from(xdg), false));
-    }
-    if let Some(home) = &home {
-        data_dirs.push((home.join(".local/share"), false));
-        data_dirs.push((home.join(".var/app").join(FLATPAK_ID).join("data"), true));
-    }
+    let data_dirs = [
+        (dirs::data_dir(), false),
+        (flatpak_dir(FLATPAK_ID, "data"), true),
+    ];
 
     let mut files: Vec<(PathBuf, bool)> = Vec::new();
     for (dir, flatpak) in data_dirs {
+        let Some(dir) = dir else {
+            continue;
+        };
         let Ok(file) = dir.join("faugus-launcher/games.json").canonicalize() else {
             continue;
         };

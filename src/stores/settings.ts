@@ -7,7 +7,7 @@ export type Language = "en" | "cn" | "jp" | "tw" | "kr"
 
 // game/locate.rs
 export interface LauncherEntry {
-    app: "faugus" | "lutris" | "heroic" | "bottles" | "steam",
+    app: "faugus" | "lutris" | "heroic" | "bottles" | "steam" | "wine",
     gameId: string,
     flatpak: boolean,
 }

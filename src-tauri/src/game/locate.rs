@@ -4,7 +4,7 @@ use serde::Serialize;
 
 use super::launchers::LauncherEntry;
 
-const GAME_EXE: &str = "BrownDust II.exe";
+pub const GAME_EXE: &str = "BrownDust II.exe";
 
 #[derive(Serialize, Debug, Clone, PartialEq)]
 #[serde(rename_all = "camelCase")]
