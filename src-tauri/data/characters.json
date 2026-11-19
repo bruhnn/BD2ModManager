@@ -1,5 +1,5 @@
 {
-    "version": "0.0.33",
+    "version": "0.0.34",
     "characters": [
         {
             "id": "000708",
@@ -6204,7 +6204,7 @@
                 "en": "Deliberate Ace",
                 "cn": "从容的王牌",
                 "jp": "デリバレート・エース",
-                "tw": "致勝王牌莎赫拉查德",
+                "tw": "致勝王牌",
                 "kr": "딜리버레이트 에이스"
             },
             "skin_type": "prestige",
@@ -7248,7 +7248,7 @@
                 "en": "Sunny Inn Hand",
                 "cn": "客栈晴晖",
                 "jp": "客桟の陽光",
-                "tw": "客棧的陽光",
+                "tw": "客棧暖陽",
                 "kr": "객잔의 햇살"
             },
             "skin_type": "normal",
@@ -7690,7 +7690,7 @@
             },
             "costume_name": {
                 "en": "Night of Betrayal",
-                "cn": "背叛之夜",
+                "cn": "叛夜",
                 "jp": "叛逆の夜",
                 "tw": "背叛之夜",
                 "kr": "배반의 밤"
@@ -7739,6 +7739,43 @@
                 "head_image": "icon_char001297_235.png",
                 "character_image": "illust_inven_char001297_229.png",
                 "skill_image": "illust_skill_char001297_229.png"
+            }
+        },
+        {
+            "id": "067203",
+            "character": "Venaka",
+            "costume": "Cheers to Victory",
+            "is_collab": false,
+            "cutscene": true,
+            "standing": true,
+            "dating_id": null,
+            "character_image": "illust_inven_char067203_230.png",
+            "skill_preview_image": "illust_skill_char067203_230.png",
+            "release_date": "2026-11-19",
+            "gender": "female",
+            "costume_id": "067203",
+            "character_id": 672,
+            "character_name": {
+                "en": "Venaka",
+                "cn": "贝那卡",
+                "jp": "ベナカ",
+                "tw": "貝那卡",
+                "kr": "베나카"
+            },
+            "costume_name": {
+                "en": "Cheers to Victory",
+                "cn": "折桂之姿",
+                "jp": "勝利の主役",
+                "tw": "勝利應援",
+                "kr": "승리의 주역"
+            },
+            "skin_type": "normal",
+            "grade": 5,
+            "element": "wind",
+            "assets": {
+                "head_image": "icon_char067203_236.png",
+                "character_image": "illust_inven_char067203_230.png",
+                "skill_image": "illust_skill_char067203_230.png"
             }
         }
     ],
