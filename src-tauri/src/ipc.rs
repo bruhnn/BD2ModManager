@@ -152,6 +152,8 @@ mod mod_preview_ipc {
                 .ok_or("Missing enabled state")?;
             let result = (|| -> Result<Value, String> {
                 let state = app.state::<crate::AppState>();
+                // set when the game folder is the staging folder: toggling moves the mod between mods/ and mods_disabled/
+                let game_folder = crate::utils::path::get_game_folder_base(&state.config.lock().unwrap());
                 let mut manager = state
                     .mod_manager
                     .try_lock()
@@ -160,11 +162,12 @@ mod mod_preview_ipc {
                 if !entry.errors.is_empty() {
                     return Err("This mod has errors and cannot be changed".into());
                 }
-                let changed = if enabled {
-                    manager.enable_mods(vec![name.to_string()])
+                let result = if enabled {
+                    manager.enable_mods(vec![name.to_string()], game_folder.as_deref())
                 } else {
-                    manager.disable_mods(vec![name.to_string()])
+                    manager.disable_mods(vec![name.to_string()], game_folder.as_deref())
                 };
+                let changed = result.map_err(|e| e.to_string())?;
                 let mods = manager.get_mods();
                 drop(manager);
                 app.emit_to("main", "preview-mods-changed", changed)
