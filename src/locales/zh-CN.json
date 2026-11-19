@@ -17,7 +17,14 @@
             "firstSync": "未启用任何模组时，首次启动不再提示同步。",
             "translations": "补充了日语、韩语、葡萄牙语和中文中缺失的翻译，并修正了模组类型名称。",
             "tooltips": "操作按钮现在会显示提示。",
-            "dropdownPosition": "修复了下拉菜单从错误位置展开的问题。"
+            "dropdownPosition": "修复了下拉菜单从错误位置展开的问题。",
+            "convertedModsTitle": "保留 BrownDustX 转换的模组",
+            "convertedModsDescription": "当 BrownDustX 将你的模组转换为游戏的新 Spine 版本后，同步时会询问是否将其复制回你的模组文件夹，这样就不必每次同步后重新转换。原始文件会先进行备份。",
+            "gameFolderStaging": "新增将游戏文件夹（BrownDustX/mods）用作暂存目录的选项，无需同步即可管理模组。禁用的模组会移动到 BrownDustX/mods_disabled（issue #112）。",
+            "linuxLaunchers": "Linux：现在可以检测通过 Lutris、Heroic、Bottles 或 Steam 安装的游戏，并可从普通 Wine 前缀启动游戏。",
+            "directoryPaths": "目录设置中新增自动检测和最近使用的文件夹。",
+            "modsFilters": "重新设计了模组筛选器。",
+            "linuxFixes": "Linux：修复了每次同步都会重新复制模组的问题，并改进了模组加载器的安装错误提示。"
         },
         "release430": {
             "modShortcuts": "新增模组快捷键：空格启用或禁用选中的模组，Delete 删除所选模组，P 预览单个模组，Ctrl+R 刷新模组列表。",

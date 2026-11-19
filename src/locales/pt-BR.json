@@ -17,7 +17,14 @@
             "firstSync": "O aplicativo não pede mais para sincronizar na primeira inicialização quando nenhum mod está ativado.",
             "translations": "Adicionadas traduções que faltavam e corrigidos os nomes dos tipos de mod em japonês, coreano, português e chinês.",
             "tooltips": "Os botões de ação agora mostram dicas.",
-            "dropdownPosition": "Corrigidos menus suspensos abrindo na posição errada."
+            "dropdownPosition": "Corrigidos menus suspensos abrindo na posição errada.",
+            "convertedModsTitle": "Mantenha os mods convertidos pelo BrownDustX",
+            "convertedModsDescription": "Quando o BrownDustX converte seus mods para a nova versão do Spine do jogo, a sincronização agora pergunta se você quer copiá-los de volta para a sua pasta de mods, para que não precisem ser convertidos de novo a cada sincronização. Os arquivos originais são salvos em backup antes.",
+            "gameFolderStaging": "Adicionada uma opção para usar a pasta do jogo (BrownDustX/mods) como pasta de preparo, para gerenciar mods sem sincronizar. Mods desativados são movidos para BrownDustX/mods_disabled (issue #112).",
+            "linuxLaunchers": "Linux: jogos instalados com Lutris, Heroic, Bottles ou Steam agora são detectados, e o jogo pode ser iniciado a partir de um prefixo Wine comum.",
+            "directoryPaths": "Adicionadas a detecção automática e as pastas recentes nas configurações de diretórios.",
+            "modsFilters": "Os filtros de mods foram redesenhados.",
+            "linuxFixes": "Linux: corrigido o problema de os mods serem copiados de novo a cada sincronização, e melhorados os erros de instalação do carregador de mods."
         },
         "release430": {
             "modShortcuts": "Adicionados atalhos para mods: Espaço para ativar ou desativar os mods selecionados, Delete para removê-los, P para visualizar um mod e Ctrl+R para atualizar a lista.",

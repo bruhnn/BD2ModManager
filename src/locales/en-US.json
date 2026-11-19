@@ -17,7 +17,14 @@
             "firstSync": "The app no longer asks to sync on first launch when no mods are enabled.",
             "translations": "Added missing translations and fixed mod type names in Japanese, Korean, Portuguese and Chinese.",
             "tooltips": "Action buttons now show tooltips.",
-            "dropdownPosition": "Fixed dropdowns opening from the wrong position."
+            "dropdownPosition": "Fixed dropdowns opening from the wrong position.",
+            "convertedModsTitle": "Keep mods converted by BrownDustX",
+            "convertedModsDescription": "When BrownDustX converts your mods to the game's new Spine version, sync now asks to copy them back to your mods folder, so they don't have to be converted again after every sync. Your original files are backed up first.",
+            "gameFolderStaging": "Added an option to use the game folder (BrownDustX/mods) as the staging folder, to manage mods without syncing. Disabled mods are moved to BrownDustX/mods_disabled (issue #112).",
+            "linuxLaunchers": "Linux: games installed with Lutris, Heroic, Bottles or Steam are now detected, and the game can be launched from a plain Wine prefix.",
+            "directoryPaths": "Added auto-detect and recent folders to the directory settings.",
+            "modsFilters": "Redesigned the mods filters.",
+            "linuxFixes": "Linux: fixed mods being copied again on every sync, and improved mod loader installation errors."
         },
         "release430": {
             "modShortcuts": "Added mod keyboard shortcuts: Space to enable or disable selected mods, Delete to remove them, P to preview one mod, and Ctrl+R to refresh the mod list.",

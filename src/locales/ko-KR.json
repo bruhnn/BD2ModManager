@@ -17,7 +17,14 @@
             "firstSync": "활성화된 모드가 없으면 첫 실행 시 더 이상 동기화를 요청하지 않습니다.",
             "translations": "일본어, 한국어, 포르투갈어, 중국어의 누락된 번역을 추가하고 모드 유형 이름을 수정했습니다.",
             "tooltips": "작업 버튼에 툴팁이 표시됩니다.",
-            "dropdownPosition": "드롭다운이 잘못된 위치에서 열리는 문제를 수정했습니다."
+            "dropdownPosition": "드롭다운이 잘못된 위치에서 열리는 문제를 수정했습니다.",
+            "convertedModsTitle": "BrownDustX가 변환한 모드 유지",
+            "convertedModsDescription": "BrownDustX가 모드를 게임의 새 Spine 버전으로 변환하면, 이제 동기화할 때 변환된 모드를 모드 폴더로 다시 복사할지 묻습니다. 따라서 동기화할 때마다 다시 변환할 필요가 없습니다. 원본 파일은 먼저 백업됩니다.",
+            "gameFolderStaging": "게임 폴더(BrownDustX/mods)를 스테이징 폴더로 사용하는 옵션을 추가하여 동기화 없이 모드를 관리할 수 있습니다. 비활성화된 모드는 BrownDustX/mods_disabled로 이동됩니다(issue #112).",
+            "linuxLaunchers": "Linux: Lutris, Heroic, Bottles, Steam으로 설치한 게임을 감지하며, 일반 Wine 프리픽스에서도 게임을 실행할 수 있습니다.",
+            "directoryPaths": "디렉토리 설정에 자동 감지와 최근 폴더를 추가했습니다.",
+            "modsFilters": "모드 필터를 새롭게 디자인했습니다.",
+            "linuxFixes": "Linux: 동기화할 때마다 모드가 다시 복사되는 문제를 수정하고, 모드 로더 설치 오류를 개선했습니다."
         },
         "release430": {
             "modShortcuts": "모드 단축키 추가: Space로 선택한 모드 활성화 또는 비활성화, Delete로 삭제, P로 모드 하나 미리보기, Ctrl+R로 모드 목록 새로고침을 할 수 있습니다.",

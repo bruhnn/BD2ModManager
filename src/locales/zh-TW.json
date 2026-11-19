@@ -17,7 +17,14 @@
             "firstSync": "未啟用任何模組時，首次啟動不再提示同步。",
             "translations": "補充了日文、韓文、葡萄牙文和中文中缺少的翻譯，並修正了模組類型名稱。",
             "tooltips": "操作按鈕現在會顯示提示。",
-            "dropdownPosition": "修正了下拉選單從錯誤位置展開的問題。"
+            "dropdownPosition": "修正了下拉選單從錯誤位置展開的問題。",
+            "convertedModsTitle": "保留 BrownDustX 轉換的模組",
+            "convertedModsDescription": "當 BrownDustX 將你的模組轉換為遊戲的新 Spine 版本後，同步時會詢問是否將其複製回你的模組資料夾，這樣就不必每次同步後重新轉換。原始檔案會先進行備份。",
+            "gameFolderStaging": "新增將遊戲資料夾（BrownDustX/mods）用作暫存目錄的選項，無需同步即可管理模組。停用的模組會移至 BrownDustX/mods_disabled（issue #112）。",
+            "linuxLaunchers": "Linux：現在可以偵測透過 Lutris、Heroic、Bottles 或 Steam 安裝的遊戲，並可從一般 Wine 前綴啟動遊戲。",
+            "directoryPaths": "目錄設定中新增自動偵測和最近使用的資料夾。",
+            "modsFilters": "重新設計了模組篩選器。",
+            "linuxFixes": "Linux：修正了每次同步都會重新複製模組的問題，並改進了模組載入器的安裝錯誤提示。"
         },
         "release430": {
             "modShortcuts": "新增模組快捷鍵：空白鍵啟用或停用選取的模組，Delete 刪除所選模組，P 預覽單一模組，Ctrl+R 重新整理模組清單。",
