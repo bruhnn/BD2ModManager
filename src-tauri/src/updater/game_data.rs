@@ -288,11 +288,7 @@ pub async fn update_characters(
         resource: "characters".to_string(),
         percentage: 0,
         label: "request_github".to_string(),
-        download: Some(GameDataDownloadProgress {
-            percentage: None,
-            current: None,
-            total: None,
-        }),
+        download: None,
     });
 
     let (latest_version_str, latest_characters) = fetch_latest_characters_data().await?;

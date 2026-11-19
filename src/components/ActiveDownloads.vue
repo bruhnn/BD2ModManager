@@ -70,14 +70,6 @@ const liveDownloads = computed(() => {
       const download = resource.progress.download
       if (!download) continue
 
-      if (resource.resource === 'characters') {
-        items.push({
-          id: 'game-data-characters',
-          name: 'characters.json',
-          progress: download.percentage,
-        })
-      }
-
       if (resource.resource === 'char_assets') {
         items.push({
           id: 'game-data-character-assets',
