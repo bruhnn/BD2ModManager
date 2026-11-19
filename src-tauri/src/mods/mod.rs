@@ -9,5 +9,6 @@ pub mod types;
 pub mod utils;
 pub mod preview;
 pub mod commands;
+pub mod converted;
 
 pub use types::{BD2Mod, BD2ModType};

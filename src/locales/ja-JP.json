@@ -642,6 +642,26 @@
                 "hint": "クリックでそのMODだけを残します。複数残すにはチェックボックスかCtrl+クリックを使用します。",
                 "apply": "変更を適用 | {count}件の変更を適用 | {count}件の変更を適用",
                 "applyAndSync": "適用して同期"
+            },
+            "convertedMods": {
+                "title": "ゲームフォルダー内で変換されたMOD",
+                "subtitle": "BrownDustXがこれらのMODをゲームの新しいSpineバージョンに更新しました。同期で保持されるよう、MODフォルダーにコピーしてください。",
+                "gameFolder": "ゲームフォルダー",
+                "modsFolder": "MODフォルダー",
+                "createBackup": "元のファイルをバックアップする",
+                "changeBackupFolder": "変更",
+                "copy": "MODフォルダーにコピー",
+                "notifications": {
+                    "copied": {
+                        "title": "変換されたMODをコピーしました",
+                        "message": "{count}個の変換されたMODをMODフォルダーにコピーしました。 | {count}個の変換されたMODをMODフォルダーにコピーしました。",
+                        "messageWithBackup": "{count}個の変換されたMODをMODフォルダーにコピーしました。バックアップ: {path} | {count}個の変換されたMODをMODフォルダーにコピーしました。バックアップ: {path}"
+                    },
+                    "failed": {
+                        "title": "変換されたMODのコピーに失敗しました",
+                        "message": "{count}個のMODをコピーできなかったため、同期を中止しました: {mods} | {count}個のMODをコピーできなかったため、同期を中止しました: {mods}"
+                    }
+                }
             }
         }
     },
@@ -1268,6 +1288,7 @@
             "GameLauncherNotFound": "このゲームフォルダーに対応するランチャーが見つかりません。ランチャーからゲームを起動してください。",
             "LaunchWithoutModsUnsupported": "このシステムではMODなしでの起動にまだ対応していません。",
             "GameLaunchFailed": "ゲームの起動に失敗しました: {reason}",
+            "BackupDirectoryInvalid": "バックアップフォルダー「{path}」は、MODフォルダーまたはBrownDustX/modsの中には作成できません。別のフォルダーを選択してください。",
             "Unknown": "予期しないエラーが発生しました。詳細はログを確認してください。"
         },
         "ModInstallError": {

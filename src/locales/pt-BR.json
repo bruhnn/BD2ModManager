@@ -642,6 +642,26 @@
                 "hint": "Clique em um mod para manter só ele. Use a caixa de seleção ou Ctrl+clique para manter mais de um.",
                 "apply": "Aplicar Alterações | Aplicar {count} Alteração | Aplicar {count} Alterações",
                 "applyAndSync": "Aplicar e Sincronizar"
+            },
+            "convertedMods": {
+                "title": "Mods convertidos na pasta do jogo",
+                "subtitle": "O BrownDustX atualizou estes mods para a nova versão do Spine do jogo. Copie-os para a sua pasta de mods para que a sincronização os mantenha.",
+                "gameFolder": "Pasta do jogo",
+                "modsFolder": "Pasta de mods",
+                "createBackup": "Fazer backup dos arquivos originais",
+                "changeBackupFolder": "Alterar",
+                "copy": "Copiar para a Pasta de Mods",
+                "notifications": {
+                    "copied": {
+                        "title": "Mods convertidos copiados",
+                        "message": "{count} mod convertido foi copiado para a sua pasta de mods. | {count} mods convertidos foram copiados para a sua pasta de mods.",
+                        "messageWithBackup": "{count} mod convertido foi copiado para a sua pasta de mods. Backup: {path} | {count} mods convertidos foram copiados para a sua pasta de mods. Backup: {path}"
+                    },
+                    "failed": {
+                        "title": "Falha ao copiar mods convertidos",
+                        "message": "{count} mod não pôde ser copiado, então a sincronização foi interrompida: {mods} | {count} mods não puderam ser copiados, então a sincronização foi interrompida: {mods}"
+                    }
+                }
             }
         }
     },
@@ -1268,6 +1288,7 @@
             "GameLauncherNotFound": "Nenhum launcher foi encontrado para esta pasta do jogo. Abra o jogo pelo seu launcher.",
             "LaunchWithoutModsUnsupported": "Iniciar sem mods ainda não é suportado neste sistema.",
             "GameLaunchFailed": "Falha ao iniciar o jogo: {reason}",
+            "BackupDirectoryInvalid": "A pasta de backup “{path}” não pode ficar dentro da sua pasta de mods ou de BrownDustX/mods. Escolha outra pasta.",
             "Unknown": "Ocorreu um erro inesperado. Verifique os logs para mais detalhes."
         },
         "ModInstallError": {

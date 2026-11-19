@@ -3,7 +3,7 @@ import { readonly, ref } from 'vue'
 // import type { BD2ModExtended  } from '../stores/mods'
 import type { Error as StructuredError } from '../utils/errors'
 import type { AppUpdateAvailable } from './useUpdater'
-import type { BD2ModExtended } from '../stores/mods'
+import type { BD2ModExtended, ConvertedMod } from '../stores/mods'
 
 const activeModal = ref<symbol | null>(null)
 const closeHandlers = new Map<symbol, (openNext: boolean) => void>()
@@ -94,5 +94,11 @@ export const globalModals = {
     mod?: BD2ModExtended
     onSync?: () => void | Promise<void>
   }>(),
-  whatsNew: createModal()
+  whatsNew: createModal(),
+  convertedMods: createModal<{
+    mods: ConvertedMod[]
+    defaultBackupDirectory: string
+    // true when the files were copied and the sync can continue
+    onResolve: (proceed: boolean) => void
+  }>()
 }

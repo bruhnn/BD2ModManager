@@ -642,6 +642,26 @@
                 "hint": "點擊模組僅保留該模組。使用核取方塊或 Ctrl+點擊可保留多個。",
                 "apply": "套用變更 | 套用 {count} 項變更 | 套用 {count} 項變更",
                 "applyAndSync": "套用並同步"
+            },
+            "convertedMods": {
+                "title": "遊戲資料夾中已轉換的模組",
+                "subtitle": "BrownDustX 已將這些模組更新為遊戲的新 Spine 版本。請將它們複製到你的模組資料夾，以便同步時保留。",
+                "gameFolder": "遊戲資料夾",
+                "modsFolder": "模組資料夾",
+                "createBackup": "備份原始檔案",
+                "changeBackupFolder": "變更",
+                "copy": "複製到模組資料夾",
+                "notifications": {
+                    "copied": {
+                        "title": "已複製轉換後的模組",
+                        "message": "已將 {count} 個轉換後的模組複製到你的模組資料夾。 | 已將 {count} 個轉換後的模組複製到你的模組資料夾。",
+                        "messageWithBackup": "已將 {count} 個轉換後的模組複製到你的模組資料夾。備份：{path} | 已將 {count} 個轉換後的模組複製到你的模組資料夾。備份：{path}"
+                    },
+                    "failed": {
+                        "title": "複製轉換後的模組失敗",
+                        "message": "有 {count} 個模組無法複製，同步已停止：{mods} | 有 {count} 個模組無法複製，同步已停止：{mods}"
+                    }
+                }
             }
         }
     },
@@ -1268,6 +1288,7 @@
             "GameLauncherNotFound": "找不到此遊戲資料夾對應的啟動器。請從你的啟動器啟動遊戲。",
             "LaunchWithoutModsUnsupported": "此系統尚不支援不載入 MOD 啟動。",
             "GameLaunchFailed": "啟動遊戲失敗：{reason}",
+            "BackupDirectoryInvalid": "備份資料夾「{path}」不能位於你的模組資料夾或 BrownDustX/mods 內。請選擇其他資料夾。",
             "Unknown": "發生未預期的錯誤。請查看記錄以了解詳情。"
         },
         "ModInstallError": {

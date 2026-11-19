@@ -1,7 +1,7 @@
 use std::{collections::HashMap, io::ErrorKind, path::PathBuf};
 
 use crate::{
-    errors::AppError, mods::{BD2Mod, delete::ModDeleteError, preview::{PreviewError, is_texture_mod, preview_image}, sync::{SyncMethod, SyncResult}, types::BD2ModError}, utils::path::{get_game_dir, get_mod_preview_path, get_staging_dir},
+    errors::AppError, mods::{BD2Mod, converted::{ConvertedMod, CopyConvertedResult, copy_converted_mods as copy_converted_mods_in_staging, default_backup_dir, find_converted_mods, is_valid_backup_dir}, delete::ModDeleteError, preview::{PreviewError, is_texture_mod, preview_image}, sync::{SyncMethod, SyncResult}, types::BD2ModError}, utils::path::{get_game_dir, get_mod_preview_path, get_staging_dir},
 };
 use serde::Serialize;
 use tauri::{AppHandle, ipc::Channel};
@@ -200,6 +200,79 @@ pub async fn sync_mods(
         Ok(r) => r,
         Err(e) => {
             error!("Sync task panicked: {:?}", e);
+            Err(AppError::Unknown(format!("{:?}", e)))
+        }
+    }
+}
+
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ConvertedModsInfo {
+    mods: Vec<ConvertedMod>,
+    default_backup_directory: String,
+}
+
+// mods converted in the game folder (ex. by BrownDustX) that sync would overwrite with the staging files
+#[tauri::command]
+pub async fn get_converted_mods(
+    state: tauri::State<'_, AppState>,
+) -> Result<ConvertedModsInfo, AppError> {
+    let config = state.config.lock().unwrap().clone();
+    let mod_manager = state.mod_manager.clone();
+    let staging_dir = get_staging_dir(&config);
+    let default_backup_directory = default_backup_dir(&staging_dir).to_string_lossy().to_string();
+
+    let Some(game_dir) = get_game_dir(&config) else {
+        return Ok(ConvertedModsInfo { mods: Vec::new(), default_backup_directory });
+    };
+
+    let result = tauri::async_runtime::spawn_blocking(move || {
+        let mod_manager = mod_manager.lock().unwrap();
+        find_converted_mods(&game_dir, &mod_manager.get_mods()).map_err(AppError::from)
+    })
+    .await
+    .map_err(|error| {
+        error!("Converted mods task panicked: {:?}", error);
+        AppError::Unknown(format!("{:?}", error))
+    })??;
+
+    Ok(ConvertedModsInfo { mods: result, default_backup_directory })
+}
+
+#[tauri::command]
+pub async fn copy_converted_mods(
+    state: tauri::State<'_, AppState>,
+    mod_names: Vec<String>,
+    backup_directory: Option<String>,
+) -> Result<CopyConvertedResult, AppError> {
+    let config = state.config.lock().unwrap().clone();
+    let mod_manager = state.mod_manager.clone();
+    let staging_dir = get_staging_dir(&config);
+    let game_dir = get_game_dir(&config).ok_or(AppError::GameDirectoryNotSet)?;
+
+    let result = tauri::async_runtime::spawn_blocking(move || {
+        let backup_dir = backup_directory.map(PathBuf::from);
+        if let Some(backup_dir) = &backup_dir {
+            let valid = is_valid_backup_dir(backup_dir, &staging_dir, &game_dir)
+                .map_err(|error| AppError::Sync(error.into()))?;
+            if !valid {
+                return Err(AppError::BackupDirectoryInvalid {
+                    path: backup_dir.to_string_lossy().to_string(),
+                });
+            }
+        }
+
+        // hold the lock so a sync can't run while files are being replaced
+        let mod_manager = mod_manager.lock().unwrap();
+        copy_converted_mods_in_staging(&game_dir, &mod_manager.get_mods(), &mod_names, backup_dir.as_deref())
+            .map_err(AppError::from)
+    })
+    .await;
+
+    match result {
+        Ok(r) => r,
+        Err(e) => {
+            error!("Copy converted mods task panicked: {:?}", e);
             Err(AppError::Unknown(format!("{:?}", e)))
         }
     }

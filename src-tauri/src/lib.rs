@@ -219,6 +219,8 @@ pub fn run() {
             mods::commands::sync_mods,
             mods::commands::unsync_mods,
             mods::commands::is_sync_needed,
+            mods::commands::get_converted_mods,
+            mods::commands::copy_converted_mods,
             mods::commands::preview_mods,
             // profiles
             profiles::commands::get_profiles,

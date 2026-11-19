@@ -144,7 +144,7 @@ pub fn dirs_match(src: &Path, dst: &Path) -> Result<bool, ModSyncError> {
     Ok(true)
 }
 
-fn copy_preserving_mtime(src: &Path, dst: &Path) -> io::Result<()> {
+pub(crate) fn copy_preserving_mtime(src: &Path, dst: &Path) -> io::Result<()> {
     copy(src, dst)?;
     let modified = fs::metadata(src)?.modified()?;
     fs::File::options().write(true).open(dst)?.set_modified(modified)?;

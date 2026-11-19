@@ -642,6 +642,26 @@
                 "hint": "Click a mod to keep only it. Use the checkbox or Ctrl+click to keep more than one.",
                 "apply": "Apply Changes | Apply {count} Change | Apply {count} Changes",
                 "applyAndSync": "Apply & Sync"
+            },
+            "convertedMods": {
+                "title": "Mods converted in the game folder",
+                "subtitle": "BrownDustX updated these mods to the game's new Spine version. Copy them to your mods folder so sync keeps them.",
+                "gameFolder": "Game folder",
+                "modsFolder": "Mods folder",
+                "createBackup": "Back up original files",
+                "changeBackupFolder": "Change",
+                "copy": "Copy to Mods Folder",
+                "notifications": {
+                    "copied": {
+                        "title": "Converted mods copied",
+                        "message": "{count} converted mod was copied to your mods folder. | {count} converted mods were copied to your mods folder.",
+                        "messageWithBackup": "{count} converted mod was copied to your mods folder. Backup: {path} | {count} converted mods were copied to your mods folder. Backup: {path}"
+                    },
+                    "failed": {
+                        "title": "Failed to copy converted mods",
+                        "message": "{count} mod could not be copied, so sync was stopped: {mods} | {count} mods could not be copied, so sync was stopped: {mods}"
+                    }
+                }
             }
         }
     },
@@ -1268,6 +1288,7 @@
             "GameLauncherNotFound": "No launcher was found for this game folder. Launch the game from your launcher.",
             "LaunchWithoutModsUnsupported": "Launching without mods is not supported on this system yet.",
             "GameLaunchFailed": "Failed to launch the game: {reason}",
+            "BackupDirectoryInvalid": "The backup folder “{path}” can't be inside your mods folder or BrownDustX/mods. Choose another folder.",
             "Unknown": "An unexpected error occurred. Check logs for more details."
         },
         "Io": {

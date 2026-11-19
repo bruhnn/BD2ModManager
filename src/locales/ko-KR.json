@@ -642,6 +642,26 @@
                 "hint": "모드를 클릭하면 그 모드만 유지합니다. 여러 개를 유지하려면 체크박스나 Ctrl+클릭을 사용하세요.",
                 "apply": "변경 사항 적용 | 변경 사항 {count}개 적용 | 변경 사항 {count}개 적용",
                 "applyAndSync": "적용 후 동기화"
+            },
+            "convertedMods": {
+                "title": "게임 폴더에서 변환된 모드",
+                "subtitle": "BrownDustX가 이 모드들을 게임의 새 Spine 버전으로 업데이트했습니다. 동기화 후에도 유지되도록 모드 폴더로 복사하세요.",
+                "gameFolder": "게임 폴더",
+                "modsFolder": "모드 폴더",
+                "createBackup": "원본 파일 백업",
+                "changeBackupFolder": "변경",
+                "copy": "모드 폴더로 복사",
+                "notifications": {
+                    "copied": {
+                        "title": "변환된 모드를 복사했습니다",
+                        "message": "변환된 모드 {count}개를 모드 폴더로 복사했습니다. | 변환된 모드 {count}개를 모드 폴더로 복사했습니다.",
+                        "messageWithBackup": "변환된 모드 {count}개를 모드 폴더로 복사했습니다. 백업: {path} | 변환된 모드 {count}개를 모드 폴더로 복사했습니다. 백업: {path}"
+                    },
+                    "failed": {
+                        "title": "변환된 모드를 복사하지 못했습니다",
+                        "message": "모드 {count}개를 복사하지 못해 동기화를 중단했습니다: {mods} | 모드 {count}개를 복사하지 못해 동기화를 중단했습니다: {mods}"
+                    }
+                }
             }
         }
     },
@@ -1268,6 +1288,7 @@
             "GameLauncherNotFound": "이 게임 폴더에 맞는 런처를 찾을 수 없습니다. 런처에서 게임을 실행해 주세요.",
             "LaunchWithoutModsUnsupported": "이 시스템에서는 아직 모드 없이 실행을 지원하지 않습니다.",
             "GameLaunchFailed": "게임 실행에 실패했습니다: {reason}",
+            "BackupDirectoryInvalid": "백업 폴더 \"{path}\"는 모드 폴더나 BrownDustX/mods 안에 둘 수 없습니다. 다른 폴더를 선택하세요.",
             "Unknown": "예기치 않은 오류가 발생했습니다. 자세한 내용은 로그를 확인해 주세요."
         },
         "ModInstallError": {

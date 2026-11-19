@@ -13,6 +13,7 @@ import { useI18n } from 'vue-i18n';
 import { SyncResult } from '../composables/useModSyncEvents';
 import { useSyncStateStore } from './syncState';
 import { isInstallingAppUpdate } from '../composables/useUpdater';
+import { globalModals } from '../composables/useGlobalModals';
 
 export type BD2ModType =
     | { type: 'Standing'; id: string }
@@ -58,6 +59,24 @@ export interface DeleteModsResult {
     mods: BD2Mod[],
     deleted: readonly string[],
     failed: Record<string, ModDeleteError>,
+}
+
+export interface ConvertedMod {
+    modName: string,
+    gameFolder: string,
+    gameVersion: string,
+    stagingVersion: string,
+}
+
+export interface ConvertedModsInfo {
+    mods: ConvertedMod[],
+    defaultBackupDirectory: string,
+}
+
+export interface CopyConvertedModsResult {
+    copied: string[],
+    failed: { modName: string, error: string }[],
+    backupPath: string | null,
 }
 
 // export function isError
@@ -273,6 +292,10 @@ export const useModsStore = defineStore('mods', () => {
         isSyncing.value = true;
         try {
             await useSyncStateStore().ready
+            if (!(await resolveConvertedMods())) {
+                loggingStore.logDebug("Sync cancelled: converted mods were not copied to the mods folder.");
+                return
+            }
             let result = await invoke<SyncResult>("sync_mods", { removeUnmanagedMods })
             
             return result
@@ -293,6 +316,30 @@ export const useModsStore = defineStore('mods', () => {
         }
     }
 
+    // mods converted in the game folder (ex. by BrownDustX) would be overwritten by sync,
+    // so ask to copy them to the mods folder first. Resolves false if the sync should stop.
+    async function resolveConvertedMods(): Promise<boolean> {
+        const info = await getConvertedMods()
+        if (!info.mods.length) return true
+
+        loggingStore.logInfo(`Found ${info.mods.length} mod(s) converted in the game folder.`)
+        return new Promise<boolean>((resolve) => {
+            globalModals.convertedMods.showModal({
+                mods: info.mods,
+                defaultBackupDirectory: info.defaultBackupDirectory,
+                onResolve: resolve,
+            })
+        })
+    }
+
+    function getConvertedMods(): Promise<ConvertedModsInfo> {
+        return invoke<ConvertedModsInfo>("get_converted_mods")
+    }
+
+    function copyConvertedMods(modNames: string[], backupDirectory: string | null): Promise<CopyConvertedModsResult> {
+        return invoke<CopyConvertedModsResult>("copy_converted_mods", { modNames, backupDirectory })
+    }
+
     async function unsyncMods(removeUnmanagedMods: boolean = false): Promise<SyncResult | undefined> {
         if (isInstallingAppUpdate.value) return
         if (isSyncing.value) {
@@ -305,6 +352,11 @@ export const useModsStore = defineStore('mods', () => {
         isSyncing.value = true;
         try {
             await useSyncStateStore().ready
+            // unsync deletes the game copies, the conversion would be lost
+            if (!(await resolveConvertedMods())) {
+                loggingStore.logDebug("Unsync cancelled: converted mods were not copied to the mods folder.");
+                return
+            }
             let result = await invoke<SyncResult>("unsync_mods", { removeUnmanagedMods })
             
             return result
@@ -372,6 +424,7 @@ export const useModsStore = defineStore('mods', () => {
         setModAuthor,
         checkIsSyncNeeded,
         deleteMods,
-        renameMod
+        renameMod,
+        copyConvertedMods
     }
 })
