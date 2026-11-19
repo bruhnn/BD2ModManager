@@ -490,6 +490,11 @@
                     "title": "Falha ao Renomear Mod"
                 }
             },
+            "toggleMods": {
+                "error": {
+                    "title": "Falha ao Alterar o Estado do Mod"
+                }
+            },
             "installMod": {
                 "success": {
                     "title": "Mod Instalado",
@@ -1093,6 +1098,15 @@
                     "modsDirectory": {
                         "label": "Diretório de Preparo dos Mods",
                         "placeholder": "Selecione um diretório para armazenar seus mods antes de sincronizar"
+                    },
+                    "useGameFolderAsStaging": {
+                        "label": "Usar Pasta do Jogo como Preparo (Não Recomendado)",
+                        "description": "Gerencia os mods diretamente em BrownDustX/mods. Mods desativados são movidos para BrownDustX/mods_disabled.",
+                        "confirm": {
+                            "title": "Há mods sincronizados com a pasta do jogo",
+                            "message": "Alguns mods estão sincronizados com a pasta do jogo. Eles serão dessincronizados primeiro, senão o jogo os carregaria duas vezes.",
+                            "accept": "Dessincronizar e Continuar"
+                        }
                     }
                 },
                 "modManagement": {
@@ -1289,6 +1303,8 @@
             "LaunchWithoutModsUnsupported": "Iniciar sem mods ainda não é suportado neste sistema.",
             "GameLaunchFailed": "Falha ao iniciar o jogo: {reason}",
             "BackupDirectoryInvalid": "A pasta de backup “{path}” não pode ficar dentro da sua pasta de mods ou de BrownDustX/mods. Escolha outra pasta.",
+            "ModsMoveFailed": "Não foi possível mover estes mods: {mods}. Pode já existir um mod com o mesmo nome na pasta de destino, ou a pasta está em uso.",
+            "SyncDisabledInGameFolder": "A sincronização não está disponível enquanto a pasta do jogo é usada como preparo.",
             "Unknown": "Ocorreu um erro inesperado. Verifique os logs para mais detalhes."
         },
         "ModInstallError": {

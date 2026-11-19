@@ -490,6 +490,11 @@
                     "title": "重命名模组失败"
                 }
             },
+            "toggleMods": {
+                "error": {
+                    "title": "无法更改模组状态"
+                }
+            },
             "installMod": {
                 "success": {
                     "title": "模组已安装",
@@ -1093,6 +1098,15 @@
                     "modsDirectory": {
                         "label": "暂存模组目录",
                         "placeholder": "选择同步前用于存放模组的目录"
+                    },
+                    "useGameFolderAsStaging": {
+                        "label": "使用游戏文件夹作为暂存目录(不推荐)",
+                        "description": "直接在 BrownDustX/mods 中管理模组。禁用的模组将移动到 BrownDustX/mods_disabled。",
+                        "confirm": {
+                            "title": "模组已同步到游戏文件夹",
+                            "message": "部分模组已同步到游戏文件夹。将先取消同步，否则游戏会重复加载这些模组。",
+                            "accept": "取消同步并继续"
+                        }
                     }
                 },
                 "modManagement": {
@@ -1289,6 +1303,8 @@
             "LaunchWithoutModsUnsupported": "此系统暂不支持不加载 MOD 启动。",
             "GameLaunchFailed": "启动游戏失败：{reason}",
             "BackupDirectoryInvalid": "备份文件夹“{path}”不能位于你的模组文件夹或 BrownDustX/mods 内。请选择其他文件夹。",
+            "ModsMoveFailed": "无法移动以下模组：{mods}。目标文件夹中可能已存在同名模组，或文件夹正在使用中。",
+            "SyncDisabledInGameFolder": "使用游戏文件夹作为暂存目录时无法同步。",
             "Unknown": "发生意外错误。请查看日志了解详情。"
         },
         "ModInstallError": {

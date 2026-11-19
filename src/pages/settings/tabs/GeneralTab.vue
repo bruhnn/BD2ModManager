@@ -2,7 +2,8 @@
     setup
     lang="ts"
 >
-import { Folder, PenSquare, Plus, RefreshCcw, SquareArrowOutUpRight, Trash } from '@lucide/vue'
+import { Folder, PenSquare, Plus, RefreshCcw, SquareArrowOutUpRight, Trash, TriangleAlert } from '@lucide/vue'
+import { invoke } from '@tauri-apps/api/core'
 import { computed, nextTick, ref, Teleport, useTemplateRef, watch } from 'vue'
 import { TabPanel } from '@headlessui/vue'
 import { useI18n } from 'vue-i18n'
@@ -221,9 +222,50 @@ async function onSyncMethodChanged(value: string) {
     await settingsStore.saveSettings({
         syncMethod: value,
     })
-    await modsStore.checkIsSyncNeeded()
+
+    //await modsStore.checkIsSyncNeeded()
 
     logInfo(`Sync method changed to ${value}`)
+}
+
+async function onUseGameFolderAsStagingChanged(value: boolean) {
+    if (!settingsStore) {
+        logError('Settings store is not available. Cannot change useGameFolderAsStaging setting.')
+        return
+    }
+
+    // synced copies in BrownDustX/mods/BD2MM would be loaded by the game next to the mods that now live in BrownDustX/mods
+    if (value && await invoke<boolean>('has_synced_mods')) {
+        const result = await confirm.confirm({
+            title: t('settingsTab.general.sections.directories.useGameFolderAsStaging.confirm.title'),
+            message: t('settingsTab.general.sections.directories.useGameFolderAsStaging.confirm.message'),
+            icon: TriangleAlert,
+            acceptButton: {
+                label: t('settingsTab.general.sections.directories.useGameFolderAsStaging.confirm.accept'),
+                position: 'right'
+            },
+            rejectButton: {
+                label: t('common.actions.cancel'),
+                position: 'right'
+            }
+        })
+
+        if (!result.confirmed) return
+
+        // undefined means the unsync didn't run (cancelled or already in progress)
+        const unsynced = await modsStore.unsyncMods()
+        if (!unsynced) return
+    }
+
+    await settingsStore.saveSettings({
+        useGameFolderAsStaging: value,
+    })
+
+    // the mods folder changes (mods/ + mods_disabled/ instead of the staging folder)
+    await modsStore.discoverMods()
+    await modsStore.checkIsSyncNeeded()
+
+    logInfo(`Use game folder as staging changed to ${value}`)
 }
 
 async function handleOpenFolder(path: string | undefined | null) {
@@ -495,12 +537,14 @@ async function onThemeDelete(themeName: string) {
                         </label>
 
                         <div class="flex col-span-2 gap-2 items-center">
-                            <Input class="w-full min-w-32" :model-value="settings.stagingDirectory ?? ''"
+                            <Input class="w-full min-w-32" :model-value="
+                            settings.useGameFolderAsStaging? `${settings.gameDirectory}/BepInEx/plugins/BrownDustX/mods`: settings.stagingDirectory ?? ''
+                            "
                                 :placeholder="$t('settingsTab.general.sections.directories.modsDirectory.placeholder')"
-                                readonly />
+                                readonly :disabled="settings.useGameFolderAsStaging" />
 
                             <MultiButton :label="$t('common.actions.browse')" :icon="Folder" class="shrink-0"
-                                label-class="min-w-16" @click="handleStagingModsBrowse">
+                                label-class="min-w-16" @click="handleStagingModsBrowse" :disabled="settings.useGameFolderAsStaging">
                                 <template #menu="{ close }">
                                     <div class="flex flex-col w-96">
                                         <PathMenuSection :title="$t('settingsTab.general.sections.directories.recent')"
@@ -512,9 +556,12 @@ async function onThemeDelete(themeName: string) {
                                 </template>
                             </MultiButton>
 
-                            <Button :icon="SquareArrowOutUpRight" :tooltip="$t('common.actions.openFolder')" :disabled="!settings.stagingDirectory" @click="handleOpenFolder(settings.stagingDirectory)" />
+                            <Button :icon="SquareArrowOutUpRight" :tooltip="$t('common.actions.openFolder')" :disabled="settings.useGameFolderAsStaging ? !settings.gameDirectory : !settings.stagingDirectory" @click="settings.useGameFolderAsStaging? handleOpenFolder(`${settings.gameDirectory}/BepInEx/plugins/BrownDustX/mods`) : handleOpenFolder(settings.stagingDirectory)" />
                         </div>
                     </div>
+
+                    <Checkbox :model-value="settings.useGameFolderAsStaging" :label="$t('settingsTab.general.sections.directories.useGameFolderAsStaging.label')"
+                    :description="$t('settingsTab.general.sections.directories.useGameFolderAsStaging.description')" @update:model-value="onUseGameFolderAsStagingChanged" />
                 </div>
             </Section>
 

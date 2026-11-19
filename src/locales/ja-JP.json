@@ -490,6 +490,11 @@
                     "title": "MOD名の変更に失敗しました"
                 }
             },
+            "toggleMods": {
+                "error": {
+                    "title": "MODの状態を変更できませんでした"
+                }
+            },
             "installMod": {
                 "success": {
                     "title": "MODをインストールしました",
@@ -1093,6 +1098,15 @@
                     "modsDirectory": {
                         "label": "MODステージングディレクトリ",
                         "placeholder": "同期前にMODを保存するディレクトリを選択"
+                    },
+                    "useGameFolderAsStaging": {
+                        "label": "ゲームフォルダをステージングとして使用(非推奨)",
+                        "description": "BrownDustX/mods 内のMODを直接管理します。無効にしたMODは BrownDustX/mods_disabled に移動されます。",
+                        "confirm": {
+                            "title": "MODがゲームフォルダに同期されています",
+                            "message": "一部のMODがゲームフォルダに同期されています。ゲームが二重に読み込まないよう、先に同期を解除します。",
+                            "accept": "同期を解除して続行"
+                        }
                     }
                 },
                 "modManagement": {
@@ -1289,6 +1303,8 @@
             "LaunchWithoutModsUnsupported": "このシステムではMODなしでの起動にまだ対応していません。",
             "GameLaunchFailed": "ゲームの起動に失敗しました: {reason}",
             "BackupDirectoryInvalid": "バックアップフォルダー「{path}」は、MODフォルダーまたはBrownDustX/modsの中には作成できません。別のフォルダーを選択してください。",
+            "ModsMoveFailed": "次のMODを移動できませんでした: {mods}。移動先に同名のMODがあるか、フォルダが使用中の可能性があります。",
+            "SyncDisabledInGameFolder": "ゲームフォルダをステージングとして使用している間は同期できません。",
             "Unknown": "予期しないエラーが発生しました。詳細はログを確認してください。"
         },
         "ModInstallError": {

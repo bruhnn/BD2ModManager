@@ -490,6 +490,11 @@
                     "title": "모드 이름 변경 실패"
                 }
             },
+            "toggleMods": {
+                "error": {
+                    "title": "모드 상태를 변경하지 못했습니다"
+                }
+            },
             "installMod": {
                 "success": {
                     "title": "모드 설치 완료",
@@ -1093,6 +1098,15 @@
                     "modsDirectory": {
                         "label": "모드 스테이징 디렉토리",
                         "placeholder": "동기화 전 모드를 저장할 디렉토리 선택"
+                    },
+                    "useGameFolderAsStaging": {
+                        "label": "게임 폴더를 스테이징으로 사용 (권장하지 않음)",
+                        "description": "BrownDustX/mods에서 모드를 직접 관리합니다. 비활성화된 모드는 BrownDustX/mods_disabled로 이동됩니다.",
+                        "confirm": {
+                            "title": "모드가 게임 폴더에 동기화되어 있습니다",
+                            "message": "일부 모드가 게임 폴더에 동기화되어 있습니다. 게임이 모드를 두 번 불러오지 않도록 먼저 동기화를 해제합니다.",
+                            "accept": "동기화 해제 후 계속"
+                        }
                     }
                 },
                 "modManagement": {
@@ -1289,6 +1303,8 @@
             "LaunchWithoutModsUnsupported": "이 시스템에서는 아직 모드 없이 실행을 지원하지 않습니다.",
             "GameLaunchFailed": "게임 실행에 실패했습니다: {reason}",
             "BackupDirectoryInvalid": "백업 폴더 \"{path}\"는 모드 폴더나 BrownDustX/mods 안에 둘 수 없습니다. 다른 폴더를 선택하세요.",
+            "ModsMoveFailed": "다음 모드를 이동할 수 없습니다: {mods}. 대상 폴더에 같은 이름의 모드가 있거나 폴더가 사용 중일 수 있습니다.",
+            "SyncDisabledInGameFolder": "게임 폴더를 스테이징으로 사용하는 동안에는 동기화할 수 없습니다.",
             "Unknown": "예기치 않은 오류가 발생했습니다. 자세한 내용은 로그를 확인해 주세요."
         },
         "ModInstallError": {

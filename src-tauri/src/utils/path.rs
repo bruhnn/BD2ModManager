@@ -72,7 +72,19 @@ pub fn get_default_staging_dir() -> PathBuf {
     }
 }
 
+// BepInEx/plugins/BrownDustX of the game, only when "use game folder as staging" is on
+pub fn get_game_folder_base(config: &BD2Config) -> Option<PathBuf> {
+    if !config.use_game_folder_as_staging {
+        return None;
+    }
+    get_game_dir(config).map(|game_dir| game_dir.join("BepInEx/plugins/BrownDustX"))
+}
+
 pub fn get_staging_dir(config: &BD2Config) -> PathBuf {
+    // with the game folder as staging, enabled mods live in BrownDustX/mods
+    if let Some(base) = get_game_folder_base(config) {
+        return base.join("mods");
+    }
     match &config.staging_directory {
         Some(path) => return PathBuf::from(path),
         None => return get_default_staging_dir(),

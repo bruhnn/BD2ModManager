@@ -58,6 +58,10 @@ pub enum AppError {
     LaunchWithoutModsUnsupported,
     #[error("Failed to launch the game: {reason}")]
     GameLaunchFailed { reason: String },
+    #[error("Failed to move mods: {mods}")]
+    ModsMoveFailed { mods: String },
+    #[error("Sync is disabled while using the game folder as staging")]
+    SyncDisabledInGameFolder,
     #[error("Backup folder '{path}' can't be inside the mods folder or BrownDustX/mods")]
     BackupDirectoryInvalid { path: String },
 
@@ -107,6 +111,8 @@ impl serde::Serialize for AppError {
             | AppError::GameLauncherNotFound
             | AppError::LaunchWithoutModsUnsupported
             | AppError::GameLaunchFailed { .. }
+            | AppError::ModsMoveFailed { .. }
+            | AppError::SyncDisabledInGameFolder
             | AppError::BackupDirectoryInvalid { .. } => get_type_name::<AppError>(),
             AppError::Unknown(_) => get_type_name::<AppError>(),
         };
@@ -128,6 +134,8 @@ impl serde::Serialize for AppError {
             AppError::GameLauncherNotFound => "GameLauncherNotFound".to_string(),
             AppError::LaunchWithoutModsUnsupported => "LaunchWithoutModsUnsupported".to_string(),
             AppError::GameLaunchFailed { .. } => "GameLaunchFailed".to_string(),
+            AppError::ModsMoveFailed { .. } => "ModsMoveFailed".to_string(),
+            AppError::SyncDisabledInGameFolder => "SyncDisabledInGameFolder".to_string(),
             AppError::BackupDirectoryInvalid { .. } => "BackupDirectoryInvalid".to_string(),
             AppError::Unknown(_) => "Unknown".to_string(),
         };
@@ -149,6 +157,8 @@ impl serde::Serialize for AppError {
             AppError::GameLauncherNotFound => serde_json::Value::Null,
             AppError::LaunchWithoutModsUnsupported => serde_json::Value::Null,
             AppError::GameLaunchFailed { reason } => serde_json::json!({ "reason": reason }),
+            AppError::ModsMoveFailed { mods } => serde_json::json!({ "mods": mods }),
+            AppError::SyncDisabledInGameFolder => serde_json::Value::Null,
             AppError::BackupDirectoryInvalid { path } => serde_json::json!({ "path": path }),
             AppError::Unknown(_) => serde_json::Value::Null,
         };

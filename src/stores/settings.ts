@@ -25,6 +25,7 @@ interface Settings {
     language?: Language,
     gameDirectory?: string | null,
     stagingDirectory?: string | null,
+    useGameFolderAsStaging: boolean,
     searchModsRecursively: boolean,
     syncMethod?: string,
     checkForAppUpdates: boolean,

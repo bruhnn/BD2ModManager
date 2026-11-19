@@ -1,8 +1,33 @@
-use std::{collections::HashMap, path::PathBuf};
+use std::{collections::HashMap, path::{Path, PathBuf}};
 use log::{info, error, warn, debug};
 use tauri::{AppHandle, Emitter};
 
-use crate::{mods::{self, BD2Mod, delete::ModDeleteError, install::ModInstallError, metadata::{MetadataError, ModMetadataStore}, rename::ModRenameError, sync::{ModSyncError, SyncMethod, SyncResult}, types::BD2ModError}, profiles::{ProfileManager, types::{Profile, ProfileError}}};
+use crate::{errors::AppError, mods::{self, BD2Mod, delete::ModDeleteError, install::ModInstallError, metadata::{MetadataError, ModMetadataStore}, rename::ModRenameError, sync::{ModSyncError, SyncMethod, SyncResult}, types::BD2ModError}, profiles::{ProfileManager, types::{Profile, ProfileError}}};
+
+// sibling of BrownDustX/mods where disabled mods go when the game folder is the staging
+pub const DISABLED_FOLDER: &str = "mods_disabled";
+
+// moves the mod folder between BrownDustX/mods and BrownDustX/mods_disabled
+fn move_mod_between_folders(bd2mod: &mut BD2Mod, base: &Path, enabled: bool) -> std::io::Result<()> {
+    let target_root = base.join(if enabled { "mods" } else { DISABLED_FOLDER });
+    let target = target_root.join(&bd2mod.name);
+
+    if target == bd2mod.path {
+        return Ok(());
+    }
+    if target.exists() {
+        return Err(std::io::Error::new(
+            std::io::ErrorKind::AlreadyExists,
+            "a mod with this name already exists in the destination folder",
+        ));
+    }
+    if let Some(parent) = target.parent() {
+        std::fs::create_dir_all(parent)?;
+    }
+    std::fs::rename(&bd2mod.path, &target)?;
+    bd2mod.path = target;
+    Ok(())
+}
 
 pub struct BD2ModManager {
     pub profile_manager: ProfileManager,
@@ -26,6 +51,7 @@ impl BD2ModManager {
         staging_dir: &PathBuf,
         game_dir: &Option<PathBuf>,
         recursive: bool,
+        game_folder: Option<&Path>,
     ) -> std::io::Result<Vec<BD2Mod>> {
         info!(
             "Searching for mods on staging directory ({:?})",
@@ -35,7 +61,36 @@ impl BD2ModManager {
         // keep the cached list if staging cannot be read
         self.discovery_failed = true;
         let mut mods_found = mods::discover::discover_staging_mods(staging_dir, recursive)?;
-        let unmanaged_mods = if let Some(game_dir) = game_dir {
+
+        if let Some(base) = game_folder {
+            // game folder as staging: enabled mods are in mods/, disabled ones in mods_disabled/
+            // mods/BD2MM only has copies left by sync, so skip it
+            mods_found.retain(|m| !m.name.to_lowercase().starts_with("bd2mm/"));
+            for m in mods_found.iter_mut() {
+                m.enabled = true;
+            }
+
+            let disabled_dir = base.join(DISABLED_FOLDER);
+            if disabled_dir.is_dir() {
+                match mods::discover::discover_staging_mods(&disabled_dir, recursive) {
+                    Ok(disabled_mods) => {
+                        for mut m in disabled_mods {
+                            if mods_found.iter().any(|f| f.name == m.name) {
+                                warn!("Mod '{}' exists in mods and {}, ignoring the disabled one", m.name, DISABLED_FOLDER);
+                                continue;
+                            }
+                            m.enabled = false;
+                            mods_found.push(m);
+                        }
+                    }
+                    Err(e) => warn!("Failed to read {:?}: {}", disabled_dir, e),
+                }
+            }
+        }
+
+        let unmanaged_mods = if game_folder.is_some() {
+            vec![]
+        } else if let Some(game_dir) = game_dir {
             mods::discover::discover_unmanaged_mods(game_dir, &mut mods_found)
         } else {
             vec![]
@@ -58,8 +113,10 @@ impl BD2ModManager {
         // apply stored metadata (author, etc.)
         self.metadata_store.apply_to_mods(&mut self.cached_mods);
 
-        // set mods enabled states with the active proifle
-        self.sync_mods_with_profiles();
+        // set mods enabled states with the active profile (with the game folder as staging, the folder is the state)
+        if game_folder.is_none() {
+            self.sync_mods_with_profiles();
+        }
 
         self.discovery_failed = false;
         Ok(self.get_mods())
@@ -80,40 +137,61 @@ impl BD2ModManager {
         }
     }
 
-    fn change_mods_state(&mut self, mod_names: Vec<String>, enabled: bool) -> Vec<BD2Mod> {
+    fn change_mods_state(
+        &mut self,
+        mod_names: Vec<String>,
+        enabled: bool,
+        game_folder: Option<&Path>,
+    ) -> Result<Vec<BD2Mod>, AppError> {
         let mut mods_changed: Vec<BD2Mod> = vec![];
+        let mut failed: Vec<String> = vec![];
 
         for mod_name in mod_names.iter() {
-            if let Some(bd2mod) = self.cached_mods.get_mut(mod_name) {
-                bd2mod.enabled = enabled;
-                
-                debug!(
-                    "{} mod: {}",
-                    if enabled { "Enabled" } else { "Disabled" },
-                    bd2mod.name
-                );
-
-                mods_changed.push(bd2mod.clone());
-            } else {
+            let Some(bd2mod) = self.cached_mods.get_mut(mod_name) else {
                 warn!("Mod not found: {}", mod_name);
+                continue;
+            };
+
+            if let Some(base) = game_folder {
+                if let Err(e) = move_mod_between_folders(bd2mod, base, enabled) {
+                    error!("Failed to move mod {}: {}", bd2mod.name, e);
+                    failed.push(bd2mod.name.clone());
+                    continue;
+                }
             }
 
-        }
+            bd2mod.enabled = enabled;
 
-        if let Some(active_profile) = self.profile_manager.get_active_profile() {
-            for mod_name in mod_names.iter() {
-                active_profile.set_mod_state(mod_name, enabled);
-            }
-        }
-
-        if let Err(e) = self.profile_manager.save_active_profile() {
-            warn!(
-                "Failed to save profiles after changing mod state: {:?}",
-                e
+            debug!(
+                "{} mod: {}",
+                if enabled { "Enabled" } else { "Disabled" },
+                bd2mod.name
             );
+
+            mods_changed.push(bd2mod.clone());
         }
 
-        mods_changed
+        // with the game folder as staging the folder is the state, profiles are not used
+        if game_folder.is_none() {
+            if let Some(active_profile) = self.profile_manager.get_active_profile() {
+                for mod_name in mod_names.iter() {
+                    active_profile.set_mod_state(mod_name, enabled);
+                }
+            }
+
+            if let Err(e) = self.profile_manager.save_active_profile() {
+                warn!(
+                    "Failed to save profiles after changing mod state: {:?}",
+                    e
+                );
+            }
+        }
+
+        if failed.is_empty() {
+            Ok(mods_changed)
+        } else {
+            Err(AppError::ModsMoveFailed { mods: failed.join(", ") })
+        }
     }
 
     // mods Methods
@@ -127,12 +205,12 @@ impl BD2ModManager {
         self.cached_mods.get(mod_name).cloned()
     }
 
-    pub fn enable_mods(&mut self, mod_names: Vec<String>) -> Vec<BD2Mod> {
-        self.change_mods_state(mod_names, true)
+    pub fn enable_mods(&mut self, mod_names: Vec<String>, game_folder: Option<&Path>) -> Result<Vec<BD2Mod>, AppError> {
+        self.change_mods_state(mod_names, true, game_folder)
     }
 
-    pub fn disable_mods(&mut self, mod_names: Vec<String>) -> Vec<BD2Mod> {
-        self.change_mods_state(mod_names, false)
+    pub fn disable_mods(&mut self, mod_names: Vec<String>, game_folder: Option<&Path>) -> Result<Vec<BD2Mod>, AppError> {
+        self.change_mods_state(mod_names, false, game_folder)
     }
 
     // profile

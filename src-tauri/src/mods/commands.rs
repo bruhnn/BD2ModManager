@@ -1,7 +1,7 @@
 use std::{collections::HashMap, io::ErrorKind, path::PathBuf};
 
 use crate::{
-    errors::AppError, mods::{BD2Mod, converted::{ConvertedMod, CopyConvertedResult, copy_converted_mods as copy_converted_mods_in_staging, default_backup_dir, find_converted_mods, is_valid_backup_dir}, delete::ModDeleteError, preview::{PreviewError, is_texture_mod, preview_image}, sync::{SyncMethod, SyncResult}, types::BD2ModError}, utils::path::{get_game_dir, get_mod_preview_path, get_staging_dir},
+    errors::AppError, mods::{BD2Mod, converted::{ConvertedMod, CopyConvertedResult, copy_converted_mods as copy_converted_mods_in_staging, default_backup_dir, find_converted_mods, is_valid_backup_dir}, delete::ModDeleteError, preview::{PreviewError, is_texture_mod, preview_image}, sync::{SyncMethod, SyncResult}, types::BD2ModError}, utils::path::{get_game_dir, get_game_folder_base, get_mod_preview_path, get_staging_dir},
 };
 use serde::Serialize;
 use tauri::{AppHandle, ipc::Channel};
@@ -24,6 +24,7 @@ pub async fn discover_mods(
             &get_staging_dir(&config),
             &get_game_dir(&config),
             config.search_mods_recursively,
+            get_game_folder_base(&config).as_deref(),
         )
         .map_err(|error| {
             error!("Failed to discover staging mods: {}", error);
@@ -48,19 +49,21 @@ pub fn get_mods(state: tauri::State<AppState>) -> Vec<BD2Mod> {
 pub fn enable_mods(
     state: tauri::State<AppState>,
     mod_names: Vec<String>,
-) -> Vec<BD2Mod> {
+) -> Result<Vec<BD2Mod>, AppError> {
     // returns the updated mods
+    let game_folder = get_game_folder_base(&state.config.lock().unwrap());
     let mut mod_manager = state.mod_manager.lock().unwrap();
-    mod_manager.enable_mods(mod_names)
+    mod_manager.enable_mods(mod_names, game_folder.as_deref())
 }
 
 #[tauri::command]
 pub fn disable_mods(
     state: tauri::State<AppState>,
     mod_names: Vec<String>,
-) -> Vec<BD2Mod> {
+) -> Result<Vec<BD2Mod>, AppError> {
+    let game_folder = get_game_folder_base(&state.config.lock().unwrap());
     let mut mod_manager = state.mod_manager.lock().unwrap();
-    mod_manager.disable_mods(mod_names)
+    mod_manager.disable_mods(mod_names, game_folder.as_deref())
 }
 
 #[tauri::command]
@@ -174,6 +177,10 @@ pub async fn sync_mods(
 
     let result = tauri::async_runtime::spawn_blocking(move || {
         let config = config_handle.lock().unwrap().clone();
+        // nothing to sync when mods are managed directly in the game folder
+        if config.use_game_folder_as_staging {
+            return Err(AppError::SyncDisabledInGameFolder);
+        }
         let mut mod_manager = mod_manager_handle.lock().unwrap();
 
         let sync_method = match config.sync_method.as_str() {
@@ -314,12 +321,26 @@ pub async fn unsync_mods(
 }
 
 
+// true if sync already copied mods to the game folder (listed in the sync manifest)
+#[tauri::command]
+pub fn has_synced_mods(state: tauri::State<'_, AppState>) -> Result<bool, AppError> {
+    let config = state.config.lock().unwrap().clone();
+    let Some(game_dir) = get_game_dir(&config) else {
+        return Ok(false);
+    };
+    let manifest = crate::mods::sync::load_manifest(&game_dir.join(".bd2mm.json"))?;
+    Ok(manifest.is_some_and(|m| !m.synced_mods.is_empty()))
+}
+
 #[tauri::command]
 pub fn is_sync_needed(
     _app_handle: tauri::AppHandle,
     state: tauri::State<'_, AppState>,
 ) -> Result<bool, AppError> {
     let config = state.config.lock().unwrap().clone();
+    if config.use_game_folder_as_staging {
+        return Ok(false);
+    }
     let mod_manager = state.mod_manager.lock().unwrap();
     let Some(game_dir) = config.game_directory.clone() else {
         return Ok(false);

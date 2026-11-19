@@ -490,6 +490,11 @@
                     "title": "Failed to Rename Mod"
                 }
             },
+            "toggleMods": {
+                "error": {
+                    "title": "Failed to Change Mod State"
+                }
+            },
             "installMod": {
                 "success": {
                     "title": "Mod Installed",
@@ -1093,6 +1098,15 @@
                     "modsDirectory": {
                         "label": "Staging Mods Directory",
                         "placeholder": "Select a directory to store your mods before syncing"
+                    },
+                    "useGameFolderAsStaging": {
+                        "label": "Use Game Folder as Staging (Not Recommended)",
+                        "description": "Manages mods directly in BrownDustX/mods. Disabled mods are moved to BrownDustX/mods_disabled.",
+                        "confirm": {
+                            "title": "Mods are synced to the game folder",
+                            "message": "Some mods are currently synced to the game folder. They will be unsynced first, otherwise the game would load them twice.",
+                            "accept": "Unsync and Continue"
+                        }
                     }
                 },
                 "modManagement": {
@@ -1289,6 +1303,8 @@
             "LaunchWithoutModsUnsupported": "Launching without mods is not supported on this system yet.",
             "GameLaunchFailed": "Failed to launch the game: {reason}",
             "BackupDirectoryInvalid": "The backup folder “{path}” can't be inside your mods folder or BrownDustX/mods. Choose another folder.",
+            "ModsMoveFailed": "Could not move these mods: {mods}. A mod with the same name may already exist in the destination folder, or the folder is in use.",
+            "SyncDisabledInGameFolder": "Sync is not available while the game folder is used as staging.",
             "Unknown": "An unexpected error occurred. Check logs for more details."
         },
         "Io": {

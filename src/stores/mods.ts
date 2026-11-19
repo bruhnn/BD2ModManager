@@ -95,9 +95,35 @@ export const useModsStore = defineStore('mods', () => {
     // is syncing or unsycing too
     const isSyncing = ref(false);
     const isSyncNeeded = ref(false);
+    const isSyncBlocked = computed(() => {
+        return settingsStore.settings.useGameFolderAsStaging && settingsStore.settings.gameDirectory !== null
+
+        // if (!settingsStore.settings.gameDirectory) return true
+        // if (!settingsStore.settings.stagingDirectory) return true
+
+        // let gameMods = `${settingsStore.settings.gameDirectory}/BepInEx/plugins/BrownDustX/mods`
+        // let staging = settingsStore.settings.stagingDirectory
+        
+        // const normalizePath = (path: string) => {
+        
+        // const normalized = path.replace(/\\/g, '/').replace(/\/+$/, '');
+        // return /^[a-z]:/i.test(normalized) ? normalized.toLowerCase() : normalized;
+        // };
+
+        // const stagingPath = normalizePath(staging);
+        // const gameModsPath = normalizePath(gameMods);
+
+        // if (
+        //     stagingPath === gameModsPath ||
+        //     stagingPath.startsWith(`${gameModsPath}/`) ||
+        //     gameModsPath.startsWith(`${stagingPath}/`)
+        // ) {
+        //     return true
+        // }
+    })
 
     const debouncedSync = useDebounceFn(async () => {
-        if (!settingsStore.settings.autoSyncMods) return;
+        if (!settingsStore.settings.autoSyncMods || settingsStore.settings.useGameFolderAsStaging) return;
 
         loggingStore.logDebug("Auto-syncing mods.");
 
@@ -205,6 +231,11 @@ export const useModsStore = defineStore('mods', () => {
                 }
             }
 
+            // with the game folder as staging some mods may have been moved before the error
+            if (settingsStore.settings.useGameFolderAsStaging) {
+                await discoverMods().catch(e => loggingStore.logError('Failed to refresh mods after a failed toggle:', e))
+            }
+
             throw error
         }
     }
@@ -228,6 +259,11 @@ export const useModsStore = defineStore('mods', () => {
                 if (mod.enabled !== undefined) {
                     setModsState([mod.name], mod.enabled)
                 }
+            }
+
+            // with the game folder as staging some mods may have been moved before the error
+            if (settingsStore.settings.useGameFolderAsStaging) {
+                await discoverMods().catch(e => loggingStore.logError('Failed to refresh mods after a failed toggle:', e))
             }
 
             throw error
@@ -284,6 +320,11 @@ export const useModsStore = defineStore('mods', () => {
             // raise an error?
             // let the backend handle it? raise an error etc
             loggingStore.logDebug("Sync in progress, skipping sync.");
+            return
+        }
+
+        if (isSyncBlocked.value) {
+            loggingStore.logDebug("Sync is blocked due to settings, skipping sync. Probably you enabled 'Use game folder as staging' and the game directory is set, which blocks sync.");
             return
         }
 
@@ -412,6 +453,7 @@ export const useModsStore = defineStore('mods', () => {
         extendedMods: readonly(extendedMods),
         isSyncing: readonly(isSyncing),
         isSyncNeeded: readonly(isSyncNeeded),
+        isSyncBlocked: readonly(isSyncBlocked),
         discoverMods,
         applyPreviewModChanges,
         enableMods,

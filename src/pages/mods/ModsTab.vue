@@ -253,6 +253,11 @@ async function handleOpenModFolder(mod: BD2Mod) {
 }
 
 async function handleOpenStagingModsFolder() {
+    // with the game folder as staging, the mods are in BrownDustX/mods
+    if (settingsStore.settings.useGameFolderAsStaging) {
+        return openGameModsFolder()
+    }
+
     let stagingDir = settingsStore.settings.stagingDirectory
 
     loggingStore.logDebug('Opening staging mods folder: ', stagingDir)
@@ -646,7 +651,7 @@ useHeader({
                     ]"
                 />
 
-                <MultiButton
+                <MultiButton v-if="!settingsStore.settings.useGameFolderAsStaging"
                     variant="default"
                     :disabled="modsStore.isSyncing"
                     :label="$t('modsTab.actions.unsyncMods')"
@@ -654,7 +659,7 @@ useHeader({
                     @click="() => unsyncMods()"
                     :actions="[{ label: $t('modsTab.actions.unsyncModsAndRemoveUnmanaged'), icon: FolderMinus, clicked: () => unsyncMods(true), disabled: modsStore.isSyncing }]"
                 />
-                <MultiButton
+                <MultiButton v-if="!settingsStore.settings.useGameFolderAsStaging"
                     :variant="modsStore.isSyncNeeded ? 'primary' : 'default'"
                     :disabled="modsStore.isSyncing"
                     :class="{ 'animate-pulse-2 hover:animate-none transition-colors': modsStore.isSyncNeeded }"

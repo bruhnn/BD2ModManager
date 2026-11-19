@@ -490,6 +490,11 @@
                     "title": "重新命名模組失敗"
                 }
             },
+            "toggleMods": {
+                "error": {
+                    "title": "無法變更模組狀態"
+                }
+            },
             "installMod": {
                 "success": {
                     "title": "模組已安裝",
@@ -1093,6 +1098,15 @@
                     "modsDirectory": {
                         "label": "模組暫存目錄",
                         "placeholder": "選取同步前用於存放模組的目錄"
+                    },
+                    "useGameFolderAsStaging": {
+                        "label": "使用遊戲資料夾作為暫存目錄(不建議使用)",
+                        "description": "直接在 BrownDustX/mods 中管理模組。停用的模組將移至 BrownDustX/mods_disabled。",
+                        "confirm": {
+                            "title": "模組已同步到遊戲資料夾",
+                            "message": "部分模組已同步到遊戲資料夾。將先取消同步，否則遊戲會重複載入這些模組。",
+                            "accept": "取消同步並繼續"
+                        }
                     }
                 },
                 "modManagement": {
@@ -1289,6 +1303,8 @@
             "LaunchWithoutModsUnsupported": "此系統尚不支援不載入 MOD 啟動。",
             "GameLaunchFailed": "啟動遊戲失敗：{reason}",
             "BackupDirectoryInvalid": "備份資料夾「{path}」不能位於你的模組資料夾或 BrownDustX/mods 內。請選擇其他資料夾。",
+            "ModsMoveFailed": "無法移動以下模組：{mods}。目標資料夾中可能已存在同名模組，或資料夾正在使用中。",
+            "SyncDisabledInGameFolder": "使用遊戲資料夾作為暫存目錄時無法同步。",
             "Unknown": "發生未預期的錯誤。請查看記錄以了解詳情。"
         },
         "ModInstallError": {

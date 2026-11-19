@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from "vue"
+import { computed, nextTick } from "vue"
 import { Check } from "@lucide/vue"
 
 const props = defineProps<{
@@ -16,7 +16,10 @@ const emit = defineEmits<{
 
 const onChange = (event: Event) => {
   if (props.disabled) return
-  emit("update:modelValue", (event.target as HTMLInputElement).checked)
+  const input = event.target as HTMLInputElement
+  emit("update:modelValue", input.checked)
+  // the parent may reject the change (ex. a cancelled confirmation), keep the native input in sync with modelValue
+  nextTick(() => { input.checked = props.modelValue })
 }
 
 const classList = computed(() => [

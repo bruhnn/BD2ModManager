@@ -13,12 +13,32 @@ export function useModActions() {
 
     // [TODO] debounced sync should be in the store or in here????
 
-    function enableMods(mods: BD2Mod | BD2Mod[]): Promise<BD2Mod[]> {
-        return modsStore.enableMods(mods instanceof Array ? mods.map(mod => mod.name) : [mods.name])
+    // moving the mod folders (game folder as staging) can fail, so show the error instead of dropping it
+    async function changeModsState(mods: BD2Mod | BD2Mod[], enable: boolean): Promise<BD2Mod[]> {
+        const names = mods instanceof Array ? mods.map(mod => mod.name) : [mods.name]
+
+        try {
+            return enable ? await modsStore.enableMods(names) : await modsStore.disableMods(names)
+        } catch (error) {
+            notificationStore.add({
+                type: "error",
+                closable: true,
+                title: t("modsTab.notifications.toggleMods.error.title"),
+                message: getErrorMessage(t, error),
+                duration: 5000
+            })
+
+            loggingStore.logError(`Error ${enable ? "enabling" : "disabling"} mods ${names.join(", ")}: ${JSON.stringify(error)}`)
+            return []
+        }
     }
 
-    function disableMods(mods: BD2Mod | BD2Mod[]): Promise<BD2Mod[]>  {
-        return modsStore.disableMods(mods instanceof Array ? mods.map(mod => mod.name) : [mods.name])
+    function enableMods(mods: BD2Mod | BD2Mod[]): Promise<BD2Mod[]> {
+        return changeModsState(mods, true)
+    }
+
+    function disableMods(mods: BD2Mod | BD2Mod[]): Promise<BD2Mod[]> {
+        return changeModsState(mods, false)
     }
 
     function toggleMods(mods: BD2Mod | BD2Mod[]) {

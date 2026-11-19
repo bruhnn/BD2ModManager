@@ -12,6 +12,7 @@ use crate::utils::path::get_config_file_path;
 pub struct AppConfig {
     pub game_directory: Option<String>,
     pub staging_directory: Option<String>,
+    pub use_game_folder_as_staging: bool,
     pub language: String,
     pub theme: String,
     pub sync_method: String,
@@ -33,6 +34,7 @@ pub struct AppConfig {
 pub struct PartialAppConfig {
     pub game_directory: Option<String>,
     pub staging_directory: Option<String>,
+    pub use_game_folder_as_staging: Option<bool>,
     pub language: Option<String>,
     pub theme: Option<String>,
     pub sync_method: Option<String>,
@@ -56,6 +58,9 @@ impl AppConfig {
         if let Some(staging_directory) = partial.staging_directory {
             push_recent(&mut self.recent_staging_directories, &staging_directory);
             self.staging_directory = Some(staging_directory);
+        }
+        if let Some(use_game_folder_as_staging) = partial.use_game_folder_as_staging {
+            self.use_game_folder_as_staging = use_game_folder_as_staging;
         }
         if let Some(language) = partial.language {
             self.language = language;
@@ -110,6 +115,7 @@ impl Default for AppConfig {
         Self {
             game_directory: None,
             staging_directory: None,
+            use_game_folder_as_staging: false,
             language: "en_US".into(),
             theme: "dark".into(),
             sync_method: "copy".into(),
@@ -133,6 +139,7 @@ impl Default for PartialAppConfig {
         Self {
             game_directory: None,
             staging_directory: None,
+            use_game_folder_as_staging: None,
             language: None,
             theme: None,
             sync_method: None,
