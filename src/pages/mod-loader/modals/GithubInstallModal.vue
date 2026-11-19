@@ -52,11 +52,10 @@ const enableOtherVersions = ref(false)
 function filterAssets(assets: any[]) {
     if (!props.assetsFilterRegex) return assets
 
-    const currentPlatform = platform()
+    // browndust doesnt have a native linux they just use the bepinex windows version
+    // const currentPlatform = platform()
     return assets.filter(asset => {
-        return currentPlatform === 'windows'
-            ? props.assetsFilterRegex?.test(asset.name) && asset.name.endsWith('.zip')
-            : true;
+        return props.assetsFilterRegex?.test(asset.name) && asset.name.endsWith('.zip');
     });
 }
 

@@ -99,6 +99,7 @@ async function installFromArchive(command: string, scope: LogMessage['scope'], p
         pushLog('success', scope, t('modLoaderTab.logs.installedSuccess', { scope }))
         await initialize()
     } catch (error) {
+        loggingStore.logError(`Error installing ${scope} from archive:`, JSON.stringify(error))
         pushLog('error', scope, t('modLoaderTab.logs.installError', { scope, error: mapInstallError(error) }))
     }
 }
@@ -110,6 +111,7 @@ async function installFromUrl(command: string, scope: LogMessage['scope'], url: 
         pushLog('success', scope, t('modLoaderTab.logs.installedSuccess', { scope }))
         await initialize()
     } catch (error) {
+        loggingStore.logError(`Error installing ${scope} from URL:`, JSON.stringify(error))
         pushLog('error', scope, t('modLoaderTab.logs.installError', { scope, error: mapInstallError(error) }))
     }
 }
@@ -139,6 +141,7 @@ async function uninstallComponent(command: string, confirmKey: string, scope: Lo
             pushLog('success', scope, t('modLoaderTab.logs.uninstalledSuccess', { scope }))
             await initialize()
         } catch (error) {
+            loggingStore.logError(`Error uninstalling ${scope}:`, JSON.stringify(error))
             pushLog('error', scope, t('modLoaderTab.logs.uninstallError', { scope, error: mapInstallError(error) }))
         }
     }
