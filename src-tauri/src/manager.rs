@@ -284,17 +284,23 @@ impl BD2ModManager {
         &mut self,
         path: PathBuf,
         staging_dir: &PathBuf,
+        use_game_folder_as_staging: bool,
     ) -> Result<BD2Mod, ModInstallError> {
         let mod_path = mods::install::install_mod(&path, staging_dir)?;
 
         let (is_mod, error) = mods::discover::analyze_mod_path(&mod_path)?;
         if is_mod {
             let mut new_mod = mods::discover::create_mod(staging_dir, &mod_path, error);
+            // with the game folder as staging the mod lands in BrownDustX/mods, so the game loads it
+            new_mod.enabled = use_game_folder_as_staging;
             let mod_name = new_mod.name.clone();
             self.cached_mods.insert(mod_name.clone(), new_mod.clone());
             mods::conflict::detect_conflicts(&mut self.cached_mods);
             self.metadata_store.apply_to_mod(&mut new_mod);
-            self.sync_mods_with_profiles();
+            // in that mode the folder is the state, the profile would overwrite every mod
+            if !use_game_folder_as_staging {
+                self.sync_mods_with_profiles();
+            }
             Ok(new_mod)
         } else {
             Err(ModInstallError::NotAMod {

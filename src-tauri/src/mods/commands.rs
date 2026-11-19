@@ -147,7 +147,7 @@ pub fn install_mod_from_zip(
     let config = state.config.lock().unwrap();
     let staging_dir = get_staging_dir(&config);
     let mut mod_manager = state.mod_manager.lock().unwrap();
-    Ok(mod_manager.install_mod(PathBuf::from(path), &staging_dir)?)
+    Ok(mod_manager.install_mod(PathBuf::from(path), &staging_dir, config.use_game_folder_as_staging)?)
 }
 
 #[tauri::command]
@@ -158,7 +158,7 @@ pub fn install_mod_from_folder(
     let config = state.config.lock().unwrap();
     let staging_dir = get_staging_dir(&config);
     let mut mod_manager = state.mod_manager.lock().unwrap();
-    Ok(mod_manager.install_mod(PathBuf::from(path), &staging_dir)?)
+    Ok(mod_manager.install_mod(PathBuf::from(path), &staging_dir, config.use_game_folder_as_staging)?)
 }
 
 // Sync and unsync uses global events
