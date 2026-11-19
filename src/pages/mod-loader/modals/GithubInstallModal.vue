@@ -4,7 +4,6 @@ import { DownloadIcon, TriangleAlert } from '@lucide/vue';
 import Modal from '../../../components/common/Modal.vue';
 import Button from '../../../components/common/Button.vue';
 import Checkbox from '../../../components/common/Checkbox.vue';
-import { platform } from '@tauri-apps/plugin-os';
 import { useLoggingStore } from '../../../stores/logging';
 
 const loggingStore = useLoggingStore()
