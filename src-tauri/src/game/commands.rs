@@ -1,5 +1,7 @@
 use std::{fs, path::PathBuf};
 use crate::{game::{game::{self, VersionResult}, installer::{self, is_bdx_archive, is_bepinex_archive, is_configmanager_archive}, locate::{self, LocatedGame}}, utils::path::get_characters_path};
+#[cfg(not(windows))]
+use crate::game::{launchers, wine};
 use log::info;
 use serde::Serialize;
 #[cfg(windows)]
@@ -19,7 +21,7 @@ fn get_game_path(state: &AppState) -> Option<PathBuf> {
 #[tauri::command]
 pub fn locate_game() -> Option<Vec<LocatedGame>> {
     // TODO: Steam, Lutris, and Wine prefixes
-    let found = locate::faugus::locate();
+    let found = launchers::locate();
     info!("found {} game path(s)", found.len());
     if found.is_empty() { None } else { Some(found) }
 }
@@ -156,10 +158,12 @@ pub fn launch_game(state: tauri::State<AppState>, vanilla: bool) -> Result<(), A
 
     let game_path = get_game_path(&state).ok_or(AppError::GameDirectoryNotSet)?;
 
-    let entry = locate::faugus::entry_for(&game_path).ok_or(AppError::GameLauncherNotFound)?;
+    let entry = launchers::entry_for(&game_path).ok_or(AppError::GameLauncherNotFound)?;
+
+    wine::ensure_bepinex_override(&game_path, entry.prefix.as_deref());
 
     info!("Launching {:?} through {:?} ({})", game_path, entry.app, entry.game_id);
-    locate::faugus::launch(&entry).map_err(|e| AppError::GameLaunchFailed { reason: e.to_string() })
+    launchers::launch(&entry).map_err(|e| AppError::GameLaunchFailed { reason: e.to_string() })
 }
 
 #[tauri::command]
@@ -196,12 +200,22 @@ pub async fn install_bepinex(
             .ok_or_else(|| installer::InstallBepInExError::GamePathNotSet)?
     };
 
-    
-    match (path, url) {
+    let result = match (path, url) {
         (Some(path), None) => installer::install_bepinex_from_archive(&app_handle, game_path.clone(), path).await,
         (None, Some(url)) => installer::install_bepinex_from_url(&app_handle, game_path.clone(), url).await,
         _ => Err(installer::InstallBepInExError::Unknown("Either path or url must be provided".to_string())),
+    };
+
+    #[cfg(not(windows))]
+    if result.is_ok() {
+        let _ = tokio::task::spawn_blocking(move || {
+            let prefix = launchers::entry_for(&game_path).and_then(|entry| entry.prefix);
+            wine::ensure_bepinex_override(&game_path, prefix.as_deref());
+        })
+        .await;
     }
+
+    result
 }
 
 #[tauri::command]

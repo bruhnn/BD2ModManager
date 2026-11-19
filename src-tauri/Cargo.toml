@@ -62,6 +62,9 @@ windows-core = "0.62.2"
 
 [target.'cfg(unix)'.dependencies]
 libc = "0.2"
+rusqlite = { version = "0.43.0", features = ["bundled"] }
+saphyr = "0.3.4"
+steamlocate = "2.1.1"
 
 [target.'cfg(not(any(target_os = "android", target_os = "ios")))'.dependencies]
 tauri-plugin-single-instance = "2"
