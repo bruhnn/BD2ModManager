@@ -1,6 +1,6 @@
 use std::path::Path;
 
-use log::info;
+use log::{debug, info, warn};
 use serde::{Deserialize, Serialize};
 use tauri::AppHandle;
 use tauri_plugin_store::StoreExt;
@@ -168,16 +168,26 @@ impl BD2Config {
 
         info!("loading config from {:?}", config_path);
 
-        if let Ok(store) = self.app.store(config_path) {
-            if let Some(config_value) = store.get("config") {
-                if let Ok(config) = serde_json::from_value(config_value) {
-                    self.config = config;
-                    return;
+        match self.app.store(&config_path) {
+            Ok(store) => match store.get("config") {
+                Some(config_value) => {
+                    debug!("raw config from {:?}: {}", config_path, config_value);
+                    match serde_json::from_value::<AppConfig>(config_value) {
+                        Ok(config) => {
+                            debug!("loaded config: {:?}", config);
+                            self.config = config;
+                            return;
+                        }
+                        Err(e) => warn!("failed to parse config, using defaults: {}", e),
+                    }
                 }
-            }
+                None => debug!("no config saved at {:?}, using defaults", config_path),
+            },
+            Err(e) => warn!("failed to open config store {:?}: {}", config_path, e),
         }
 
         self.config = AppConfig::default();
+        debug!("using default config: {:?}", self.config);
     }
 
     pub fn get_config(&self) -> &AppConfig {
@@ -186,7 +196,7 @@ impl BD2Config {
 
     pub fn save_config(&self) -> Result<(), Box<dyn std::error::Error>> {
         let config_path = get_config_file_path();
-        println!("saving config {:?}", config_path);
+        debug!("saving config to {:?}: {:?}", config_path, self.config);
         let store = self.app.store(config_path)?;
 
         store.set("config", serde_json::to_value(&self.config)?);
