@@ -38,7 +38,7 @@ const {
 } = useModInstall()
 
 const totalModsCount = computed(() => modsStore.extendedMods.length)
-const enabledModsCount = computed(() => modsStore.extendedMods.filter(mod => mod.enabled && !mod.errors.length).length)
+const enabledModsCount = computed(() => modsStore.extendedMods.filter(mod => mod.enabled && mod.errors.every(e => e === 'SpineVersion41')).length)
 
 const viewMode = useLocalStorage('characters-view-mode', 'grid') // 'grid' or 'list'
 const filtersHidden = useLocalStorage('characters-filters-hidden', false)

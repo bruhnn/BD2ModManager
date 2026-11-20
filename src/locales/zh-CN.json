@@ -115,7 +115,9 @@
             "continue": "继续",
             "browse": "浏览",
             "save": "保存",
-            "delete": "删除"
+            "delete": "删除",
+            "selectAll": "全选",
+            "selectNone": "全不选"
         },
         "modTypes": {
             "cutscene": "过场动画",
@@ -407,6 +409,8 @@
                 "enableSelectedMods": "启用所选模组",
                 "disableMod": "禁用模组",
                 "disableSelectedMods": "禁用所选模组",
+                "convertMod": "将 Mod 转换为 Spine 4.2",
+                "convertSelectedMods": "将选中的 Mod 转换为 Spine 4.2",
                 "changeModAuthor": "更改模组作者",
                 "changeSelectedModsAuthor": "更改所选模组作者",
                 "renameMod": "重命名模组",
@@ -655,25 +659,21 @@
                 "apply": "应用更改 | 应用 {count} 项更改 | 应用 {count} 项更改",
                 "applyAndSync": "应用并同步"
             },
-            "convertedMods": {
-                "title": "游戏文件夹中已转换的模组",
-                "subtitle": "BrownDustX 已将这些模组更新为游戏的新 Spine 版本。请将它们复制到你的模组文件夹，以便同步时保留。",
-                "gameFolder": "游戏文件夹",
-                "modsFolder": "模组文件夹",
-                "createBackup": "备份原始文件",
+            "oldSpineMods": {
+                "title": "转换 Spine Mod",
+                "subtitle": "此 Mod 是用 Spine 4.1 制作的，必须转换后才能在当前的游戏版本中使用。 | 这些 Mod 是用 Spine 4.1 制作的，必须转换后才能在当前的游戏版本中使用。",
+                "createBackup": "先备份原始文件",
                 "changeBackupFolder": "更改",
-                "copy": "复制到模组文件夹",
-                "notifications": {
-                    "copied": {
-                        "title": "已复制转换后的模组",
-                        "message": "已将 {count} 个转换后的模组复制到你的模组文件夹。 | 已将 {count} 个转换后的模组复制到你的模组文件夹。",
-                        "messageWithBackup": "已将 {count} 个转换后的模组复制到你的模组文件夹。备份：{path} | 已将 {count} 个转换后的模组复制到你的模组文件夹。备份：{path}"
-                    },
-                    "failed": {
-                        "title": "复制转换后的模组失败",
-                        "message": "有 {count} 个模组无法复制，同步已停止：{mods} | 有 {count} 个模组无法复制，同步已停止：{mods}"
-                    }
-                }
+                "convert": "转换",
+                "backingUp": "正在备份 Mod... {done} / {total} 个文件",
+                "converting": "正在转换 Mod... {done} / {total} 个文件",
+                "converted": "已成功转换 {count} 个 Mod。 | 已成功转换 {count} 个 Mod。",
+                "noneConverted": "没有转换任何 Mod。",
+                "failed": "以下 Mod 无法转换，请将其删除：",
+                "backupFailed": "Mod 备份失败：{error}。没有转换任何 Mod。",
+                "backedUp": "Mod 已备份至：{path}",
+                "syncNote": "请同步 Mod 以将转换后的文件应用到游戏中，如果游戏正在运行，请重新启动游戏。",
+                "nothing": "没有需要转换的 Mod。"
             }
         }
     },
@@ -1137,6 +1137,11 @@
                             "copy": "复制",
                             "symlink": "符号链接（需管理员权限）"
                         }
+                    },
+                    "convertSpine": {
+                        "label": "转换 Spine Mod",
+                        "description": "查找用 Spine 4.1 制作的 Mod，并将其转换为可在当前游戏版本中使用。",
+                        "action": "转换为 Spine 4.2…"
                     }
                 }
             }
@@ -1438,6 +1443,7 @@
         "missingAtlasFile": "此模组缺少图集文件。",
         "unmanaged": "此模组位于游戏文件夹中，但未由 BD2MM 管理，无法在此启用或禁用。",
         "noDescription": "暂无描述。",
-        "unmanagedButInStaging": "此模组已在游戏文件夹中，但不是由 BD2MM 安装的，因此即使启用，同步也不会更改它。请使用“同步并移除未受管理的模组”来替换它。"
+        "unmanagedButInStaging": "此模组已在游戏文件夹中，但不是由 BD2MM 安装的，因此即使启用，同步也不会更改它。请使用“同步并移除未受管理的模组”来替换它。",
+        "spineVersion41": "此 Mod 是用旧版 Spine (4.1) 制作的，必须转换后才能在游戏中使用。请使用 设置 › 模组管理 › 转换 Spine Mod。"
     }
 }

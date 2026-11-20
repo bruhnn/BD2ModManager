@@ -115,7 +115,9 @@
             "continue": "계속",
             "browse": "찾아보기",
             "save": "저장",
-            "delete": "삭제"
+            "delete": "삭제",
+            "selectAll": "모두 선택",
+            "selectNone": "선택 해제"
         },
         "modTypes": {
             "cutscene": "컷씬",
@@ -407,6 +409,8 @@
                 "enableSelectedMods": "선택한 모드 활성화",
                 "disableMod": "모드 비활성화",
                 "disableSelectedMods": "선택한 모드 비활성화",
+                "convertMod": "모드를 Spine 4.2로 변환",
+                "convertSelectedMods": "선택한 모드를 Spine 4.2로 변환",
                 "changeModAuthor": "모드 제작자 변경",
                 "changeSelectedModsAuthor": "선택한 모드 제작자 변경",
                 "renameMod": "모드 이름 변경",
@@ -655,25 +659,21 @@
                 "apply": "변경 사항 적용 | 변경 사항 {count}개 적용 | 변경 사항 {count}개 적용",
                 "applyAndSync": "적용 후 동기화"
             },
-            "convertedMods": {
-                "title": "게임 폴더에서 변환된 모드",
-                "subtitle": "BrownDustX가 이 모드들을 게임의 새 Spine 버전으로 업데이트했습니다. 동기화 후에도 유지되도록 모드 폴더로 복사하세요.",
-                "gameFolder": "게임 폴더",
-                "modsFolder": "모드 폴더",
-                "createBackup": "원본 파일 백업",
+            "oldSpineMods": {
+                "title": "Spine 모드 변환",
+                "subtitle": "Spine 4.1로 제작된 모드입니다. 현재 게임 버전에서 작동하려면 변환이 필요합니다. | Spine 4.1로 제작된 모드입니다. 현재 게임 버전에서 작동하려면 변환이 필요합니다.",
+                "createBackup": "먼저 원본 파일 백업하기",
                 "changeBackupFolder": "변경",
-                "copy": "모드 폴더로 복사",
-                "notifications": {
-                    "copied": {
-                        "title": "변환된 모드를 복사했습니다",
-                        "message": "변환된 모드 {count}개를 모드 폴더로 복사했습니다. | 변환된 모드 {count}개를 모드 폴더로 복사했습니다.",
-                        "messageWithBackup": "변환된 모드 {count}개를 모드 폴더로 복사했습니다. 백업: {path} | 변환된 모드 {count}개를 모드 폴더로 복사했습니다. 백업: {path}"
-                    },
-                    "failed": {
-                        "title": "변환된 모드를 복사하지 못했습니다",
-                        "message": "모드 {count}개를 복사하지 못해 동기화를 중단했습니다: {mods} | 모드 {count}개를 복사하지 못해 동기화를 중단했습니다: {mods}"
-                    }
-                }
+                "convert": "변환",
+                "backingUp": "모드를 백업하는 중입니다... 파일 {done} / {total}",
+                "converting": "모드를 변환하는 중입니다... 파일 {done} / {total}",
+                "converted": "모드 {count}개가 성공적으로 변환되었습니다. | 모드 {count}개가 성공적으로 변환되었습니다.",
+                "noneConverted": "변환된 모드가 없습니다.",
+                "failed": "다음 모드는 변환할 수 없으므로 삭제해 주세요:",
+                "backupFailed": "모드 백업에 실패했습니다: {error}. 변환된 모드가 없습니다.",
+                "backedUp": "모드 백업 위치: {path}",
+                "syncNote": "모드를 동기화하여 변환된 파일을 게임에 적용하고, 게임이 실행 중이라면 다시 시작하세요.",
+                "nothing": "변환이 필요한 모드가 없습니다."
             }
         }
     },
@@ -1137,6 +1137,11 @@
                             "copy": "복사",
                             "symlink": "심볼릭 링크 (관리자 권한 필요)"
                         }
+                    },
+                    "convertSpine": {
+                        "label": "Spine 모드 변환",
+                        "description": "Spine 4.1로 제작된 모드를 찾아 현재 게임 버전에서 작동하도록 변환합니다.",
+                        "action": "Spine 4.2로 변환…"
                     }
                 }
             }
@@ -1438,6 +1443,7 @@
         "missingAtlasFile": "이 모드에 아틀라스 파일이 없습니다.",
         "unmanaged": "이 모드는 게임 폴더에 있지만 BD2MM에서 관리하지 않습니다. 여기서는 활성화하거나 비활성화할 수 없습니다.",
         "noDescription": "설명이 없습니다.",
-        "unmanagedButInStaging": "이 모드는 이미 게임 폴더에 있지만 BD2MM으로 설치되지 않았기 때문에, 활성화해도 동기화로 변경되지 않습니다. 교체하려면 \"동기화 후 관리되지 않는 모드 삭제\"를 사용하세요."
+        "unmanagedButInStaging": "이 모드는 이미 게임 폴더에 있지만 BD2MM으로 설치되지 않았기 때문에, 활성화해도 동기화로 변경되지 않습니다. 교체하려면 \"동기화 후 관리되지 않는 모드 삭제\"를 사용하세요.",
+        "spineVersion41": "이 모드는 이전 버전의 Spine(4.1)으로 제작되어 게임에서 작동하려면 변환이 필요합니다. 설정 › 모드 관리 › Spine 모드 변환을 사용하세요."
     }
 }

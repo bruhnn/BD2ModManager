@@ -129,12 +129,19 @@ pub fn create_mod(staging_directory: &Path, path: &Path, error: Option<BD2ModErr
         .unwrap_or_else(|| "unknown".to_string());
 
 
+    let mut errors: Vec<BD2ModError> = error.into_iter().collect();
+    
+    // check if the mod contains is from a older version of spine (4.1) and add an error if so
+    if !crate::mods::spine::is_spine41_version(path).is_empty() {
+        errors.push(BD2ModError::SpineVersion41);
+    }
+
     BD2Mod {
         path: path.to_path_buf(),
         name: full_name,
         display_name,
         mod_type: get_mod_type(path),
-        errors: error.into_iter().collect(),
+        errors,
         ..Default::default()
     }
 }

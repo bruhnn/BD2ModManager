@@ -115,7 +115,9 @@
             "continue": "Continue",
             "browse": "Browse",
             "save": "Save",
-            "delete": "Delete"
+            "delete": "Delete",
+            "selectAll": "Select all",
+            "selectNone": "Select none"
         },
         "modTypes": {
             "cutscene": "Cutscene",
@@ -407,6 +409,8 @@
                 "enableSelectedMods": "Enable Selected Mods",
                 "disableMod": "Disable Mod",
                 "disableSelectedMods": "Disable Selected Mods",
+                "convertMod": "Convert Mod to Spine 4.2",
+                "convertSelectedMods": "Convert Selected Mods to Spine 4.2",
                 "changeModAuthor": "Change Mod Author",
                 "changeSelectedModsAuthor": "Change Selected Mods Author",
                 "renameMod": "Rename Mod",
@@ -655,25 +659,21 @@
                 "apply": "Apply Changes | Apply {count} Change | Apply {count} Changes",
                 "applyAndSync": "Apply & Sync"
             },
-            "convertedMods": {
-                "title": "Mods converted in the game folder",
-                "subtitle": "BrownDustX updated these mods to the game's new Spine version. Copy them to your mods folder so sync keeps them.",
-                "gameFolder": "Game folder",
-                "modsFolder": "Mods folder",
-                "createBackup": "Back up original files",
+            "oldSpineMods": {
+                "title": "Convert Spine mods",
+                "subtitle": "This mod was made for Spine 4.1 and needs to be converted to work with the current game version. | These mods were made for Spine 4.1 and need to be converted to work with the current game version.",
+                "createBackup": "Back up the original files first",
                 "changeBackupFolder": "Change",
-                "copy": "Copy to Mods Folder",
-                "notifications": {
-                    "copied": {
-                        "title": "Converted mods copied",
-                        "message": "{count} converted mod was copied to your mods folder. | {count} converted mods were copied to your mods folder.",
-                        "messageWithBackup": "{count} converted mod was copied to your mods folder. Backup: {path} | {count} converted mods were copied to your mods folder. Backup: {path}"
-                    },
-                    "failed": {
-                        "title": "Failed to copy converted mods",
-                        "message": "{count} mod could not be copied, so sync was stopped: {mods} | {count} mods could not be copied, so sync was stopped: {mods}"
-                    }
-                }
+                "convert": "Convert",
+                "backingUp": "Backing up mods... {done} / {total} files",
+                "converting": "Converting mods... {done} / {total} files",
+                "converted": "{count} mod successfully converted. | {count} mods successfully converted.",
+                "noneConverted": "No mod was converted.",
+                "failed": "The following mods couldn't be converted and should be removed:",
+                "backupFailed": "The backup of your mods failed: {error}. No mod was converted.",
+                "backedUp": "Your mods were backed up to: {path}",
+                "syncNote": "Sync your mods to apply the converted files to the game, and restart the game if it is running.",
+                "nothing": "None of your mods needs to be converted."
             }
         }
     },
@@ -1137,6 +1137,11 @@
                             "copy": "Copy",
                             "symlink": "Symlink (Administrator)"
                         }
+                    },
+                    "convertSpine": {
+                        "label": "Convert Spine Mods",
+                        "description": "Finds mods made for Spine 4.1 and converts them to work with the current game version.",
+                        "action": "Convert to Spine 4.2…"
                     }
                 }
             }
@@ -1416,6 +1421,7 @@
         "missingAtlasFile": "This mod is missing the atlas file.",
         "unmanaged": "This mod is in the game folder but is not managed by BD2MM. It cannot be enabled or disabled here.",
         "unmanagedButInStaging": "This mod is already in the game folder but not installed by BD2MM, so sync won't change it even if enabled. Use \"Sync and Remove unmanaged mods\" to replace it.",
+        "spineVersion41": "This mod was made for an older version of Spine (4.1) and has to be converted to work with the game. Use Settings › Mod Management › Convert Spine Mods.",
         "noDescription": "No description provided."
     }
 }

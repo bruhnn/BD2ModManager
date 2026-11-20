@@ -115,7 +115,9 @@
             "continue": "続行",
             "browse": "参照",
             "save": "保存",
-            "delete": "削除"
+            "delete": "削除",
+            "selectAll": "すべて選択",
+            "selectNone": "選択を解除"
         },
         "modTypes": {
             "cutscene": "カットシーン",
@@ -407,6 +409,8 @@
                 "enableSelectedMods": "選択したMODを有効化",
                 "disableMod": "MODを無効化",
                 "disableSelectedMods": "選択したMODを無効化",
+                "convertMod": "ModをSpine 4.2に変換",
+                "convertSelectedMods": "選択したModをSpine 4.2に変換",
                 "changeModAuthor": "MODの作者を変更",
                 "changeSelectedModsAuthor": "選択したMODの作者を変更",
                 "renameMod": "MODの名前を変更",
@@ -655,25 +659,21 @@
                 "apply": "変更を適用 | {count}件の変更を適用 | {count}件の変更を適用",
                 "applyAndSync": "適用して同期"
             },
-            "convertedMods": {
-                "title": "ゲームフォルダー内で変換されたMOD",
-                "subtitle": "BrownDustXがこれらのMODをゲームの新しいSpineバージョンに更新しました。同期で保持されるよう、MODフォルダーにコピーしてください。",
-                "gameFolder": "ゲームフォルダー",
-                "modsFolder": "MODフォルダー",
-                "createBackup": "元のファイルをバックアップする",
+            "oldSpineMods": {
+                "title": "Spine Modの変換",
+                "subtitle": "Spine 4.1で作成されたModです。現在のゲームバージョンで動作させるには変換が必要です。 | Spine 4.1で作成されたModです。現在のゲームバージョンで動作させるには変換が必要です。",
+                "createBackup": "先に元のファイルをバックアップする",
                 "changeBackupFolder": "変更",
-                "copy": "MODフォルダーにコピー",
-                "notifications": {
-                    "copied": {
-                        "title": "変換されたMODをコピーしました",
-                        "message": "{count}個の変換されたMODをMODフォルダーにコピーしました。 | {count}個の変換されたMODをMODフォルダーにコピーしました。",
-                        "messageWithBackup": "{count}個の変換されたMODをMODフォルダーにコピーしました。バックアップ: {path} | {count}個の変換されたMODをMODフォルダーにコピーしました。バックアップ: {path}"
-                    },
-                    "failed": {
-                        "title": "変換されたMODのコピーに失敗しました",
-                        "message": "{count}個のMODをコピーできなかったため、同期を中止しました: {mods} | {count}個のMODをコピーできなかったため、同期を中止しました: {mods}"
-                    }
-                }
+                "convert": "変換",
+                "backingUp": "Modをバックアップ中です... {done} / {total} ファイル",
+                "converting": "Modを変換中です... {done} / {total} ファイル",
+                "converted": "{count}個のModが正常に変換されました。 | {count}個のModが正常に変換されました。",
+                "noneConverted": "Modは変換されていません。",
+                "failed": "以下のModは変換できませんでした。削除してください:",
+                "backupFailed": "Modのバックアップに失敗しました: {error}。Modは変換されていません。",
+                "backedUp": "バックアップ先: {path}",
+                "syncNote": "Modを同期して変換したファイルをゲームに反映してください。ゲームが起動中の場合は再起動してください。",
+                "nothing": "変換が必要なModはありません。"
             }
         }
     },
@@ -1137,6 +1137,11 @@
                             "copy": "コピー",
                             "symlink": "シンボリックリンク（管理者権限が必要）"
                         }
+                    },
+                    "convertSpine": {
+                        "label": "Spine Modの変換",
+                        "description": "Spine 4.1で作成されたModを探し、現在のゲームバージョンで動作するように変換します。",
+                        "action": "Spine 4.2に変換…"
                     }
                 }
             }
@@ -1438,6 +1443,7 @@
         "missingAtlasFile": "このMODにはアトラスファイルがありません。",
         "unmanaged": "このMODはゲームフォルダ内にありますが、BD2MMでは管理されていません。ここでは有効化や無効化はできません。",
         "noDescription": "説明はありません。",
-        "unmanagedButInStaging": "このMODはすでにゲームフォルダーにありますが、BD2MMでインストールされたものではないため、有効にしても同期では変更されません。置き換えるには「同期して管理対象外を削除」を使用してください。"
+        "unmanagedButInStaging": "このMODはすでにゲームフォルダーにありますが、BD2MMでインストールされたものではないため、有効にしても同期では変更されません。置き換えるには「同期して管理対象外を削除」を使用してください。",
+        "spineVersion41": "このModは旧バージョンのSpine (4.1) で作成されているため、ゲームで動作させるには変換が必要です。設定 › MOD管理 › Spine Modの変換 を使用してください。"
     }
 }

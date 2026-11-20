@@ -45,6 +45,8 @@ export function useModInstall() {
           message: t('modsTab.notifications.installMod.success.message', { modName: mod.name })
         })
 
+        modsStore.checkOldSpineMods({ onlyMods: [mod.name] })
+
         return mod
       } catch (error) {
         loggingStore.logError("Error installing mod from zip:", JSON.stringify(error))
@@ -93,6 +95,8 @@ export function useModInstall() {
           title: t('modsTab.notifications.installMod.success.title'),
           message: t('modsTab.notifications.installMod.success.message', { modName: mod.name })
         })
+
+        modsStore.checkOldSpineMods({ onlyMods: [mod.name] })
 
         return mod
       } catch (error) {

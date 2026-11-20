@@ -61,22 +61,28 @@ export interface DeleteModsResult {
     failed: Record<string, ModDeleteError>,
 }
 
-export interface ConvertedMod {
+export interface OldSpineMod {
     modName: string,
-    gameFolder: string,
-    gameVersion: string,
-    stagingVersion: string,
+    displayName: string,
+    files: string[],
 }
 
-export interface ConvertedModsInfo {
-    mods: ConvertedMod[],
+export interface OldSpineModsInfo {
+    mods: OldSpineMod[],
     defaultBackupDirectory: string,
 }
 
-export interface CopyConvertedModsResult {
-    copied: string[],
-    failed: { modName: string, error: string }[],
+export interface ConvertSpineProgress {
+    phase: 'backup' | 'convert',
+    done: number,
+    total: number,
+}
+
+export interface ConvertSpineResult {
+    converted: string[],
+    failed: { modName: string, file: string, error: string }[],
     backupPath: string | null,
+    backupError: string | null,
 }
 
 // export function isError
@@ -333,10 +339,6 @@ export const useModsStore = defineStore('mods', () => {
         isSyncing.value = true;
         try {
             await useSyncStateStore().ready
-            if (!(await resolveConvertedMods())) {
-                loggingStore.logDebug("Sync cancelled: converted mods were not copied to the mods folder.");
-                return
-            }
             let result = await invoke<SyncResult>("sync_mods", { removeUnmanagedMods })
             
             return result
@@ -357,28 +359,55 @@ export const useModsStore = defineStore('mods', () => {
         }
     }
 
-    // mods converted in the game folder (ex. by BrownDustX) would be overwritten by sync,
-    // so ask to copy them to the mods folder first. Resolves false if the sync should stop.
-    async function resolveConvertedMods(): Promise<boolean> {
-        const info = await getConvertedMods()
-        if (!info.mods.length) return true
+    async function checkOldSpineMods(options: { onlyMods?: string[], manual?: boolean } = {}) {
+        let info: OldSpineModsInfo
+        try {
+            info = await invoke<OldSpineModsInfo>("get_old_spine_mods")
+        } catch (error) {
+            loggingStore.logError('Failed to look for Spine 4.1 mods:', JSON.stringify(error))
+            if (options.manual) {
+                notificationStore.add({
+                    type: 'error',
+                    closable: true,
+                    title: t('modsTab.modals.oldSpineMods.title'),
+                    message: getErrorMessage(t, error),
+                })
+            }
+            return
+        }
+        const mods = options.onlyMods
+            ? info.mods.filter((mod) => options.onlyMods!.includes(mod.modName))
+            : info.mods
 
-        loggingStore.logInfo(`Found ${info.mods.length} mod(s) converted in the game folder.`)
-        return new Promise<boolean>((resolve) => {
-            globalModals.convertedMods.showModal({
-                mods: info.mods,
-                defaultBackupDirectory: info.defaultBackupDirectory,
-                onResolve: resolve,
-            })
-        })
+        if (!mods.length) {
+            if (options.manual) {
+                notificationStore.add({
+                    type: 'success',
+                    closable: true,
+                    title: t('modsTab.modals.oldSpineMods.title'),
+                    message: t('modsTab.modals.oldSpineMods.nothing'),
+                })
+            }
+            return
+        }
+
+        globalModals.oldSpineMods.showModal({ mods, defaultBackupDirectory: info.defaultBackupDirectory })
     }
 
-    function getConvertedMods(): Promise<ConvertedModsInfo> {
-        return invoke<ConvertedModsInfo>("get_converted_mods")
-    }
-
-    function copyConvertedMods(modNames: string[], backupDirectory: string | null): Promise<CopyConvertedModsResult> {
-        return invoke<CopyConvertedModsResult>("copy_converted_mods", { modNames, backupDirectory })
+    async function convertOldSpineMods(
+        modNames: string[],
+        backupDirectory: string | null,
+        onProgress?: (progress: ConvertSpineProgress) => void,
+    ): Promise<ConvertSpineResult> {
+        const channel = new Channel<ConvertSpineProgress>()
+        if (onProgress) channel.onmessage = onProgress
+        const result = await invoke<ConvertSpineResult>("convert_old_spine_mods", { modNames, backupDirectory, onProgress: channel })
+        if (result.converted.length) {
+            await discoverMods()
+            debouncedSync()
+            checkIsSyncNeeded()
+        }
+        return result
     }
 
     async function unsyncMods(removeUnmanagedMods: boolean = false): Promise<SyncResult | undefined> {
@@ -393,11 +422,6 @@ export const useModsStore = defineStore('mods', () => {
         isSyncing.value = true;
         try {
             await useSyncStateStore().ready
-            // unsync deletes the game copies, the conversion would be lost
-            if (!(await resolveConvertedMods())) {
-                loggingStore.logDebug("Unsync cancelled: converted mods were not copied to the mods folder.");
-                return
-            }
             let result = await invoke<SyncResult>("unsync_mods", { removeUnmanagedMods })
             
             return result
@@ -467,6 +491,7 @@ export const useModsStore = defineStore('mods', () => {
         checkIsSyncNeeded,
         deleteMods,
         renameMod,
-        copyConvertedMods
+        checkOldSpineMods,
+        convertOldSpineMods
     }
 })

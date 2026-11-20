@@ -74,7 +74,7 @@ let filters = reactive({
 })
 
 const totalModsCount = computed(() => modsStore.extendedMods.length)
-const enabledModsCount = computed(() => modsStore.extendedMods.filter((mod) => mod.enabled && !mod.errors.length).length)
+const enabledModsCount = computed(() => modsStore.extendedMods.filter((mod) => mod.enabled && mod.errors.every((e) => e === 'SpineVersion41')).length)
 
 const FILTER_CATEGORIES: FilterKey[][] = [
     ['enabled', 'disabled'],
@@ -537,6 +537,11 @@ useHeader({
         { render: () => h(AddModMenu) },
     ],
 })
+
+function convertMods(mods: BD2ModExtended[]) {
+    const modNames = mods.map((mod) => mod.name);
+    modsStore.checkOldSpineMods({ onlyMods: modNames, manual: true });
+}
 </script>
 <template>
     <div class="flex flex-col h-full gap-0 select-none p-4 py-0 pb-2">
@@ -613,6 +618,7 @@ useHeader({
                 @preview-mod="previewMod"
                 @rename-mod="handleRenameMod"
                 @show-mod-conflicts="handleShowModConflicts"
+                @convert-mods="convertMods"
             />
         </div>
 
