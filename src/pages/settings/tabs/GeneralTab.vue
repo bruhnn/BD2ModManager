@@ -617,6 +617,21 @@ async function onThemeDelete(themeName: string) {
                         <Select :model-value="settings.syncMethod" :options="availableSyncMethods" class="col-span-2"
                             @update:model-value="onSyncMethodChanged" />
                     </div>
+
+                    <div class="grid grid-cols-3 items-center gap-4">
+                        <div class="flex flex-col">
+                            <span class="text-sm font-medium">
+                                {{ $t('settingsTab.general.sections.modManagement.convertSpine.label') }}
+                            </span>
+                            <p class="text-xs text-text-secondary">
+                                {{ $t('settingsTab.general.sections.modManagement.convertSpine.description') }}
+                            </p>
+                        </div>
+                        <div class="col-span-2">
+                            <Button :label="$t('settingsTab.general.sections.modManagement.convertSpine.action')"
+                                @click="modsStore.checkOldSpineMods({ manual: true })" />
+                        </div>
+                    </div>
                 </div>
             </Section>
         </div>

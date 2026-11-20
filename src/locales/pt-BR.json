@@ -115,7 +115,9 @@
             "continue": "Continuar",
             "browse": "Procurar",
             "save": "Salvar",
-            "delete": "Excluir"
+            "delete": "Excluir",
+            "selectAll": "Selecionar todos",
+            "selectNone": "Desmarcar todos"
         },
         "modTypes": {
             "cutscene": "Cutscene",
@@ -407,6 +409,8 @@
                 "enableSelectedMods": "Ativar Mods Selecionados",
                 "disableMod": "Desativar Mod",
                 "disableSelectedMods": "Desativar Mods Selecionados",
+                "convertMod": "Converter Mod para Spine 4.2",
+                "convertSelectedMods": "Converter Mods Selecionados para Spine 4.2",
                 "changeModAuthor": "Alterar Autor do Mod",
                 "changeSelectedModsAuthor": "Alterar Autor dos Mods Selecionados",
                 "renameMod": "Renomear Mod",
@@ -655,25 +659,21 @@
                 "apply": "Aplicar Alterações | Aplicar {count} Alteração | Aplicar {count} Alterações",
                 "applyAndSync": "Aplicar e Sincronizar"
             },
-            "convertedMods": {
-                "title": "Mods convertidos na pasta do jogo",
-                "subtitle": "O BrownDustX atualizou estes mods para a nova versão do Spine do jogo. Copie-os para a sua pasta de mods para que a sincronização os mantenha.",
-                "gameFolder": "Pasta do jogo",
-                "modsFolder": "Pasta de mods",
-                "createBackup": "Fazer backup dos arquivos originais",
+            "oldSpineMods": {
+                "title": "Converter mods do Spine",
+                "subtitle": "Este mod foi feito para o Spine 4.1 e precisa ser convertido para funcionar com a versão atual do jogo. | Estes mods foram feitos para o Spine 4.1 e precisam ser convertidos para funcionar com a versão atual do jogo.",
+                "createBackup": "Fazer backup dos arquivos originais antes",
                 "changeBackupFolder": "Alterar",
-                "copy": "Copiar para a Pasta de Mods",
-                "notifications": {
-                    "copied": {
-                        "title": "Mods convertidos copiados",
-                        "message": "{count} mod convertido foi copiado para a sua pasta de mods. | {count} mods convertidos foram copiados para a sua pasta de mods.",
-                        "messageWithBackup": "{count} mod convertido foi copiado para a sua pasta de mods. Backup: {path} | {count} mods convertidos foram copiados para a sua pasta de mods. Backup: {path}"
-                    },
-                    "failed": {
-                        "title": "Falha ao copiar mods convertidos",
-                        "message": "{count} mod não pôde ser copiado, então a sincronização foi interrompida: {mods} | {count} mods não puderam ser copiados, então a sincronização foi interrompida: {mods}"
-                    }
-                }
+                "convert": "Converter",
+                "backingUp": "Fazendo backup dos mods... {done} / {total} arquivos",
+                "converting": "Convertendo mods... {done} / {total} arquivos",
+                "converted": "{count} mod convertido com sucesso. | {count} mods convertidos com sucesso.",
+                "noneConverted": "Nenhum mod foi convertido.",
+                "failed": "Os mods a seguir não puderam ser convertidos e devem ser removidos:",
+                "backupFailed": "O backup dos seus mods falhou: {error}. Nenhum mod foi convertido.",
+                "backedUp": "Seus mods foram salvos em: {path}",
+                "syncNote": "Sincronize seus mods para aplicar os arquivos convertidos no jogo e reinicie o jogo se ele estiver aberto.",
+                "nothing": "Nenhum dos seus mods precisa ser convertido."
             }
         }
     },
@@ -1137,6 +1137,11 @@
                             "copy": "Copiar",
                             "symlink": "Link Simbólico (Administrador)"
                         }
+                    },
+                    "convertSpine": {
+                        "label": "Converter Mods do Spine",
+                        "description": "Encontra mods feitos para o Spine 4.1 e os converte para funcionar com a versão atual do jogo.",
+                        "action": "Converter para Spine 4.2…"
                     }
                 }
             }
@@ -1438,6 +1443,7 @@
         "missingAtlasFile": "Este mod está sem o arquivo de atlas.",
         "unmanaged": "Este mod está na pasta do jogo, mas não é gerenciado pelo BD2MM. Não é possível ativá-lo ou desativá-lo por aqui.",
         "noDescription": "Nenhuma descrição fornecida.",
-        "unmanagedButInStaging": "Este mod já está na pasta do jogo, mas não foi instalado pelo BD2MM, então a sincronização não o alterará mesmo se estiver ativado. Use \"Sincronizar e Remover Não Gerenciados\" para substituí-lo."
+        "unmanagedButInStaging": "Este mod já está na pasta do jogo, mas não foi instalado pelo BD2MM, então a sincronização não o alterará mesmo se estiver ativado. Use \"Sincronizar e Remover Não Gerenciados\" para substituí-lo.",
+        "spineVersion41": "Este mod foi feito para uma versão antiga do Spine (4.1) e precisa ser convertido para funcionar com o jogo. Use Configurações › Gerenciamento de Mods › Converter Mods do Spine."
     }
 }

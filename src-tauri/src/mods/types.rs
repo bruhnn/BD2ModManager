@@ -10,6 +10,7 @@ pub enum BD2ModError {
     ArchiveNotExtracted,
     Unmanaged, // not in staging, but in game folder
     UnmanagedButInStaging, // in staging, not in game folder
+    SpineVersion41, // it has to be converted to 4.2
 }
 
 #[derive(Debug, Clone, PartialEq, Hash, Eq, Serialize, Deserialize)]

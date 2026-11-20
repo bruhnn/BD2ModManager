@@ -28,7 +28,7 @@ import WhatsNewModal from "./components/modals/WhatsNewModal.vue"
 import { useThemesStore } from "./stores/themes.ts"
 import { useLoggingStore } from "./stores/logging.ts"
 import ConflictModal from "./components/modals/ConflictModal.vue"
-import ConvertedModsModal from "./components/modals/ConvertedModsModal.vue"
+import OldSpineModsModal from "./components/modals/OldSpineModsModal.vue"
 
 const { t, locale } = useI18n()
 
@@ -146,7 +146,7 @@ onUnmounted(() => {
     <ModsDeleteFailedModal />
 
     <ConflictModal />
-    <ConvertedModsModal />
+    <OldSpineModsModal />
   </main>
 </template>
 <style></style>

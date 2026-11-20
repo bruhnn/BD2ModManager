@@ -87,6 +87,8 @@ export function useAppInitializer() {
       globalModals.updateAvailable.showModal(updateAvailable)
     }
 
+    modsStore.checkOldSpineMods()
+
     if (gameStore.browndustxVersion?.status === "InstalledButOutdated") {
       notificationStore.add({
         type: "warn",

@@ -220,8 +220,8 @@ pub fn run() {
             mods::commands::unsync_mods,
             mods::commands::is_sync_needed,
             mods::commands::has_synced_mods,
-            mods::commands::get_converted_mods,
-            mods::commands::copy_converted_mods,
+            mods::commands::get_old_spine_mods,
+            mods::commands::convert_old_spine_mods,
             mods::commands::preview_mods,
             // profiles
             profiles::commands::get_profiles,

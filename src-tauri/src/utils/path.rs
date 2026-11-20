@@ -103,16 +103,12 @@ pub const MOD_PREVIEW_FILE: &str = "BD2ModPreview.exe";
 #[cfg(not(windows))]
 pub const MOD_PREVIEW_FILE: &str = "BD2ModPreview.AppImage";
 
+pub fn get_tools_dir(app: &AppHandle) -> Option<PathBuf> {
+    app.path().resolve("tools", BaseDirectory::AppData).ok()
+}
+
 pub fn get_mod_preview_path(app: &AppHandle) -> Option<PathBuf> {
-    if let Ok(path) = app
-        .app_handle()
-        .path()
-        .resolve("tools", BaseDirectory::AppData)
-    {
-        Some(path.join(MOD_PREVIEW_FILE))
-    } else {
-        None
-    }
+    get_tools_dir(app).map(|path| path.join(MOD_PREVIEW_FILE))
 }
 
 pub fn get_characters_path(app_handle: &AppHandle) -> Option<PathBuf> {

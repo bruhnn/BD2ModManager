@@ -62,7 +62,8 @@ const emit = defineEmits([
     "delete-mods",
     "preview-mod",
     "open-mod-folder",
-    "show-mod-conflicts"
+    "show-mod-conflicts",
+    "convert-mods"
 ])
 
 const columnHelper = createColumnHelper<BD2ModExtended>()
@@ -84,8 +85,8 @@ const columns = [
     columnHelper.accessor('name', {
         cell: info => {
             const mod = info.row.original
-            // UnmanagedButInStaging is just a warning "error"
-            const modHasErrors = mod.errors.some(e => e !== 'UnmanagedButInStaging')
+            // UnmanagedButInStaging and SpineVersion41 are just warning "errors"
+            const modHasErrors = mod.errors.some(e => e !== 'UnmanagedButInStaging' && e !== 'SpineVersion41')
 
             return h('div', { class: 'flex items-center gap-2 overflow-hidden' }, [
                 modHasErrors ? h('span', { class: 'select-none rounded-lg text-sm font-mono' },
@@ -393,6 +394,8 @@ const contextMenuItems = computed<ContextMenuItem[]>(() => {
     const hasSelection = selectedMods.value.length > 0
     const isSingleSelection = selectedMods.value.length === 1
 
+    const canConvert = !props.isSyncing && hasSelection && selectedMods.value.some(mod => mod.errors.includes('SpineVersion41'))
+
     return [
         {
             label: t('modsTab.modlist.contextMenu.refreshMods'),
@@ -422,12 +425,12 @@ const contextMenuItems = computed<ContextMenuItem[]>(() => {
         {
             label: isSingleSelection ? t('modsTab.modlist.contextMenu.enableMod') : t('modsTab.modlist.contextMenu.enableSelectedMods'),
             key: 'enable',
-            show: !props.isSyncing && hasSelection && selectedMods.value.some(mod => !mod.enabled && mod.errors.every(e => e === 'UnmanagedButInStaging'))
+            show: !props.isSyncing && hasSelection && selectedMods.value.some(mod => !mod.enabled && mod.errors.every(e => e === 'UnmanagedButInStaging' || e === 'SpineVersion41'))
         } as ContextMenuItem,
         {
             label: isSingleSelection ? t('modsTab.modlist.contextMenu.disableMod') : t('modsTab.modlist.contextMenu.disableSelectedMods'),
             key: 'disable',
-            show: !props.isSyncing && hasSelection && selectedMods.value.some(mod => mod.enabled && mod.errors.every(e => e === 'UnmanagedButInStaging'))
+            show: !props.isSyncing && hasSelection && selectedMods.value.some(mod => mod.enabled && mod.errors.every(e => e === 'UnmanagedButInStaging' || e === 'SpineVersion41'))
         } as ContextMenuItem,
         {
             label: isSingleSelection ? t('modsTab.modlist.contextMenu.changeModAuthor') : t('modsTab.modlist.contextMenu.changeSelectedModsAuthor'),
@@ -471,6 +474,16 @@ const contextMenuItems = computed<ContextMenuItem[]>(() => {
             shortcut: 'P',
             show: isSingleSelection
         } as ContextMenuItem,
+        {
+            type: 'divider' as const,
+            key: 'd5',
+            show: canConvert
+        } as ContextMenuItem,
+        {
+            label: isSingleSelection ? t('modsTab.modlist.contextMenu.convertMod') : t('modsTab.modlist.contextMenu.convertSelectedMods'),
+            key: 'convert',
+            show: canConvert
+        } as ContextMenuItem,
     ].filter(item => item.show !== false)
 })
 
@@ -508,19 +521,20 @@ function handleSelect(key: string) {
             table.resetRowSelection()
             rows.value
                 .filter(row => row.original.enabled)
-                .filter(row => row.original.errors.length === 0)
+                .filter(row => row.original.errors.every(e => e === 'SpineVersion41'))
                 .forEach(row => row.toggleSelected(true))
         },
         'select-disabled': () => {
             table.resetRowSelection()
             rows.value
                 .filter(row => !row.original.enabled)
-                .filter(row => row.original.errors.length === 0)
+                .filter(row => row.original.errors.every(e => e === 'SpineVersion41'))
                 .forEach(row => row.toggleSelected(true))
         },
         'deselect-all': () => table.resetRowSelection(),
         'enable': () => emit('enable-mods', selectedMods.value),
         'disable': () => emit('disable-mods', selectedMods.value),
+        'convert': () => emit('convert-mods', selectedMods.value),
         'change-author': () => {
             emit('change-mod-author', selectedMods.value)
         },
@@ -563,7 +577,7 @@ function handleKeyDown(event: KeyboardEvent) {
     if (event.repeat || props.isSyncing || !selectedMods.value.length) return
 
     if (key === ' ') {
-        const mods = selectedMods.value.filter(mod => mod.errors.every(error => error === 'UnmanagedButInStaging'))
+        const mods = selectedMods.value.filter(mod => mod.errors.every(error => error === 'UnmanagedButInStaging' || error === 'SpineVersion41'))
         if (!mods.length) return
         const disabled = mods.filter(mod => !mod.enabled)
         if (disabled.length) emit('enable-mods', disabled)

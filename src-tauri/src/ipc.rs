@@ -159,7 +159,7 @@ mod mod_preview_ipc {
                     .try_lock()
                     .map_err(|_| "ModManager is busy")?;
                 let entry = manager.get_mod_by_name(name).ok_or("Mod was not found")?;
-                if !entry.errors.is_empty() {
+                if entry.errors.iter().any(|error| *error != crate::mods::types::BD2ModError::SpineVersion41) {
                     return Err("This mod has errors and cannot be changed".into());
                 }
                 let result = if enabled {

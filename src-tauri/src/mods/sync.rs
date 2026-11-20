@@ -647,7 +647,7 @@ pub fn get_sync_actions(
                 is_managed,
                 exists_in_game,
                 mod_entry.errors.iter().any(|error| {
-                    !matches!(error, BD2ModError::UnmanagedButInStaging)
+                    !matches!(error, BD2ModError::UnmanagedButInStaging | BD2ModError::SpineVersion41)
                 }),
                 method_changed,
             ) {
@@ -1492,7 +1492,7 @@ pub fn is_sync_needed(
                 && !mod_entry
                     .errors
                     .iter()
-                    .any(|error| !matches!(error, BD2ModError::UnmanagedButInStaging))
+                    .any(|error| !matches!(error, BD2ModError::UnmanagedButInStaging | BD2ModError::SpineVersion41))
         })
     };
 
