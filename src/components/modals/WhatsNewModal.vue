@@ -10,14 +10,15 @@ const { isOpen, closeModal } = globalModals.whatsNew
 
 const versions = [
     {
-        version: '4.4.0-beta.2',
+        version: '4.4.0',
         highlights: [
-            { title: 'whatsNew.release440.convertedModsTitle', description: 'whatsNew.release440.convertedModsDescription' },
+            { title: 'whatsNew.release440.spineTitle', description: 'whatsNew.release440.spineDescription' },
             { title: 'whatsNew.release440.linuxTitle', description: 'whatsNew.release440.linuxDescription' },
             { title: 'whatsNew.release440.themesTitle', description: 'whatsNew.release440.themesDescription' },
             { title: 'whatsNew.release440.conflictsTitle', description: 'whatsNew.release440.conflictsDescription' }
         ],
         changelog: [
+            'whatsNew.release440.convertedModsReplaced',
             'whatsNew.release440.gameFolderStaging',
             'whatsNew.release440.linuxLaunchers',
             'whatsNew.release440.directoryPaths',
