@@ -94,8 +94,9 @@ pub fn read_spine_version(path: &Path) -> Option<SpineVersion> {
         .read_to_end(&mut header)
         .ok()?;
 
-    let text = header.strip_prefix(b"\xEF\xBB\xBF").unwrap_or(&header);
-    if text.iter().find(|b| !b.is_ascii_whitespace()) == Some(&b'{') {
+    // by extension: a binary skeleton can start with '{' (its hash is random)
+    if path.extension().is_some_and(|ext| ext.eq_ignore_ascii_case("json")) {
+        let text = header.strip_prefix(b"\xEF\xBB\xBF").unwrap_or(&header);
         return read_json_version(&String::from_utf8_lossy(text));
     }
     read_binary_version(&header)
@@ -473,6 +474,16 @@ mod tests {
         assert_eq!(read_binary_version(&binary_header("4.2.43")), Some(SpineVersion { major: 4, minor: 2 }));
         assert_eq!(read_binary_version(&[0; 4]), None);
         assert_eq!(read_binary_version(&binary_header("abc")), None);
+    }
+
+    #[test]
+    fn reads_binary_version_starting_with_a_brace() {
+        let dir = tempfile::TempDir::new().unwrap();
+        let path = dir.path().join("char.skel");
+        let mut data = binary_header("4.1.11");
+        data[0] = b'{';
+        fs::write(&path, data).unwrap();
+        assert_eq!(read_spine_version(&path), Some(SpineVersion { major: 4, minor: 1 }));
     }
 
     #[test]
