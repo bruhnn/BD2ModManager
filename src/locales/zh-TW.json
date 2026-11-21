@@ -368,7 +368,7 @@
             "navigation": "前往模組載入器"
         },
         "header": {
-            "searchPlaceholder": "搜尋模組、角色、作者...",
+            "searchPlaceholder": "搜尋模組、角色、作者... 例如: character:anastasia, author:hcoel, mod:skillcut",
             "actions": {
                 "filters": "篩選"
             },

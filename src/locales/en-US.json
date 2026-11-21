@@ -368,7 +368,7 @@
             "navigation": "Go to Mod Loader"
         },
         "header": {
-            "searchPlaceholder": "Search mods, characters, authors...",
+            "searchPlaceholder": "Search mods, characters, authors... e.g. character:anastasia, author:hcoel, mod:skillcut",
             "actions": {
                 "filters": "Filters"
             },

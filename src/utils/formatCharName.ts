@@ -24,3 +24,15 @@ export function getCharName(costume: Character, lang: Language): { character: st
         costume: costume.costume_name[lang] ?? costume.costume_name.en
     }
 }
+
+export function getCharNameInAllLangs(costume: Character): { character: string; costume: string }[] {
+    const langs = Array.from(new Set([
+        ...Object.keys(costume.character_name),
+        ...Object.keys(costume.costume_name)
+    ])) as Language[]
+
+    return langs.map(lang => ({
+        character: costume.character_name[lang] ?? costume.character_name.en,
+        costume: costume.costume_name[lang] ?? costume.costume_name.en
+    }))
+}

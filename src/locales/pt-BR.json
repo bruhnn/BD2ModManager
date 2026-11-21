@@ -368,7 +368,7 @@
             "navigation": "Ir para o carregador de mods"
         },
         "header": {
-            "searchPlaceholder": "Pesquisar mods, personagens, autores...",
+            "searchPlaceholder": "Pesquisar mods, personagens, autores... ex.: character:anastasia, author:hcoel, mod:skillcut",
             "actions": {
                 "filters": "Filtros"
             },

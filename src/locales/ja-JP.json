@@ -368,7 +368,7 @@
             "navigation": "Modローダーへ移動"
         },
         "header": {
-            "searchPlaceholder": "MOD、キャラクター、作者を検索...",
+            "searchPlaceholder": "MOD、キャラクター、作者を検索... 例: character:anastasia, author:hcoel, mod:skillcut",
             "actions": {
                 "filters": "フィルター"
             },

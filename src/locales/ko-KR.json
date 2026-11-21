@@ -368,7 +368,7 @@
             "navigation": "모드 로더로 이동"
         },
         "header": {
-            "searchPlaceholder": "모드, 캐릭터, 제작자 검색...",
+            "searchPlaceholder": "모드, 캐릭터, 제작자 검색... 예: character:anastasia, author:hcoel, mod:skillcut",
             "actions": {
                 "filters": "필터"
             },

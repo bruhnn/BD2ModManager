@@ -34,6 +34,7 @@ import { useModDelete } from '../../composables/useModDelete.ts'
 import { useModInstall } from '../../composables/useModInstall.ts'
 import { useModSync } from '../../composables/useModSync.ts'
 import { globalModals } from '../../composables/useGlobalModals.ts'
+import { getCharNameInAllLangs } from '../../utils/formatCharName.ts'
 
 let unlistenFns: Array<() => void> = []
 
@@ -103,34 +104,84 @@ function modMatchesFilter(mod: BD2ModExtended, key: FilterKey): boolean {
 const filterCounts = computed(() => Object.fromEntries(FILTER_CATEGORIES.flat().map((key) => [key, modsStore.extendedMods.filter((mod) => modMatchesFilter(mod, key)).length])) as Record<FilterKey, number>)
 
 const filteredMods = computed(() => {
+    const normalize = (text: string) => text.normalize('NFKD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim()
+
+    const conflictMatch = debouncedSearchQuery.value.match(/conflictsWith:"([^"]+)"/i)
+    const conflictFilter = conflictMatch ? conflictMatch[1].toLowerCase() : null
+
+    const cleanedQuery = debouncedSearchQuery.value.replace(/conflictsWith:"[^"]*"/i, '').trim()
+
+    // commas split the search into groups OR, everything inside a group must match AND
+    type SearchGroup = {
+        prefixes: { field: 'name' | 'author' | 'char'; words: string[] }[]
+        exactName: string | null
+        words: string[]
+    }
+    const prefixRegex = /\b(name|mod_name|mod|author|character|char):(?:"([^"]*)"|(\S+))/gi
+    const groups: SearchGroup[] = []
+
+    // split on commas that are not inside quotes
+    for (const segment of cleanedQuery.match(/(?:"[^"]*"|[^,])+/g) ?? []) {
+        const group: SearchGroup = { prefixes: [], exactName: null, words: [] }
+
+        for (const match of segment.matchAll(prefixRegex)) {
+            const prefix = match[1].toLowerCase()
+            const words = normalize(match[2] ?? match[3] ?? '').split(/\s+/).filter((word) => word.length > 0)
+            if (words.length === 0) continue
+
+            if (prefix === 'author') {
+                group.prefixes.push({ field: 'author', words })
+            } else if (prefix === 'char' || prefix === 'character') {
+                group.prefixes.push({ field: 'char', words })
+            } else {
+                group.prefixes.push({ field: 'name', words })
+            }
+        }
+
+        const text = segment.replace(prefixRegex, '').trim()
+        if (text.length > 1 && text.startsWith('"') && text.endsWith('"')) {
+            group.exactName = text.slice(1, -1).toLowerCase()
+        } else {
+            group.words = normalize(text).split(/\s+/).filter((word) => word.length > 0)
+        }
+
+        if (group.prefixes.length > 0 || group.exactName !== null || group.words.length > 0) {
+            groups.push(group)
+        }
+    }
+
     return modsStore.extendedMods.filter((mod) => {
-        const conflictMatch = debouncedSearchQuery.value.match(/conflictsWith:"([^"]+)"/i)
-        const conflictFilter = conflictMatch ? conflictMatch[1].toLowerCase() : null
+        const nameField = normalize(mod.name)
+        const authorField = normalize(mod.author ?? '')
+        // character and costume name in every language
+        const charFields: string[] = []
+        if (mod.character) {
+            for (const names of getCharNameInAllLangs(mod.character)) {
+                charFields.push(normalize(`${names.character} - ${names.costume}`))
+            }
+        }
 
-        const cleanedQuery = debouncedSearchQuery.value.replace(/conflictsWith:"[^"]*"/i, '').trim()
+        const hasAllWords = (field: string, words: string[]) => words.every((word) => field.includes(word))
 
-        if (cleanedQuery) {
-            const queries = [...cleanedQuery.toLowerCase().matchAll(/"([^"]+)"|([^,]+)/g)]
-                .map((match) => {
-                    const raw = match[0].trim()
-                    const isExact = raw.startsWith('"') && raw.endsWith('"')
-                    return {
-                        value: isExact ? raw.slice(1, -1) : raw,
-                        exact: isExact,
-                    }
-                })
-                .filter((q) => q.value.length > 0)
+        if (groups.length > 0) {
+            const allFields = [nameField, authorField, ...charFields]
 
-            const matchesAnyQuery = queries.some(({ value, exact }) => {
-                if (exact) {
-                    return mod.name.toLowerCase() === value
+            const matchesAnyGroup = groups.some((group) => {
+                for (const { field, words } of group.prefixes) {
+                    if (field === 'name' && !hasAllWords(nameField, words)) return false
+                    if (field === 'author' && !hasAllWords(authorField, words)) return false
+                    if (field === 'char' && !charFields.some((charField) => hasAllWords(charField, words))) return false
                 }
-                return (
-                    mod.name.toLowerCase().includes(value) || (mod.author && mod.author.toLowerCase().includes(value)) || (mod.character && `${mod.character.character.toLowerCase()} - ${mod.character.costume.toLowerCase()}`.includes(value))
-                )
+
+                if (group.exactName !== null && mod.name.toLowerCase() !== group.exactName) return false
+
+                // free text: every word must appear in the same field, in any order
+                if (group.words.length > 0 && !allFields.some((field) => hasAllWords(field, group.words))) return false
+
+                return true
             })
 
-            if (!matchesAnyQuery) return false
+            if (!matchesAnyGroup) return false
         }
 
         if (conflictFilter) {
@@ -145,10 +196,12 @@ const filteredMods = computed(() => {
         }
 
         if (filters.exclude.some((key) => modMatchesFilter(mod, key))) return false
+
         const failsInclude = FILTER_CATEGORIES.some((keys) => {
             const included = keys.filter((key) => filters.include.includes(key))
             return included.length > 0 && !included.some((key) => modMatchesFilter(mod, key))
         })
+
         if (failsInclude) return false
 
         return true
