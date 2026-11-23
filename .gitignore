@@ -34,3 +34,4 @@ src-tauri/2
 /target
 /.vscode
 /src-tauri/resources
+testing/
