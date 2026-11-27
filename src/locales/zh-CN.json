@@ -1142,7 +1142,7 @@
                     "convertSpine": {
                         "label": "转换 Spine Mod",
                         "description": "查找用 Spine 4.1 制作的 Mod，并将其转换为可在当前游戏版本中使用。",
-                        "action": "转换为 Spine 4.2…"
+                        "action": "转换为 Spine 4.2"
                     }
                 }
             }

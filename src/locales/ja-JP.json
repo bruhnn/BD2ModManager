@@ -1142,7 +1142,7 @@
                     "convertSpine": {
                         "label": "Spine Modの変換",
                         "description": "Spine 4.1で作成されたModを探し、現在のゲームバージョンで動作するように変換します。",
-                        "action": "Spine 4.2に変換…"
+                        "action": "Spine 4.2に変換"
                     }
                 }
             }

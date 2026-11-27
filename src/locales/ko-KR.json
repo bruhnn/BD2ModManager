@@ -1142,7 +1142,7 @@
                     "convertSpine": {
                         "label": "Spine 모드 변환",
                         "description": "Spine 4.1로 제작된 모드를 찾아 현재 게임 버전에서 작동하도록 변환합니다.",
-                        "action": "Spine 4.2로 변환…"
+                        "action": "Spine 4.2로 변환"
                     }
                 }
             }

@@ -1142,7 +1142,7 @@
                     "convertSpine": {
                         "label": "Converter Mods do Spine",
                         "description": "Encontra mods feitos para o Spine 4.1 e os converte para funcionar com a versão atual do jogo.",
-                        "action": "Converter para Spine 4.2…"
+                        "action": "Converter para Spine 4.2"
                     }
                 }
             }
